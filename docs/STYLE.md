@@ -33,7 +33,7 @@ Keep the mathematical meaning when you simplify a sentence.
 
 ## Automated checks
 
-Run `python3 scripts/check_text.py` before a documentation export.
+Run `uv run --locked python scripts/check_text.py` before a documentation export.
 The script reads `README.md`, `GLOSSARY.md`, `docs/*.md`, library documentation
 comments, and the Verso manual. It also reads prose in `docs/assets/index.html`.
 It ignores other Lean source and fenced examples.
@@ -69,6 +69,18 @@ This checker does not certify full ASD-STE100 compliance.
 Human review must assess grammar, active voice, dictionary meanings, technical
 terms, and preservation of meaning.
 
+Use the locked environment for every project Python command.
+Use `uv run --locked prek -a --quiet` for the default hook stage.
+Compiler and compiled CLI checks require the explicit manual stage.
+The saved-site check uses the pre-push stage and an explicit CI step.
+CI must not run the manual stage or any Lean tool.
+
+For standards text, distinguish model check IDs from source clause IDs.
+State each assumption next to its result.
+Keep missing evidence and unsupported scope visible.
+An AP setting must not imply a claim about negotiated traffic or product approval.
+An observed identity result must not imply a proof of the identity protocol.
+
 ## Software terms
 
 The documentation uses CLI for command-line interface, API for application
@@ -84,4 +96,5 @@ Use these technical verbs with the specified meanings:
 | Parse | Convert input text into a structured representation. |
 | Prove | Establish a formal proposition with a proof that Lean accepts. |
 | Render | Produce text or HTML from a structured representation. |
+| Redact | Replace a secret value with a presence statement or a hidden-value marker. |
 | Verify | Establish that data, a result, or a proof meets its formal conditions. |

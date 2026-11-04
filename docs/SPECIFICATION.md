@@ -30,7 +30,7 @@ identify research problems that this implementation does not resolve.
 
 ## Network model
 
-The CLI model contains a finite set of nodes and directed links. Each node has
+The original `check` command uses a finite set of nodes and directed links. Each node has
 an ID, a zone, and a role. A named group can contain several nodes. Each link
 permits steps for a service.
 
@@ -72,9 +72,29 @@ Routing selects the longest matching destination prefix. Equal prefix lengths
 preserve the first route. A route supplies a next hop or a drop action.
 Routing and access control lists define packet-specific forwarding networks.
 
-These models are stateless. They keep the same header throughout a path.
-They exclude packet rewriting and dynamic routing protocols. They form a Lean
-library interface. The JSON importer and requirement CLI still use named services.
+These forwarding models are stateless.
+They keep the same header throughout a path.
+They exclude packet rewriting and dynamic routing protocols.
+The `dataplane` command imports these models through JSON schema 1.
+
+Each forwarding step needs four controls:
+
+1. An enabled physical link joins declared nodes.
+2. The longest matching route selects that link's target.
+3. The link's first matching ACL rule permits the packet.
+4. The request policy permits any step through an enforcement gateway.
+
+An empty ACL denies the packet.
+A missing route or a selected drop route permits no next hop.
+A route cannot create physical adjacency.
+Each query fixes one header and one named request throughout its path.
+Every selected endpoint pair must satisfy the query.
+
+The importer rejects invalid references, duplicate identities, unsupported fields, and invalid numeric values.
+An empty selection cannot satisfy a query.
+`Config.finiteNetwork_eq_model` connects executable edges to the composed library graph.
+`DataPlane.Check.Report.compliant_iff` connects the final status to every original query.
+The [data-plane guide](DATAPLANE.md) defines the complete schema.
 
 ## Request model
 
@@ -97,9 +117,87 @@ A gateway still reaches itself through a zero-step path after denial.
 The outside-endpoint condition prevents that case from invalidating the isolation
 claim. Stronger request policies cannot introduce request paths.
 
-The request model is a Lean library interface. The JSON CLI does not import
-identity systems or request policies. These proofs do not establish cryptographic
-authentication, protocol correctness, or live enforcement behavior.
+The data-plane importer reads declared principals, identity results, and permission facts.
+It does not query a live identity service.
+These proofs do not establish cryptographic authentication or live enforcement behavior.
+
+## Standards catalogue
+
+Each source record contains the document, version, clause ID, and URL.
+Each requirement also records its meaning, applicability, and assumptions.
+Each finding preserves the requirement and its evidence.
+
+The catalogue uses five finding statuses:
+
+| Status | Meaning |
+| --- | --- |
+| Satisfied | The selected model condition holds under its assumptions. |
+| Violated | The selected model condition fails. |
+| Unsupported | The checker does not model the required property. |
+| Missing evidence | The checker lacks a required input or observation. |
+| Not applicable | The requirement does not concern the stated scope. |
+
+Only satisfied and not-applicable findings can pass.
+An empty report cannot pass.
+Evidence completeness means that no finding is unsupported or missing evidence.
+It does not mean that every requirement is satisfied.
+
+## Enterprise Wi-Fi pilot
+
+The strict hostapd importer covers one AP and one BSS from hostapd 2.12.
+It preserves source lines and rejects unsupported configuration syntax.
+Unknown fields, repeated fields, includes, multiple BSS declarations, and invalid numbers cause errors.
+Reports hide the RADIUS shared-secret value.
+The parser preserves SSID and shared-secret bytes.
+
+The selected AP profile checks 12 explicit obligations.
+Each obligation identifies a hostapd field or Campus WLAN 3.2.0 clause.
+An AP setting establishes only its declared configuration condition.
+It does not establish client behavior, negotiated algorithms, product approval, or operational assurance.
+
+The deployment profile adds five fixed network requirements:
+
+1. Permit selected guest HTTPS traffic to services.
+2. Isolate guest traffic from the management network.
+3. Mediate service paths through the boundary gateway.
+4. Mediate service paths through the imported AP.
+5. Isolate service traffic for the unauthenticated request.
+
+The input cannot remove or reorder these queries.
+The AP interface and bridge must match the deployment binding.
+Exactly one modeled access point must have the bound identity.
+That AP must belong to the enforcement group.
+
+The report connects source clauses, imported settings, model queries, and checked path evidence.
+Its 17 findings cover the selected AP and network obligations.
+The separate coverage report identifies unsupported requirements and missing evidence.
+The [Wi-Fi guide](WIFI.md) records the source versions, configuration fragment, and deployment assumptions.
+
+## Session and 5G profile
+
+The shared session model records identity results, a credential, a clock, and guarded admission.
+Model transitions preserve its admission invariant.
+Clock transitions cannot decrease time.
+Credential changes and time changes clear the previous admission record.
+Generic local revocation clears the current credential.
+It does not maintain a persistent token blacklist.
+
+The 5G profile checks a direct NF-instance service-request trace.
+Its source is TS 33.501 version 19.5.0, clause 13.4.1.1.2.
+Every observed admitted request must satisfy the selected guards.
+The guards check identity, token presence, issuer, integrity, subject, audience, scope, and expiration.
+Correct denied requests do not violate admission safety.
+Valid token reuse remains permitted.
+
+The trace supplies identity and integrity observations.
+The model does not verify TLS certificates or token signatures.
+It also assumes that the trace includes every actual service admission.
+The selected procedure has no token-revocation step.
+The profile rejects that event instead of inventing a standard requirement.
+
+`FiveG.check_compliant_safe` establishes the guards for every observed admission in a passing report.
+A separate coverage report identifies missing identity evidence, missing cryptographic evidence, and unsupported optional claims.
+The [5G guide](FIVEG.md) defines the trace schema and exact procedure scope.
 
 ## Requirement language
 
@@ -257,18 +355,24 @@ Netlib does not translate arbitrary PDFs or recursively resolve external
 requirements. It does not infer mission intent, device roles, or natural-language
 meaning. Reviewers must supply and assess those inputs.
 
-The implementation does not parse vendor configurations, inspect live networks,
-or deploy network changes. It does not certify CSfC, NIST, or another external
-standard. Reference architectures show formal patterns within the stated model.
+The implementation imports only its declared hostapd fragment and versioned model formats.
+It does not inspect live networks or deploy network changes.
+It does not certify complete CSfC, NIST, or 5G compliance.
+Reference architectures show formal patterns within the stated model.
 
 The models exclude dynamic routing protocols, packet rewriting, cryptographic
-algorithms, authentication protocols, stateful middleboxes, temporal liveness,
+algorithms, full authentication protocols, stateful middleboxes, temporal liveness,
 and adversarial compromise. Extensions need new semantics, proofs, and rules
 that connect their input to those semantics.
 
-Exhaustive propositional analysis needs exponential time in the number of atoms.
-The executable adapter rejects more than 16 distinct atoms. This limit includes
-goals and atoms from domain laws. It does not sample a larger scope.
+The executable analysis has no fixed atom limit.
+Its branch solver simplifies formulas after each assignment.
+Every completed result carries a proof.
+The default search node budget is 100,000 for each query.
+An exhausted query returns an error without a consistency or entailment claim.
+The budget does not limit total analysis time or memory.
+Worst-case search can still require exponential work.
+The exact truth-table interface remains available for reference checks.
 
 Exhaustive network evaluation also has finite resource costs. The DARPA notice
 targets a reduction of two to three orders of magnitude in time and cost.

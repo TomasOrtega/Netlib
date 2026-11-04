@@ -24,6 +24,9 @@ def input_hashes():
             "lean-toolchain",
             "lakefile.toml",
             "lake-manifest.json",
+            "pyproject.toml",
+            "uv.lock",
+            ".python-version",
             "docbuild/lakefile.toml",
             "docbuild/lean-toolchain",
             "docbuild/lake-manifest.json",
@@ -31,12 +34,14 @@ def input_hashes():
             "scripts/package_api.py",
             "scripts/site_common.py",
             "scripts/check_site.py",
+            "scripts/check_profiles.py",
         ]
     }
     paths.update((ROOT / "Netlib").rglob("*.lean"))
     paths.update((ROOT / "docbuild").glob("*.lean"))
     paths.update((ROOT / "docs").glob("*.md"))
     paths.update((ROOT / "docs/assets").rglob("*"))
+    paths.update((ROOT / "examples").rglob("*"))
     return {
         p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in sorted(paths) if p.is_file()
     }

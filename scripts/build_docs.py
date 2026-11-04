@@ -25,6 +25,9 @@ GROUPS = {
     "Policy": "Parse requirements and find missing goals.",
     "Check": "Check claims with proof-backed results.",
     "Examples": "Read complete architecture proofs.",
+    "Standards": "Check versioned Wi-Fi and 5G requirements.",
+    "Import": "Read supported device configuration formats.",
+    "Protocol": "Prove session and admission properties.",
 }
 
 
@@ -143,6 +146,7 @@ def main():
     run("lake", "--wfail", "build")
     run("lake", "test")
     run(sys.executable, "scripts/check_cli.py")
+    run(sys.executable, "scripts/check_profiles.py")
     run(sys.executable, "scripts/check_source.py")
     run(sys.executable, "scripts/check_text.py")
     project = ROOT / "docbuild"

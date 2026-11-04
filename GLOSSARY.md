@@ -107,6 +107,15 @@ An assignment that satisfies the premises and makes the goal false. It need not 
 **Counterexample**:
 A path, assignment, or other object that disproves a claim.
 
+**Search node**:
+One branch or constant-result step in propositional search.
+
+**Search budget**:
+The maximum number of search nodes for one solver query. Both branches share its remaining nodes.
+
+**Impossibility proof**:
+A proof that no valuation satisfies a specified formula or policy.
+
 **Redundancy**:
 A property of a requirement whose removal preserves all policy models.
 
@@ -192,3 +201,81 @@ A request whose authentication and authorization results are both true.
 
 **Policy enforcement point**:
 A gateway that permits entry or exit only when both request checks pass.
+
+## Standards and evidence
+
+**Source record**:
+The document name, version, clause ID, and URL that identify a requirement's origin.
+
+**Clause**:
+An identified part of a source document.
+
+**Applicability**:
+The conditions under which a requirement concerns the selected model.
+
+**Profile**:
+A named set of selected requirements with explicit scope and assumptions.
+
+**Evidence**:
+An artifact or observation that supports a requirement result.
+
+**Satisfied finding**:
+A result whose selected model condition holds under its declared assumptions.
+
+**Violated finding**:
+A result whose selected model condition fails.
+
+**Unsupported finding**:
+A result for a property that the checker does not model.
+
+**Missing-evidence finding**:
+A result that lacks a necessary input or observation.
+
+**Not-applicable finding**:
+A result for a requirement outside the stated applicability conditions.
+
+**Evidence completeness**:
+The absence of unsupported and missing-evidence findings. It does not imply satisfaction.
+
+## Wireless deployment
+
+**Access point**:
+A network device that supplies the modeled wireless access service.
+
+**Basic service set**:
+The station group that one access-point configuration serves. Its abbreviation is BSS.
+
+**AP binding**:
+A reviewed relation between an imported access-point interface and bridge and one modeled node.
+
+**Protected management frame**:
+A wireless management frame subject to the selected integrity and replay protections.
+
+**RADIUS**:
+The authentication service protocol between the modeled access point and its external authentication server.
+
+## Session evidence
+
+**Session**:
+A context that records identity results, a current credential, a clock, and guarded admission.
+
+**Credential**:
+An issuer, subject, audience, scope list, expiration time, and supplied integrity result.
+
+**Access token**:
+A credential that an NF service producer checks before service admission.
+
+**Network function**:
+A modeled 5G service consumer, service producer, or authorization server. Its abbreviation is NF.
+
+**Scope**:
+The resource and operation that a credential permits.
+
+**Admission safety**:
+The property that every observed admitted request satisfies the selected current guards.
+
+**Token reuse**:
+Use of the same valid token for more than one request.
+
+**Local revocation**:
+Removal of the current session credential. This model operation does not maintain a persistent token blacklist.

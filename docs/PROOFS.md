@@ -2,7 +2,7 @@
 
 Run `lake build` locally to verify the Lean declarations. The library adds no
 axioms and uses no `sorry` or `native_decide`. Tests in
-`NetlibTest/Reasoning.lean` use kernel reduction or the general theorems below.
+`NetlibTest/Core/Reasoning.lean` use kernel reduction or the general theorems below.
 
 ## Requirements and logic
 
@@ -37,16 +37,37 @@ In classical logic, contradictory premises imply every formula. Callers must
 establish consistency before they interpret goal coverage. Completion rejects a
 contradiction between the policy and goals.
 
-The solver needs exponential time in the number of distinct atoms. A complete
-truth table establishes correctness for a finite scope. It does not establish
-scalability.
+This truth-table interface remains an exact reference.
+The executable analysis uses the budgeted solver below.
+Neither solver guarantees fast answers for every formula.
+
+## Budgeted search
+
+`Netlib/Core/Solver.lean` assigns atoms and simplifies constant connectives.
+Each completed answer contains a model proof or an impossibility proof.
+`eval_assign` connects replacement to valuation updates.
+`solve_model_sound` proves each returned model.
+`solve_unsat_sound` excludes every model after an impossibility result.
+`entails_correct` connects every completed entailment answer to the reference semantics.
+`countermodel_sound` establishes each reported countermodel.
+
+Each solver query has a search node budget.
+The default is 100,000 nodes.
+Both branches share that query's remaining budget.
+An exhausted query returns an error.
+It cannot report consistency, inconsistency, or entailment.
+The executable has no fixed atom limit.
+The budget does not limit total analysis time or memory.
+See the [solver guide](SOLVER.md).
 
 ## Network laws and analysis
 
 `Netlib/Policy/Analysis.lean` keeps domain laws fixed during requirement
-minimization. `Analysis.simplifyUnder_preserves` proves that the retained
-requirements have the same models under those laws. Analysis accepts at most
-16 distinct atoms, including atoms in laws and goals.
+minimization. The reference `Analysis.simplifyUnder_preserves` theorem proves preservation
+for the original minimizer.
+The executable uses `Analysis.simplifyUnderFast`.
+Its `Reduction.correct` field proves the same model equivalence for every valuation.
+Every deletion requires a completed solver entailment proof.
 
 A completion can add only supplied goals. Analysis proposes no completion when
 the combined requirements and goals contradict.
@@ -117,8 +138,8 @@ hop or a drop action. The library connects routing and access control lists to
 packet-specific forwarding.
 
 These packet models are stateless and preserve the header along each path.
-They do not model a vendor parser or a live device. The configuration CLI uses
-named-service topology separately.
+The original `check` command uses named services.
+The `dataplane` command uses the composed graph below.
 
 ## Request enforcement
 
@@ -158,6 +179,82 @@ These three suites contain 94 theorem examples:
 
 The request suite includes the gateway self-path case.
 It shows why gateway endpoints need a separate assumption.
+
+## Composed data-plane checks
+
+`Netlib/Model/DataPlane.lean` combines four controls.
+Each step needs an enabled physical link, a selected route, a permitted ACL result, and any required gateway admission.
+`Config.finiteNetwork_eq_model` proves that certificate search uses exactly this composed graph.
+A route cannot create physical adjacency.
+An empty ACL denies every packet.
+
+`Netlib/Check/DataPlane.lean` gives each query a quantified proposition.
+`Check.evaluate` returns the value, evidence, and proof for every endpoint pair.
+`Check.Report.covered` preserves the original query list and order.
+`Check.Report.compliant_iff` connects the final status to every original query.
+Input validation rejects empty selections and invalid references before a report.
+
+## Standards and Wi-Fi
+
+`Netlib/Standards/Basic.lean` preserves document versions, clause IDs, applicability, assumptions, and evidence.
+`Status.passes_iff` permits only satisfied and not-applicable results.
+Unsupported requirements and missing evidence cannot pass.
+An empty report also cannot pass.
+
+`Netlib/Standards/IEEE80211/Enterprise.lean` checks 12 explicit AP obligations.
+`Condition.evaluate_true_iff` connects each Boolean result to its independent setting predicate.
+`status_satisfied_iff` preserves the meaning of missing settings.
+`Wifi.check_sound` and `Wifi.check_complete` connect a passing report to every selected AP predicate.
+
+The strict importer accepts one BSS from the hostapd 2.12 configuration fragment.
+Reports preserve line numbers and hide the RADIUS shared-secret value.
+These parser and presentation properties have runtime tests.
+They do not follow from the configuration-predicate theorems.
+
+`Netlib/Standards/IEEE80211/Deployment.lean` adds five fixed network queries.
+The input cannot remove or reorder these obligations.
+The importer binds the AP interface and bridge to exactly one modeled access point.
+`network_finding_correct` connects each network status to its data-plane query.
+`deployment_report_iff` proves equivalence between the combined report and both input reports.
+
+The selected AP obligations include parts of Campus WLAN 3.2.0 requirements.
+A setting establishes only its stated configuration condition.
+Full EAP-TLS, negotiated algorithms, product approval, and operational evidence remain outside that result.
+The [Wi-Fi guide](WIFI.md) identifies source clauses and coverage gaps.
+
+## Sessions and 5G service admission
+
+`Netlib/Protocol/Session.lean` records identity results, a credential, a clock, and guarded admission.
+`Session.permits_iff` gives the independent credential conditions.
+`Session.step_safe` and `Session.run_safe` preserve the admission invariant.
+`Session.admitted_valid` establishes all guard conditions for a recorded admission.
+`Session.clock_mono` preserves monotone time.
+`Session.policy_allows` connects the session guard to the Zero Trust policy.
+
+Generic local revocation clears the current credential.
+It does not maintain a persistent token blacklist.
+The selected 5G trace profile has no revocation event.
+Valid token reuse remains permitted.
+
+`Netlib/Standards/ThreeGPP/ServiceAccess.lean` checks a direct NF-instance procedure.
+Its source is TS 33.501 version 19.5.0, clause 13.4.1.1.2.
+`FiveG.check_compliant_safe` establishes the guards for every observed admitted request in a passing report.
+Correct denied attempts do not violate admission safety.
+
+Identity and integrity results remain supplied observations.
+The trace must record every actual admission.
+`FiveG.coverage` reports missing identity evidence, missing cryptographic evidence, and unsupported optional claims.
+The [5G guide](FIVEG.md) gives the exact procedure and trace scope.
+
+## Additional validation
+
+The local solver suite compares small policies with the exact truth table.
+It also checks 100-atom policies and contradictions.
+Analysis tests cover 40-clause and 80-clause policies, conflict reduction, duplicates, and exhausted budgets.
+The session suite includes 30 theorem examples and parser tests.
+The profile fixtures include a separate failure for each selected admission guard.
+CI runs Python source, text, package, and tool tests.
+Lean theorem checks and compiled CLI fixtures run locally through the manual hook stage.
 
 ## Certified compliance results
 
