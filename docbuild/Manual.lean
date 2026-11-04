@@ -603,6 +603,79 @@ They do not establish full NAT standards conformance or native Linux conntrack c
 The Linux snapshot importer retains its documented stateless scope.
 The packet-transformation and stateful models need separate native bindings.
 
+## Composable processors and ordered executions
+
+A packet processor returns an updated store and an optional output header.
+A drop skips the remaining stages while retaining every update from completed stages.
+A prefilter can prevent a NAT grant from being installed.
+A postfilter can drop the packet while leaving its grant in place.
+The library proves both order effects.
+It also proves a reply roundtrip through two NAT stages with independent stores.
+
+Sequential processor composition is associative:
+
+```lean
+open Netlib.Packet in
+example {Store : Type}
+    (first second third : Processor Store) :
+    (first.seq second).seq third =
+      first.seq (second.seq third) :=
+  Processor.seq_assoc first second third
+```
+
+Ordered execution records one output or drop for each supplied packet input.
+It passes the complete resulting store to the next call.
+The trace theorem includes dropped packets that changed state.
+Determinism connects each valid observed trace to the computed execution.
+State invariants transfer through every call.
+
+NAT pipeline traces refine the state changes of the existing NAT event model.
+The refinement preserves stores rather than unfiltered outputs.
+An earlier policy-permitted outbound input can authorize a reply even if a postfilter dropped that input.
+This does not establish that the server received it.
+
+The stateful forwarding graph retains a node, header, and store at every vertex.
+Each successful edge threads its computed store to the next vertex.
+Physical isolation and gateway mediation transfer to this graph.
+Stateless processors recover the previous transfer semantics and preserve the store.
+Every successful forwarding walk also projects to an ordered processor execution.
+The projection retains every hop, physical adjacency, observed packet, and shared store result.
+
+Dropped calls have no forwarding edge.
+Their retained state changes belong to the ordered execution model.
+These models do not provide concurrent packet scheduling or prove delivery under arbitrary interleaving.
+
+## Campus reply failover
+
+The stateful campus example adds reverse links to the earlier topology.
+Each gateway has a separate NAT store.
+Session permission guards outbound and return processing.
+An application ACL restricts new grants.
+The forwarding proofs retain management isolation, mandatory gateways, and store invariants.
+
+The primary roundtrip uses the actual store left by the outbound path.
+When that gateway fails, a physical path still exists through the standby.
+Without standby flow grants, every client output header and store remains unreachable from the reply vertex.
+Topology redundancy therefore does not establish reply availability.
+
+With an exact pre-fault replica, a return path survives every admitted single internal-node fault.
+Client and server failure and independent link failures fall outside that fault model.
+The result assumes a fixed fault snapshot, current session permission, and no clock advance during the path.
+Both gateways must be able to use the same public alias.
+
+The ideal copy preserves the model invariant when the primary store is safe:
+
+```lean
+open Netlib.Examples.CampusNAT in
+example (store : Store) (safe : store.1.Safe) :
+    StoreSafe (replicatePrimary store) :=
+  replication_safe store safe
+```
+
+Preserving both clocks also requires equal logical clocks.
+The example does not prove a replication protocol, routing convergence, or live delivery.
+Stale copies, replication delay, revocation propagation, and packet freshness require additional models.
+
 # Documentation process
 %%%
 tag := "documentation"

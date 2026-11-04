@@ -454,6 +454,70 @@ Expiration purges old entries, and flush clears both tables.
 The Linux snapshot adapter continues to reject native NAT and connection-tracking expressions.
 These local models do not prove Linux behavior or complete RFC conformance.
 
+## Stateful composition and execution
+
+`Netlib/Packet/Processor.lean` returns an updated store and an optional packet.
+`seq_assoc` proves ordered composition.
+`seq_run_some_iff` threads the intermediate store and packet through both processors.
+`seq_run_none_iff` covers drops in either stage.
+`seq_drop_first` retains updates from a stage that drops its packet.
+`Preserves` concerns every returned store, including drops.
+Its composition and product-lift theorems preserve those store invariants.
+
+`Netlib/Packet/ProcessorTrace.lean` records ordered calls that share one store.
+`execute_covered` preserves the complete input list and order.
+`execute_trace` connects computed observations to the transition relation.
+`trace_eq_execute` proves that each valid observation trace agrees with the deterministic execution.
+`execute_preserves` covers final states after successful outputs and drops.
+These traces describe the model. They do not establish the accuracy of external observations.
+
+`Netlib/Packet/Stateful.lean` puts the node, packet header, and complete store in each vertex.
+Each graph edge requires physical adjacency and a processor result with an output packet.
+`reachable_physical`, `isolated_of_physical`, and `mediated_of_physical` transfer the physical graph guarantees.
+`invariant` transfers processor store invariants along successful forwarding paths.
+`stateless_reachable_iff` connects stateless processors to the existing transfer graph and proves that their stores remain unchanged.
+The graph alone does not account for all traffic or store updates between packets.
+Ordered processor executions retain updates from calls that drop packets.
+
+`Netlib/Packet/StatefulTrace.lean` connects each successful graph walk to its exact ordered processor calls.
+`calls_length` records one call for each hop.
+`walk_processor_trace` retains the walk's initial and final stores and observed packet outputs.
+`walk_execute` proves agreement with deterministic execution of those calls.
+`walk_calls_physical` preserves every hop's physical adjacency.
+These results have one direction. They do not infer a graph walk from header observations alone.
+
+`Netlib/Protocol/NATPipeline.lean` adapts the local NAPT model to processors.
+`processor_roundtrip` restores an accepted outbound packet's reverse reply.
+`tandem_roundtrip` composes two translations and reverses them in the opposite order.
+`prefilter_denied_unchanged` proves that an earlier ACL denial prevents the NAT update.
+`postfilter_drop_keeps_reply` proves that a later ACL denial retains the installed grant.
+Its return-flow theorem therefore concerns a permitted outbound input, which need not have produced a final output packet.
+
+`pipelineRefinement` and `pipeline_trace_state` connect shared-store executions to the underlying NAT state transitions.
+They preserve store behavior, not equality between filtered outputs and raw NAT outputs.
+`pipeline_safe` preserves mapping and grant invariants through those executions.
+`pipeline_reply_origin` connects a restored reply to an earlier policy-permitted input.
+These adapters do not establish native kernel processing order or execution behavior.
+
+`Netlib/Examples/CampusNAT.lean` threads a separate NAPT store for each campus gateway.
+`stores_safe`, `management_isolated`, and `gateway_mediated` lift the store and physical guarantees to packet paths.
+`StoreSafe` states live deadlines and unique mapping keys.
+It does not establish authorized provenance for arbitrary initial stores.
+`denied_isolated` blocks client-to-server forwarding when the fixed session denies access.
+`primary_roundtrip` constructs outbound and restored-reply paths with the exact primary store update.
+
+`topology_without_grants_insufficient` combines surviving physical reachability with the absence of every stateful client output.
+The standby gateway has no grants in that case.
+`replicated_return_survives` constructs a return path under each admissible single internal-node fault when both stores contain the exact accepted outbound state.
+`replicatePrimary` models an ideal copy made before the fault.
+`replication_clock` requires synchronized clocks to preserve both recorded clock values.
+
+Each path uses a static fault snapshot and fixed session and clock states.
+The model assumes the shared public alias and suitable return routing.
+These are existential permitted paths, not delivery or routing-convergence guarantees.
+The example does not verify a replication protocol, delayed or stale copies, revocation, or packet freshness.
+Its native implementation correspondence remains unproved.
+
 ## Observed flow traces and packet input
 
 `Netlib/Check/NATTrace.lean` derives outbound permission from the certified packet-intent ACL.
