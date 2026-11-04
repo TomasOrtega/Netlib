@@ -1,0 +1,110 @@
+{
+  "packets": [
+    {
+      "payload": "udp-0-0",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 31000
+      }
+    },
+    {
+      "payload": "udp-0-1",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 31000
+      }
+    },
+    {
+      "payload": "tcp-0",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 6,
+        "sourcePort": 32000,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.2",
+        "destination": "192.0.2.2",
+        "protocol": 6,
+        "sourcePort": 9000,
+        "destinationPort": 32000
+      }
+    },
+    {
+      "payload": "udp-1-0",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.3",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.3",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 31001
+      }
+    },
+    {
+      "payload": "udp-1-1",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.3",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.3",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 31001
+      }
+    },
+    {
+      "payload": "tcp-1",
+      "original": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.3",
+        "protocol": 6,
+        "sourcePort": 32001,
+        "destinationPort": 9000
+      },
+      "restored": {
+        "source": "198.51.100.3",
+        "destination": "192.0.2.2",
+        "protocol": 6,
+        "sourcePort": 9000,
+        "destinationPort": 32001
+      }
+    }
+  ],
+  "noReply": [
+    "collision",
+    "postrouting-drop"
+  ]
+}

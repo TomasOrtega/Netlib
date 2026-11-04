@@ -197,6 +197,15 @@ The complete explicit state shared by successive calls to a packet processor.
 **State replication**:
 Transfer of state between devices so that another device can continue the modeled behavior.
 
+**Conntrack record**:
+A reported connection-tracking entry with original and reply tuples and supplied metadata.
+
+**Direction key**:
+An effective conntrack zone together with the complete input five-tuple for one direction.
+
+**Tuple projection**:
+The frozen association between an entry's input header and its direction-specific output header.
+
 **Prefix**:
 An address block defined by a base address and the number of shared initial bits.
 

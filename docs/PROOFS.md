@@ -451,8 +451,68 @@ They also preserve unique inside/protocol and public/protocol keys.
 The allocator and expiration deadlines remain supplied inputs.
 Close removes the selected flow grant while its endpoint mapping can remain.
 Expiration purges old entries, and flush clears both tables.
-The Linux snapshot adapter continues to reject native NAT and connection-tracking expressions.
+The stateless nftables deployment adapter rejects native NAT and connection-tracking expressions.
 These local models do not prove Linux behavior or complete RFC conformance.
+
+## Visible conntrack tuples and status-aware translation
+
+`Netlib/Protocol/FlowNAT.lean` models original and reply tuples in one implicit namespace.
+Both directional lookup keys include their effective zone and complete packet header.
+`Snapshot.check_correct` and `validate_ok_iff` connect validation to bounded TCP/UDP fields and unique combined keys.
+The uniqueness check includes collisions between one entry's original key and another entry's reply key.
+Different remote peers can share a public endpoint when those complete keys remain distinct.
+
+`lookup_sound`, `lookup_unique`, and `lookup_complete` establish exact lookup over a valid supplied snapshot.
+`translate_sound` identifies the source entry and direction of every projected output.
+`roundtrip` and `reverse_roundtrip` prove the two directional tuple inversions.
+The original tuple projects to the reversed reply tuple; the reply tuple projects to the reversed original tuple.
+Remaining timeout seconds are recorded evidence, including zero.
+This frozen model has no clock advancement, timeout refresh, allocation, or packet-admission transition.
+A lookup miss means no association in the supplied table.
+
+`Netlib/Protocol/NetfilterNAT.lean` selects endpoint rewrites using source/destination NAT flags.
+Reply processing reverses those selections.
+`Entry.Compatible` requires unchanged endpoint values where the corresponding NAT flag is absent.
+`Entry.rewrite_correct` proves equality with the tuple projection under that checked condition.
+`no_nat_identity` proves that two absent NAT flags leave every packet unchanged.
+These are Lean tuple-algebra results informed by upstream Linux v6.8 source.
+They do not prove refinement of kernel C code or execution of individual hooks.
+
+`Netlib/Import/Conntrack.lean` imports the supported conntrack-tools 1.4.9 / libnetfilter_conntrack 1.1.1 XML slice.
+It preserves tuples, metadata, source spans, and original records.
+XML omits the complete status mask, so its tuples cannot establish native NAT activation.
+Marker presence remains evidence rather than inferred permission or complete status.
+
+`Netlib/Import/ConntrackNetlink.lean` imports the collector's full-status JSON records.
+Its supported status requires confirmation and rejects expected, sequence-adjustment, dying, template, NAT-clash, explicit-helper, and offload bits.
+Unknown bits above the supported 16-bit mask also cause rejection.
+Enabled source/destination NAT requires the corresponding initialization bit.
+`SourceEntry.rewrite_correct` connects accepted tuple/status conditions to the status-aware rewrite theorem.
+The explicit-helper bit does not detect every automatically assigned helper extension.
+Such metadata can remain only in opaque raw evidence; helper payload behavior lies outside these proofs.
+
+The Python collector checks matching request sequence, port, kernel sender, framing, multipart completion, and resource limits.
+It accepts the fixed IPv4 request's family-filter flag and rejects interrupted or lost dumps.
+It retains raw messages, unknown attributes, and nullable optional metadata.
+The Lean importer checks hexadecimal syntax but does not decode those bytes or prove agreement with the structured fields.
+Collector decoding, capture identity, and observation accuracy remain trust boundaries.
+Visible dumps can omit transient clash entries and do not establish complete kernel state or an atomic history.
+
+`Netlib/Check/Conntrack.lean` checks each reported original tuple against a certified packet-intent policy.
+`Report.covered` retains every supplied row in order.
+`Report.compliant_iff` proves that a passing report means every reported original tuple satisfies that intent.
+This applies to supported XML and full-status JSON inputs.
+It does not establish historical firewall admission or authorization of restored replies.
+The separate mapping command reports only a frozen full-status tuple association.
+
+The retained [native capture](../examples/conntrack/native) contains four flows and six successful socket round trips.
+It uses kernel `6.8.0-117-generic`; upstream v6.8 source is a reference, not a proved identity with that Ubuntu kernel.
+Raw-message decoding agrees with the structured fields and the XML tuple/ID projection.
+TCP and UDP each share one public endpoint across two remote peers.
+Recorded server wire and client restored headers agree with the tuple algebra.
+Reply tuples in `packets.json` are derived by reversing the server wire tuple.
+They are not independent captures of reply IP headers before NAT.
+The collision and late-drop attempts are finite observations, not universal kernel guarantees.
 
 ## Stateful composition and execution
 

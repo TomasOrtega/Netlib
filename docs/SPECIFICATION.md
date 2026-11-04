@@ -174,8 +174,65 @@ That invariant therefore cannot establish rejection of retired replies.
 
 These models exclude checksums, fragmentation, TCP flags, sequence windows, and transport handshakes.
 They do not establish allocator correctness, public-address ownership, Linux conntrack correspondence, or complete RFC conformance.
-The native Linux adapter remains limited to its stateless subset.
+The Linux deployment adapter retains its stateless subset.
 The [stateful guide](STATEFUL.md) defines the input formats and evidence limits.
+
+## Native conntrack snapshots
+
+The separate `Protocol.FlowNAT` model represents reported original and reply TCP/UDP tuples in one implicit capture namespace.
+Each direction has its effective zone and complete header as a lookup key.
+Validation rejects duplicate combined keys, including original/reply collisions across entries.
+Different remote peers may share the same public endpoint.
+This differs from the local NAPT model's globally unique public-endpoint/protocol mapping.
+
+A matching original tuple projects to the reversed reply tuple.
+A matching reply tuple projects to the reversed original tuple.
+Validated lookup and round-trip theorems establish those operations over the supplied table.
+A miss means the table contains no association; it does not establish packet denial.
+Remaining timeout is evidence in whole seconds.
+Zero remains valid evidence because the native export truncates fractional seconds.
+The model does not evolve time, allocate new flows, refresh timeouts, or validate transport packets.
+
+`Protocol.NetfilterNAT` adds source/destination NAT flags to each tuple pair.
+The flags select which endpoint fields change and reverse their roles for reply processing.
+Compatibility requires unchanged endpoints wherever a NAT flag is absent.
+The status-selected rewrite is proved equal to the tuple projection under those conditions.
+This contract covers the complete modeled connection boundary, without an implicit per-hook execution order.
+
+The `conntrack` command checks every supplied original tuple against a declared packet-intent policy.
+It accepts the supported conntrack-tools XML slice or full-status collector JSON.
+Its passing status means that all reported original tuples satisfy the certified intent.
+The report preserves row order, source locations or indices, and available native IDs.
+It does not establish the policy that admitted a flow or the provenance of a restored reply.
+An empty raw snapshot has no rows to violate this condition; the XML slice requires a nonempty snapshot.
+
+XML preserves original/reply tuples and selected metadata from conntrack-tools 1.4.9 with libnetfilter_conntrack 1.1.1.
+Its status markers do not provide the full native status mask or establish NAT activation.
+The `conntrack-map` command therefore requires full-status collector JSON.
+It reports a frozen association and projected header, rather than a firewall-admission result.
+
+The full-status profile requires confirmation and checks NAT initialization and tuple compatibility.
+It rejects expected, sequence-adjustment, dying, template, NAT-clash, explicit-helper, offload, and unknown status bits.
+Rejecting the explicit-helper bit does not establish absence of automatically assigned helper extensions.
+Additional native attributes remain in raw evidence without modeled payload semantics.
+Missing timeout metadata is unsupported in this profile; optional ID, mark, and use fields can remain unknown.
+
+`scripts/capture_conntrack.py` sends a fixed IPv4 Netlink dump request inside the isolated native environment.
+It retains the request and complete messages while rejecting malformed, interrupted, truncated, or lost dumps.
+The requested IPv4 family filter is supported.
+Capture budgets and transport errors produce no successful partial output.
+The Lean JSON importer retains these bytes as hexadecimal evidence without independently decoding them.
+The collector's decoding and the agreement between raw and structured fields remain reviewed implementation boundaries.
+
+The retained native example has four flows and six successful socket round trips on Ubuntu kernel `6.8.0-117-generic`.
+Both TCP and UDP reuse public `203.0.113.1:40000` across two remote peers.
+Structured records agree with the retained Netlink bytes and XML tuples and IDs.
+Socket metadata records server wire headers and client restored headers.
+The joined reply tuples are derived from reversed server wire tuples, without independent pre-NAT reply IP captures.
+The collision and late-drop examples record no replies and no additional visible confirmed records.
+These observations support the demonstrated cases, without proving kernel C refinement, complete table coverage, or general packet delivery.
+Upstream Linux v6.8 supplies the source reference; distribution patches remain outside that correspondence.
+The [conntrack guide](CONNTRACK.md) defines the commands, supported records, and capture procedure.
 
 ## Stateful processing and shared execution
 
@@ -453,6 +510,8 @@ The [Linux](LINUX.md) and [compiler](COMPILER.md) guides distinguish these guara
 The transfer checker separately certifies header-changing paths and cuts.
 The NAT auditor separately certifies agreement with supplied packet observations.
 Their current theorems do not connect those models to native NAT implementations.
+The conntrack adapter adds checked visible tuples and status-aware endpoint algebra.
+Its collector and native socket experiments supply evidence without proving kernel execution or historical admission.
 
 Lean verifies the theorem statements and proofs with the pinned toolchain.
 Each theorem establishes its conclusion under its explicit hypotheses.

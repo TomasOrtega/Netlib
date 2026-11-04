@@ -1,0 +1,7 @@
+{
+  "source": "192.0.2.2",
+  "destination": "198.51.100.2",
+  "protocol": 17,
+  "sourcePort": 31000,
+  "destinationPort": 9000
+}

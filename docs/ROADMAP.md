@@ -51,9 +51,16 @@ The model assumes a currently permitted session, unchanged grant clocks, and a u
 It does not implement replication, ownership transfer, route selection, or convergence.
 Native configuration bindings and the complete campus landmark remain open.
 
+The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
+Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
+Status-aware rewrite algebra and original-flow policy audits have separate proofs.
+Native TCP/UDP socket observations agree with the retained tuple projections.
+The collector and byte decoding remain reviewed implementations rather than verified parsers.
+These results do not establish kernel refinement, complete state visibility, native admission, or campus deployment correspondence.
+
 ## Next implementation work
 
-1. Extend Linux forwarding imports to interface-specific policies, stateful behavior, and additional routing scopes.
+1. Connect visible conntrack state to interface policies, native hook execution, packet lifecycle, and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
 4. Connect concrete upgrade commands to certified intermediate snapshots.

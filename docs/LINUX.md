@@ -4,6 +4,9 @@ The Linux adapter imports route and firewall snapshots into the checked data-pla
 It reads iproute2 6.19.0 main-table routes and nftables 1.1.3 JSON schema 1.
 It preserves original route records, rule handles, expression indices, and comments.
 
+The `linux` and `linux-traffic` commands keep this stateless forwarding scope.
+The separate [conntrack evidence guide](CONNTRACK.md) covers reported flow-policy audits and frozen tuple associations.
+
 ## Run the examples
 
 ```sh
@@ -112,3 +115,4 @@ Addresses and handles can change between captures.
 The recipes verify the recorded producer source hashes.
 
 Use the [compiler guide](COMPILER.md) to generate a policy from packet requirements.
+Use the [conntrack guide](CONNTRACK.md) to audit reported state against a separate declared policy.

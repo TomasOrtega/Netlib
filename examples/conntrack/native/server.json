@@ -1,0 +1,62 @@
+[
+  {
+    "payload": "udp-0-0",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.2",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  },
+  {
+    "payload": "udp-0-1",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.2",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  },
+  {
+    "payload": "tcp-0",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.2",
+      "protocol": 6,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  },
+  {
+    "payload": "udp-1-0",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.3",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  },
+  {
+    "payload": "udp-1-1",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.3",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  },
+  {
+    "payload": "tcp-1",
+    "wire": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.3",
+      "protocol": 6,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    }
+  }
+]
