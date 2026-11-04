@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "lean_version": "4.35.0",
-  "source_revision": "0eb6508f837b736880e17463b95da68c7412bff4",
-  "source_tree": "0f0b5be076bbb1265800f8b2fb250e7874150f4056eda527f66b88d8aa39c457",
+  "source_revision": "90617087c54def4aacd100711e64e127b4f325f7",
+  "source_tree": "e0d4e73d8a8e514c484ca6d9c75dc20ad98f33397e2611b677cb1cfe194165a1",
   "inputs": {
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "GLOSSARY.md": "af89d982d5a1cbcd75d00b2328556d61627e6c81d7b55322ab2bdd625fedbc1e",
@@ -36,7 +36,7 @@
     "Netlib/Standards/IEEE80211/Enterprise.lean": "64ae2f18fe9bec5cf19da7ed3dabde91694bc77329665d30b3304daee226319d",
     "Netlib/Standards/ThreeGPP/ServiceAccess.lean": "9117c99ab78115dadc941e0938875ba0c0173ed477c45a63785a743262916c29",
     "Netlib.lean": "37833ebbb08c5d15a201e920db7360b67d36162b95bbf56607bd3a224c825b4c",
-    "README.md": "4e48f1ab00b09bba54988d930ab649183522c16d18ceb164083402ef8e1b2c38",
+    "README.md": "c9732d5d3de00255774afda81711c652d033870d07cef47b8732505342abbd86",
     "docbuild/Manual.lean": "0ea8cc473288d0eb2cdda42cf46e760313fc95f7a175e6bb0201d96118863ce4",
     "docbuild/ManualMain.lean": "87ecb52ef2f993a08dc16788bb531648d95a9bf1890ce29ca4cd98855e6bcd5e",
     "docbuild/lake-manifest.json": "d9654358d4b1f8234c0addd4c0af33a37e7430a0a7f5155d2b70c3f2779db9c6",
@@ -49,6 +49,7 @@
     "docs/SPECIFICATION.md": "439c61030232e1f47f7a818a8a77c2646945b6755ade000d86f61056300ea582",
     "docs/STYLE.md": "1ce24ddaa7e6f2b3516c4159799bf42101787b166c7f50e23a2b3314e78a39e1",
     "docs/TOOLING.md": "8e98d7cb1e0627fc0781268a408626c411223400e7d30910b8e5932079c4966e",
+    "docs/USAGE.md": "2d8b87f08d83b63bad8079c70f40725d099c9c0e1f26276205364929d3b0e0a8",
     "docs/WIFI.md": "adca4ec299a9e687c6943f08eb8bd46df5562dd54a64c95288a9c5d05e9a5d21",
     "docs/assets/index.html": "ea0234b0fc86e497f2c94263f877abf06f5ae0d981e77a8ddb2a9607eed4b0aa",
     "docs/assets/site.css": "f703af329aeb53bd944ff650d597700e1567e5371cc985cb8e56342f832d558b",
@@ -122,5 +123,5 @@
     "files": 48
   },
   "html_pages": 45,
-  "archive_sha256": "fa4c62d15e1a8f42ab03e790cfd8dd7d0c15bab95b39410bcdc85b630bcc63da"
+  "archive_sha256": "656a7fa23845850313f8cca8aa698b732a94b22d1790800ec46f25909613dbb6"
 }
