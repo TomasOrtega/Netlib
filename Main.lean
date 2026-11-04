@@ -2,6 +2,7 @@ import Netlib.Check.Render
 import Netlib.Policy.Analysis
 import Netlib.Check.VerifiedCompliance
 import Netlib.Check.DataPlane
+import Netlib.Check.Traffic
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -12,12 +13,13 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib analyze REQUIREMENTS.netlib [GOALS.netlib] [--budget N]\n\
   netlib formalize REQUIREMENTS.netlib\n\
   netlib dataplane CONFIG.json [--json]\n\
+  netlib traffic CONFIG.json QUERY MATCH.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
   netlib wifi AP.conf [DEPLOYMENT.json] [--json]\n\
   netlib wifi-coverage [--json]\n\
   netlib demo\n\n\
-Exit codes: 0 = compliant / sufficient consistent policy; 1 = violation / policy gaps; 2 = input error."
+Exit codes: 0 = compliant / sufficient consistent policy; 1 = violation / policy gaps; 2 = input, resource, or internal error."
 
 private def unwrap (result : Except String α) : IO α :=
   match result with
@@ -44,6 +46,25 @@ private def standardsReport (report : Standards.Report) (json : Bool) : IO UInt3
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.compliant then 0 else 1
 
+private def traffic (path queryId selectionPath : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let config ← unwrap (DataPlane.Config.parse (← IO.FS.readFile path))
+  let query ← match config.requirements.find? (·.id == queryId) with
+    | none => throw (IO.userError s!"Unknown traffic query: {queryId}.")
+    | some query => pure query
+  let selection ← unwrap (DataPlane.Config.parseTrafficSelection (← IO.FS.readFile selectionPath))
+  let checked ← unwrap (DataPlane.Check.checkTraffic config query selection budget)
+  if json then
+    IO.println (Lean.Json.mkObj [
+      ("compliant", Lean.toJson checked.value), ("requirement", Lean.toJson query.id),
+      ("scope", Lean.toJson "all-selected-packets"),
+      ("partitionCells", Lean.toJson (config.trafficPartition selection).cellCount),
+      ("evidence", Lean.toJson checked.evidence)]).pretty
+  else
+    IO.println (if checked.value then "COMPLIANT" else "NONCOMPLIANT")
+    IO.println s!"Requirement {query.id}: all selected packets and endpoint pairs."
+    for line in checked.evidence do IO.println line
+  return if checked.value then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -62,7 +83,7 @@ private def analyze (path : String) (goalPath : Option String) (budget : Nat) : 
 private def budgetValue (text : String) : IO Nat :=
   match text.toNat? with
   | some budget => pure budget
-  | none => throw (IO.userError "Use a natural number for the search budget.")
+  | none => throw (IO.userError "Use a natural number for the budget.")
 
 private def run (args : List String) : IO UInt32 := do
   match args with
@@ -74,6 +95,12 @@ private def run (args : List String) : IO UInt32 := do
     return 0
   | ["dataplane", path] => dataPlane path false
   | ["dataplane", path, "--json"] => dataPlane path true
+  | ["traffic", path, query, selection] => traffic path query selection 100000 false
+  | ["traffic", path, query, selection, "--json"] => traffic path query selection 100000 true
+  | ["traffic", path, query, selection, "--budget", budget] =>
+    traffic path query selection (← budgetValue budget) false
+  | ["traffic", path, query, selection, "--budget", budget, "--json"] =>
+    traffic path query selection (← budgetValue budget) true
   | ["fiveg", path] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) false
   | ["fiveg", path, "--json"] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) true
   | ["fiveg-coverage"] => standardsReport FiveG.coverage false

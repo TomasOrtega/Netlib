@@ -292,6 +292,67 @@ parser correctness or report correctness. Inspection of the axioms for
 `check_compliant_iff` and `check_results_covered` finds only standard Lean
 foundations: `propext`, `Classical.choice`, and `Quot.sound`.
 
+## Composition foundations
+
+`Theory.Queue` implements a discrete FIFO queue with explicit arrivals and service capacity.
+Its sequence conservation theorem covers complete runs.
+It preserves modeled packet order without loss or duplication.
+Backlog bounds require the stated arrival and service assumptions.
+Repeated service drains a finite queue when no new arrivals occur and capacity is positive.
+The queue has no finite storage limit or physical timing model.
+
+`Packet.Interval` constructs bounded-field representatives from cut points.
+`Packet.Partition.representative_mem` proves coverage of every header.
+`match_stable`, `acl_lookup_stable`, and `route_lookup_stable` prove equal decisions within each cell.
+`packetNetwork_eq` transfers those equalities to forwarding graphs.
+`Check.Traffic` extends the equality through physical adjacency and request enforcement.
+Its result proves the query for every selected header and endpoint pair.
+Budget errors do not produce a result.
+
+`Protocol.Transition` defines labeled traces and independent or synchronized state composition.
+Invariants transfer through finite traces.
+`TraceRefinement` permits concrete steps to denote finite abstract traces, including empty traces.
+Its composition and safety theorems connect several abstraction levels.
+The session adapter reuses the existing admission invariant.
+
+`Network.Contract` composes domain graphs with disjoint node types through explicit border transitions.
+Their local refinements must share the abstract architecture contract.
+The border transitions must also satisfy that contract.
+The union theorems use common closed regions.
+Separate isolation proofs alone do not establish isolation after union.
+
+`Network.Failure` states explicit node and link fault models.
+Isolation and mediation survive link removal.
+`robustAvailable_disjoint_walks` proves that internally disjoint paths preserve availability after one internal-node failure.
+The model excludes endpoint failures and independent link failures from that availability claim.
+
+`Network.Upgrade.check_correct` connects snapshot checks to every intermediate state.
+`certify` returns a proof-bearing plan only after an accepted check.
+Plans compose by concatenation.
+Projection transfers the contract when concrete and abstract update steps commute.
+The migration tests reject outages and bypass windows whose initial and final states both pass.
+
+`Standards.Composition` gives clauses formal applicability, feature guards, and obligations.
+Clause evaluation and profile conjunction preserve their declared semantics and original source records.
+Compatibility returns a satisfying valuation or a proof that no valuation exists.
+Version refinement returns an implication proof or a counterexample.
+Unsupported clauses and exhausted solver budgets return errors.
+Compatibility and refinement reject unsupported clauses even when a guard could make them inactive.
+Compatibility concerns the supplied propositional facts.
+Conflict sources include the entire input set and need not be minimal.
+Logical version refinement does not establish that the stronger profile has a model.
+An inconsistent context can make implication vacuous.
+
+`Examples.Campus` composes domains, session enforcement, failure availability, and intermediate session updates.
+It proves the declared application contract under the [roadmap's campus assumptions](ROADMAP.md#campus-landmark).
+It supplies a foundation for the complete campus demonstration.
+
+The offline network laws also cover reflexive and transitive reachability.
+They require nonempty selectors and preserve the difference between universal and existential paths.
+Sparse transitivity laws compose relevant relation pairs through each endpoint selector and service.
+Independent reach requirements generate two local laws each and no transitivity laws.
+Dense connected policies can still generate many laws before solver search starts.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,

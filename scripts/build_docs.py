@@ -16,18 +16,19 @@ from package_api import package_api
 from site_common import ARCHIVE, MANIFEST, ROOT, digest, input_hashes, tree_hash
 
 GROUPS = {
+    "Theory": "Prove FIFO conservation, backlog bounds, and finite draining.",
     "Core": "State requirements as logic formulas.",
     "Model": "Read a finite network model.",
-    "Network": "Prove path, gateway, and change properties.",
-    "Packet": "Match packet fields and check ordered rules.",
+    "Network": "Compose domains and prove path, failure, and update properties.",
+    "Packet": "Partition headers and check ordered rules for complete traffic classes.",
     "Routing": "Select the route with the longest address prefix.",
     "Security": "Check requests at policy gateways.",
     "Policy": "Parse requirements and find missing goals.",
     "Check": "Check claims with proof-backed results.",
     "Examples": "Read complete architecture proofs.",
-    "Standards": "Check versioned Wi-Fi and 5G requirements.",
+    "Standards": "Compose formal profiles and check selected Wi-Fi and 5G requirements.",
     "Import": "Read supported device configuration formats.",
-    "Protocol": "Prove session and admission properties.",
+    "Protocol": "Compose transition traces and prove session and admission properties.",
 }
 
 

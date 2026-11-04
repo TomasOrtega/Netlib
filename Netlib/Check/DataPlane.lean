@@ -18,15 +18,25 @@ namespace Query
 def gatewaysFor (c : Config) (q : Query) : List String :=
   (q.gateways.map c.select).getD []
 
+def networkAt (c : Config) (q : Query) (header : Packet.Header) : Network String :=
+  c.model header (c.requestFor q.request)
+
 def network (c : Config) (q : Query) : Network String :=
-  c.model (c.trafficFor q.traffic) (c.requestFor q.request)
+  q.networkAt c (c.trafficFor q.traffic)
 
 /-- A query states a property for each selected endpoint pair. -/
-def PairMeaning (c : Config) (q : Query) (source target : String) : Prop :=
+def PairMeaningAt (c : Config) (q : Query) (header : Packet.Header) (source target : String) : Prop :=
   match q.kind with
-  | .reach => (q.network c).Reachable source target
-  | .isolate => ¬(q.network c).Reachable source target
-  | .mediated => ¬(q.network c).Bypass (fun node => node ∈ q.gatewaysFor c) source target
+  | .reach => (q.networkAt c header).Reachable source target
+  | .isolate => ¬(q.networkAt c header).Reachable source target
+  | .mediated => ¬(q.networkAt c header).Bypass (fun node => node ∈ q.gatewaysFor c) source target
+
+def PairMeaning (c : Config) (q : Query) (source target : String) : Prop :=
+  q.PairMeaningAt c (c.trafficFor q.traffic) source target
+
+def MeaningAt (c : Config) (q : Query) (header : Packet.Header) : Prop :=
+  ∀ source ∈ c.select q.source, ∀ target ∈ c.select q.target,
+    q.PairMeaningAt c header source target
 
 def Meaning (c : Config) (q : Query) : Prop :=
   ∀ source ∈ c.select q.source, ∀ target ∈ c.select q.target, q.PairMeaning c source target
@@ -50,34 +60,33 @@ private def allChecked {α : Type u} (meaning : α → Prop)
     return ⟨head.value && tail.value, head.evidence ++ tail.evidence, by
       simp only [Bool.and_eq_true, head.correct, tail.correct, List.forall_mem_cons]⟩
 
-private def pair (c : Config) (q : Query) (source target : String) :
-    Except String (Checked (q.PairMeaning c source target)) := do
-  let header := c.trafficFor q.traffic
+private def pair (c : Config) (q : Query) (header : Packet.Header) (source target : String) :
+    Except String (Checked (q.PairMeaningAt c header source target)) := do
   let request := c.requestFor q.request
   let edge := c.edge header request
   match kind : q.kind with
   | .reach =>
     let result ← decideReach c.ids edge source target
     return ⟨result.value, [s!"{source} -> {target}: {result.describe}"], by
-      simp only [Query.PairMeaning, kind]
+      simp only [Query.PairMeaningAt, kind]
       change result.value = true ↔ (c.model header request).Reachable source target
       rw [← c.finiteNetwork_eq_model header request]
       exact result.correct⟩
   | .isolate =>
     let result ← decideReach c.ids edge source target
-    have correct : result.value = true ↔ (q.network c).Reachable source target := by
+    have correct : result.value = true ↔ (q.networkAt c header).Reachable source target := by
       change result.value = true ↔ (c.model header request).Reachable source target
       rw [← c.finiteNetwork_eq_model header request]
       exact result.correct
     return ⟨!result.value, [s!"{source} -> {target}: {result.describe}"], by
-      simp only [Query.PairMeaning, kind, ← correct]
+      simp only [Query.PairMeaningAt, kind, ← correct]
       cases result.value <;> simp⟩
   | .mediated =>
     let gateways := q.gatewaysFor c
     if endpoint : (gateways.contains source || gateways.contains target) = true then
       have member : source ∈ gateways ∨ target ∈ gateways := by simpa using endpoint
       return ⟨true, [s!"{source} -> {target}: A gateway is an endpoint."], by
-        simp only [Query.PairMeaning, kind]
+        simp only [Query.PairMeaningAt, kind]
         constructor
         · intro _ bypass
           rcases member with hs | ht
@@ -88,18 +97,21 @@ private def pair (c : Config) (q : Query) (source target : String) :
       let result ← decideReach c.ids (bypassEdge edge gateways) source target
       return ⟨!result.value, [s!"{source} -> {target}: bypass {result.describe}"], by
         have correct := mediation_pair_if_correct c.ids gateways edge source target result
-        simp only [Query.PairMeaning, kind]
+        simp only [Query.PairMeaningAt, kind]
         change (!result.value) = true ↔
           ¬(c.model header request).Bypass (fun node => node ∈ gateways) source target
         rw [← c.finiteNetwork_eq_model header request]
         simpa only [ite_eq_right endpoint] using correct⟩
 
 /-- A result has a proof for every selected source and target. -/
-def evaluate (c : Config) (q : Query) : Except String (Checked (q.Meaning c)) := do
-  let result ← allChecked (fun source => ∀ target ∈ c.select q.target, q.PairMeaning c source target)
-    (fun source => allChecked (q.PairMeaning c source) (pair c q source) (c.select q.target))
-    (c.select q.source)
-  return result
+def evaluateAt (c : Config) (q : Query) (header : Packet.Header) :
+    Except String (Checked (q.MeaningAt c header)) :=
+  allChecked (fun source => ∀ target ∈ c.select q.target, q.PairMeaningAt c header source target)
+    (fun source => allChecked (q.PairMeaningAt c header source) (pair c q header source)
+      (c.select q.target)) (c.select q.source)
+
+def evaluate (c : Config) (q : Query) : Except String (Checked (q.Meaning c)) :=
+  evaluateAt c q (c.trafficFor q.traffic)
 
 structure Report (c : Config) where
   results : List ((q : Query) × Checked (q.Meaning c))

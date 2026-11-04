@@ -31,11 +31,13 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Use the CLI and input formats | [Usage](docs/USAGE.md) |
 | Check a Wi-Fi deployment | [Wi-Fi](docs/WIFI.md) |
 | Check packets, routes, and identity policies | [Data plane](docs/DATAPLANE.md) |
+| Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
 | Check 5G admission traces | [5G](docs/FIVEG.md) |
 | Analyze policies and set search budgets | [Solver](docs/SOLVER.md) |
 | Inspect formal guarantees | [Proof inventory](docs/PROOFS.md) |
 | Run checks or publish documentation | [Build and deployment](docs/TOOLING.md) |
 | Review the model and its limits | [Specification](docs/SPECIFICATION.md) |
+| Review the full research objective | [Roadmap](docs/ROADMAP.md) |
 
 Profiles check selected requirements under their listed assumptions.
 They do not certify live devices or complete security standards.

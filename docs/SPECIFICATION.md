@@ -76,6 +76,10 @@ These forwarding models are stateless.
 They keep the same header throughout a path.
 They exclude packet rewriting and dynamic routing protocols.
 The `dataplane` command imports these models through JSON schema 1.
+The `traffic` command checks every header selected by a packet match.
+It partitions headers at every ACL, route, and selection boundary.
+Proved decision equality lifts the finite representative checks to the complete selected class.
+The [traffic guide](TRAFFIC.md) defines its interface and cell budget.
 
 Each forwarding step needs four controls:
 
@@ -250,6 +254,8 @@ It needs no configuration. Requirement minimization keeps these domain laws fixe
   devices.
 - Universal and existential reachability agree for two node selectors.
 - Isolation implies mediation by any gateway set.
+- Each nonempty selection has some reachability to itself.
+- Universal reachability composes through a nonempty intermediate selection for the same service.
 
 `Netlib/Policy/Observation.lean` proves these laws under explicit assumptions about
 nonempty selections and node identities. Analysis infers no other relationships
@@ -283,6 +289,28 @@ Two networks must agree on every outgoing link from a closed region.
 That region must contain all queried sources. Under these conditions, reachability,
 isolation, and mediation have the same values in both networks.
 These theorems do not implement an incremental CLI cache.
+
+Labeled transitions also describe protocol and operational state changes.
+Finite trace refinement transfers invariants between abstraction levels.
+Independent and synchronized state transitions compose through the product model.
+The existing session model supplies one concrete adapter.
+
+Certified update plans check the initial state, final state, and every intermediate snapshot.
+Plan concatenation preserves the same contract.
+Projection transfers update guarantees when concrete and abstract steps commute.
+Real device update adapters remain outside the current implementation.
+
+Domain graphs compose through explicit border transitions and shared abstract refinements.
+The sum node type keeps domain identities disjoint.
+Each border transition must preserve the abstract contract.
+The graph union theorems use a common closed region.
+Separate isolation of the inputs does not establish isolation of their union.
+
+The fault model states permitted node and link removals.
+Internally disjoint paths establish availability after one internal-node failure.
+This theorem excludes endpoint failures and independent link failures.
+The campus example composes these results with session enforcement and management isolation.
+The [roadmap](ROADMAP.md) separates this foundation from the complete deployment objective.
 
 ## Trust boundary
 
