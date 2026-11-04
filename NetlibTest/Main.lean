@@ -1,6 +1,8 @@
 import NetlibTest.Core.Reasoning
 import NetlibTest.Check.Compliance
 import NetlibTest.Packet
+import NetlibTest.Routing
+import NetlibTest.ZeroTrust
 
 open Netlib
 

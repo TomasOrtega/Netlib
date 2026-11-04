@@ -1,0 +1,25 @@
+name = "docbuild"
+reservoir = false
+version = "0.1.0"
+packagesDir = "../.lake/packages"
+
+[[require]]
+scope = "leanprover"
+name = "doc-gen4"
+rev = "0e1ffe2e4ba5ecfdfaf15c65b8d3805dbb7134ae"
+
+[[require]]
+name = "netlib"
+path = "../"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "304b8561790c50222551c937ce02928df0d5b445"
+
+[[lean_lib]]
+name = "Manual"
+
+[[lean_exe]]
+name = "manual"
+root = "ManualMain"

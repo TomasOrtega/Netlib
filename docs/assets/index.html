@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Netlib connects network requirements to Lean proofs and checked results.">
+  <title>Netlib | Proofs for network requirements</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><div class="wrap">
+  <a class="brand" href="index.html">Netlib<span aria-hidden="true">.</span></a>
+  <nav aria-label="Main navigation">
+    <a href="manual/">Manual</a><a href="api/">API</a>
+    <a href="https://github.com/TomasOrtega/Netlib">Source</a>
+  </nav>
+</div></header>
+<main id="main" class="wrap">
+  <section class="hero">
+    <span class="eyebrow">Network requirements · Lean {{lean_version}}</span>
+    <h1>Network claims.<br>Checked proofs.</h1>
+    <p class="lead">Netlib connects network requirements to formal proofs.
+      Use its models to check paths, packet rules, routes, and policy gateways.</p>
+    <div class="actions">
+      <a class="button" href="manual/">Read the manual</a>
+      <a class="button alt" href="api/search.html">Search the API</a>
+    </div>
+    <div class="facts">
+      <span class="tag">{{module_count}} source modules</span>
+      <span class="tag">{{declaration_count}} API declarations</span>
+      <span class="tag">Verso + doc-gen4</span>
+      <span class="tag">Static CI deploy</span>
+    </div>
+  </section>
+  <div class="grid">
+    <section class="card">
+      <span class="label">01 / Model</span><h2>State the claim</h2>
+      <p>Define the network and its traffic classes. Keep each requirement with its source text.</p>
+      <a href="manual/">Read the model guide</a>
+    </section>
+    <section class="card">
+      <span class="label">02 / Prove</span><h2>Use a proof</h2>
+      <p>Apply a library theorem. State its assumptions. Check each selected endpoint pair.</p>
+      <a href="api/Netlib/Network/Basic.html">Read the network API</a>
+    </section>
+    <section class="card">
+      <span class="label">03 / Check</span><h2>Inspect the result</h2>
+      <p>Find a permitted path or a closed cut. Inspect a bypass when a gateway claim fails.</p>
+      <a href="api/Netlib/Check/VerifiedCompliance.html">Read the checker proof</a>
+    </section>
+  </div>
+  <section class="section">
+    <h2>Start with a complete example</h2>
+    <p class="intro">Run these commands on your machine. The demo checks a secure model, a failed replica, and a bypass.</p>
+    <pre class="code"><code>lake --wfail build
+lake test
+lake exe netlib demo</code></pre>
+  </section>
+  <section class="section">
+    <h2>Find a library module</h2>
+    <p class="intro">The API pages come from the checked Lean declarations and their source comments.</p>
+    <div class="grid">{{module_cards}}</div>
+  </section>
+  <section class="section">
+    <h2>Know the model limits</h2>
+    <p class="intro">The command-line checker reads controlled English and finite network models.
+      The packet library uses fixed headers and stateless rules.
+      Identity checks are supplied assumptions.
+      These proofs do not certify live devices or a security standard.</p>
+  </section>
+</main>
+<footer><div class="wrap">
+  <span>Lean {{lean_version}} · Source <a href="https://github.com/TomasOrtega/Netlib/tree/{{revision}}">{{short_revision}}</a></span>
+  <span><a href="provenance.json">Site source record</a> · <a href="licenses/">Tool licenses</a></span>
+</div></footer>
+</body>
+</html>

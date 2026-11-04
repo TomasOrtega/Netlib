@@ -117,11 +117,11 @@ def render (report : Report) : String := Id.run do
       s!"distinct atoms: {report.atomCount}/{maxAtoms}",
     if report.consistent then "CONSISTENT in the propositional abstraction"
     else "INCONSISTENT in the propositional abstraction",
-    "Assumes nonempty selectors; a satisfying assignment need not be a realizable network."]
+    "Each selector must contain a device. An abstract model can have no matching network."]
   if !report.consistent then
     lines := lines ++ ["Conflicting requirements (deletion-minimal under fixed domain laws):"]
     lines := lines ++ report.conflict.map (fun r => "  " ++ describe r)
-    lines := lines ++ ["Goal coverage and completion withheld because the policy is inconsistent."]
+    lines := lines ++ ["The policy is inconsistent. The checker does not assess its goals."]
   else
     lines := lines ++ [s!"Redundant requirements under fixed domain laws: {ids report.redundant}",
       s!"Retained requirements: {ids report.retained}"]
@@ -140,7 +140,7 @@ def render (report : Report) : String := Id.run do
       | some [] =>
         lines := lines ++ ["All supplied goals are entailed; no additions are needed."]
       | some additions =>
-        lines := lines ++ ["Proposed additions (supplied goals only; require human review):"]
+        lines := lines ++ ["Proposed source goals. Review each addition:"]
         lines := lines ++ additions.map (fun r => "  " ++ describe r)
   return String.intercalate "\n" lines
 

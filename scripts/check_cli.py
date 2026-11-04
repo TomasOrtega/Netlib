@@ -48,7 +48,7 @@ def main():
     incomplete = invoke("analyze", "examples/incomplete.netlib", "examples/goals.netlib", code=1)
     assert "Missing explicit goals: 1" in incomplete and "G_OUTER" in incomplete
     inconsistent = invoke("analyze", "examples/contradictory.netlib", code=1)
-    assert "INCONSISTENT" in inconsistent and "withheld" in inconsistent
+    assert "INCONSISTENT" in inconsistent and "does not assess its goals" in inconsistent
     redundant = invoke("analyze", "examples/redundant.netlib")
     assert "Redundant requirements under fixed domain laws: FIRST" in redundant
     formal = invoke("formalize", "examples/requirements.netlib")

@@ -19,3 +19,21 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: source-check
+        name: Check source files
+        entry: python3 scripts/check_source.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: prose-check
+        name: Check documentation text
+        entry: python3 scripts/check_text.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: site-test
+        name: Test static site tools
+        entry: python3 -m unittest discover -s scripts -p test_*.py
+        language: system
+        pass_filenames: false
+        always_run: true
