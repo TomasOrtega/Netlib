@@ -1,0 +1,6 @@
+# Reviewed architecture obligations, not a certified CSfC capability package.
+AVAILABLE: node:red must reach node:black for https.
+INNER: node:red must traverse group:inner before node:black for https.
+OUTER: node:red must traverse group:outer before node:black for https.
+NO_REVERSE: node:black must be isolated from node:red for https.
+NO_SSH: node:red must be isolated from node:black for ssh.

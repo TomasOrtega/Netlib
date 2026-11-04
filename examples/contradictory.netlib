@@ -1,0 +1,2 @@
+ALLOW: node:red must reach node:black for https.
+DENY: node:red must be isolated from node:black for https.

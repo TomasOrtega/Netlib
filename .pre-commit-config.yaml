@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: lean-build
+        name: Check Lean proofs and build
+        entry: lake --wfail build
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lean-test
+        name: Test network checking and input validation
+        entry: lake test
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: cli-test
+        name: Compare CLI with independent graph oracle
+        entry: python3 scripts/check_cli.py
+        language: system
+        pass_filenames: false
+        always_run: true

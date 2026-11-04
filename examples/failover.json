@@ -1,0 +1,87 @@
+{
+  "devices": [
+    {
+      "id": "red",
+      "zone": "red",
+      "role": "endpoint"
+    },
+    {
+      "id": "inner-a",
+      "zone": "gray",
+      "role": "inner-gateway"
+    },
+    {
+      "id": "inner-b",
+      "zone": "gray",
+      "role": "inner-gateway"
+    },
+    {
+      "id": "gray",
+      "zone": "gray",
+      "role": "transit"
+    },
+    {
+      "id": "outer",
+      "zone": "black",
+      "role": "outer-gateway"
+    },
+    {
+      "id": "black",
+      "zone": "black",
+      "role": "endpoint"
+    }
+  ],
+  "links": [
+    {
+      "from": "red",
+      "to": "inner-a",
+      "service": "https",
+      "enabled": false
+    },
+    {
+      "from": "red",
+      "to": "inner-b",
+      "service": "https",
+      "enabled": true
+    },
+    {
+      "from": "inner-a",
+      "to": "gray",
+      "service": "https",
+      "enabled": false
+    },
+    {
+      "from": "inner-b",
+      "to": "gray",
+      "service": "https",
+      "enabled": true
+    },
+    {
+      "from": "gray",
+      "to": "outer",
+      "service": "https",
+      "enabled": true
+    },
+    {
+      "from": "outer",
+      "to": "black",
+      "service": "https",
+      "enabled": true
+    }
+  ],
+  "groups": [
+    {
+      "name": "inner",
+      "members": [
+        "inner-a",
+        "inner-b"
+      ]
+    },
+    {
+      "name": "outer",
+      "members": [
+        "outer"
+      ]
+    }
+  ]
+}

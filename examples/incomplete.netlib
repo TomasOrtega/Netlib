@@ -1,0 +1,2 @@
+AVAILABLE: node:red must reach node:black for https.
+INNER: node:red must traverse group:inner before node:black for https.

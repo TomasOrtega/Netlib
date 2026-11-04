@@ -1,2 +1,7 @@
 # cache and other artifacts produced by Lean's Lake build tool
 .lake/
+
+# Local site files and tool output.
+build/
+docbuild/.lake/
+__pycache__/

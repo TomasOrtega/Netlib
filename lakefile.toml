@@ -1,0 +1,19 @@
+name = "netlib"
+version = "0.1.0"
+testDriver = "netlibTest"
+defaultTargets = ["Netlib", "netlib", "netlibTest"]
+
+[[lean_lib]]
+name = "Netlib"
+
+[[lean_lib]]
+name = "NetlibTest"
+
+[[lean_exe]]
+name = "netlib"
+root = "Main"
+
+[[lean_exe]]
+name = "netlibTest"
+exeName = "netlib-test"
+root = "NetlibTest.Main"
