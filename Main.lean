@@ -13,6 +13,7 @@ import Netlib.Check.ConntrackLifecycle
 import Netlib.Check.StatefulRefinement
 import Netlib.Check.ConntrackRevocation
 import Netlib.Check.BufferedDrain
+import Netlib.Check.EAP
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -34,6 +35,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib lifecycle TRACE.json [--json]\n\
   netlib lifecycle-blocks TRACE.json MATCH.json [--from N] [--budget N] [--json]\n\
   netlib buffered-lifecycle TRACE.json MATCH.json --from N --drained-at M [--budget N] [--json]\n\
+  netlib eap TRACE.json [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -308,6 +310,12 @@ private def bufferedLifecycle (path selectionPath : String) (start drainedAt bud
     IO.println result.pretty
   return if passed then 0 else 1
 
+private def eapSession (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.EAP.Input.parse (← IO.FS.readFile path))
+  let report := input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -397,6 +405,8 @@ private def run (args : List String) : IO UInt32 := do
     bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) (← budgetValue budget) false
   | ["buffered-lifecycle", path, selection, "--from", start, "--drained-at", drainedAt, "--budget", budget, "--json"] =>
     bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) (← budgetValue budget) true
+  | ["eap", path] => eapSession path false
+  | ["eap", path, "--json"] => eapSession path true
   | ["stateful-refines", stronger, weaker] => statefulRefines stronger weaker 100000 false
   | ["stateful-refines", stronger, weaker, "--json"] => statefulRefines stronger weaker 100000 true
   | ["stateful-refines", stronger, weaker, "--budget", budget] =>

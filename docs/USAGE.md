@@ -113,6 +113,7 @@ requirements hold in the supplied model.
 Use the dedicated guides for their input formats and model assumptions:
 
 - [Wi-Fi deployment checks](WIFI.md).
+- [EAP frames, guarded authentication, and session admission](EAP.md).
 - [Packet, route, and request checks](DATAPLANE.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).

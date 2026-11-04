@@ -909,6 +909,64 @@ Queue counters alone do not identify packets; the isolated recipe and socket pay
 The proofs use declared FIFO service and make no wall-clock drain claim.
 Physical service bounds, complete queue correspondence, and native installation still need separate evidence.
 
+# Authentication messages and campus sessions
+%%%
+tag := "eap"
+file := "eap"
+%%%
+
+The EAP layer separates packet framing, message correlation, method evidence, and application admission.
+Raw Success packets and untrusted outer Identity bytes cannot set session authentication alone.
+Accepted method evidence must match the expected principal, selected method, and current local round.
+
+The binary codecs preserve supported messages and their padding.
+They also reconstruct arbitrary accepted bytes:
+
+```lean
+open Netlib.Protocol.EAP in
+example (bytes : List UInt8) (value : Decoded)
+    (accepted : decode bytes = .ok value) :
+    encodeDecoded value = .ok bytes :=
+  encode_decode bytes value accepted
+```
+
+EAPOL and untagged Ethernet have the corresponding two-way byte proofs.
+The text hex and MAC parsers have runtime tests.
+Method bytes remain opaque and supply no cryptographic proof.
+
+Current method evidence is a separate premise of authorization:
+
+```lean
+open Netlib.Protocol.EAPAuth in
+example (context : Context) (state : State)
+    (safe : state.Safe context)
+    (authorized : state.authorized = true) :
+    ∃ evidence, state.evidence = some evidence ∧
+      evidence.ValidFor context state.round :=
+  authorized_evidence context state safe authorized
+```
+
+The session bridge clears old credentials when authorization or the local round changes.
+Application events cannot inject authentication.
+Every application admission still needs the complete current credential guard.
+The configured-principal campus theorem combines the checked report, that guard, and availability under each admitted internal-node fault.
+Authenticated native checkpoints without application credentials remain isolated.
+
+```
+lake exe netlib eap examples/eap/success.json --json
+lake exe netlib eap examples/eap/bad-server.json --json
+```
+
+Both commands pass by agreeing with their observations.
+The first authorizes after the EAP-TLS exchange and later clears authorization after Logoff.
+The second correctly denies a server-name mismatch.
+The native principal differs from its anonymous outer Identity.
+The wired capture retains raw frames, sanitized producer logs, public certificates, and exact configurations.
+
+Trusted cryptographic results and method-to-round attribution remain explicit assumptions.
+Local rounds are not wire nonces or native producer-window identifiers.
+Physical controlled-port enforcement, wireless keys, RADIUS paths, and complete campus deployment bindings need further evidence.
+
 # Documentation process
 %%%
 tag := "documentation"

@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T22:43:54.662250405Z",
+  "completedAt": "2026-11-04T22:44:00.052240522Z",
+  "kernel": "6.8.0-117-generic",
+  "producers": {
+    "hostapd": {
+      "version": "2.12",
+      "url": "https://w1.fi/releases/hostapd-2.12.tar.gz",
+      "sha256": "f43502561c28ba47ab77e18e1a973d07361c68cc8b14178e619bd5796b70eabd"
+    },
+    "wpa_supplicant": {
+      "version": "2.12",
+      "url": "https://w1.fi/releases/wpa_supplicant-2.12.tar.gz",
+      "sha256": "08e23937e16d0155e55cab2b51f51fbe10d80a1aa91c4e15442645059b737ef6"
+    },
+    "openssl": {
+      "version": "3.5.9",
+      "packages": [
+        "openssl-3.5.9-r0",
+        "openssl-dev-3.5.9-r0"
+      ],
+      "source": "Alpine distribution packages; versions retained in native/packages.txt."
+    }
+  },
+  "container": {
+    "parentImage": "netlib-lifecycle-capture:6.19.0",
+    "parentImageID": "sha256:566c6af8672a432d7b9db65593d54e5d6d5f0fd5e98e644979f9adefedc0bebd",
+    "image": "netlib-eap-capture:2.12",
+    "imageID": "sha256:1e4be80167e3f444cc3f82c5f96f59e1f72149fca6d2b7ed885013639da4f075",
+    "capabilities": [
+      "CAP_NET_ADMIN",
+      "CAP_SYS_ADMIN"
+    ],
+    "securityOptions": [
+      "seccomp=unconfined",
+      "apparmor=unconfined"
+    ],
+    "network": "none",
+    "hostMounts": false,
+    "privateNetworkNamespaces": [
+      "auth",
+      "peer"
+    ],
+    "command": [
+      "sh",
+      "/task/capture.sh"
+    ],
+    "exitCode": 0
+  },
+  "link": {
+    "authenticator": "02:00:00:00:ea:01",
+    "peer": "02:00:00:00:ea:02",
+    "peerDestination": "01:80:c2:00:00:03",
+    "captureInterface": "auth/auth0",
+    "etherType": "0x888e",
+    "socket": "AF_PACKET SOCK_RAW ETH_P_ALL filtered to EAPOL; one interface only"
+  },
+  "evidence": {
+    "frames": 32,
+    "phases": 2,
+    "successTerminalIdentifier": 7,
+    "failureTerminalIdentifier": 6,
+    "outerIdentity": "anonymous@campus.example.test",
+    "certificatePrincipal": "alice@campus.example.test",
+    "tlsVersion": "TLSv1.3",
+    "cipher": "TLS_AES_256_GCM_SHA384",
+    "resumption": false,
+    "logicalAuthorizedBeforeLogoff": true,
+    "logicalAuthorizedAfterLogoff": false
+  },
+  "redactions": {
+    "producerLines": "EAP-TLS: Derived key - hexdump lines replaced with [COLLECTOR-REDACTED] before writing. No -K option. Other key dumps use producer [REMOVED] markers.",
+    "frames": "Unmodified raw Ethernet bytes.",
+    "privateKeys": "Generated only in /run/netlib-eap inside the container, deleted before export."
+  },
+  "correlationAssumption": "An isolated process pair, configuration, interface MACs, and capture window bind the native method result to the collected exchange. phaseId is a collector label, not a wire epoch.",
+  "scope": "Finite EAPOL and native logical authorization evidence. The verifier does not verify TLS cryptography offline, prove capture authenticity, refine hostapd C, or establish physical data-port enforcement.",
+  "artifactSHA256": {
+    "native/auth-links.json": "c72be5facbfd3b8cefd20f4847c21b4de6cac835f30549ad38080d0c267fe28f",
+    "native/authorized-station.txt": "1e989f0eeda056401945b61c779e029eea25ea95b15587948ca1db2d1837d251",
+    "native/bad-server-authenticator.jsonl": "4a072d81cb14e4a2a05dae9997aadd6cba529b032250568e238a2d532a8e5aa9",
+    "native/bad-server-frames.jsonl": "b274df86a5c3ebfd6d92df2e499f7ed4133405aa5956cb58f02fd5c78175bbd8",
+    "native/bad-server-supplicant.conf": "0268a3c7c1663b5c3edc9a0be02d53effd957338e5c95817ca9029d6c5548bc7",
+    "native/bad-server-supplicant.jsonl": "251a3b65c9152a6e5615a25d67f857db4562395d0ca4f9aad7fe236676e0b323",
+    "native/ca-certificate.txt": "161b01e4a5276d23b5a0bc808cb6753b18501d1d590be3955433df93e7cc8eee",
+    "native/ca-chain.pem": "37e7533a16f1321b24677a5df32304e61d2a2880e2756f1a08525fc813bfef53",
+    "native/ca.crl.pem": "23d281a1b3d54665e1c2d12c28e0b971a733d767612e00966ce3767d9df67270",
+    "native/ca.pem": "6f47a0e05c707909b23cf2587ea2c425162681d776a64d6814c773df601b8a33",
+    "native/client-certificate.txt": "1e0526ab6aa797fac234075f8f821b3fd6de2174ec47b82f05ebdf15d8afbae8",
+    "native/client.pem": "8674b9c5b21ad78758f5ff83735e15a165effebaeeb25f3f9c65cc7b33ab2063",
+    "native/commands.json": "8c3be19215ef9e00611dbb04b69fd6a283046fb27b64ecaf7d465821fd551d6b",
+    "native/hostapd-version.txt": "df543fbc99883a1ee0f9bda917b8e13f37b8d57192c233101c82310cf3c8ff8e",
+    "native/hostapd.conf": "3943b8e7deae951a6ae0dc060707d5aa44d9837c66ea83183d9dea443fd5f1f7",
+    "native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "native/logged-off-station.txt": "5d8da265176392ccc4bf85932db827789cffac5d5d2b18f95ee8c603680cbf3f",
+    "native/observations.json": "01984b294de0eb90151faf8e1bbe72a5974ec9408043b35b48690260e238613f",
+    "native/openssl-version.txt": "99009aa0848eaa01ceea26381659dc525e4ce21a4c90ca255b3c58b0089f8f8a",
+    "native/packages.txt": "336c612cd12b21f83ac95f019e43187dca868a17cb5089d770ae4534260ce59e",
+    "native/peer-links.json": "70bb2969f1aec67184044636f4d9b8301a9cb6fef83984c67b348db328dfa988",
+    "native/producer-sha256.txt": "a2bc989e195d6e164e3b903c90d2cba0ff624d60bd6f9cc495a0acc600a7fab1",
+    "native/server-certificate.txt": "e05d443b38a8ad78208ccf537dd18c48e5a59197834e13bb1a7acae7f2bb767b",
+    "native/server.ocsp.der": "e41a393ba18bc9f2678d15b587197f338d9de092824dcd29980798a0377ea718",
+    "native/server.pem": "964d9d52a5e9909a08ab510969d48574815be3ed16b82ad0c78b13a5135adf22",
+    "native/source-sha256.txt": "8d26533dd5ee22d9e87b328b1f9787c8ad141623f67c9a39644b0bbbcdc893ae",
+    "native/success-authenticator.jsonl": "b9364c5e462e47845af206e68d2c2490e3764bee3631baac9ce204133cc601f2",
+    "native/success-frames.jsonl": "bceaa0ced7022872e7a82b2d7e3ed46a15d97ff3b5055fb439262964f37810af",
+    "native/success-supplicant.conf": "59d0cc7f5d28d8847a62e10c4f3580672896ee363976b08269de524e06ddd1f9",
+    "native/success-supplicant.jsonl": "0d5138d0f3973b028f90c0cb47333d9870f852856b441b6cf2b3b49848146346",
+    "native/supplicant-status.txt": "9b77f4b6f1971774b92926ca79243e71c6d07c51dd5e677e0827e4f1ad351710",
+    "native/supplicant-version.txt": "320a976c97614caa812c6fd36087e15634922ed7766d08fb98477f0c6312c265",
+    "native/users": "f8b1102070fa116a9eb09ecc69b4198ce819d52e74a0859df18eae0825d1e38d"
+  },
+  "verifierSHA256": {
+    "scripts/check_eap_capture.py": "9d94275e903a2911dc042141097832049dc688917bf96a888c7bb90b5b6544df",
+    "scripts/test_check_eap_capture.py": "2bd266d569633894d5135acece0524572b5397e9655e1751a42fcd1b7317b194"
+  },
+  "projectionSHA256": {
+    "docs/research/EAP_AUTHENTICATION.md": "1805b82656b7b1b17d008c62de8b7690806c04bfb70194908fc3582963bda9d9",
+    "examples/eap/Dockerfile": "28a179f143653427dd2058e44d77af579e1f9533964f2ba62f1617796005036e",
+    "examples/eap/README.md": "574e77fe4c6a72686b626ff48898317ea6de5d8b6bbf949cb7075691a9de1abc",
+    "examples/eap/bad-server.json": "f8168bb19d2699600ec09aef7901a0d8e991e6cf9a9d3c91f33954f4d0d88ea7",
+    "examples/eap/capture-stderr.txt": "2d6d9c9e6400fad65b029e57396715833a2f2e6bd5ca82c564015de8040d0378",
+    "examples/eap/capture-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/eap/capture.sh": "5713fda54202681cc73d40a97825c573c4893cb260284a703f7aa54cd29edf74",
+    "examples/eap/checked-evidence.json": "8802dff0ef888cf7bf0b80bf2f21a6caa75f357c9dde9a59c5317d3077452677",
+    "examples/eap/exercise.py": "919a675f13ceea2dcabbeb3d83738cf6c3d73a88b17f49bc5b1bf8784b1ff713",
+    "examples/eap/hostapd-build.config": "10a2c7a2f3248efcdff003b65c0beed87e2ed724fedcabcd1c20d23954d648c6",
+    "examples/eap/recapture.sh": "02466aebf6a61c4e7088b863439c3dbff875554a0dc5fec2345f16902950c344",
+    "examples/eap/success.json": "af43e46cc4b937a9498cafb182e91ae40b419f1bb84af1d84defab12e7f790c6",
+    "examples/eap/supplicant-build.config": "1806823f910b68e3d7d1d76325b639c24d13da58c3802c1128d98ebbdc6e3287",
+    "scripts/build_eap_examples.py": "4c2bef3926f2e22ca3349b6a6ccd3dff8de982c1007a60c50341a8e804c82d33"
+  },
+  "localRoundProjection": {
+    "beginEvents": 1,
+    "capturedStartsBeforeTerminal": 1,
+    "methodRound": 2,
+    "meaning": "Declared local tag under the isolated producer-window attribution assumption; not a wire nonce or a native process epoch.",
+    "methodObservation": "Inserted after the captured terminal packet; successful logical authorization is observed before Logoff, failure remains denied.",
+    "applicationObservations": "None in the native traces; application events used by tests are synthetic."
+  }
+}

@@ -96,6 +96,8 @@ The model uses the data-plane input schema.
 It supplies directed physical links, longest-prefix routes, ordered packet rules, and request policies.
 The reviewer supplies the device mapping and identity facts.
 The importer does not discover a live topology or prove EAP authentication.
+The separate [EAP session layer](EAP.md) connects raw message framing and trusted method results to guarded session admission.
+Its wired native experiment leaves the Wi-Fi profile's original coverage gaps unchanged.
 
 The profile requires these fixed queries in their specified order:
 

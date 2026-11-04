@@ -498,6 +498,101 @@ def buffered_checks():
         invoke("buffered-lifecycle", path, selection, "--from", "0", "--drained-at", "2", code=2)
 
 
+def eap_checks():
+    from build_eap_examples import build
+
+    directory = ROOT / "examples/eap"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    for relative, digest in provenance["artifactSHA256"].items():
+        assert hashlib.sha256((directory / relative).read_bytes()).hexdigest() == digest, relative
+    for group in ["verifierSHA256", "projectionSHA256"]:
+        for relative, digest in provenance[group].items():
+            assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, traces = build()
+    assert evidence == json.loads((directory / "checked-evidence.json").read_text())
+    assert evidence["frameCount"] == 32 and evidence["outerIdentity"] != evidence["subject"]
+    reports = {}
+    for name, trace in traces.items():
+        assert trace == json.loads((directory / (name + ".json")).read_text())
+        report = json.loads(invoke("eap", directory / (name + ".json"), "--json"))
+        assert (
+            report["compliant"] and report["scope"] == "eap-derived-session-observation-agreement"
+        )
+        assert report["sources"] and report["assumptions"]
+        assert not report["final"]["authorized"] and not report["final"]["sessionAuthenticated"]
+        reports[name] = report
+    assert reports["success"]["eventCount"] == 20 and reports["bad-server"]["eventCount"] == 16
+    findings = reports["success"]["findings"]
+    assert not findings[16]["expected"]["authorized"] and findings[17]["expected"]["authorized"]
+    assert findings[17]["expected"]["methodEvidence"]["subject"] == evidence["subject"]
+    assert (
+        not findings[18]["expected"]["authorized"]
+        and not findings[19]["expected"]["credentialPresent"]
+    )
+    assert not any(
+        finding["expected"]["authorized"] for finding in reports["bad-server"]["findings"]
+    )
+    with tempfile.TemporaryDirectory(prefix="netlib-eap-") as folder:
+        path = Path(folder) / "changed.json"
+        for field, value in [
+            ("round", 1),
+            ("subject", evidence["outerIdentity"]),
+            ("accepted", False),
+            ("method", 4),
+        ]:
+            altered = json.loads(json.dumps(traces["success"]))
+            altered["events"][17][field] = value
+            path.write_text(json.dumps(altered))
+            failed = json.loads(invoke("eap", path, "--json", code=1))
+            assert not failed["findings"][17]["matched"]
+            assert not failed["findings"][17]["expected"]["authorized"]
+            assert failed["findings"][19]["matched"]
+        altered = json.loads(json.dumps(traces["success"]))
+        altered["events"][16]["authorized"] = True
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("eap", path, "--json", code=1))
+        assert failed["findings"][17]["matched"] and failed["final"] == reports["success"]["final"]
+        # Application outcomes below are synthetic model tests, not native measurements.
+        altered = json.loads(json.dumps(traces["success"]))
+        scope = {"resource": "application", "operation": "read"}
+        credential = {
+            "issuer": altered["context"]["issuer"],
+            "subject": altered["context"]["consumer"],
+            "audience": altered["context"]["producer"],
+            "scopes": [scope],
+            "expiresAt": 100,
+            "integrity": True,
+        }
+        altered["events"][18:18] = [
+            {"type": "install", "credential": credential, "authorized": None},
+            {"type": "request", "scope": scope, "accepted": True, "authorized": True},
+        ]
+        altered["events"].append(
+            {"type": "request", "scope": scope, "accepted": False, "authorized": False}
+        )
+        path.write_text(json.dumps(altered))
+        modeled = json.loads(invoke("eap", path, "--json"))
+        assert modeled["findings"][19]["expectedAccepted"]
+        assert not modeled["findings"][-1]["expectedAccepted"]
+        assert not modeled["final"]["credentialPresent"]
+        altered["events"].append({"type": "authenticate", "success": True, "authorized": True})
+        path.write_text(json.dumps(altered))
+        invoke("eap", path, code=2)
+        malformed = json.loads(json.dumps(traces["success"]))
+        malformed["events"][1]["raw"] = "0"
+        path.write_text(json.dumps(malformed))
+        invoke("eap", path, code=2)
+        malformed = json.loads(json.dumps(traces["success"]))
+        malformed["events"].extend(
+            [
+                {"type": "advance", "now": 5, "authorized": None},
+                {"type": "advance", "now": 4, "authorized": None},
+            ]
+        )
+        path.write_text(json.dumps(malformed))
+        invoke("eap", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -506,6 +601,7 @@ def main():
     lifecycle_checks()
     revocation_checks()
     buffered_checks()
+    eap_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -563,7 +659,7 @@ def main():
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
     print(
-        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, lifecycle, revocation, and buffered commands."
+        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, lifecycle, revocation, buffered, and EAP commands."
     )
 
 

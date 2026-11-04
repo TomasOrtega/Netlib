@@ -584,6 +584,48 @@ The profile rejects that event instead of inventing a standard requirement.
 A separate coverage report identifies missing identity evidence, missing cryptographic evidence, and unsupported optional claims.
 The [5G guide](FIVEG.md) defines the trace schema and exact procedure scope.
 
+## EAP-derived authentication and admission
+
+The EAP codec reads base Request, Response, Success, and Failure packets with bounded identifiers and lengths.
+Request and Response payloads include a Type byte and opaque method data.
+Terminal packets have a declared length of four.
+Padding beyond declared lengths remains preserved and separate at each encapsulation layer.
+Binary round-trip proofs cover structured encodings and reconstruction of arbitrary accepted bytes.
+Hex and MAC text parsing remain tested implementations.
+
+The selected EAPOL profile supports untagged Ethernet, versions 1 through 3, and EAP, Start, and Logoff bodies.
+The checker binds a peer and authenticator MAC, checks destination consistency, and enforces message roles.
+MAC equality does not establish source integrity.
+Key, MKA, VLAN, and other unmodeled encapsulations produce errors.
+
+Guarded authorization requires matching selected-method Request and Response identifiers, a corresponding terminal Success, and accepted current-round evidence for the expected principal.
+The outer Identity remains untrusted bytes.
+Method evidence can arrive before or after terminal Success.
+Opaque TLS bytes alone do not establish cryptographic method acceptance.
+The profile uses explicit local failclosed resets and unbounded local round tags.
+Those tags are separate from wire identifiers and native producer-window labels.
+Trusted evidence attribution and wire replay protection remain separate obligations.
+
+The session bridge derives authentication from the guarded EAP state.
+Its application events cannot directly set authentication.
+Changed rounds or authorization results clear the previous credential and admission.
+An application request still needs every current credential guard.
+The configured-principal campus theorem uses the report's actual consumer and proves the selected admission's availability under each admitted internal-node fault.
+Both modeled gateways share the current session state.
+Native enforcement and distributed propagation remain outside that theorem.
+
+The `eap` command checks schema 1 with context, link binding, and ordered events.
+Raw frames, method results, credentials, clocks, and observed requests retain distinct roles.
+Optional authorization observations and request outcomes cannot update model state.
+A compliant report establishes agreement with all supplied observations, including correct denials.
+The native examples record authentication observations only; application outcomes in tests are explicitly synthetic.
+
+The wired capture retains 32 raw frames and sanitized hostapd/wpa_supplicant logs for TLS 1.3 success, Logoff, and server-name rejection.
+Its verifier checks byte, fragment, identity-policy, producer-version, protected-success, and logical-state consistency.
+It does not independently verify TLS cryptography, native current-round tagging, full IEEE 802.1X behavior, or physical port enforcement.
+The [EAP guide](EAP.md) records the profile and evidence limits.
+The original Wi-Fi coverage obligations remain unchanged.
+
 ## Requirement language
 
 The text interface accepts one requirement per line:
@@ -779,6 +821,7 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 14. Static stateful refinement covers all five labels and every modeled header, with checked counterexamples and budget errors.
 15. Output exclusion covers cached bindings, rule order, deletion, suffix state retention, unsafe unobserved contexts, and observation mismatch.
 16. Buffered cutovers preserve FIFO order and multiplicity, separate old deliveries from later exclusion, reject premature drain boundaries, and handle growing clean backlogs.
+17. EAP tests cover framing reconstruction, padding, identifier and method correlation, stale evidence, anonymous Identity, failclosed resets, session coupling, and configured-principal campus admission.
 
 ## Scope limits
 
