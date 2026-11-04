@@ -1,12 +1,12 @@
 """Test site links, archive entries, and source records."""
 
-from contextlib import redirect_stdout
 import io
 import json
-from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 from unittest.mock import patch
 
 import check_site
@@ -28,19 +28,24 @@ class SiteTests(unittest.TestCase):
 
     def test_root_base_path(self):
         self.write("index.html", '<base href="/Netlib/"><a href="api/module.html#proof">API</a>')
-        self.write("api/module.html", '<base href="/Netlib/api/"><h1 id="proof">Proof</h1>'
-                   '<a href="../index.html">Start</a>')
+        self.write(
+            "api/module.html",
+            '<base href="/Netlib/api/"><h1 id="proof">Proof</h1><a href="../index.html">Start</a>',
+        )
         self.assertEqual(check_site.check_links(self.site), 2)
 
     def test_deep_relative_links(self):
-        self.write("api/Netlib/Packet/Basic.html",
-                   '<a href="../Network/Basic.html#gateway">Gateway</a>')
+        self.write(
+            "api/Netlib/Packet/Basic.html", '<a href="../Network/Basic.html#gateway">Gateway</a>'
+        )
         self.write("api/Netlib/Network/Basic.html", '<h1 id="gateway">Gateway</h1>')
         self.assertEqual(check_site.check_links(self.site), 2)
 
     def test_deep_relative_base(self):
-        self.write("api/Netlib/Packet/Basic.html",
-                   '<base href="../../"><a href="Netlib/Network/Basic.html#gateway">Gateway</a>')
+        self.write(
+            "api/Netlib/Packet/Basic.html",
+            '<base href="../../"><a href="Netlib/Network/Basic.html#gateway">Gateway</a>',
+        )
         self.write("api/Netlib/Network/Basic.html", '<h1 id="gateway">Gateway</h1>')
         self.assertEqual(check_site.check_links(self.site), 2)
 
@@ -56,29 +61,40 @@ class SiteTests(unittest.TestCase):
             check_site.check_links(self.site)
 
     def test_top_and_text_fragments(self):
-        self.write("index.html", '<a href="#top">Top</a>'
-                   '<a href="#:~:text=Use%20the%20model">Text</a>')
+        self.write(
+            "index.html", '<a href="#top">Top</a><a href="#:~:text=Use%20the%20model">Text</a>'
+        )
         self.assertEqual(check_site.check_links(self.site), 1)
 
     def test_named_and_encoded_anchors(self):
-        self.write("index.html", '<a href="page.html#field%20name">Field</a>'
-                   '<a href="page.html#legacy">Old link</a>')
+        self.write(
+            "index.html",
+            '<a href="page.html#field%20name">Field</a><a href="page.html#legacy">Old link</a>',
+        )
         self.write("page.html", '<h1 id="field name">Field</h1><a name="legacy"></a>')
         self.assertEqual(check_site.check_links(self.site), 2)
 
     def test_directory_index_and_external_links(self):
-        self.write("index.html", '<a href="manual/">Manual</a>'
-                   '<a href="https://example.com/missing">Source</a>'
-                   '<a href="mailto:person@example.com">Mail</a>')
-        self.write("manual/index.html", '<h1>Manual</h1>')
+        self.write(
+            "index.html",
+            '<a href="manual/">Manual</a>'
+            '<a href="https://example.com/missing">Source</a>'
+            '<a href="mailto:person@example.com">Mail</a>',
+        )
+        self.write("manual/index.html", "<h1>Manual</h1>")
         self.assertEqual(check_site.check_links(self.site), 2)
 
     def declaration_data(self, link="Netlib/Packet/Basic.html#Header"):
         self.write("api/Netlib/Packet/Basic.html", '<h1 id="Header">Header</h1>')
-        self.write("api/declarations/declaration-data.bmp", json.dumps({
-            "declarations": {"Netlib.Packet.Header": {"docLink": link}},
-            "modules": {"Netlib.Packet.Basic": {"url": "Netlib/Packet/Basic.html"}},
-        }))
+        self.write(
+            "api/declarations/declaration-data.bmp",
+            json.dumps(
+                {
+                    "declarations": {"Netlib.Packet.Header": {"docLink": link}},
+                    "modules": {"Netlib.Packet.Basic": {"url": "Netlib/Packet/Basic.html"}},
+                }
+            ),
+        )
 
     def test_declaration_data_links(self):
         self.declaration_data()
@@ -91,10 +107,13 @@ class SiteTests(unittest.TestCase):
 
     def test_css_asset_links(self):
         self.write("index.html", '<link rel="stylesheet" href="css/main.css">')
-        self.write("css/main.css", "@font-face {src: url('../fonts/lean.woff2')}\n"
-                   '.icon {background: url("../images/icon.svg")}\n'
-                   ".remote {background: url(https://example.com/icon.svg)}\n"
-                   ".inline {background: url(data:image/svg+xml,abc)}")
+        self.write(
+            "css/main.css",
+            "@font-face {src: url('../fonts/lean.woff2')}\n"
+            '.icon {background: url("../images/icon.svg")}\n'
+            ".remote {background: url(https://example.com/icon.svg)}\n"
+            ".inline {background: url(data:image/svg+xml,abc)}",
+        )
         self.write("fonts/lean.woff2", "font")
         self.write("images/icon.svg", "<svg></svg>")
         self.assertEqual(check_site.check_links(self.site), 1)
@@ -143,8 +162,12 @@ class ArchiveTests(unittest.TestCase):
                 archive.addfile(entry, io.BytesIO(content) if entry.isfile() else None)
 
     def test_normal_roundtrip(self):
-        self.save([("index.html", b"Start", tarfile.REGTYPE),
-                   ("api/module.html", b"Module", tarfile.REGTYPE)])
+        self.save(
+            [
+                ("index.html", b"Start", tarfile.REGTYPE),
+                ("api/module.html", b"Module", tarfile.REGTYPE),
+            ]
+        )
         check_site.extract(self.archive, self.destination)
         self.assertEqual((self.destination / "index.html").read_bytes(), b"Start")
         self.assertEqual((self.destination / "api/module.html").read_bytes(), b"Module")
@@ -170,18 +193,22 @@ class ArchiveTests(unittest.TestCase):
                     check_site.extract(self.archive, self.destination)
 
     def test_reject_duplicate_path(self):
-        self.save([("index.html", b"First", tarfile.REGTYPE),
-                   ("index.html", b"Second", tarfile.REGTYPE)])
+        self.save(
+            [("index.html", b"First", tarfile.REGTYPE), ("index.html", b"Second", tarfile.REGTYPE)]
+        )
         with self.assertRaisesRegex(ValueError, "Reject the archive entry"):
             check_site.extract(self.archive, self.destination)
 
     def test_reject_duplicate_path_alias(self):
-        for original, alias in [("index.html", "./index.html"),
-                                ("index.html", "././index.html"),
-                                ("api/module.html", "api//module.html")]:
+        for original, alias in [
+            ("index.html", "./index.html"),
+            ("index.html", "././index.html"),
+            ("api/module.html", "api//module.html"),
+        ]:
             with self.subTest(alias=alias):
-                self.save([(original, b"First", tarfile.REGTYPE),
-                           (alias, b"Second", tarfile.REGTYPE)])
+                self.save(
+                    [(original, b"First", tarfile.REGTYPE), (alias, b"Second", tarfile.REGTYPE)]
+                )
                 with self.assertRaisesRegex(ValueError, "Reject the archive entry"):
                     check_site.extract(self.archive, self.destination)
 
@@ -212,7 +239,9 @@ class ManifestTests(unittest.TestCase):
     def write_package(self, provenance=None):
         entries = {
             "index.html": b'<h1 id="start">Start</h1><a href="#top">Top</a>',
-            "provenance.json": json.dumps(self.record if provenance is None else provenance).encode(),
+            "provenance.json": json.dumps(
+                self.record if provenance is None else provenance
+            ).encode(),
         }
         with tarfile.open(self.archive, "w:gz") as archive:
             for name, content in entries.items():
@@ -230,11 +259,17 @@ class ManifestTests(unittest.TestCase):
     def test_normal_package_roundtrip(self):
         self.assertIn("Site checks passed for 1 HTML pages", self.validate())
         self.assertTrue((self.destination / "index.html").is_file())
-        self.assertEqual(json.loads((self.destination / "provenance.json").read_text()), self.record)
+        self.assertEqual(
+            json.loads((self.destination / "provenance.json").read_text()), self.record
+        )
 
     def test_stale_source_hash(self):
-        with patch.object(check_site, "input_hashes", return_value={"Netlib/Core/Logic.lean": "changed"}):
-            with self.assertRaisesRegex(ValueError, "These inputs changed.*\\nNetlib/Core/Logic.lean"):
+        with patch.object(
+            check_site, "input_hashes", return_value={"Netlib/Core/Logic.lean": "changed"}
+        ):
+            with self.assertRaisesRegex(
+                ValueError, "These inputs changed.*\\nNetlib/Core/Logic.lean"
+            ):
                 self.validate()
 
     def test_stale_source_tree_hash(self):

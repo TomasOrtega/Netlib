@@ -1,39 +1,69 @@
+default_stages: [pre-commit]
 repos:
   - repo: local
     hooks:
+      - id: ruff
+        name: Check Python code
+        entry: uv run --locked ruff check .
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: ruff-format
+        name: Check Python format
+        entry: uv run --locked ruff format --check .
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: source-check
+        name: Check source files
+        entry: uv run --locked python scripts/check_source.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: prose-check
+        name: Check documentation text
+        entry: uv run --locked python scripts/check_text.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: site-test
+        name: Test static site tools
+        entry: uv run --locked python -m unittest discover -s scripts -p test_*.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: site-check
+        name: Check the saved site
+        entry: uv run --locked python scripts/check_site.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
       - id: lean-build
         name: Check Lean proofs and build
         entry: lake --wfail build
         language: system
         pass_filenames: false
         always_run: true
+        stages: [manual]
       - id: lean-test
         name: Test network checking and input validation
         entry: lake test
         language: system
         pass_filenames: false
         always_run: true
+        stages: [manual]
       - id: cli-test
         name: Compare CLI with independent graph oracle
-        entry: python3 scripts/check_cli.py
+        entry: uv run --locked python scripts/check_cli.py
         language: system
         pass_filenames: false
         always_run: true
-      - id: source-check
-        name: Check source files
-        entry: python3 scripts/check_source.py
+        stages: [manual]
+      - id: profile-test
+        name: Check standards and packet examples
+        entry: uv run --locked python scripts/check_profiles.py
         language: system
         pass_filenames: false
         always_run: true
-      - id: prose-check
-        name: Check documentation text
-        entry: python3 scripts/check_text.py
-        language: system
-        pass_filenames: false
-        always_run: true
-      - id: site-test
-        name: Test static site tools
-        entry: python3 -m unittest discover -s scripts -p test_*.py
-        language: system
-        pass_filenames: false
-        always_run: true
+        stages: [manual]

@@ -29,7 +29,7 @@ and its [version rules](https://github.com/leanprover/verso#branches-and-tags).
 
 Use doc-gen4 for the API pages.
 Keep its Lake project in `docbuild/`.
-The project needs two packages: doc-gen4 and the parent `netlib` package.
+The project uses doc-gen4, Verso, and the parent `netlib` package.
 This keeps documentation tools separate from the library dependencies.
 The official guide recommends this directory layout.
 See the [doc-gen4 setup](https://github.com/leanprover/doc-gen4#usage).
@@ -54,7 +54,7 @@ Some browser features do not work with direct file access.
 See the [doc-gen4 output guide](https://github.com/leanprover/doc-gen4#usage).
 
 ```sh
-python3 -m http.server --directory docbuild/.lake/build/doc 8000
+uv run --locked python -m http.server --directory docbuild/.lake/build/doc 8000
 ```
 
 Open `http://localhost:8000/` in a browser.
@@ -97,6 +97,26 @@ See the [Verso output command](https://github.com/leanprover/verso/blob/v4.35.0/
 
 ## Local build and CI
 
+The project records Python tools in `pyproject.toml` and `uv.lock`.
+The lock file pins the resolved versions.
+CI installs that environment with:
+
+    uv sync --locked --group dev
+    uv run --locked prek -a --quiet
+
+The default hook stage checks Ruff lint, Ruff format, source policy, prose, and Python tests.
+It does not compile Lean.
+The saved-site hook uses the pre-push stage.
+CI also runs the saved-site checker explicitly.
+
+Run local compiler and CLI checks through the manual stage:
+
+    uv run --locked prek -a --quiet --stage manual
+
+That stage runs the Lean build, Lean tests, graph oracle, and standards fixtures.
+CI must never invoke this stage.
+The separation keeps the same default hook set safe for local use and CI.
+
 Doc-gen4 needs Lean and a C compiler on macOS and Linux.
 Its documentation target needs compiled library modules.
 The tagged build file requests each module's `leanArts` build output.
@@ -136,7 +156,7 @@ Each API source link uses this commit.
 
 Run the combined documentation command from the repository root:
 
-    python3 scripts/build_docs.py
+    uv run --locked python scripts/build_docs.py
 
 The command builds the Verso manual and doc-gen4 API pages.
 It keeps only Netlib API pages and their required assets.
@@ -145,13 +165,17 @@ Links to Lean declarations use upstream source files or the official Lean API.
 
 The command saves an archive and its source manifest in the docs directory.
 The manifest contains hashes for all site inputs.
+These inputs include source modules, documentation, examples, and the Python dependency lock.
 CI rejects the saved archive when these input hashes change.
 Commit the archive and manifest after the build.
+Run the saved-site hook before a push:
+
+    uv run --locked prek -a --quiet --stage pre-push
 
 Extract a checked copy into an empty preview folder:
 
-    python3 scripts/check_site.py --extract build/site
-    python3 -m http.server --directory build/site 8000
+    uv run --locked python scripts/check_site.py --extract build/site
+    uv run --locked python -m http.server --directory build/site 8000
 
 Open http://localhost:8000/ to review the pages.
 Then push the source and documentation commits.

@@ -6,19 +6,29 @@ The library also provides packet policies, routing models, request enforcement,
 and network change proofs. Its CLI analyzes requirements and evaluates
 named-service configurations.
 
+The standards catalogue records document versions, clauses, applicability, and assumptions.
+The Wi-Fi profile imports real hostapd settings and checks a complete network model.
+The 5G profile checks selected service admission rules over session traces.
+Read the [Wi-Fi guide](docs/WIFI.md), [data-plane guide](docs/DATAPLANE.md),
+and [5G guide](docs/FIVEG.md).
+
 DARPA-SN-27-13 (FastVacc) provides the research direction for this library.
 The [specification](docs/SPECIFICATION.md) maps that notice to the implementation.
 The examples show architecture patterns. They do not certify an external standard.
 
 ## Run locally
 
-Install [elan](https://github.com/leanprover/elan). Then run these commands from
-the repository directory:
+Install [elan](https://github.com/leanprover/elan) and
+[uv](https://docs.astral.sh/uv/getting-started/installation/).
+Then run these commands from the repository directory:
 
 ```sh
+uv sync --locked
+uv run prek -a --quiet
+uv run prek -a --quiet --stage manual
 lake build
 lake test
-python3 scripts/check_cli.py
+uv run python scripts/check_cli.py
 lake exe netlib demo
 ```
 
@@ -64,10 +74,10 @@ Include manual, tooling, and prose changes in the source commit.
 Then generate and validate the saved site locally:
 
 ```sh
-python3 scripts/check_text.py
-python3 scripts/build_docs.py
-python3 scripts/check_site.py --extract build/site
-python3 -m http.server --directory build/site 8000
+uv run python scripts/check_text.py
+uv run python scripts/build_docs.py
+uv run python scripts/check_site.py --extract build/site
+uv run python -m http.server --directory build/site 8000
 ```
 
 Use an empty `build/site` directory for extraction.
@@ -180,8 +190,43 @@ A proposed completion contains only supplied goals that remain consistent with
 the requirements. Reports keep source IDs and text.
 
 A propositional model can describe a combination that no network can realize.
-Analysis rejects more than **16 distinct atoms**, including goals and network
-laws. It does not sample larger problems.
+Analysis uses a proved branch solver with a work budget.
+It has no fixed atom-count limit.
+The default budget permits 100,000 search nodes per solver query.
+A budget error produces no consistency or entailment result.
+Read the [solver guide](docs/SOLVER.md).
+
+## Check standards and packet models
+
+Run the complete Wi-Fi deployment example:
+
+    lake exe netlib wifi examples/wifi/secure.conf examples/wifi/deployment.json --json
+
+The report checks 12 AP obligations and five fixed network requirements.
+Each result identifies its source and assumptions.
+The companion model connects physical links, longest-prefix routes, ordered ACLs,
+identity policies, and gateway enforcement.
+Its AP binding must match the imported interface and bridge.
+
+Run a packet model or a 5G session trace:
+
+    lake exe netlib dataplane examples/dataplane/secure.json --json
+    lake exe netlib fiveg examples/5g/secure.json --json
+    uv run python scripts/check_profiles.py
+
+The 5G trace records both accepted and denied requests.
+A correct denial satisfies admission safety.
+An unauthorized observed admission violates the selected profile.
+Valid token reuse remains permitted.
+
+Use the coverage reports for assurance outside these selected checks:
+
+    lake exe netlib wifi-coverage --json
+    lake exe netlib fiveg-coverage --json
+
+Unsupported requirements and missing evidence cannot count as satisfied.
+A passing selected profile does not establish complete CSfC or 5G compliance.
+Identity and cryptographic observations remain explicit assumptions.
 
 ## Read the proofs
 
@@ -206,7 +251,8 @@ The library proves results about rule order, shadowed rules, and policy refineme
 Routing uses the longest matching destination prefix. The first matching route
 wins when prefix lengths are equal. Routing and access control lists define
 packet-specific forwarding networks. These library models are stateless.
-They do not rewrite packet headers. The CLI JSON format still uses named services.
+They do not rewrite packet headers. The original check command still uses named services.
+The dataplane command imports packet headers and request policies.
 
 Network change theorems preserve results when two networks agree throughout a
 closed region that contains the queried sources. These theorems cover
@@ -243,9 +289,12 @@ See the [proof inventory](docs/PROOFS.md) for their scope and counts.
 | `Netlib/Model/` | Named-service configuration input. |
 | `Netlib/Check/` | Compliance search, proofs, and reports. |
 | `Netlib/Examples/` | Reference architecture proofs. |
+| `Netlib/Standards/` | Sourced requirements and Wi-Fi and 5G profiles. |
+| `Netlib/Import/` | Strict import of hostapd settings. |
+| `Netlib/Protocol/` | Session states and admission invariants. |
 
 The models exclude stateful firewalls, cryptographic correctness, dynamic routing
-protocols, and live device configuration. The importer does not read vendor
-configurations. Netlib does not translate arbitrary prose or PDFs.
+protocols, and live device configuration. The importer supports a strict hostapd 2.12 subset.
+It does not import general vendor configurations. Netlib does not translate arbitrary prose or PDFs.
 The repository does not claim the speedup target in the DARPA notice.
 New models, adapters, proofs, and benchmarks can extend the library.

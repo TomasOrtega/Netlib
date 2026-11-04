@@ -55,6 +55,11 @@ The source tree separates the library into these parts:
  * `Netlib.Core` defines formulas and finite logical analysis.
  * `Netlib.Network` defines paths, cuts, gateways, and refinements.
  * `Netlib.Packet` defines packet fields, matches, and access control lists.
+ * `Netlib.Routing` selects destination routes.
+ * `Netlib.Security` defines request policy and gateway enforcement.
+ * `Netlib.Protocol` defines session states and admission invariants.
+ * `Netlib.Standards` records sources and selected standards profiles.
+ * `Netlib.Import` reads the supported hostapd configuration fragment.
  * `Netlib.Model` defines configuration data.
  * `Netlib.Policy` connects requirement text and network observations.
  * `Netlib.Check` checks configurations and constructs certified results.
@@ -64,7 +69,8 @@ The packet library adds 32-bit addresses, protocol numbers, and port ranges.
 An address prefix selects addresses with the same first bits.
 A match can restrict any supported header field.
 An absent field accepts every value for that field.
-The JSON CLI uses named traffic classes instead of packet headers.
+The original `check` command uses named traffic classes.
+The `dataplane` command uses fixed packet headers and named requests.
 
 # Proof patterns
 %%%
@@ -145,13 +151,23 @@ It therefore cannot introduce a new packet path.
 
 The Boolean formula evaluator has a separate proposition semantics.
 The library proves that these meanings agree.
-Finite logical analysis enumerates every assignment within its declared scope.
-The input adapter rejects more than 16 distinct atoms.
-It includes background laws in this count.
+The exact reference solver enumerates finite assignments.
+The executable solver branches on atoms and simplifies constants.
+Every completed answer carries a model proof or an impossibility proof.
+It has no fixed atom limit.
+
+Each solver query has a default budget of 100,000 search nodes.
+Both branches share the remaining nodes for that query.
+An exhausted query returns an error.
+It does not establish consistency, inconsistency, or entailment.
+The analysis can make several queries.
+This budget does not limit total analysis time or memory.
 
 Check consistency before goal coverage.
 An inconsistent policy entails every goal in classical logic.
 Reduce requirements in sequence so that two duplicate requirements cannot both disappear.
+Keep the background laws fixed during every removal.
+The fast reduction carries a proof of equivalence for every valuation.
 Use supplied goals for completion.
 Do not infer an unstated mission goal.
 
@@ -221,7 +237,7 @@ Run these commands from the repository root:
 ```
 lake build
 lake test
-python3 scripts/check_cli.py
+uv run --locked python scripts/check_cli.py
 lake exe netlib check examples/secure.json examples/requirements.netlib
 ```
 
@@ -252,6 +268,129 @@ These proofs do not establish parser correctness or configuration fidelity.
 They do not certify live devices, cryptography, or an external security standard.
 Review the source text, formulas, labels, and imported links together.
 
+# Standards and composed models
+%%%
+tag := "standards"
+file := "standards"
+%%%
+
+## Sources and evidence
+
+Each source record names a document, version, clause, and URL.
+Each requirement records its applicability and assumptions.
+Each finding keeps the requirement and its evidence.
+Model check IDs and external clause IDs remain separate.
+
+Only satisfied and not-applicable findings can pass.
+Unsupported requirements and missing evidence remain visible.
+An empty report cannot pass.
+These checked examples establish two rules:
+
+```lean
+example :
+    Netlib.Standards.Status.passes .unsupported =
+      false := by
+  decide
+
+example :
+    (Netlib.Standards.Report.mk "Example" []).compliant =
+      false := by
+  decide
+```
+
+The source mapping still needs review against the intended clause.
+A formal predicate proves only its stated part of a source requirement.
+
+## Wi-Fi deployment
+
+The Wi-Fi adapter reads one AP and one BSS from hostapd 2.12.
+It rejects unsupported directives, duplicate fields, and invalid values.
+Reports preserve source lines and hide the RADIUS shared-secret value.
+Missing security settings produce missing-evidence findings.
+
+The AP subset checks 12 explicit configuration obligations.
+These include selected Campus WLAN 3.2.0 sub-obligations.
+A setting does not establish the full client, server, or negotiated algorithm behavior.
+
+The deployment companion binds the AP interface and bridge to one modeled access point.
+It adds five fixed network requirements.
+The input cannot delete or reorder those requirements.
+The requirements cover service availability, management isolation, gateway mediation, AP mediation, and an unauthenticated request.
+
+Run the complete example:
+
+```
+lake exe netlib wifi examples/wifi/secure.conf examples/wifi/deployment.json --json
+lake exe netlib wifi-coverage --json
+```
+
+The coverage report identifies obligations outside the AP subset.
+It does not convert missing operational evidence into a passing result.
+
+## Composed forwarding
+
+The data-plane model uses fixed IPv4 packet headers and named requests.
+Each step must follow an enabled physical link.
+The longest matching route must select its target.
+The link's ordered ACL must permit the packet.
+Any incident enforcement gateway must admit the request.
+
+The route lookup cannot create physical adjacency.
+An empty ACL denies traffic.
+The identity and permission facts remain supplied inputs.
+Every selected endpoint pair has a checked path or cut.
+
+Run the passing model and a gateway bypass:
+
+```
+lake exe netlib dataplane examples/dataplane/secure.json --json
+lake exe netlib dataplane examples/dataplane/bypass.json --json
+```
+
+The final-status theorem covers every original query in its original order.
+The bypass fixture shows why a failed identity check alone does not establish isolation.
+
+## 5G service traces
+
+The selected profile uses TS 33.501 version 19.5.0, clause 13.4.1.1.2.
+It checks admitted requests in a direct NF-instance trace.
+The session records identity results, a credential, a clock, and guarded admission.
+Its transition proofs preserve the admission invariant.
+
+The trace supplies identity and integrity observations.
+The guards check token presence, issuer, subject, audience, scope, and expiration.
+An unsafe observed admission violates the profile.
+A correct denied request satisfies admission safety.
+Valid token reuse remains permitted.
+
+The selected service-request procedure has no token-revocation step.
+Generic local revocation clears the current credential.
+It does not maintain a persistent token blacklist.
+The 5G profile rejects that event.
+
+Run the trace and its separate evidence report:
+
+```
+lake exe netlib fiveg examples/5g/secure.json --json
+lake exe netlib fiveg-coverage --json
+uv run --locked python scripts/check_profiles.py
+```
+
+The report assumes that the trace records every actual admission.
+It does not prove TLS authentication or token cryptography.
+Optional claim forms and indirect communication remain outside the selected profile.
+
+## Review the complete chain
+
+1. Select a versioned source clause.
+2. Review its formal predicate and assumptions.
+3. Import the supported configuration or trace.
+4. Bind the input to the declared model.
+5. Check the model property.
+6. Inspect source-linked evidence and any violating path or event.
+
+A passing selected profile does not establish complete standards compliance.
+
 # Documentation process
 %%%
 tag := "documentation"
@@ -264,25 +403,54 @@ Doc-gen4 produces the API pages from the library declarations.
 Verso produces this manual and checks its Lean examples.
 Both builders run on the local computer.
 
-Run the local website command from the repository root:
+Use the locked Python tools:
 
 ```
-python3 scripts/build_docs.py
+uv sync --locked --group dev
+uv run --locked prek -a --quiet
+```
+
+The default hooks check Python lint, format, source policy, prose, and tool tests.
+They do not compile Lean.
+Run local compiler and compiled CLI checks through the manual stage:
+
+```
+uv run --locked prek -a --quiet --stage manual
+```
+
+Commit the reviewed source before the website build.
+Run the website command from the repository root:
+
+```
+uv run --locked python scripts/build_docs.py
 ```
 
 The script saves the site in `docs/site.tar.gz`.
-It records source hashes in `docs/site-manifest.json`.
+It records input hashes in `docs/site-manifest.json`.
+The inputs include source modules, documentation, examples, and the Python dependency lock.
 The combined site contains a manual and an API directory.
-Review the generated pages with an HTTP server before a push.
-Commit the Lean source before the docs build.
-This gives each source link a stable commit.
-Then commit the source documentation, archive, and site manifest.
+Each API source link uses the committed source version.
+Commit the generated archive and manifest in a separate documentation commit.
 
-CI checks the saved source hashes and site links.
-CI unpacks the archive and publishes static files.
-CI must not install Lean or run Lake, doc-gen4, or Verso.
+Extract a checked copy into an empty folder:
+
+```
+uv run --locked python scripts/check_site.py --extract build/site
+uv run --locked python -m http.server --directory build/site 8000
+```
+
+Review the pages at `http://localhost:8000/`.
+Run the saved-site hook before a push:
+
+```
+uv run --locked prek -a --quiet --stage pre-push
+```
+
+CI installs the locked Python environment and runs the default hooks.
+It also checks the saved site explicitly.
+The manual Pages workflow validates and deploys those static files.
+CI must not run the manual hook stage, install Lean, or invoke a documentation builder.
 CI must never compile Lean code.
-A dependency cache does not change this rule.
 
 After a source change, generate the site again locally.
 A stale archive must fail the CI freshness check.

@@ -1,19 +1,19 @@
 """Build and save the manual and API site on this machine."""
 
 import gzip
-from html import escape
 import json
-from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
+from html import escape
+from pathlib import Path
 
 from check_site import check_links
 from package_api import package_api
 from site_common import ARCHIVE, MANIFEST, ROOT, digest, input_hashes, tree_hash
-
 
 GROUPS = {
     "Core": "State requirements as logic formulas.",
@@ -25,6 +25,9 @@ GROUPS = {
     "Policy": "Parse requirements and find missing goals.",
     "Check": "Check claims with proof-backed results.",
     "Examples": "Read complete architecture proofs.",
+    "Standards": "Check versioned Wi-Fi and 5G requirements.",
+    "Import": "Read supported device configuration formats.",
+    "Protocol": "Prove session and admission properties.",
 }
 
 
@@ -33,19 +36,32 @@ def run(*args, cwd=ROOT):
 
 
 def revision():
-    result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
-                            capture_output=True, check=True)
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, capture_output=True, check=True
+    )
     return result.stdout.strip()
 
 
 def require_saved_source():
     source = ["Netlib.lean", "Main.lean", "Netlib"]
-    result = subprocess.run(["git", "diff", "--name-only", "HEAD", "--", *source],
-                            cwd=ROOT, text=True, capture_output=True, check=True)
-    new = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--", *source],
-                         cwd=ROOT, text=True, capture_output=True, check=True)
+    result = subprocess.run(
+        ["git", "diff", "--name-only", "HEAD", "--", *source],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    new = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "--", *source],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
     if result.stdout.strip() or new.stdout.strip():
-        raise SystemExit("Commit the Lean source before the docs build. Source links need that commit.")
+        raise SystemExit(
+            "Commit the Lean source before the docs build. Source links need that commit."
+        )
 
 
 def landing(directory, version, source_revision, stats):
@@ -58,11 +74,16 @@ def landing(directory, version, source_revision, stats):
         preferred = next((p for p in members if p.stem == "Basic"), members[0])
         url = "api/" + preferred.relative_to(ROOT).with_suffix(".html").as_posix()
         count = f"{len(members)} module" + ("" if len(members) == 1 else "s")
-        cards.append(f'<section class="card"><h3><a href="{escape(url)}">{escape(group)}</a>'
-                     f'</h3><p>{escape(text)}</p><span class="label">{count}</span></section>')
+        cards.append(
+            f'<section class="card"><h3><a href="{escape(url)}">{escape(group)}</a>'
+            f'</h3><p>{escape(text)}</p><span class="label">{count}</span></section>'
+        )
     values = {
-        "lean_version": version, "revision": source_revision, "short_revision": source_revision[:8],
-        "module_count": str(stats["modules"]), "declaration_count": str(stats["declarations"]),
+        "lean_version": version,
+        "revision": source_revision,
+        "short_revision": source_revision[:8],
+        "module_count": str(stats["modules"]),
+        "declaration_count": str(stats["declarations"]),
         "module_cards": "\n".join(cards),
     }
     template = (ROOT / "docs/assets/index.html").read_text()
@@ -86,7 +107,8 @@ def licenses(directory):
         links.append(f'<li><a href="{name}">{package}</a></li>')
     (target / "index.html").write_text(
         '<!doctype html><html lang="en"><meta charset="utf-8"><title>Tool licenses</title>'
-        '<h1>Tool licenses</h1><ul>' + "".join(links) + '</ul><a href="../">Netlib</a></html>')
+        "<h1>Tool licenses</h1><ul>" + "".join(links) + '</ul><a href="../">Netlib</a></html>'
+    )
 
 
 def manual_anchors(directory):
@@ -123,9 +145,10 @@ def main():
     source_revision = revision()
     run("lake", "--wfail", "build")
     run("lake", "test")
-    run("python3", "scripts/check_cli.py")
-    run("python3", "scripts/check_source.py")
-    run("python3", "scripts/check_text.py")
+    run(sys.executable, "scripts/check_cli.py")
+    run(sys.executable, "scripts/check_profiles.py")
+    run(sys.executable, "scripts/check_source.py")
+    run(sys.executable, "scripts/check_text.py")
     project = ROOT / "docbuild"
     run("lake", "--wfail", "build", "manual", cwd=project)
     run("lake", "exe", "manual", "--output", "../.lake/manual", cwd=project)
@@ -138,8 +161,11 @@ def main():
         # Keep source links on the exact source commit.
         for page in site.joinpath("api").rglob("*.html"):
             text = page.read_text()
-            text = re.sub(r"(https://github\.com/TomasOrtega/Netlib/(?:blob|tree)/)[^/]+/",
-                          lambda m: m[1] + source_revision + "/", text)
+            text = re.sub(
+                r"(https://github\.com/TomasOrtega/Netlib/(?:blob|tree)/)[^/]+/",
+                lambda m: m[1] + source_revision + "/",
+                text,
+            )
             page.write_text(text)
         shutil.copytree(ROOT / ".lake/manual/html-multi", site / "manual")
         manual_anchors(site / "manual")
@@ -148,21 +174,29 @@ def main():
         licenses(site)
         pages = sum(1 for _ in site.rglob("*.html"))
         config = json.loads((project / "lake-manifest.json").read_text())
-        tools = {p["name"].strip("«»"): p["rev"] for p in config["packages"]
-                 if p["name"].strip("«»") in ["doc-gen4", "verso"]}
+        tools = {
+            p["name"].strip("«»"): p["rev"]
+            for p in config["packages"]
+            if p["name"].strip("«»") in ["doc-gen4", "verso"]
+        }
         if set(tools) != {"doc-gen4", "verso"}:
             raise ValueError("Record both documentation tool versions.")
         provenance = {
-            "schema": 1, "lean_version": version, "source_revision": source_revision,
-            "source_tree": tree_hash(inputs), "inputs": inputs, "tools": tools,
-            "api": stats, "html_pages": pages,
+            "schema": 1,
+            "lean_version": version,
+            "source_revision": source_revision,
+            "source_tree": tree_hash(inputs),
+            "inputs": inputs,
+            "tools": tools,
+            "api": stats,
+            "html_pages": pages,
         }
         (site / "provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
         check_links(site.resolve())
         pack(site)
     manifest = {**provenance, "archive_sha256": digest(ARCHIVE.read_bytes())}
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")
-    run("python3", "scripts/check_site.py")
+    run(sys.executable, "scripts/check_site.py")
     print(f"Saved {pages} HTML pages in {ARCHIVE.relative_to(ROOT)}.")
 
 

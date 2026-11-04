@@ -2,14 +2,14 @@
 
 import argparse
 import html
-from html.parser import HTMLParser
 import json
-from pathlib import Path, PurePosixPath
 import re
 import shutil
 import sys
 import tarfile
 import tempfile
+from html.parser import HTMLParser
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urljoin, urlsplit
 
 from site_common import ARCHIVE, MANIFEST, digest, input_hashes, tree_hash
@@ -62,8 +62,11 @@ def check_links(directory):
             errors.append(f"{path.relative_to(directory)}: Link has no file: {link}")
         elif parts.fragment and target in parsed:
             fragment = unquote(parts.fragment)
-            if (fragment != "top" and fragment not in parsed[target].ids
-                    and not fragment.startswith(":~:text=")):
+            if (
+                fragment != "top"
+                and fragment not in parsed[target].ids
+                and not fragment.startswith(":~:text=")
+            ):
                 errors.append(f"{path.relative_to(directory)}: Link has no anchor: {link}")
 
     for path, page in parsed.items():
@@ -83,8 +86,9 @@ def check_links(directory):
         for module in index["modules"].values():
             check(data, module["url"], origin + "api/")
     if errors:
-        raise ValueError("\n".join(errors[:50]) +
-                         (f"\n{len(errors)} links failed." if len(errors) > 50 else ""))
+        raise ValueError(
+            "\n".join(errors[:50]) + (f"\n{len(errors)} links failed." if len(errors) > 50 else "")
+        )
     return len(parsed)
 
 
@@ -94,8 +98,14 @@ def extract(archive, destination):
         for member in saved.getmembers():
             name = PurePosixPath(member.name)
             canonical = name.as_posix()
-            if (name.is_absolute() or ".." in name.parts or "\\" in member.name
-                    or not name.parts or not member.isfile() or canonical in seen):
+            if (
+                name.is_absolute()
+                or ".." in name.parts
+                or "\\" in member.name
+                or not name.parts
+                or not member.isfile()
+                or canonical in seen
+            ):
                 raise ValueError(f"Reject the archive entry: {member.name}")
             seen.add(canonical)
             target = destination.joinpath(*name.parts)

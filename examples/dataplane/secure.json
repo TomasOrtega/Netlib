@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "devices": [
+    {
+      "id": "client",
+      "zone": "users",
+      "role": "client"
+    },
+    {
+      "id": "gateway",
+      "zone": "boundary",
+      "role": "pep"
+    },
+    {
+      "id": "server",
+      "zone": "services",
+      "role": "server"
+    }
+  ],
+  "groups": [
+    {
+      "name": "peps",
+      "members": [
+        "gateway"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "from": "client",
+      "to": "gateway",
+      "enabled": true,
+      "acl": [
+        {
+          "match": {
+            "source": null,
+            "destination": null,
+            "protocol": 6,
+            "sourcePorts": null,
+            "destinationPorts": {
+              "first": 443,
+              "last": 443
+            }
+          },
+          "action": "permit"
+        }
+      ]
+    },
+    {
+      "from": "gateway",
+      "to": "server",
+      "enabled": true,
+      "acl": [
+        {
+          "match": {
+            "source": null,
+            "destination": null,
+            "protocol": 6,
+            "sourcePorts": null,
+            "destinationPorts": {
+              "first": 443,
+              "last": 443
+            }
+          },
+          "action": "permit"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "node": "client",
+      "entries": [
+        {
+          "destination": {
+            "address": 0,
+            "length": 0
+          },
+          "nextHop": "gateway"
+        }
+      ]
+    },
+    {
+      "node": "gateway",
+      "entries": [
+        {
+          "destination": {
+            "address": 0,
+            "length": 0
+          },
+          "nextHop": "server"
+        }
+      ]
+    },
+    {
+      "node": "server",
+      "entries": []
+    }
+  ],
+  "principals": [
+    {
+      "id": "alice",
+      "authenticated": true
+    },
+    {
+      "id": "bob",
+      "authenticated": false
+    }
+  ],
+  "resources": [
+    "documents"
+  ],
+  "operations": [
+    "read"
+  ],
+  "permissions": [
+    {
+      "principal": "alice",
+      "resource": "documents",
+      "operation": "read"
+    },
+    {
+      "principal": "bob",
+      "resource": "documents",
+      "operation": "read"
+    }
+  ],
+  "requests": [
+    {
+      "id": "alice-read",
+      "principal": "alice",
+      "resource": "documents",
+      "operation": "read"
+    },
+    {
+      "id": "bob-read",
+      "principal": "bob",
+      "resource": "documents",
+      "operation": "read"
+    }
+  ],
+  "traffic": [
+    {
+      "id": "https",
+      "source": 167772161,
+      "destination": 167772162,
+      "protocol": 6,
+      "sourcePort": 50000,
+      "destinationPort": 443
+    },
+    {
+      "id": "ssh",
+      "source": 167772161,
+      "destination": 167772162,
+      "protocol": 6,
+      "sourcePort": 50000,
+      "destinationPort": 22
+    }
+  ],
+  "enforcement": "group:peps",
+  "requirements": [
+    {
+      "id": "AVAILABLE",
+      "kind": "reach",
+      "source": "node:client",
+      "target": "node:server",
+      "traffic": "https",
+      "request": "alice-read",
+      "gateways": null
+    },
+    {
+      "id": "IDENTITY",
+      "kind": "isolate",
+      "source": "node:client",
+      "target": "node:server",
+      "traffic": "https",
+      "request": "bob-read",
+      "gateways": null
+    },
+    {
+      "id": "GATEWAY",
+      "kind": "mediated",
+      "source": "node:client",
+      "target": "node:server",
+      "traffic": "https",
+      "request": "alice-read",
+      "gateways": "group:peps"
+    },
+    {
+      "id": "NO_SSH",
+      "kind": "isolate",
+      "source": "node:client",
+      "target": "node:server",
+      "traffic": "ssh",
+      "request": "alice-read",
+      "gateways": null
+    }
+  ]
+}
