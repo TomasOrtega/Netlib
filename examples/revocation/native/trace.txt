@@ -1,0 +1,50 @@
+trace id 62c709c3 ip netlib_trace trace packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20661 ip length 42 udp sport 31000 udp dport 8080 udp length 22 udp checksum 65068 
+trace id 62c709c3 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 62c709c3 ip netlib_trace trace policy accept 
+trace id 62c709c3 ip netlib_nat destination packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20661 ip length 42 udp sport 31000 udp dport 8080 udp length 22 udp checksum 65068 
+trace id 62c709c3 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 (verdict accept)
+trace id 62c709c3 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20661 ip length 42 udp sport 31000 udp dport 9000 udp length 22 udp checksum 60511 
+trace id 62c709c3 ip netlib_filter forward rule ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment "NEW_SERVICE" (verdict accept)
+trace id 62c709c3 ip netlib_nat source packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20661 ip length 42 udp sport 31000 udp dport 9000 udp length 22 udp checksum 60511 
+trace id 62c709c3 ip netlib_nat source rule ip saddr 192.0.2.0/24 meta l4proto udp snat to 203.0.113.1:40000 (verdict accept)
+trace id 62c709c3 ip netlib_barrier barrier packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20661 ip length 42 udp sport 40000 udp dport 9000 udp length 22 udp checksum 26207 
+trace id 62c709c3 ip netlib_barrier barrier policy accept 
+trace id 8d150b20 ip netlib_trace trace packet: iif "outside0" ether saddr e6:ff:07:03:d6:af ether daddr 0e:41:34:a7:35:24 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 35998 ip length 39 udp sport 9000 udp dport 40000 udp length 19 udp checksum 26204 
+trace id 8d150b20 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 8d150b20 ip netlib_trace trace policy accept 
+trace id 8d150b20 ip netlib_filter forward packet: iif "outside0" oif "inside0" ether saddr e6:ff:07:03:d6:af ether daddr 0e:41:34:a7:35:24 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 35998 ip length 39 udp sport 9000 udp dport 31000 udp length 19 udp checksum 60508 
+trace id 8d150b20 ip netlib_filter forward rule ct state established accept comment "ESTABLISHED" (verdict accept)
+trace id 8d150b20 ip netlib_barrier barrier packet: iif "outside0" oif "inside0" ether saddr e6:ff:07:03:d6:af ether daddr 0e:41:34:a7:35:24 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 35998 ip length 39 udp sport 8080 udp dport 31000 udp length 19 udp checksum 65065 
+trace id 8d150b20 ip netlib_barrier barrier policy accept 
+trace id 6974ec36 ip netlib_trace trace packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20689 ip length 47 udp sport 31000 udp dport 8080 udp length 27 udp checksum 65073 
+trace id 6974ec36 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 6974ec36 ip netlib_trace trace policy accept 
+trace id 6974ec36 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20689 ip length 47 udp sport 31000 udp dport 9000 udp length 27 udp checksum 60516 
+trace id 6974ec36 ip netlib_filter forward unknown rule handle 4 (verdict accept)
+trace id 6974ec36 ip netlib_barrier barrier packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20689 ip length 47 udp sport 40000 udp dport 9000 udp length 27 udp checksum 26212 
+trace id 6974ec36 ip netlib_barrier barrier policy accept 
+trace id 35901e1c ip netlib_trace trace packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20712 ip length 48 udp sport 31000 udp dport 8080 udp length 28 udp checksum 65074 
+trace id 35901e1c ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 35901e1c ip netlib_trace trace policy accept 
+trace id 35901e1c ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20712 ip length 48 udp sport 31000 udp dport 9000 udp length 28 udp checksum 60517 
+trace id 35901e1c ip netlib_filter forward unknown rule handle 4 (verdict accept)
+trace id 35901e1c ip netlib_barrier barrier packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20712 ip length 48 udp sport 40000 udp dport 9000 udp length 28 udp checksum 26213 
+trace id 35901e1c ip netlib_barrier barrier unknown rule handle 2 (verdict drop)
+trace id 343a12d7 ip netlib_trace trace packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20849 ip length 46 udp sport 31000 udp dport 8080 udp length 26 udp checksum 65072 
+trace id 343a12d7 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 343a12d7 ip netlib_trace trace policy accept 
+trace id 343a12d7 ip netlib_nat destination packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20849 ip length 46 udp sport 31000 udp dport 8080 udp length 26 udp checksum 65072 
+trace id 343a12d7 ip netlib_nat destination unknown rule handle 5 (verdict accept)
+trace id 343a12d7 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20849 ip length 46 udp sport 31000 udp dport 9003 udp length 26 udp checksum 60515 
+trace id 343a12d7 ip netlib_filter forward policy drop 
+trace id 1d03b761 ip netlib_trace trace packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 21109 ip length 49 udp sport 31001 udp dport 8080 udp length 29 udp checksum 65075 
+trace id 1d03b761 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 1d03b761 ip netlib_trace trace policy accept 
+trace id 1d03b761 ip netlib_nat destination packet: iif "inside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 21109 ip length 49 udp sport 31001 udp dport 8080 udp length 29 udp checksum 65075 
+trace id 1d03b761 ip netlib_nat destination unknown rule handle 5 (verdict accept)
+trace id 1d03b761 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 21109 ip length 49 udp sport 31001 udp dport 9003 udp length 29 udp checksum 60518 
+trace id 1d03b761 ip netlib_filter forward unknown rule handle 5 (verdict accept)
+trace id 1d03b761 ip netlib_nat source packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 21109 ip length 49 udp sport 31001 udp dport 9003 udp length 29 udp checksum 60518 
+trace id 1d03b761 ip netlib_nat source unknown rule handle 6 (verdict accept)
+trace id 1d03b761 ip netlib_barrier barrier packet: iif "inside0" oif "outside0" ether saddr 8e:c7:8d:17:84:21 ether daddr c6:81:b5:78:42:73 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 21109 ip length 49 udp sport 40001 udp dport 9003 udp length 29 udp checksum 26214 
+trace id 1d03b761 ip netlib_barrier barrier unknown rule handle 2 (verdict drop)

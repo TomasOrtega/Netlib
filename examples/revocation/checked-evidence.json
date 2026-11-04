@@ -1,0 +1,841 @@
+{
+  "schema": 1,
+  "scope": "checked-native-revocation-evidence",
+  "traceCount": 6,
+  "packetCount": 22,
+  "snapshotCount": 7,
+  "phases": [
+    {
+      "phase": "first-original",
+      "config": "initial",
+      "snapshot": "opened-state.json",
+      "traceId": "62c709c3",
+      "input": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "new",
+      "fresh": true,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "nextHop": "server",
+      "disposition": "forwarded",
+      "output": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "trace-postrouting-packet",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 1,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20661,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 2,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 3
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "destination",
+          "line": 4,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20661,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 5,
+              "handle": null,
+              "text": "ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000"
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 6,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20661,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 7,
+              "handle": null,
+              "text": "ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment \"NEW_SERVICE\""
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "source",
+          "line": 8,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20661,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 9,
+              "handle": null,
+              "text": "ip saddr 192.0.2.0/24 meta l4proto udp snat to 203.0.113.1:40000"
+            }
+          ]
+        },
+        {
+          "table": "netlib_barrier",
+          "chain": "barrier",
+          "line": 10,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20661,
+          "verdicts": [
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "first-reply",
+      "config": "initial",
+      "snapshot": "replied-state.json",
+      "traceId": "8d150b20",
+      "input": {
+        "source": "198.51.100.2",
+        "destination": "203.0.113.1",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 40000
+      },
+      "state": "established",
+      "fresh": false,
+      "afterDestination": {
+        "source": "198.51.100.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 31000
+      },
+      "afterSource": {
+        "source": "203.0.113.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 8080,
+        "destinationPort": 31000
+      },
+      "nextHop": "client",
+      "disposition": "forwarded",
+      "output": {
+        "source": "203.0.113.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 8080,
+        "destinationPort": 31000
+      },
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "trace-postrouting-packet",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 12,
+          "packet": {
+            "source": "198.51.100.2",
+            "destination": "203.0.113.1",
+            "protocol": 17,
+            "sourcePort": 9000,
+            "destinationPort": 40000
+          },
+          "iif": "outside0",
+          "oif": null,
+          "ipId": 35998,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 13,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 15,
+          "packet": {
+            "source": "198.51.100.2",
+            "destination": "192.0.2.2",
+            "protocol": 17,
+            "sourcePort": 9000,
+            "destinationPort": 31000
+          },
+          "iif": "outside0",
+          "oif": "inside0",
+          "ipId": 35998,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 16,
+              "handle": null,
+              "text": "ct state established accept comment \"ESTABLISHED\""
+            }
+          ]
+        },
+        {
+          "table": "netlib_barrier",
+          "chain": "barrier",
+          "line": 17,
+          "packet": {
+            "source": "203.0.113.2",
+            "destination": "192.0.2.2",
+            "protocol": 17,
+            "sourcePort": 8080,
+            "destinationPort": 31000
+          },
+          "iif": "outside0",
+          "oif": "inside0",
+          "ipId": 35998,
+          "verdicts": [
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 18
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "cached-after-update",
+      "config": "tightened",
+      "snapshot": "retained-state.json",
+      "traceId": "6974ec36",
+      "input": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "established",
+      "fresh": false,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "nextHop": "server",
+      "disposition": "forwarded",
+      "output": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "trace-postrouting-packet",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 19,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20689,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 20,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 21
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 22,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20689,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 23,
+              "handle": 4,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_barrier",
+          "chain": "barrier",
+          "line": 24,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20689,
+          "verdicts": [
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 25
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "cached-after-barrier",
+      "config": "barrier",
+      "snapshot": "barrier-state.json",
+      "traceId": "35901e1c",
+      "input": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "established",
+      "fresh": false,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "nextHop": "server",
+      "disposition": "lateDrop",
+      "output": null,
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "trace-postrouting-packet",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 26,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20712,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 27,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 28
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 29,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20712,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 30,
+              "handle": 4,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_barrier",
+          "chain": "barrier",
+          "line": 31,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20712,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "drop",
+              "line": 32,
+              "handle": 2,
+              "text": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "fresh-after-delete",
+      "config": "barrier",
+      "snapshot": "fresh-denied-state.json",
+      "traceId": "343a12d7",
+      "input": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "new",
+      "fresh": true,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9003
+      },
+      "afterSource": null,
+      "nextHop": "server",
+      "disposition": "forwardDrop",
+      "output": null,
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "not-reached",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 33,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20849,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 34,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 35
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "destination",
+          "line": 36,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 20849,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 37,
+              "handle": 5,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 38,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9003
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 20849,
+          "verdicts": [
+            {
+              "kind": "policy",
+              "verdict": "drop",
+              "line": 39
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "fresh-through-barrier",
+      "config": "fresh-allowed",
+      "snapshot": "fresh-barrier-state.json",
+      "traceId": "1d03b761",
+      "input": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 8080
+      },
+      "state": "new",
+      "fresh": true,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 9003
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40001,
+        "destinationPort": 9003
+      },
+      "nextHop": "server",
+      "disposition": "lateDrop",
+      "output": null,
+      "fieldEvidence": {
+        "input": "trace-packet-and-socket-send",
+        "afterDestination": "trace-forward-packet",
+        "afterSource": "trace-postrouting-packet",
+        "state": "exported-matching-rule-and-ordinary-profile-inference",
+        "fresh": "visible-table-and-ordinary-profile-assumption",
+        "output": "trace-verdict-and-socket-observation",
+        "nextHop": "trace-oif-with-declared-interface-binding"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 40,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31001,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 21109,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 41,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 42
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "destination",
+          "line": 43,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31001,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 21109,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 44,
+              "handle": 5,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 45,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31001,
+            "destinationPort": 9003
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 21109,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 46,
+              "handle": 5,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "source",
+          "line": 47,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31001,
+            "destinationPort": 9003
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 21109,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 48,
+              "handle": 6,
+              "text": null
+            }
+          ]
+        },
+        {
+          "table": "netlib_barrier",
+          "chain": "barrier",
+          "line": 49,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40001,
+            "destinationPort": 9003
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 21109,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "drop",
+              "line": 50,
+              "handle": 2,
+              "text": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "erase": {
+    "beforePhase": "fresh-after-delete",
+    "packet": {
+      "source": "192.0.2.2",
+      "destination": "203.0.113.2",
+      "protocol": 17,
+      "sourcePort": 31000,
+      "destinationPort": 8080
+    },
+    "zone": 0,
+    "snapshot": "deleted-state.json"
+  }
+}

@@ -148,6 +148,7 @@ The check compares filters at one fixed context.
 It does not compare routes, NAT tables, stored bindings, histories, revocation, or whole-network upgrade contracts.
 An established-only rule can preserve old traffic while denying fresh traffic.
 Static permission inclusion alone does not establish that an update removes those existing flows.
+The [output exclusion checker](REVOCATION.md) adds a separate late-filter contract and carries it through a replay suffix.
 
 ## Native evidence
 
@@ -159,6 +160,7 @@ The [original trace](../examples/lifecycle/native/trace.txt),
 [checked evidence](../examples/lifecycle/checked-evidence.json) remain available.
 The [provenance manifest](../examples/lifecycle/capture-provenance.json) records producer sources, image identities, and file hashes.
 The [offline verifier](../scripts/check_lifecycle_capture.py) checks the retained trace and raw snapshot evidence separately from the Lean replay.
+Available rule text is checked against exported expressions; handle-only entries are joined to the selected snapshot.
 For default-drop packets, classification and freshness rely on the ordinary valid-packet profile and visible-table lookup miss.
 The checked evidence marks this inference separately from directly traced fields.
 

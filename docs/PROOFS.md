@@ -622,6 +622,40 @@ These contexts need not be reachable in a native packet history.
 The comparison does not cover routes, NAT allocation, stored bindings, revocation, or a whole-network upgrade contract.
 In particular, static inclusion does not prove that a policy update removes old flows.
 
+## Operational output exclusion
+
+`Netlib/Check/StatefulExclusion.lean` defines `Blocks` over a native stateful filter and a forbidden header class.
+`check_correct` covers every modeled state label and selected header.
+The exact partition includes both policy and selection boundaries.
+`counterexample_sound` supplies a selected header that the chain permits.
+`counterexample_none_iff` proves completeness.
+`checkBudget_correct` retains that meaning for a completed budgeted check.
+`checkBudget_context` requires a postrouting priority strictly between source NAT and confirmation.
+
+`Netlib/Protocol/Revocation.lean` defines output exclusion and a late-filter barrier.
+`step_output_property` transfers any property of late-filter-permitted headers to every forwarded output.
+`step_output_excluded` specializes this result to the forbidden class.
+It covers arbitrary compatible stored bindings, original and reply directions, and fresh attachments.
+It does not require state deletion.
+
+`Operations.ExecutionTrace.excludes` transfers the barrier through ordered packet and deletion operations.
+`ExecutionTrace.drop` retains the intermediate state reached before the suffix.
+`suffix_excludes` covers the selected suffix.
+`excludes_of_upgrade` connects the guarantee to `Network.Upgrade.Preserves` when every packet pipeline comes from a certified upgrade snapshot.
+It does not implement the update commands or establish a physical packet-drain boundary.
+
+`Netlib/Check/ConntrackRevocation.lean` specializes the contract to imported replay configurations.
+`blocksFrom_correct` certifies every packet configuration in a suffix selected by list position.
+`Report.model_outputs_excluded` excludes selected modeled outputs without requiring observation agreement.
+`Report.observed_outputs_excluded` also requires a compliant report and covers every supplied output observation in that suffix.
+The complete replay computes the cutover state; observations never replace it.
+
+The CLI requires a nonempty suffix with at least one packet.
+It checks the aggregate partition budget before certificate searches.
+A failure can identify an unsafe state/header context absent from the supplied packet history.
+The [output exclusion guide](REVOCATION.md) records the exact scope.
+Translated header selection, effective barrier installation, complete interval coverage, hook traversal, and packets already beyond the hook remain deployment obligations.
+
 ## Stateful composition and execution
 
 `Netlib/Packet/Processor.lean` returns an updated store and an optional packet.

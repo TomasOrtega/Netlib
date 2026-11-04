@@ -1,2 +1,3 @@
 # Keep native producer whitespace intact.
 examples/lifecycle/native/trace.txt -whitespace
+examples/revocation/native/trace.txt -whitespace

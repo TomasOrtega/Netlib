@@ -360,3 +360,12 @@ Use of the same valid token for more than one request.
 
 **Local revocation**:
 Removal of the current session credential. This model operation does not maintain a persistent token blacklist.
+
+**Output exclusion**:
+No forwarded output header belongs to the forbidden packet class.
+
+**Late-filter barrier**:
+A postrouting filter that denies every header in the forbidden class for every modeled state label.
+
+**Cutover position**:
+The event-list position at which an operational suffix begins. It is not a physical timestamp or a packet-drain proof.

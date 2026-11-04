@@ -101,6 +101,16 @@ class SnapshotTests(unittest.TestCase):
 
 
 class CaptureTests(unittest.TestCase):
+    def reject_trace_change(self, change):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "trace.txt"
+            original = (CAPTURE / "trace.txt").read_text()
+            changed = change(original)
+            self.assertNotEqual(original, changed)
+            path.write_text(changed)
+            with self.assertRaises(check.EvidenceError):
+                check.check_capture(CAPTURE, trace_path=path)
+
     def test_native_capture(self):
         report = check.check_capture(CAPTURE)
         self.assertEqual(report["traceCount"], 9)
@@ -134,6 +144,109 @@ class CaptureTests(unittest.TestCase):
             path.write_text(text)
             with self.assertRaisesRegex(check.EvidenceError, "handle"):
                 check.check_capture(CAPTURE, trace_path=path)
+
+    def test_filter_predicate_change_with_same_comment_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace(
+                'udp dport 9000 accept comment "SERVICE"',
+                'udp dport 9999 accept comment "SERVICE"',
+                1,
+            )
+        )
+
+    def test_filter_missing_predicates_with_same_comment_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace(
+                'ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment "SERVICE"',
+                'ct state new accept comment "SERVICE"',
+                1,
+            )
+        )
+
+    def test_filter_statement_change_with_same_comment_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace('accept comment "SERVICE"', 'drop comment "SERVICE"', 1)
+        )
+
+    def test_filter_selected_rule_cannot_become_policy(self):
+        self.reject_trace_change(
+            lambda text: text.replace(
+                'rule ct state new udp dport 9002 drop comment "FORWARD_DROP" (verdict drop)',
+                "policy drop",
+                1,
+            )
+        )
+
+    def test_dnat_target_contradiction_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace("dnat to 198.51.100.2:9002", "dnat to 198.51.100.2:9003", 1)
+        )
+
+    def test_snat_target_contradiction_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace("snat to 203.0.113.1:40000", "snat to 203.0.113.1:40001", 1)
+        )
+
+    def test_nat_selected_rule_cannot_become_policy_accept(self):
+        self.reject_trace_change(
+            lambda text: text.replace(
+                "rule ip daddr 203.0.113.2 udp dport 8082 dnat to 198.51.100.2:9002 (verdict accept)",
+                "policy accept",
+                1,
+            )
+        )
+
+    def test_nat_unknown_handle_must_match_export(self):
+        self.reject_trace_change(
+            lambda text: text.replace(
+                "netlib_nat destination unknown rule handle 7",
+                "netlib_nat destination unknown rule handle 999",
+                1,
+            )
+        )
+
+    def test_nat_predicate_change_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace("udp dport 8082 dnat to", "udp dport 8083 dnat to", 1)
+        )
+
+    def test_nat_visit_input_must_match_ingress(self):
+        def change(text):
+            stage = check.parse_trace(text)[0]["stages"][1]
+            lines = text.splitlines()
+            index = stage["line"] - 1
+            port = stage["packet"]["sourcePort"]
+            lines[index] = lines[index].replace(f"udp sport {port}", f"udp sport {port + 1}")
+            return "\n".join(lines) + "\n"
+
+        self.reject_trace_change(change)
+
+    def test_extra_filter_side_effect_verdict_is_rejected(self):
+        def change(text):
+            stage = check.parse_trace(text)[0]["stages"][-1]
+            lines = text.splitlines()
+            index = stage["verdicts"][0]["line"] - 1
+            prefix = lines[index].split(" rule ", 1)[0]
+            lines.insert(index, prefix + " rule meta mark set 1 (verdict continue)")
+            return "\n".join(lines) + "\n"
+
+        self.reject_trace_change(change)
+
+    def test_extra_nat_side_effect_verdict_is_rejected(self):
+        def change(text):
+            stage = check.parse_trace(text)[0]["stages"][1]
+            lines = text.splitlines()
+            index = stage["verdicts"][0]["line"] - 1
+            prefix = lines[index].split(" rule ", 1)[0]
+            lines.insert(index, prefix + " rule meta mark set 1 (verdict continue)")
+            return "\n".join(lines) + "\n"
+
+        self.reject_trace_change(change)
+
+    def test_instrumentation_side_effect_is_rejected(self):
+        self.reject_trace_change(
+            lambda text: text.replace("rule meta nftrace set 1", "rule meta mark set 1", 1)
+        )
 
 
 if __name__ == "__main__":

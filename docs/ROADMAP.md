@@ -18,7 +18,7 @@ It does not establish completion of the goal.
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Stateful reply failover under exact grant replication. Separate Linux snapshots supply checked forwarding. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
-| Safe operation | Certified update snapshots and packet traces preserve explicit invariants. Native filter refinement covers every modeled state and header. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
+| Safe operation | Certified update snapshots and packet traces preserve explicit invariants. Native filter refinement and late-filter exclusion cover every modeled state and header. Barriers exclude selected outputs through packet and deletion suffixes. | Verified native install commands, drain boundaries, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
 ## Campus landmark
@@ -64,12 +64,18 @@ The native replay covers policy changes and deletion with observed intermediate 
 Static chain refinement checks all five state labels and every header at the same hook and priority.
 These results still need transport validation, concurrency, timing, native control operations, and complete campus authentication bindings.
 
+The [late-filter barrier](REVOCATION.md) supplies an operational output exclusion contract.
+Its certificate covers all state/header contexts, including cached translations and established traffic.
+The contract transfers through ordered operations and compliant observed replay suffixes.
+The cutover and translated forbidden class remain declared inputs.
+Native installation, barrier retention, packet draining, credential revocation, and complete upgrade protocols remain open.
+
 ## Next implementation work
 
 1. Extend ordinary packet lifecycles through transport validation, expiry, concurrency, and additional hooks and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
-4. Connect concrete upgrade commands to certified intermediate snapshots.
+4. Connect concrete upgrade commands and drain boundaries to the certified barrier and intermediate snapshots.
 5. Compose queue guarantees and add physical timing and reliability models.
 6. Extend the campus proof through those models and real configuration inputs.
 7. Reuse the resulting contracts for other architectures and independent domains.

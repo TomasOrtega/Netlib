@@ -345,33 +345,123 @@ def selected_rule(document, table, chain, state, packet):
     return None, {chain_record["policy"]: None}
 
 
-def check_filter(stage, document, state, expected):
+def match_tokens(expression):
+    require(set(expression) == {"left", "right", "op"}, "Unsupported exported match fields.")
+    left, right, operator = expression["left"], expression["right"], expression["op"]
+    if left == {"ct": {"key": "state"}}:
+        require(operator in ("in", "=="), "Unsupported exported state operator.")
+        names = {value: name for name, value in STATE_BITS.items()}
+        if type(right) is int:
+            require(right in names, "Rule text requires one exported state bit.")
+            right = names[right]
+        require(isinstance(right, str) and right in STATE_BITS, "Unsupported exported state form.")
+        return ["ct", "state", right]
+    require(operator == "==", "Unsupported exported header operator.")
+    if left == {"meta": {"key": "l4proto"}}:
+        names = {1: "icmp", 6: "tcp", 17: "udp"}
+        require(type(right) is int and right in names, "Unsupported exported protocol form.")
+        return ["meta", "l4proto", names[right]]
+    require(isinstance(left, dict) and set(left) == {"payload"}, "Unsupported exported match.")
+    payload = left["payload"]
+    require(set(payload) == {"protocol", "field"}, "Unsupported exported payload fields.")
+    protocol, field = payload["protocol"], payload["field"]
+    if protocol == "ip" and field in ("saddr", "daddr"):
+        if isinstance(right, dict):
+            require(set(right) == {"prefix"}, "Unsupported exported address form.")
+            prefix = right["prefix"]
+            require(set(prefix) == {"addr", "len"}, "Unsupported exported prefix fields.")
+            width = bounded(prefix["len"], 33)
+            address = str(ipaddress.IPv4Network(f"{prefix['addr']}/{width}", strict=True))
+        else:
+            address = str(ipaddress.IPv4Address(right))
+            require(address == right, "Noncanonical exported address.")
+        return ["ip", field, address]
+    require(
+        protocol in ("tcp", "udp") and field in ("sport", "dport"),
+        "Unsupported exported payload form.",
+    )
+    return [protocol, field, str(bounded(right, 65536))]
+
+
+def rule_tokens(rule):
+    tokens = []
+    expressions = rule["expr"]
+    require(expressions, "Missing exported rule statement.")
+    for expression in expressions[:-1]:
+        require(set(expression) == {"match"}, "Unsupported exported rule expression.")
+        tokens.extend(match_tokens(expression["match"]))
+    statement = expressions[-1]
+    require(len(statement) == 1, "Unsupported exported terminal statement.")
+    kind, value = next(iter(statement.items()))
+    if kind in ("accept", "drop"):
+        require(value is None, "Invalid exported verdict value.")
+        tokens.append(kind)
+    else:
+        require(kind in ("snat", "dnat"), "Unsupported exported terminal statement.")
+        require(
+            isinstance(value, dict) and set(value) in ({"addr"}, {"addr", "port"}),
+            "Unsupported exported NAT target fields.",
+        )
+        address = str(ipaddress.IPv4Address(value["addr"]))
+        require(address == value["addr"], "Noncanonical exported NAT address.")
+        target = address
+        if "port" in value:
+            target += f":{bounded(value['port'], 65536)}"
+        tokens.extend([kind, "to", target])
+    if "comment" in rule:
+        require(isinstance(rule["comment"], str), "Invalid exported rule comment.")
+        tokens.extend(["comment", rule["comment"]])
+    return tokens
+
+
+def check_rule_trace(stage, document, state):
+    require(len(stage["verdicts"]) == 1, "Unexpected extra rule or side-effect verdict.")
     selected, action = selected_rule(
         document, stage["table"], stage["chain"], state, stage["packet"]
     )
+    kind, value = next(iter(action.items()))
     require(
-        action == {expected: None}, "Exported filter rules contradict the expected lifecycle case."
+        kind in ("accept", "drop", "dnat", "snat") and (kind in ("dnat", "snat") or value is None),
+        "Unsupported exported terminal statement.",
     )
+    expected = "accept" if kind in ("dnat", "snat") else kind
     observed = stage["verdicts"][-1]
-    require(observed["verdict"] == expected, "Kernel filter verdict contradicts the export.")
+    require(observed["verdict"] == expected, "Kernel rule verdict contradicts the export.")
     if selected is None:
         require(observed["kind"] == "policy", "Trace rule contradicts an exported policy decision.")
     else:
         require(observed["kind"] == "rule", "Trace policy contradicts an exported matching rule.")
+        expected_tokens = rule_tokens(selected)
         if observed["handle"] is not None:
             require(observed["handle"] == selected["handle"], "Native rule handle disagreement.")
         else:
-            words = shlex.split(observed["text"])
             require(
-                "comment" in words and words[words.index("comment") + 1] == selected.get("comment"),
-                "Native rule comment disagreement.",
+                shlex.split(observed["text"]) == expected_tokens,
+                "Native rule text contradicts the exported predicates, statement, or comment.",
             )
-            if "ct" in words:
-                index = words.index("ct")
-                require(
-                    words[index : index + 3] == ["ct", "state", state],
-                    "Trace state guard disagreement.",
-                )
+    return selected, action
+
+
+def check_filter(stage, document, state, expected):
+    _, action = check_rule_trace(stage, document, state)
+    require(
+        action == {expected: None}, "Exported filter rules contradict the expected lifecycle case."
+    )
+
+
+def check_trace_stage(stage):
+    verdicts = stage["verdicts"]
+    require(len(verdicts) == 2, "Unexpected instrumentation-stage verdicts.")
+    rule, policy = verdicts
+    require(
+        rule["kind"] == "rule"
+        and rule["handle"] is None
+        and shlex.split(rule["text"]) == ["meta", "nftrace", "set", "1"]
+        and rule["verdict"] == "continue"
+        and policy["kind"] == "policy"
+        and policy["verdict"] == "accept",
+        "Unsupported instrumentation-stage rule or policy.",
+    )
 
 
 def check_capture(directory, *, trace_path=None, observations_path=None):
@@ -472,6 +562,7 @@ def check_capture(directory, *, trace_path=None, observations_path=None):
     phases = []
     for trace, (phase, sent, row) in zip(traces, calls, strict=True):
         stages = trace["stages"]
+        check_trace_stage(stages[0])
         require(
             stages[0]["packet"] == sent, f"{phase}: trace input contradicts sent socket header."
         )
@@ -504,7 +595,11 @@ def check_capture(directory, *, trace_path=None, observations_path=None):
             source = (
                 nat_changed if phase in ("fresh-after-update", "old-after-delete") else nat_initial
             )
-            _, nat = selected_rule(source, *destination_names, state, sent)
+            destination_stage = next(
+                stage for stage in stages if (stage["table"], stage["chain"]) == destination_names
+            )
+            require(destination_stage["packet"] == sent, "DNAT input header disagreement.")
+            _, nat = check_rule_trace(destination_stage, source, state)
             require(set(nat) == {"dnat"}, f"{phase}: missing DNAT evidence.")
             after_destination = {
                 **sent,
@@ -583,7 +678,7 @@ def check_capture(directory, *, trace_path=None, observations_path=None):
                 require(
                     source_stage["packet"] == after_destination, "SNAT input header disagreement."
                 )
-                _, nat = selected_rule(nat_initial, *source_names, state, after_destination)
+                _, nat = check_rule_trace(source_stage, nat_initial, state)
                 require(set(nat) == {"snat"}, "Missing SNAT evidence.")
                 after_source = {
                     **after_destination,

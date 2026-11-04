@@ -47,6 +47,9 @@ import NetlibTest.NftablesStateful
 import NetlibTest.NftablesNAT
 import NetlibTest.StatefulRefinement
 import NetlibTest.ConntrackLifecycleAudit
+import NetlibTest.StatefulExclusion
+import NetlibTest.Revocation
+import NetlibTest.ConntrackRevocation
 
 open Netlib
 
@@ -95,4 +98,7 @@ def main : IO Unit := do
   NetlibTest.NftablesNAT.run
   NetlibTest.StatefulRefinement.run
   NetlibTest.ConntrackLifecycleAudit.run
+  NetlibTest.StatefulExclusion.run
+  NetlibTest.Revocation.run
+  NetlibTest.ConntrackRevocation.run
   IO.println "Netlib tests passed."
