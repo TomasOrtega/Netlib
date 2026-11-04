@@ -1,9 +1,8 @@
 import Netlib.Policy.Language
 import Netlib.Core.Reasoning
+import Netlib.Core.Solver
 
 namespace Netlib.Analysis
-
-def maxAtoms : Nat := 16
 
 structure Gap where
   goal : Requirement
@@ -14,6 +13,7 @@ structure Report where
   requirementCount : Nat
   goalCount : Nat
   atomCount : Nat
+  searchBudget : Nat
   consistent : Bool
   retained : List Requirement
   redundant : List Requirement
@@ -69,37 +69,96 @@ theorem simplifyUnder_preserves (v : Observation → Bool)
       Reasoning.Models v (background ++ requirements.map (·.formula)) := by
   simpa [simplifyUnder, formulas] using prune_preserves v background requirements []
 
-def analyze (requirements goals : List Requirement) : Except String Report := do
+/-- The result carries a proof under the fixed background laws. -/
+structure Reduction (background : List (Formula Observation)) (original : List Requirement) where
+  retained : List Requirement
+  redundant : List Requirement
+  correct : ∀ v, Reasoning.Models v (background ++ retained.map (·.formula)) ↔
+    Reasoning.Models v (background ++ original.map (·.formula))
+
+private theorem drop_entailed (background : List (Formula Observation))
+    (kept rest : List Requirement) (r : Requirement)
+    (entailed : Reasoning.entails (background ++ formulas (kept ++ rest)) r.formula = true)
+    (v : Observation → Bool) :
+    Reasoning.Models v (background ++ formulas (kept ++ rest)) ↔
+      Reasoning.Models v (background ++ formulas (kept ++ r :: rest)) := by
+  have hr := (Reasoning.entails_iff _ _).mp entailed v
+  simp only [formulas, List.map_append, List.map_cons,
+    Reasoning.models_append, Reasoning.models_cons] at hr ⊢
+  constructor
+  · rintro ⟨hb, hk, hs⟩
+    exact ⟨hb, hk, hr ⟨hb, hk, hs⟩, hs⟩
+  · rintro ⟨hb, hk, _, hs⟩
+    exact ⟨hb, hk, hs⟩
+
+private def pruneFast (background : List (Formula Observation)) (budget : Nat)
+    (kept : List Requirement) :
+    (todo : List Requirement) → Except String (Reduction background (kept ++ todo))
+  | [] => .ok {
+      retained := kept
+      redundant := []
+      correct := fun _ => by simp
+    }
+  | r :: rest =>
+    match checked : Solver.entails (background ++ formulas (kept ++ rest)) r.formula budget with
+    | .error message => .error s!"Requirement {r.id}: {message}"
+    | .ok true => do
+      let reduced ← pruneFast background budget kept rest
+      return {
+        retained := reduced.retained
+        redundant := r :: reduced.redundant
+        correct := fun v => (reduced.correct v).trans
+          (drop_entailed background kept rest r (Solver.entails_sound _ _ _ checked) v)
+      }
+    | .ok false => do
+      let reduced ← pruneFast background budget (kept ++ [r]) rest
+      return {
+        retained := reduced.retained
+        redundant := reduced.redundant
+        correct := fun v => by
+          simpa [List.append_assoc] using reduced.correct v
+      }
+
+/-- Each deletion uses a proved solver answer. An exhausted search returns an error. -/
+def simplifyUnderFast (background : List (Formula Observation))
+    (requirements : List Requirement) (budget : Nat := 100000) :
+    Except String (Reduction background requirements) := do
+  let reduced ← pruneFast background budget [] requirements
+  return {
+    retained := reduced.retained
+    redundant := reduced.redundant
+    correct := fun v => by simpa using reduced.correct v
+  }
+
+def analyze (requirements goals : List Requirement) (budget : Nat := 100000) :
+    Except String Report := do
   let policy := formulas requirements
   let goalFormulas := formulas goals
   let observations := Reasoning.support (policy ++ goalFormulas)
   let background := Language.laws observations
   let atoms := Reasoning.support (background ++ policy ++ goalFormulas)
-  if atoms.length > maxAtoms then
-    throw (s!"offline analysis needs {atoms.length} distinct atoms including domain laws and goals; " ++
-      s!"the exhaustive solver limit is {maxAtoms} (up to {2 ^ maxAtoms} assignments)")
   let base := background ++ policy
-  let consistent := Reasoning.satisfiable base
-  let (retained, redundant) := simplifyUnder background requirements
-  let mut gaps := []
-  if consistent then
-    for goal in goals do
-      if !Reasoning.entails base goal.formula then
-        match Reasoning.countermodel? base goal.formula with
-        | none => throw "internal error: missing entailment countermodel"
-        | some v => gaps := gaps ++ [⟨goal, atoms.map (fun a => (a, v a))⟩]
-  let additions :=
-    if consistent && Reasoning.satisfiable (base ++ goalFormulas) then
-      some (gaps.map (·.goal))
-    else none
+  let consistent ← (Solver.satisfiable base budget).mapError
+    (fun message => "Consistency check: " ++ message)
+  let reduced ← simplifyUnderFast background requirements budget
+  let candidates ← if consistent then goals.mapM (fun goal => do
+    match ← Solver.countermodel? base goal.formula budget with
+    | none => pure none
+    | some valuation => pure (some (⟨goal, atoms.map (fun a => (a, valuation a))⟩ : Gap)))
+    else pure []
+  let gaps := candidates.filterMap id
+  let jointConsistent ← if consistent then Solver.satisfiable (base ++ goalFormulas) budget
+    else pure false
+  let additions := if jointConsistent then some (gaps.map (·.goal)) else none
   return {
     requirementCount := requirements.length
     goalCount := goals.length
     atomCount := atoms.length
+    searchBudget := budget
     consistent
-    retained
-    redundant
-    conflict := if consistent then [] else retained
+    retained := reduced.retained
+    redundant := reduced.redundant
+    conflict := if consistent then [] else reduced.retained
     gaps
     additions
   }
@@ -113,8 +172,8 @@ private def ids (requirements : List Requirement) : String :=
 
 def render (report : Report) : String := Id.run do
   let mut lines := [
-    s!"Requirements: {report.requirementCount}; goals: {report.goalCount}; " ++
-      s!"distinct atoms: {report.atomCount}/{maxAtoms}",
+    s!"Requirements: {report.requirementCount}. Goals: {report.goalCount}. " ++
+      s!"Distinct atoms: {report.atomCount}. Search node budget per query: {report.searchBudget}.",
     if report.consistent then "CONSISTENT in the propositional abstraction"
     else "INCONSISTENT in the propositional abstraction",
     "Each selector must contain a device. An abstract model can have no matching network."]
@@ -126,7 +185,7 @@ def render (report : Report) : String := Id.run do
     lines := lines ++ [s!"Redundant requirements under fixed domain laws: {ids report.redundant}",
       s!"Retained requirements: {ids report.retained}"]
     if report.goalCount == 0 then
-      lines := lines ++ ["No security goals supplied; completeness was not assessed."]
+      lines := lines ++ ["The input has no security goals. The checker did not assess completeness."]
     else
       lines := lines ++ [s!"Missing explicit goals: {report.gaps.length}"]
       for gap in report.gaps do
@@ -138,7 +197,7 @@ def render (report : Report) : String := Id.run do
       | none =>
         lines := lines ++ ["The supplied goals cannot all be added consistently."]
       | some [] =>
-        lines := lines ++ ["All supplied goals are entailed; no additions are needed."]
+        lines := lines ++ ["The requirements imply all supplied goals. No additions are necessary."]
       | some additions =>
         lines := lines ++ ["Proposed source goals. Review each addition:"]
         lines := lines ++ additions.map (fun r => "  " ++ describe r)

@@ -43,10 +43,20 @@ def check_ci(root):
                 errors.append("CI hooks must use a reviewed local command.")
             if hook["entry"] not in STATIC_HOOKS:
                 errors.append(f"CI must not run hook {hook['id']}: {hook['entry']}")
-    for path in root.joinpath(".github/workflows").glob("*.yml"):
+    for path in root.joinpath(".github/workflows").iterdir():
+        if path.suffix not in {".yml", ".yaml"}:
+            continue
         workflow = yaml.safe_load(path.read_text())
+        if workflow.get("defaults", {}).get("run", {}).get("shell"):
+            errors.append(f"{path.name}: Review the workflow shell.")
         for job in workflow.get("jobs", {}).values():
+            if "uses" in job:
+                errors.append(f"{path.name}: Review the reusable workflow.")
+            if job.get("defaults", {}).get("run", {}).get("shell"):
+                errors.append(f"{path.name}: Review the job shell.")
             for step in job.get("steps", []):
+                if "shell" in step:
+                    errors.append(f"{path.name}: Review the step shell.")
                 if "uses" in step and step["uses"] not in ACTIONS:
                     errors.append(f"{path.name}: Review action {step['uses']}.")
                 if "run" in step and step["run"].strip() not in STATIC_RUNS:

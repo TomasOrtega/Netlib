@@ -60,3 +60,10 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [manual]
+      - id: profile-test
+        name: Check standards and packet examples
+        entry: uv run --locked python scripts/check_profiles.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]

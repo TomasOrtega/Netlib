@@ -44,6 +44,46 @@ class CiTests(unittest.TestCase):
         self.write(entry="uv run --locked python scripts/check_text.py")
         self.assertEqual(check_ci(self.root), [])
 
+    def test_yaml_extension_cannot_hide_build(self):
+        self.write(stages=["manual"], command="lake build")
+        path = self.root / ".github/workflows/check.yml"
+        path.rename(path.with_suffix(".yaml"))
+        self.assertTrue(check_ci(self.root))
+
+    def test_reusable_workflow_needs_review(self):
+        self.write(stages=["manual"])
+        path = self.root / ".github/workflows/check.yml"
+        path.write_text(
+            yaml.safe_dump(
+                {"jobs": {"check": {"uses": "unknown/build/.github/workflows/lean.yml@main"}}}
+            )
+        )
+        self.assertTrue(check_ci(self.root))
+
+    def test_custom_shell_cannot_hide_build(self):
+        self.write(stages=["manual"])
+        path = self.root / ".github/workflows/check.yml"
+        workflow = yaml.safe_load(path.read_text())
+        workflow["jobs"]["check"]["steps"][0]["shell"] = "sh -c 'lake build' -- {0}"
+        path.write_text(yaml.safe_dump(workflow))
+        self.assertTrue(check_ci(self.root))
+
+    def test_default_shell_cannot_hide_build(self):
+        self.write(stages=["manual"])
+        path = self.root / ".github/workflows/check.yml"
+        workflow = yaml.safe_load(path.read_text())
+        workflow["defaults"] = {"run": {"shell": "sh -c 'lake build' -- {0}"}}
+        path.write_text(yaml.safe_dump(workflow))
+        self.assertTrue(check_ci(self.root))
+
+    def test_job_default_shell_cannot_hide_build(self):
+        self.write(stages=["manual"])
+        path = self.root / ".github/workflows/check.yml"
+        workflow = yaml.safe_load(path.read_text())
+        workflow["jobs"]["check"]["defaults"] = {"run": {"shell": "sh -c 'lake build' -- {0}"}}
+        path.write_text(yaml.safe_dump(workflow))
+        self.assertTrue(check_ci(self.root))
+
 
 if __name__ == "__main__":
     unittest.main()

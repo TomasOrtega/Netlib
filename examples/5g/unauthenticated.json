@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "mode": "direct-nf-instance",
+  "consumer": "amf",
+  "producer": "udm",
+  "issuer": "nrf",
+  "events": [
+    {
+      "type": "authenticate",
+      "mutual": false
+    },
+    {
+      "type": "token",
+      "credential": {
+        "issuer": "nrf",
+        "subject": "amf",
+        "audience": "udm",
+        "scopes": [
+          {
+            "resource": "nudm-sdm",
+            "operation": "read"
+          }
+        ],
+        "expiresAt": 10,
+        "integrity": true
+      }
+    },
+    {
+      "type": "request",
+      "resource": "nudm-sdm",
+      "operation": "read",
+      "accepted": true
+    }
+  ]
+}

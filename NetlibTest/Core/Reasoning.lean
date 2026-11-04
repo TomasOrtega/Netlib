@@ -67,35 +67,40 @@ private def requirement (id : String) (f : Formula Observation) : Requirement :=
 private def result? (requirements goals : List Requirement) : Option Report :=
   (analyze requirements goals).toOption
 
-example : (result? [] [requirement "G1" (.atom reach), requirement "G2" (.atom med)]).map
-    (fun r => r.gaps.map (·.goal.id)) = some ["G1", "G2"] := by decide
+private def checkThat (condition : Bool) (message : String) : IO Unit :=
+  unless condition do throw (IO.userError message)
 
-example : (result? [requirement "R1" (.atom reach),
-    requirement "R2" (.neg (.atom someReach))] []).map (·.consistent) = some false := by decide
-
-example : (result? [requirement "R1" (.atom reach),
-    requirement "R2" (.atom someReach)] []).map
-    (fun r => (r.retained.map (·.id), r.redundant.map (·.id))) =
-      some (["R2"], ["R1"]) := by decide
-
-example : (result? [requirement "R1" (.neg (.atom someReach))]
-    [requirement "G1" (.atom med)]).map (fun r => r.gaps.length) = some 0 := by decide
-
-example : (result? [] [requirement "G1" (.atom reach),
-    requirement "G2" (.neg (.atom someReach))]).map (fun r => r.additions.isNone) =
-      some true := by decide
-
-example : (result? [requirement "R1" (.atom reach)] []).map
-    (fun r => (r.retained.map (·.line), r.retained.map (·.text))) =
-      some ([7], ["Preserved source sentence."]) := by decide
-
-private def oversized : List Requirement :=
-  (List.range 9).map fun i => requirement (toString i)
+def run : IO Unit := do
+  checkThat ((result? [] [requirement "G1" (.atom reach), requirement "G2" (.atom med)]).map
+      (fun r => r.gaps.map (·.goal.id)) == some ["G1", "G2"])
+    "The analysis lost a missing goal."
+  checkThat ((result? [requirement "R1" (.atom reach),
+      requirement "R2" (.neg (.atom someReach))] []).map (·.consistent) == some false)
+    "The analysis missed a contradiction."
+  checkThat ((result? [requirement "R1" (.atom reach),
+      requirement "R2" (.atom someReach)] []).map
+      (fun r => (r.retained.map (·.id), r.redundant.map (·.id))) ==
+        some (["R2"], ["R1"]))
+    "Fixed-law simplification changed its result."
+  checkThat ((result? [requirement "R1" (.neg (.atom someReach))]
+      [requirement "G1" (.atom med)]).map (fun r => r.gaps.length) == some 0)
+    "The analysis missed the isolation law."
+  checkThat ((result? [] [requirement "G1" (.atom reach),
+      requirement "G2" (.neg (.atom someReach))]).map (fun r => r.additions.isNone) == some true)
+    "The analysis proposed an inconsistent completion."
+  checkThat ((result? [requirement "R1" (.atom reach)] []).map
+      (fun r => (r.retained.map (·.line), r.retained.map (·.text))) ==
+        some ([7], ["Preserved source sentence."]))
+    "The analysis lost its source metadata."
+  let larger := (List.range 9).map fun i => requirement (toString i)
     (.atom (.reach (.node "client") (.node (toString i)) "ssh" true))
+  checkThat ((analyze larger []).toOption.isSome) "The former atom cap still rejects a policy."
+  checkThat ((analyze [] larger).toOption.isSome) "The former atom cap still rejects goals."
+  IO.println "Analysis adapter tests passed."
 
-set_option maxRecDepth 4096 in
-example : (analyze oversized []).toOption.isNone = true := by decide
-set_option maxRecDepth 4096 in
-example : (analyze [] oversized).toOption.isNone = true := by decide
+example (background : List (Formula Observation)) (requirements : List Requirement)
+    (reduced : Analysis.Reduction background requirements) (v : Observation → Bool) :
+    Reasoning.Models v (background ++ reduced.retained.map (·.formula)) ↔
+      Reasoning.Models v (background ++ requirements.map (·.formula)) := reduced.correct v
 
 end NetlibTest.Analysis

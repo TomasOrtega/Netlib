@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "mode": "direct-nf-instance",
+  "consumer": "amf",
+  "producer": "udm",
+  "issuer": "nrf",
+  "events": [
+    {
+      "type": "authenticate",
+      "mutual": true
+    },
+    {
+      "type": "request",
+      "resource": "nudm-sdm",
+      "operation": "read",
+      "accepted": true
+    }
+  ]
+}

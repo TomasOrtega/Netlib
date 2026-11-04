@@ -1,0 +1,271 @@
+{
+  "schema": 1,
+  "binding": {
+    "interface": "wlan0",
+    "node": "ap",
+    "bridge": null
+  },
+  "model": {
+    "schema": 1,
+    "devices": [
+      {
+        "id": "guest",
+        "zone": "guest",
+        "role": "client"
+      },
+      {
+        "id": "ap",
+        "zone": "wireless",
+        "role": "access-point"
+      },
+      {
+        "id": "gateway",
+        "zone": "boundary",
+        "role": "pep"
+      },
+      {
+        "id": "server",
+        "zone": "services",
+        "role": "server"
+      },
+      {
+        "id": "manager",
+        "zone": "management",
+        "role": "admin"
+      }
+    ],
+    "groups": [
+      {
+        "name": "boundary",
+        "members": [
+          "gateway"
+        ]
+      },
+      {
+        "name": "enforcement",
+        "members": [
+          "ap",
+          "gateway"
+        ]
+      }
+    ],
+    "links": [
+      {
+        "from": "guest",
+        "to": "ap",
+        "enabled": true,
+        "acl": [
+          {
+            "match": {
+              "source": null,
+              "destination": null,
+              "protocol": null,
+              "sourcePorts": null,
+              "destinationPorts": null
+            },
+            "action": "permit"
+          }
+        ]
+      },
+      {
+        "from": "ap",
+        "to": "gateway",
+        "enabled": true,
+        "acl": [
+          {
+            "match": {
+              "source": null,
+              "destination": null,
+              "protocol": null,
+              "sourcePorts": null,
+              "destinationPorts": null
+            },
+            "action": "permit"
+          }
+        ]
+      },
+      {
+        "from": "gateway",
+        "to": "server",
+        "enabled": true,
+        "acl": [
+          {
+            "match": {
+              "source": null,
+              "destination": null,
+              "protocol": 6,
+              "sourcePorts": null,
+              "destinationPorts": {
+                "first": 443,
+                "last": 443
+              }
+            },
+            "action": "permit"
+          }
+        ]
+      },
+      {
+        "from": "gateway",
+        "to": "manager",
+        "enabled": true,
+        "acl": []
+      }
+    ],
+    "routes": [
+      {
+        "node": "guest",
+        "entries": [
+          {
+            "destination": {
+              "address": 0,
+              "length": 0
+            },
+            "nextHop": "ap"
+          }
+        ]
+      },
+      {
+        "node": "ap",
+        "entries": [
+          {
+            "destination": {
+              "address": 0,
+              "length": 0
+            },
+            "nextHop": "gateway"
+          }
+        ]
+      },
+      {
+        "node": "gateway",
+        "entries": [
+          {
+            "destination": {
+              "address": 167777290,
+              "length": 32
+            },
+            "nextHop": "manager"
+          },
+          {
+            "destination": {
+              "address": 0,
+              "length": 0
+            },
+            "nextHop": null
+          }
+        ]
+      },
+      {
+        "node": "server",
+        "entries": []
+      },
+      {
+        "node": "manager",
+        "entries": []
+      }
+    ],
+    "principals": [
+      {
+        "id": "guest-user",
+        "authenticated": true
+      },
+      {
+        "id": "unknown-user",
+        "authenticated": false
+      }
+    ],
+    "resources": [
+      "network"
+    ],
+    "operations": [
+      "forward"
+    ],
+    "permissions": [
+      {
+        "principal": "guest-user",
+        "resource": "network",
+        "operation": "forward"
+      }
+    ],
+    "requests": [
+      {
+        "id": "guest-traffic",
+        "principal": "guest-user",
+        "resource": "network",
+        "operation": "forward"
+      },
+      {
+        "id": "unknown-traffic",
+        "principal": "unknown-user",
+        "resource": "network",
+        "operation": "forward"
+      }
+    ],
+    "traffic": [
+      {
+        "id": "https",
+        "source": 167772426,
+        "destination": 167774730,
+        "protocol": 6,
+        "sourcePort": 50000,
+        "destinationPort": 443
+      },
+      {
+        "id": "management",
+        "source": 167772426,
+        "destination": 167777290,
+        "protocol": 6,
+        "sourcePort": 50000,
+        "destinationPort": 22
+      }
+    ],
+    "enforcement": "group:enforcement",
+    "requirements": [
+      {
+        "id": "WIFI-SERVICE",
+        "kind": "reach",
+        "source": "zone:guest",
+        "target": "zone:services",
+        "traffic": "https",
+        "request": "guest-traffic",
+        "gateways": null
+      },
+      {
+        "id": "WIFI-MANAGEMENT",
+        "kind": "isolate",
+        "source": "zone:guest",
+        "target": "zone:management",
+        "traffic": "management",
+        "request": "guest-traffic",
+        "gateways": null
+      },
+      {
+        "id": "WIFI-GATEWAY",
+        "kind": "mediated",
+        "source": "zone:guest",
+        "target": "zone:services",
+        "traffic": "https",
+        "request": "guest-traffic",
+        "gateways": "group:boundary"
+      },
+      {
+        "id": "WIFI-AP",
+        "kind": "mediated",
+        "source": "zone:guest",
+        "target": "zone:services",
+        "traffic": "https",
+        "request": "guest-traffic",
+        "gateways": "node:ap"
+      },
+      {
+        "id": "WIFI-IDENTITY",
+        "kind": "isolate",
+        "source": "zone:guest",
+        "target": "zone:services",
+        "traffic": "https",
+        "request": "unknown-traffic",
+        "gateways": null
+      }
+    ]
+  }
+}
