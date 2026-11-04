@@ -14,11 +14,11 @@ It does not establish completion of the goal.
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
-| Connected protocol stacks | Packet policies, routes, sessions, shared-state processors, header transformations, and local NAPT. Ordered traces compose stages and successive packets. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
+| Connected protocol stacks | Packet policies, routes, sessions, shared stores, tuple translation, and ordinary hook lifecycles. Ordered traces compose stages and successive packets. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Stateful reply failover under exact grant replication. Separate Linux snapshots supply checked forwarding. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
-| Safe operation | Certified finite update plans cover every intermediate state. Trace refinement and ordered packet executions preserve explicit state invariants. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
+| Safe operation | Certified update snapshots and packet traces preserve explicit invariants. Native filter refinement covers every modeled state and header. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
 ## Campus landmark
@@ -58,9 +58,15 @@ Native TCP/UDP socket observations agree with the retained tuple projections.
 The collector and byte decoding remain reviewed implementations rather than verified parsers.
 These results do not establish kernel refinement, complete state visibility, native admission, or campus deployment correspondence.
 
+The [lifecycle checker](LIFECYCLE.md) composes imported destination routes, stateful filters, and fixed NAT rules for ordinary forwarded packets.
+It distinguishes tentative candidates from confirmed records and proves ordering, binding reuse, and drop-state effects.
+The native replay covers policy changes and deletion with observed intermediate headers and selected table snapshots.
+Static chain refinement checks all five state labels and every header at the same hook and priority.
+These results still need transport validation, concurrency, timing, native control operations, and complete campus authentication bindings.
+
 ## Next implementation work
 
-1. Connect visible conntrack state to interface policies, native hook execution, packet lifecycle, and routing scopes.
+1. Extend ordinary packet lifecycles through transport validation, expiry, concurrency, and additional hooks and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
 4. Connect concrete upgrade commands to certified intermediate snapshots.

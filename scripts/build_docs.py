@@ -29,7 +29,7 @@ GROUPS = {
     "Examples": "Read complete architecture proofs.",
     "Standards": "Compose formal profiles and check selected Wi-Fi and 5G requirements.",
     "Import": "Read strict native snapshots, transfer graphs, and packet fields.",
-    "Protocol": "Prove session, flow state, tuple translation, and NAT composition laws.",
+    "Protocol": "Prove protocol state, hook lifecycles, tuple translation, and composition laws.",
 }
 
 

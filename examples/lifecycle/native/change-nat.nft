@@ -1,0 +1,4 @@
+flush chain ip netlib_nat destination
+flush chain ip netlib_nat source
+add rule ip netlib_nat destination ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9003
+add rule ip netlib_nat source ip saddr 192.0.2.0/24 meta l4proto udp snat to 203.0.113.1:40001

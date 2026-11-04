@@ -6,6 +6,7 @@ It preserves original route records, rule handles, expression indices, and comme
 
 The `linux` and `linux-traffic` commands keep this stateless forwarding scope.
 The separate [conntrack evidence guide](CONNTRACK.md) covers reported flow-policy audits and frozen tuple associations.
+The [lifecycle guide](LIFECYCLE.md) covers ordered tracked forwarding with native NAT and stateful filter snapshots.
 
 ## Run the examples
 

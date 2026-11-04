@@ -1,0 +1,2 @@
+flush chain ip netlib_filter forward
+add rule ip netlib_filter forward ct state established accept comment "ESTABLISHED"

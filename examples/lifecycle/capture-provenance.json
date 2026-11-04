@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T21:25:52+00:00",
+  "timestampSource": "Latest file mtime in the original capture archive.",
+  "captureArchiveSHA256": "a968a46a357510fb2f37054d7549d65d8e2d215c700d1368dabdda5c2a90d714",
+  "kernel": "6.8.0-117-generic",
+  "producers": {
+    "conntrack-tools": {
+      "version": "1.4.9",
+      "url": "https://www.netfilter.org/projects/conntrack-tools/files/conntrack-tools-1.4.9.tar.xz",
+      "sha256": "c15afe488a8d408c9d6d61e97dbd19f3c591942f62c13df6453a961ca4231cae"
+    },
+    "libnetfilter_conntrack": {
+      "version": "1.1.1",
+      "url": "https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.1.1.tar.xz",
+      "sha256": "769d3eaf57fa4fbdb05dd12873b6cb9a5be7844d8937e222b647381d44284820"
+    },
+    "nftables": {
+      "version": "1.1.3",
+      "sha256": "9c8a64b59c90b0825e540a9b8fcb9d2d942c636f81ba50199f068fde44f34ed8",
+      "url": "https://netfilter.org/projects/nftables/files/nftables-1.1.3.tar.xz"
+    },
+    "iproute2": {
+      "version": "6.19.0",
+      "url": "https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.19.0.tar.gz",
+      "sha256": "b39ac6a76f8299968408d3f2948ea59d9502b299d3e0c78c93658b65df3be5be"
+    }
+  },
+  "container": {
+    "base": "alpine@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63",
+    "capabilities": [
+      "NET_ADMIN",
+      "SYS_ADMIN"
+    ],
+    "seccomp": "unconfined",
+    "apparmor": "unconfined",
+    "hostMounts": false,
+    "hostNetworking": false,
+    "privateNetworkNamespaces": [
+      "client",
+      "router",
+      "server"
+    ],
+    "privateProcfs": true,
+    "parentImage": "netlib-conntrack-capture:1.4.9",
+    "parentImageID": "sha256:1ee471e9d7f980207c7d4b702b9da8af1107f94cea9c03d42d82c5ea1d9218fe",
+    "image": "netlib-lifecycle-capture:6.19.0",
+    "imageID": "sha256:566c6af8672a432d7b9db65593d54e5d6d5f0fd5e98e644979f9adefedc0bebd"
+  },
+  "evidence": {
+    "packetTraces": 9,
+    "chainVisits": 30,
+    "stateSnapshots": 8,
+    "replayOperations": 10
+  },
+  "scope": "Retained UDP hook traces, socket observations, and supported visible conntrack records. Classification and freshness at default drops assume ordinary valid-packet tracking and a visible-table lookup miss. No kernel C refinement, capture authenticity, or complete-state claim.",
+  "files": {
+    "examples/conntrack/Dockerfile": "beea89a2d62f294cf8a563bf971a251955226a9e40619053dd23e30c44ece1e7",
+    "examples/lifecycle/Dockerfile": "e3fa6fbc3bb165b01c390a37a3bfb64cb993c3c50949135f3e875bdafd8a0661",
+    "examples/lifecycle/capture.sh": "c1bae52c93134c1ee8cba42f203db1926f9543cd968b68e016714afab43107fd",
+    "examples/lifecycle/exercise.py": "5e0390d963c4cd7007fb4f62be53262256fc89d7a4151a6d7c642265a70b81c5",
+    "scripts/capture_conntrack.py": "e07e5ff4ec933decc784e6b36d2e8ae3f96ce76486829444782813dd13e1b61c",
+    "scripts/check_lifecycle_capture.py": "2a662a787f433721c431c21d6ac7e2ef3f83e9f401200bb0a3174ae055040347",
+    "scripts/build_lifecycle_example.py": "29b31c12fd43e69b825f3f214ad38d7babee741a8d3447a37b55b47bed126548",
+    "examples/lifecycle/checked-evidence.json": "237b38dc08206ef06f094c17eeabdc98faade34d0157de5b8d5802dc85f22d7f",
+    "examples/lifecycle/replay.json": "b0a631eab94976713ef1f804dd4783b9c9d0e906c51634021b364c53cba19d1a",
+    "examples/lifecycle/native/after-delete-packet-state.json": "79519df4e89f8f81f80101434c11cf6b2e18e405e18d82a1ce5050465671a865",
+    "examples/lifecycle/native/change-nat.nft": "0f8078adeeb4951feace8fd458bdc88d318ebbbc2ab8deb63bfb1fd49b379180",
+    "examples/lifecycle/native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "examples/lifecycle/native/deleted-state.json": "9eb3a3cf64bde4aa8d02a49770a278c81648a705a89fbdbe2afd5adbfee867c5",
+    "examples/lifecycle/native/deny-new.nft": "46981e0f46b5d29407b6c1cf9c5fe8132b0877b934e4ed332d37a8999f2ea02c",
+    "examples/lifecycle/native/drop-first-reply.nft": "f2efb63effb0dca04fc675b8d2ce876376b2062b2fd3214831e8bb50f5d08679",
+    "examples/lifecycle/native/forward-drop-reply.json": "315ad325ad9c835a16c5a3e1d4095920cf78a104417a0dde1d92073054c46316",
+    "examples/lifecycle/native/forward-drop-state.json": "b4a3e62091c9be94d632f84793147fd92c39be404ec3e8b657466959849c55d9",
+    "examples/lifecycle/native/forward-established-only.json": "9b02006a5ad09b4fba97824a1c3d52623690b333994147ec58cf57ea86059135",
+    "examples/lifecycle/native/forward-initial.json": "e0033b47f2c3a9510069d2b1b9d44265d7cddc764999342b8083e7877e36015c",
+    "examples/lifecycle/native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "examples/lifecycle/native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "examples/lifecycle/native/late-drop-state.json": "0793028dd0dfa7b2b03f61fd9eb7902230e1b382260f2b187874c19ffac66368",
+    "examples/lifecycle/native/late.json": "b6a4fd65da790a32475aec30f8a05fee74be6a082c9ce4d0c765147b9cacd009",
+    "examples/lifecycle/native/library-version.txt": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
+    "examples/lifecycle/native/nat-changed.json": "68e2ba4993d07d8e6ae68bf54354e8799354cac2524986b92e91647461c15414",
+    "examples/lifecycle/native/nat-initial.json": "4cf139258284960b97d17f0a5d9be476f6b39a76a59a8c2d239a6f006714ebb0",
+    "examples/lifecycle/native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "examples/lifecycle/native/observations.json": "bd9aeea8541f6d29e217ea2dd25625a9a4f11e2b33f33e55482a64168bc75460",
+    "examples/lifecycle/native/opened-state.json": "9a08609dff70e25dfe52fe69885fe5bd13ae2689ad15bb6681f228ad78f264db",
+    "examples/lifecycle/native/packages.txt": "8f0d64787547ea554f058feda17152952c714892cc284913f97e63afeb8f39a6",
+    "examples/lifecycle/native/reply-dropped-state.json": "c2b7f3b8c9f33e6f9dce14032ea6689f0d55f49d75195d884f849ba1b45ba31a",
+    "examples/lifecycle/native/routes.json": "25bb0297461506c2eb0075527ced39c065bd622f9f88b1ea0c06d7e0ea0c570e",
+    "examples/lifecycle/native/setup.nft": "c639ad2ddb3ede337de9726a34a1318329bb0d4f85102943cf28e09a890e5203",
+    "examples/lifecycle/native/trace-errors.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/lifecycle/native/trace.txt": "cf2632c3839a7e33cb578594b08a3c0c3bfdf4f9611c30cadd621094caa5d25d",
+    "examples/lifecycle/native/unreplied-updated-state.json": "2c97eda468923280a9e6d2cbf341aa753bab189f8ea85a541135226ee84e7ab7",
+    "examples/lifecycle/native/updated-state.json": "fc61beb9cd241cf559e9fbd3790fc73d259a4d0ab07d6a6a8e867202de98b96c"
+  }
+}
