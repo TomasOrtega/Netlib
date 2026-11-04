@@ -95,8 +95,19 @@ def inline_text(text):
     index = 0
     while index < len(text):
         if text[index] == "[":
-            end = text.find("]", index + 1)
-            if end >= 0 and text[end + 1 : end + 2] in {"(", "["}:
+            end = index + 1
+            depth = 1
+            while end < len(text) and depth:
+                if text[end] == "\\":
+                    end += 2
+                    continue
+                if text[end] == "[":
+                    depth += 1
+                elif text[end] == "]":
+                    depth -= 1
+                end += 1
+            end -= 1
+            if depth == 0 and text[end + 1 : end + 2] in {"(", "["}:
                 opener = text[end + 1]
                 closer = ")" if opener == "(" else "]"
                 depth = 1
@@ -111,7 +122,7 @@ def inline_text(text):
                         depth -= 1
                     stop += 1
                 if depth == 0:
-                    result.append(" " + text[index + 1 : end] + " ")
+                    result.append(" " + inline_text(text[index + 1 : end]) + " ")
                     result.append(re.sub(r"[^\n]", " ", text[end + 1 : stop]))
                     index = stop
                     continue
