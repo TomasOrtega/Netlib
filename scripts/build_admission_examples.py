@@ -9,8 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DIRECTORY = ROOT / "examples/admission"
 
 
-def build(directory=DIRECTORY):
-    evidence = check_capture(directory / "native")
+def project(evidence, directory=DIRECTORY):
     phases = evidence["eapEvidence"]["phases"]
     if len(phases) != 1 or phases[0]["name"] != "success":
         raise ValueError("The admission projection requires one successful EAP episode.")
@@ -102,6 +101,11 @@ def build(directory=DIRECTORY):
         "snapshots": snapshots,
     }
     return evidence, authentication, bundle
+
+
+def build(directory=DIRECTORY):
+    evidence = check_capture(directory / "native", input_directory=directory)
+    return project(evidence, directory)
 
 
 def main():

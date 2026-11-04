@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "captureContainer": "netlib-wire-self-contained",
+  "captureImageID": "sha256:55ab678c7fc417f3dbc7253f96519e37dadf1ef6c9028d14daa7817a41a03e43",
+  "captureStartedAt": "2026-11-04T23:42:13.392518375Z",
+  "captureCompletedAt": "2026-11-04T23:42:19.774125369Z",
+  "actualBuildCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-wire-capture:1",
+    "/private/tmp/netlib-wire-build"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "run",
+    "--name",
+    "netlib-wire-self-contained",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-wire-capture:1"
+  ],
+  "recipeNote": "The packaged recapture script uses Docker create/start with the same inputs and runtime options. The retained run used Docker run directly. Build and runtime output are from this final standalone-input capture."
+}

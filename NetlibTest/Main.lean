@@ -61,6 +61,12 @@ import NetlibTest.EAPCheck
 import NetlibTest.SessionFirewall
 import NetlibTest.SessionFirewallCheck
 import NetlibTest.SessionFirewallDeployment
+import NetlibTest.InternetChecksum
+import NetlibTest.IPv4
+import NetlibTest.UDP
+import NetlibTest.EthernetIPv4
+import NetlibTest.WireCheck
+import NetlibTest.WireSessionDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
 
@@ -127,4 +133,10 @@ def main : IO Unit := do
   NetlibTest.SessionFirewall.run
   NetlibTest.SessionFirewallCheck.run
   NetlibTest.SessionFirewallDeployment.run
+  NetlibTest.InternetChecksum.run
+  NetlibTest.IPv4.run
+  NetlibTest.UDP.run
+  NetlibTest.EthernetIPv4.run
+  NetlibTest.WireCheck.run
+  NetlibTest.WireSessionDeployment.run
   IO.println "Netlib tests passed."

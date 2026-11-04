@@ -159,7 +159,7 @@
     "examples/admission/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
     "examples/admission/recapture.sh": "e64dd53cd4122a283ce1679f8be070039d89673cf9d37a83fe62e6a2a0b24fe3",
     "examples/admission/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
-    "scripts/build_admission_examples.py": "b32d08bcc6dd22f0d00fe0e00f4619f17d4c3d9bfdff8b4a0fdc2c4e1c4f7a9e"
+    "scripts/build_admission_examples.py": "b41f6f78d83e76dbb8b238aad959e2af65d49c8cc9bd5b91fed6e2c206703603"
   },
   "localRoundProjection": {
     "round": 2,
@@ -174,5 +174,10 @@
     "credentialAttribution": "Declared local controller input installed once after method success and before actual Logoff. The file remains present; the modeled session clears its credential.",
     "nativePacketObservations": "Raw Ethernet frames and socket payload/timeout records are independent of Lean reports.",
     "generatedPolicies": "Immutable inputs are regenerated through compile-session and compared in the local profile oracle."
+  },
+  "offlineProjectionUpdate": {
+    "reason": "Expose the unchanged pure projection for fresh wire captures and bind validation to each capture input directory.",
+    "nativeArtifacts": "Unchanged; every retained native artifact hash still matches.",
+    "outputs": "Independent evidence, authentication trace, and four-checkpoint bundle are unchanged."
   }
 }

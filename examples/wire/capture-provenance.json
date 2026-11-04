@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T23:42:13.392518375Z",
+  "completedAt": "2026-11-04T23:42:19.774125369Z",
+  "kernel": "6.8.0-117-generic",
+  "container": {
+    "parentImage": "netlib-admission-capture:1",
+    "parentImageID": "sha256:3b60a5fc0f75a9b2845239bd3f66a89216b48207729dc6b34d6eff3fd775df46",
+    "image": "netlib-wire-capture:1",
+    "imageID": "sha256:55ab678c7fc417f3dbc7253f96519e37dadf1ef6c9028d14daa7817a41a03e43",
+    "network": "none",
+    "hostMounts": false,
+    "capabilities": [
+      "CAP_NET_ADMIN",
+      "CAP_SYS_ADMIN"
+    ],
+    "securityOptions": [
+      "seccomp=unconfined",
+      "apparmor=unconfined"
+    ],
+    "privateNetworkNamespaces": [
+      "peer",
+      "auth",
+      "server"
+    ],
+    "command": [
+      "sh",
+      "/task/wire/capture.sh"
+    ],
+    "exitCode": 0
+  },
+  "offloads": {
+    "control": "SIOCETHTOOL 0x8946 using ETHTOOL_GTXCSUM/STXCSUM, GTSO/STSO, GGSO/SGSO, GGRO/SGRO",
+    "interfaces": [
+      {
+        "namespace": "peer",
+        "interface": "peer0",
+        "before": {
+          "txChecksum": 1,
+          "tso": 0,
+          "gso": 1,
+          "gro": 0
+        },
+        "after": {
+          "txChecksum": 0,
+          "tso": 0,
+          "gso": 0,
+          "gro": 0
+        }
+      },
+      {
+        "namespace": "auth",
+        "interface": "auth0",
+        "before": {
+          "txChecksum": 1,
+          "tso": 0,
+          "gso": 1,
+          "gro": 0
+        },
+        "after": {
+          "txChecksum": 0,
+          "tso": 0,
+          "gso": 0,
+          "gro": 0
+        }
+      },
+      {
+        "namespace": "auth",
+        "interface": "service0",
+        "before": {
+          "txChecksum": 1,
+          "tso": 0,
+          "gso": 1,
+          "gro": 0
+        },
+        "after": {
+          "txChecksum": 0,
+          "tso": 0,
+          "gso": 0,
+          "gro": 0
+        }
+      },
+      {
+        "namespace": "server",
+        "interface": "server0",
+        "before": {
+          "txChecksum": 1,
+          "tso": 0,
+          "gso": 1,
+          "gro": 0
+        },
+        "after": {
+          "txChecksum": 0,
+          "tso": 0,
+          "gso": 0,
+          "gro": 0
+        }
+      }
+    ],
+    "scope": "Get, set zero, get readback on all four interfaces before any socket datagram. Checksum validity is also computed independently from retained bytes."
+  },
+  "evidence": {
+    "normalSocketFrames": 7,
+    "eapolFrames": 18,
+    "rawProbeFrames": 9,
+    "nativeProbeResults": [
+      {
+        "name": "raw-valid",
+        "forwarded": true,
+        "received": true,
+        "rejectionReason": null
+      },
+      {
+        "name": "udp-zero-omitted",
+        "forwarded": true,
+        "received": true,
+        "rejectionReason": null
+      },
+      {
+        "name": "udp-bad-checksum",
+        "forwarded": true,
+        "received": false,
+        "rejectionReason": "udp-checksum"
+      },
+      {
+        "name": "udp-short-length",
+        "forwarded": true,
+        "received": false,
+        "rejectionReason": "udp-length"
+      },
+      {
+        "name": "ipv4-bad-checksum",
+        "forwarded": false,
+        "received": false,
+        "rejectionReason": "ipv4-checksum"
+      }
+    ]
+  },
+  "inputs": "The four top-level wire policy/credential inputs are copied explicitly into the image and retained byte-for-byte in native/input.",
+  "redactions": "The inherited EAP producer redacts derived-key debug output before writing. Raw Ethernet checksum fields are unmodified. Public certificates are retained and private keys are deleted before export.",
+  "scope": "Finite IHL-five, unfragmented IPv4 UDP with exact UDP payload length. Normal positive traffic uses UDP sockets. Malformed probes use an explicit raw sender and a normal UDP receiver after the admission episode. No TLS cryptographic, capture authenticity, anti-spoofing, global update, or kernel refinement proof.",
+  "artifactSHA256": {
+    "native/auth-addresses.json": "ea644ea42d6760b4cded4eb35080a5c9c6ff3848a64013b2366fc54e98dab773",
+    "native/auth-links.json": "fe1ec1cab9a2e31a8faef778218d5e93f6489c8e560c8342c1a8ae3ed489dc7e",
+    "native/auth-neighbors.json": "ab2aae026c89bb66c084ff9cadcb51739857b07b9360183ede26bccac8e6d205",
+    "native/auth-routes.json": "41c15099d26eb8c24f25ebb8450d2343e20381f81e2757fc12cdf056bdb0fcda",
+    "native/auth-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/authenticated-only-conntrack.json": "56bc31ca8c670faaffa94d7708e678f2b307faac46b20538528702dd43e5c71a",
+    "native/authenticated-only-firewall.json": "5742ad35afacb1aa845d2aa17517eb3e34db52e183cec005c79a138e672dcca3",
+    "native/authenticated-only-ruleset.json": "d2beecf47400c9964c85209bb5d9b97f91cbfc9fd2c690abc369764170781fdf",
+    "native/commands.json": "37447ce521aee078409896460ab9b97a809f92ab5bc06246153e5942a84210eb",
+    "native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "native/credential-permitted-conntrack.json": "e4239796307832bdf9dfd7607e7848a9f9e2a7f770b23327cea6574b7de7455b",
+    "native/credential-permitted-firewall.json": "a042cb83d4c7ba6900f1892dd0daa90aa8a893dae4686727e6813b60cf37e1e2",
+    "native/credential-permitted-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/credential-permitted-ruleset.json": "cecf9bb4c1009949317c00ab403b447367158d062e3dfd6d1533c1aa766e9a61",
+    "native/data-frames.jsonl": "1d81a68605274f0a9f2556aecfefe0cd03f5572a8a48e436564950a044637bf3",
+    "native/eap/auth-links.json": "fe1ec1cab9a2e31a8faef778218d5e93f6489c8e560c8342c1a8ae3ed489dc7e",
+    "native/eap/authorized-station.txt": "dac628fa03f38b2fdbdf7c0e1cabbd08493ab0ddd3dac4cb582090566eb93f09",
+    "native/eap/bad-server-supplicant.conf": "0268a3c7c1663b5c3edc9a0be02d53effd957338e5c95817ca9029d6c5548bc7",
+    "native/eap/ca-certificate.txt": "4bc89cbf62d9d97c5d4cba3548346916af44455ba10d3c91ead6fa4269e90eb5",
+    "native/eap/ca-chain.pem": "9a8651c9da4c5bf556148c522d9b8ee4b6232448f6ea28ad9df03184a61ea87d",
+    "native/eap/ca.crl.pem": "9d482face3682b7b9a6c66210f99c9af008ab30cf834fcfd1833064b77e4c574",
+    "native/eap/ca.pem": "326ca8d33b18d57bf8fe0b1a72c69ebc31a1c33238b52bf26ec50bea8fb961cc",
+    "native/eap/client-certificate.txt": "1fe80720400cde293d80145371a9bf4dc7a022424d6fc351b006dadb34e263b1",
+    "native/eap/client.pem": "16a4eecdc717230d15ac294a7bb9098bb0b8ce7b2d4c99ddc571d93191336253",
+    "native/eap/commands.json": "127e08c7120c448077b28f8428392928ac636955b17a5c727a4a7bdeabeb686e",
+    "native/eap/hostapd.conf": "3943b8e7deae951a6ae0dc060707d5aa44d9837c66ea83183d9dea443fd5f1f7",
+    "native/eap/logged-off-station.txt": "48f4a90fbcefe58d9e1e1ee4dd25b3a46a3384bbaff3c06da72e2b1540217556",
+    "native/eap/peer-links.json": "f44ad5f0089964f8c2ae54b721c4bc5d6a2ddaed5338754a2d9f28fd7a527d5b",
+    "native/eap/server-certificate.txt": "39b4d9327a3060d7f9f79c9ab6ad17ea9fe96ab841c16a34de6c189e7d7aa7fe",
+    "native/eap/server.ocsp.der": "b2b3d718a9fb012db542cf54a058c0b81e8e303ab241ff58fb15103dae80b796",
+    "native/eap/server.pem": "74ef88916633abb3b22ef754a5d0785ebb88363dd0e887ec36066dca59a6e76b",
+    "native/eap/success-authenticator.jsonl": "67c5c0831b3f0cd6911426f18e9aa0937424d6206b08c619f6e72110b397c122",
+    "native/eap/success-frames.jsonl": "4f0c868e130ac85f2015ff845d3548a710a5add01f63ab702bf0147651795c87",
+    "native/eap/success-supplicant.conf": "59d0cc7f5d28d8847a62e10c4f3580672896ee363976b08269de524e06ddd1f9",
+    "native/eap/success-supplicant.jsonl": "9017c34e409f8a0c809af41c63fb4113ebf5d514cd9f0d1ae2adb261b5d618e0",
+    "native/eap/supplicant-status.txt": "6d1ebda6a089791131be335a18e4a12c6a0ea75387ed2fb1707446cb74d84ff7",
+    "native/eap/users": "f8b1102070fa116a9eb09ecc69b4198ce819d52e74a0859df18eae0825d1e38d",
+    "native/helper-sha256.txt": "a37423a629f9454399bc04c2341bfbb0557308f26760234b2420cf61f7d3ed32",
+    "native/hostapd-version.txt": "df543fbc99883a1ee0f9bda917b8e13f37b8d57192c233101c82310cf3c8ff8e",
+    "native/input/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/input/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "native/input/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "native/input/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "native/installed-demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "native/logged-off-cached-conntrack.json": "6bbb0e03d0a54e1cebb76a83605c5330823c9f7659a927cffc35a5c907cb068a",
+    "native/logged-off-cached-firewall.json": "cc0ed12786e577cf3318b290d71c3bd3b27b350ea238b3a39b86eea5562d7481",
+    "native/logged-off-cached-load.json": "c7d8db7f6d7e68b0e84b5f88c52b7dc03f4e8789236afc2005de1126e5aadc4e",
+    "native/logged-off-cached-ruleset.json": "8493506c1bef7a945193f289b3327cf6328a2cd3da8d22ea90bf21d37c28a808",
+    "native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "native/observations.json": "9cb8d4c1bb69eae17bf92f1a151a26f20ccdda86e5f6c589ee7fa3b8cd89ba3f",
+    "native/offloads.json": "c3eaa7b9bfad44e97ddb29c890163a35e9c652ecbf78e14e4c0b73c6e8ae2d71",
+    "native/openssl-version.txt": "99009aa0848eaa01ceea26381659dc525e4ce21a4c90ca255b3c58b0089f8f8a",
+    "native/packages.txt": "336c612cd12b21f83ac95f019e43187dca868a17cb5089d770ae4534260ce59e",
+    "native/peer-addresses.json": "1ea0f2cc6bfd1697139c52dc2e918522f685d31db0637718cdc075f10d812b78",
+    "native/peer-links.json": "f44ad5f0089964f8c2ae54b721c4bc5d6a2ddaed5338754a2d9f28fd7a527d5b",
+    "native/peer-neighbors.json": "743cbc449a22ded843a088d89a2d5fd61c87470f1439041d6ee70a4019251bb3",
+    "native/peer-routes.json": "9769d3305544599195ae752d7c3a83e2f52b70c6987b64e88399d5e43041f6ff",
+    "native/peer-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/probe-commands.json": "5c8b9feb7e42526d84b306e480d9da90b31d200c0023731596c812e84a696fd4",
+    "native/probe-frames.jsonl": "2040ed0cabf2a888e3eb978792db2fb312c812c6f684ab007788ea0ef180aaa1",
+    "native/probe-ipv4-bad-checksum-input.json": "1916c7673d8976dd7c8eca0568e238288009385b651681b36777be27203e9b97",
+    "native/probe-observations.json": "99dfd1c3fa4a2b4171b3221d5474c872da4dcc26398c14b67a85db909d0b82d4",
+    "native/probe-raw-valid-input.json": "231e7439988061fe305f8943d2f54b6e20e830f765d6b1cc706829109069cb9f",
+    "native/probe-udp-bad-checksum-input.json": "22af497e9ddc77e74ee5321c3864695b93c43309133bb85e1bb1eae931cfc2c5",
+    "native/probe-udp-short-length-input.json": "460fb56f126bf214f923fa92df92e4bb56d192e07bcfef0ad044ac8181396e63",
+    "native/probe-udp-zero-omitted-input.json": "67ff4aa430665b32583a96805043a28749f34f1f1486f0320d749c1d70a4bbd4",
+    "native/producer-sha256.txt": "8661f96d16885236ec3b592f8b83cdde8165941cf557a3e259b89b8a11c3373f",
+    "native/server-addresses.json": "9141bb17a2c71730824a314fe15c0ca51edb4e5b03d59a36c50002de6ea60563",
+    "native/server-links.json": "64e8b6d962649adc24fc56da22d20817571a97586687edeaa46710fd9f8d1c77",
+    "native/server-neighbors.json": "243d7df725028db85bfa9782f11ce043174ecba39745f8faf3cddf7d0c4faf8f",
+    "native/server-routes.json": "1ce2e6ce46923b5b9ccf1f23a4bac8d66a0a41b764eb76f6d09a1015e528bd92",
+    "native/server-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/supplicant-version.txt": "320a976c97614caa812c6fd36087e15634922ed7766d08fb98477f0c6312c265",
+    "native/tracking.nft": "a5308947709169d1e91dac4fd83e8747c295550b35963a59efcb6c36bdb985ed",
+    "native/unauthenticated-conntrack.json": "94d0722902e4ea17bdf4f46555511181729ec3f656be5360bb4a3bd1f575f1be",
+    "native/unauthenticated-firewall.json": "5742ad35afacb1aa845d2aa17517eb3e34db52e183cec005c79a138e672dcca3",
+    "native/unauthenticated-load.json": "758ae26fe104eb85986e9037bfd31be09948092c83e5c9d4511bc398f233bbd9",
+    "native/unauthenticated-ruleset.json": "4fbb82246cebc441647f0078b0a9441fa13c9c168ce3b76af86bb4d4be21e04d",
+    "native/wire-probes-firewall.json": "87bdcf06cd47112e4a67670c1d0a3e5bfc4cfd0c1224353757386ee8c84f26fb",
+    "native/wire-probes-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/wire-probes-ruleset.json": "b7e017d39c98d9b0b1e30c5d2b9b07a4f80df74bab10f32c4ba49a0ec3ad03e8"
+  },
+  "verifierSHA256": {
+    "scripts/check_admission_capture.py": "53121c7c8254c6b3ba98c72729732f4dc1706ecacef5645ea34b8a6578cb0c4b",
+    "scripts/check_eap_capture.py": "9d94275e903a2911dc042141097832049dc688917bf96a888c7bb90b5b6544df",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "scripts/check_wire_capture.py": "5482e3f410de6cc5f4ee8fd3c208e831bf49940dfac3228f8032e688f0036d29",
+    "scripts/test_check_wire_capture.py": "643fd78d450146c93b945b0394a1dce0d5a189029c88e14b3b41500edb620247"
+  },
+  "projectionSHA256": {
+    "docs/WIRE.md": "287eaca5e8675b247467358c52131f95c661a4f1dffda5eb3fc01e659a721403",
+    "docs/research/IPV4_UDP_WIRE.md": "4a030a5d8110876150c19f3d1796a59f40b6637dd323f06774ee21e7a3bebeb8",
+    "examples/wire/Dockerfile": "e4a1b2b7f10f931bfd397f10062642e7cdb9793da7012b316d182702e6f2d109",
+    "examples/wire/README.md": "9957a528cc23fe75926ae2a2054cbb3f1c1a9662a73f27c6daf32d4f71303028",
+    "examples/wire/authentication.json": "2873f0a761ac34412e8a9e26c546c2ab2ae81dc97051f0604eecbe8872ffaf99",
+    "examples/wire/build-stderr.txt": "d86cb49dd44ce17a9da506b4e732433d5755f98bac9a709da0462523638defc5",
+    "examples/wire/build-stdout.txt": "05a28d4705745648f6ebd7825de95bd041f471509a04a6e00a3bb7bc568f4e2f",
+    "examples/wire/bundle.json": "b7c61daab549a813aac303255c238ae7855ca5823a85e4d30631d333c86918f4",
+    "examples/wire/capture-invocation.json": "0fa42e437e4681d41b0d23a2b6502fd61ec37a1b5f9651d00fb55773afb3be56",
+    "examples/wire/capture-stderr.txt": "2d6d9c9e6400fad65b029e57396715833a2f2e6bd5ca82c564015de8040d0378",
+    "examples/wire/capture-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/wire/capture.sh": "31e47f3a2b0c398ae5dfde76703557a0d4d877fca4c5ce33d60e6c9e2bb1aaad",
+    "examples/wire/checked-evidence.json": "aa71f2b6bb0953cd20c5f3017bd12607f30974d17c9ba0ace13c8327a3621c0d",
+    "examples/wire/container-inspect.json": "f507b0c75e0b333d583019d387b4080c004ea09d1d8b9fa5e96875943c52815a",
+    "examples/wire/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "examples/wire/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "examples/wire/exercise.py": "a64ed26f332b7efe78d11323fd86ea1a62317966fb00320de63c2970c871b7de",
+    "examples/wire/frame.json": "c4e264c6a31daff34f8dcb56c3378771b7696427c96f3fdec83a99ebabac5a29",
+    "examples/wire/image-id.txt": "27a9b4e2a5477846cdffa2128d36f704fe16ebf0ed07888a01ce40cc05344567",
+    "examples/wire/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "examples/wire/recapture.sh": "0206c96cdd75bf2efe58492f1e4af64ad5f8aea9b1c71116a4542e5c5ef6b20f",
+    "examples/wire/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "scripts/build_admission_examples.py": "b41f6f78d83e76dbb8b238aad959e2af65d49c8cc9bd5b91fed6e2c206703603",
+    "scripts/build_wire_examples.py": "48624d91742e4abc3fe3768b2ba1004960c96d9a1544470e7e755b46d7810919"
+  },
+  "projection": {
+    "snapshotPrefixes": [
+      1,
+      18,
+      19,
+      21
+    ],
+    "methodRound": 2,
+    "scope": "The shared admission projection derives session checkpoints from independently checked EAP and local controller observations.",
+    "normalFrames": "Seven raw Ethernet datagrams have complete nonzero IPv4 UDP checksums. Packet headers come from those bytes.",
+    "separateProbes": "Five raw probes run under an explicit permit policy after the admission episode; they make no additional current-session authorization claim.",
+    "checksumOmission": "A zero UDP checksum remains omitted rather than verified.",
+    "oldEvidence": "Old admission native artifacts and generated reports/traces remain unchanged; only the shared projection implementation hash is updated with an explicit provenance note."
+  }
+}
