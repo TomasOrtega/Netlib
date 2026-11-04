@@ -138,7 +138,7 @@ theorem check_results_correct (config : Config) (requirements : List Requirement
     rw [← same]
     exact certified.resultsCorrect
 
-/-- Successful CLI compliance is equivalent to all original requirements holding in the model. -/
+/-- A successful report passes exactly when all original requirements hold in the model. -/
 theorem check_compliant_iff (config : Config) (requirements : List Requirement)
     (report : Compliance.Report) (success : check config requirements = .ok report) :
     report.compliant = true ↔
