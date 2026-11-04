@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
-      - uses: actions/setup-python@v7.1.0
+      - uses: astral-sh/setup-uv@v10.3.3
         with:
+          version: '0.13.7'
           python-version: '3.12'
-      - run: python3 scripts/check_source.py
-      - run: python3 scripts/check_text.py
-      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
-      - run: python3 scripts/check_site.py
+          enable-cache: true
+      - run: uv sync --locked --group dev
+      - run: uv run --locked prek -a --quiet
+      - run: uv run --locked python scripts/check_site.py

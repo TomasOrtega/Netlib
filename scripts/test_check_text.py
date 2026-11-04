@@ -10,7 +10,9 @@ class MarkdownTests(unittest.TestCase):
         description = "The model " + "has " * 23 + "nodes."
         instruction = "Use " + "the " * 19 + "model."
         issues = check_text.check_markdown(description + "\n\n" + instruction)
-        self.assertEqual([(issue.line, issue.rule) for issue in issues], [(1, "length"), (3, "length")])
+        self.assertEqual(
+            [(issue.line, issue.rule) for issue in issues], [(1, "length"), (3, "length")]
+        )
         self.assertIn("25 words", issues[0].message)
         self.assertIn("20 words", issues[1].message)
 
@@ -67,7 +69,9 @@ Don't commence.
         self.assertEqual(len(check_text.check_markdown("The device utilizes a link.", terms)), 1)
 
     def test_smart_apostrophes(self):
-        issues = check_text.check_markdown("It’s valid. Don’t commence. The device’s port exists. It could’ve failed.")
+        issues = check_text.check_markdown(
+            "It’s valid. Don’t commence. The device’s port exists. It could’ve failed."
+        )
         self.assertEqual([issue.rule for issue in issues].count("contraction"), 3)
 
     def test_hidden_comment_and_setext_title(self):
@@ -84,12 +88,12 @@ Use the model.
 
 class LeanTests(unittest.TestCase):
     def test_only_documentation_comments(self):
-        text = '''def text := "/-- Don't utilize a fake comment. -/"
+        text = """def text := "/-- Don't utilize a fake comment. -/"
 -- Don't commence.
 /- Don't commence. /-- Don't utilize this nested comment. -/ -/
 /-- Don't commence. -/
 def valid := true
-'''
+"""
         issues = check_text.check_lean(text)
         self.assertEqual({issue.line for issue in issues}, {4})
         self.assertEqual({issue.rule for issue in issues}, {"contraction", "word"})
@@ -104,15 +108,15 @@ def valid := true
             check_text.check_lean("/-- Use the model.")
 
     def test_character_and_quoted_identifiers(self):
-        text = '''def quote := '"'
+        text = """def quote := '"'
 def «/-- Don't utilize this name. -/» := true
 /-- Don't commence. -/
-'''
+"""
         issues = check_text.check_lean(text)
         self.assertEqual({issue.line for issue in issues}, {3})
 
     def test_verso_source_and_metadata(self):
-        text = '''import VersoManual
+        text = """import VersoManual
 def text := "Don't utilize this source."
 #doc (Manual) "Don't utilize this title" =>
 %%%
@@ -123,7 +127,7 @@ Use the model.
 #eval "Don't commence"
 ```
 Don't commence.
-'''
+"""
         issues = check_text.check_manual(text)
         self.assertEqual({issue.line for issue in issues}, {11})
         self.assertEqual({issue.rule for issue in issues}, {"contraction", "word"})
@@ -131,13 +135,13 @@ Don't commence.
 
 class HTMLTests(unittest.TestCase):
     def test_visible_prose_and_labels(self):
-        text = '''<meta name="description" content="Don't commence.">
+        text = """<meta name="description" content="Don't commence.">
 <p>Use <a href="https://example.com/don't">the model</a>.</p>
 <img alt="Don't utilize this label." src="don't.png">
 <script>Don't commence.</script><style>/* Don't commence. */</style>
 <pre><code>Don't commence.</code></pre>
 <span aria-hidden="true">Don't commence.</span>
-'''
+"""
         issues = check_text.check_html(text)
         self.assertEqual({issue.line for issue in issues}, {1, 3})
         self.assertEqual(len(issues), 4)
@@ -149,7 +153,11 @@ class HTMLTests(unittest.TestCase):
         self.assertIn("26", issues[0].message)
 
     def test_templates_and_inline_code_count_once(self):
-        text = "<p>The model " + "has " * 20 + "{{long_template_name}} <code>don't utilize</code> nodes.</p>"
+        text = (
+            "<p>The model "
+            + "has " * 20
+            + "{{long_template_name}} <code>don't utilize</code> nodes.</p>"
+        )
         self.assertEqual(check_text.check_html(text), [])
 
 

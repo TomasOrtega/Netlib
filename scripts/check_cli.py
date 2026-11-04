@@ -1,10 +1,10 @@
 """Exercise the compiled CLI and compare it with an independent graph oracle."""
 
 import json
-from pathlib import Path
 import random
 import subprocess
 import tempfile
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BINARY = ROOT / ".lake/build/bin/netlib"
@@ -39,9 +39,13 @@ def closure(nodes, links, service, removed=frozenset()):
 
 def main():
     invoke("demo")
-    secure = json.loads(invoke("check", "examples/secure.json", "examples/requirements.netlib", "--json"))
+    secure = json.loads(
+        invoke("check", "examples/secure.json", "examples/requirements.netlib", "--json")
+    )
     assert secure["compliant"] and all(r["passed"] for r in secure["requirements"])
-    bypass = json.loads(invoke("check", "examples/bypass.json", "examples/requirements.netlib", "--json", code=1))
+    bypass = json.loads(
+        invoke("check", "examples/bypass.json", "examples/requirements.netlib", "--json", code=1)
+    )
     assert [r["id"] for r in bypass["requirements"] if not r["passed"]] == ["INNER", "OUTER"]
     assert any("path red -> black" in e for f in bypass["observations"] for e in f["evidence"])
     invoke("analyze", "examples/requirements.netlib", "examples/goals.netlib")
@@ -64,15 +68,26 @@ def main():
         for _ in range(12):
             nodes = [f"n{i}" for i in range(5)]
             links = [
-                {"from": a, "to": b, "service": rng.choice(["tls", "ssh", "*"]), "enabled": rng.random() < 0.8}
-                for a in nodes for b in nodes if rng.random() < 0.3
+                {
+                    "from": a,
+                    "to": b,
+                    "service": rng.choice(["tls", "ssh", "*"]),
+                    "enabled": rng.random() < 0.8,
+                }
+                for a in nodes
+                for b in nodes
+                if rng.random() < 0.3
             ]
             gateways = set(rng.sample(nodes, 2))
-            config_path.write_text(json.dumps({
-                "devices": [{"id": a, "zone": "all", "role": "device"} for a in nodes],
-                "links": links,
-                "groups": [{"name": "g", "members": sorted(gateways)}],
-            }))
+            config_path.write_text(
+                json.dumps(
+                    {
+                        "devices": [{"id": a, "zone": "all", "role": "device"} for a in nodes],
+                        "links": links,
+                        "groups": [{"name": "g", "members": sorted(gateways)}],
+                    }
+                )
+            )
             requirements = []
             expected = []
             for service in ["tls", "ssh"]:
@@ -82,15 +97,23 @@ def main():
                     for b in nodes:
                         for clause, passed in [
                             (f"node:{a} must reach node:{b} for {service}.", (a, b) in reachable),
-                            (f"node:{a} must be isolated from node:{b} for {service}.", (a, b) not in reachable),
-                            (f"node:{a} must traverse group:g before node:{b} for {service}.", (a, b) not in bypasses),
+                            (
+                                f"node:{a} must be isolated from node:{b} for {service}.",
+                                (a, b) not in reachable,
+                            ),
+                            (
+                                f"node:{a} must traverse group:g before node:{b} for {service}.",
+                                (a, b) not in bypasses,
+                            ),
                         ]:
                             requirements.append(f"R{len(requirements)}: {clause}")
                             expected.append(passed)
             policy_path.write_text("\n".join(requirements) + "\n")
             report = json.loads(invoke("check", config_path, policy_path, "--json", code=1))
             actual = [r["passed"] for r in report["requirements"]]
-            assert actual == expected, [(r, a, e) for r, a, e in zip(requirements, actual, expected) if a != e]
+            assert actual == expected, [
+                (r, a, e) for r, a, e in zip(requirements, actual, expected) if a != e
+            ]
             comparisons += len(expected)
         policy_path.write_text("R: node:missing must reach node:n0 for tls.\n")
         invoke("check", config_path, policy_path, code=2)

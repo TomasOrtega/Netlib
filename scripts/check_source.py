@@ -1,10 +1,57 @@
 """Check source files. Do not run Lean."""
 
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
+
+import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
+
+STATIC_HOOKS = {
+    "uv run --locked ruff check .",
+    "uv run --locked ruff format --check .",
+    "uv run --locked python scripts/check_source.py",
+    "uv run --locked python scripts/check_text.py",
+    "uv run --locked python -m unittest discover -s scripts -p test_*.py",
+    "uv run --locked python scripts/check_site.py",
+}
+STATIC_RUNS = {
+    "uv sync --locked --group dev",
+    "uv run --locked prek -a --quiet",
+    "uv run --locked python scripts/check_site.py",
+    "uv run --locked python scripts/check_site.py --extract build/site",
+}
+ACTIONS = {
+    "actions/checkout@v7.0.1",
+    "astral-sh/setup-uv@v10.3.3",
+    "actions/configure-pages@v6.0.0",
+    "actions/upload-pages-artifact@v5.0.0",
+    "actions/deploy-pages@v5.0.1",
+}
+
+
+def check_ci(root):
+    errors = []
+    config = yaml.safe_load((root / ".pre-commit-config.yaml").read_text())
+    default = config.get("default_stages", ["pre-commit"])
+    for repo in config["repos"]:
+        for hook in repo["hooks"]:
+            if "pre-commit" not in hook.get("stages", default):
+                continue
+            if repo["repo"] != "local" or hook.get("language") != "system":
+                errors.append("CI hooks must use a reviewed local command.")
+            if hook["entry"] not in STATIC_HOOKS:
+                errors.append(f"CI must not run hook {hook['id']}: {hook['entry']}")
+    for path in root.joinpath(".github/workflows").glob("*.yml"):
+        workflow = yaml.safe_load(path.read_text())
+        for job in workflow.get("jobs", {}).values():
+            for step in job.get("steps", []):
+                if "uses" in step and step["uses"] not in ACTIONS:
+                    errors.append(f"{path.name}: Review action {step['uses']}.")
+                if "run" in step and step["run"].strip() not in STATIC_RUNS:
+                    errors.append(f"{path.name}: Review command {step['run']}.")
+    return errors
 
 
 def without_comments(text):
@@ -44,8 +91,11 @@ def without_comments(text):
 
 
 def main():
-    paths = [*ROOT.glob("*.lean"), *ROOT.joinpath("Netlib").rglob("*.lean"),
-             *ROOT.joinpath("NetlibTest").rglob("*.lean")]
+    paths = [
+        *ROOT.glob("*.lean"),
+        *ROOT.joinpath("Netlib").rglob("*.lean"),
+        *ROOT.joinpath("NetlibTest").rglob("*.lean"),
+    ]
     modules = {str(p.relative_to(ROOT).with_suffix("")).replace("/", ".") for p in paths}
     errors = []
     graph = {}
@@ -61,6 +111,7 @@ def main():
         for module in local:
             if module not in modules:
                 errors.append(f"{rel}: Import {module} does not exist.")
+
     def visit(module, active, done):
         if module in active:
             errors.append(f"{module}: Remove the import cycle.")
@@ -70,17 +121,11 @@ def main():
         for dependency in graph.get(module, []):
             visit(dependency, active | {module}, done)
         done.add(module)
+
     done = set()
     for module in graph:
         visit(module, set(), done)
-    for path in ROOT.joinpath(".github/workflows").glob("*.yml"):
-        text = path.read_text()
-        if re.search(r"\b(lake|elan|lean|lean4|build_docs\.py)\b", text, re.I):
-            errors.append(f"{path.relative_to(ROOT)}: CI must not install or run Lean tools.")
-        actions = re.findall(r"uses:\s*([^\s]+)", text)
-        for action in actions:
-            if not action.startswith("actions/"):
-                errors.append(f"{path.relative_to(ROOT)}: Review action {action} before CI can use it.")
+    errors.extend(check_ci(ROOT))
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1

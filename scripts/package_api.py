@@ -1,25 +1,22 @@
 """Export the Netlib API pages from a local doc-gen4 build."""
 
 import argparse
-from collections import deque
 import html
-from html.parser import HTMLParser
 import json
-from pathlib import Path, PurePosixPath
 import posixpath
 import re
 import shutil
+from collections import deque
+from html.parser import HTMLParser
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urlsplit
-
 
 UPSTREAM_API = "https://lean-lang.org/doc/api/"
 URL_ATTRIBUTE = re.compile(
     r"(?P<prefix>\b(?:href|src)\s*=\s*)(?P<quote>[\"'])(?P<url>.*?)(?P=quote)",
     re.IGNORECASE | re.DOTALL,
 )
-JS_IMPORT = re.compile(
-    r"(?:\bfrom\s*|\bimport\s*)[\"'](?P<url>\.[^\"']+)[\"']"
-)
+JS_IMPORT = re.compile(r"(?:\bfrom\s*|\bimport\s*)[\"'](?P<url>\.[^\"']+)[\"']")
 CSS_URL = re.compile(r"url\(\s*[\"']?(?P<url>[^\s\)\"']+)")
 
 
@@ -46,9 +43,7 @@ class _Attributes(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         raw = self.get_starttag_text()
-        self.links.extend(
-            value for key, value in attrs if key in {"href", "src"} and value
-        )
+        self.links.extend(value for key, value in attrs if key in {"href", "src"} and value)
         if self.transform is None:
             return
 
@@ -58,7 +53,7 @@ class _Attributes(HTMLParser):
             if target == value:
                 return match[0]
             quote = match["quote"]
-            return f'{match["prefix"]}{quote}{html.escape(target, quote=True)}{quote}'
+            return f"{match['prefix']}{quote}{html.escape(target, quote=True)}{quote}"
 
         replacement = URL_ATTRIBUTE.sub(replace, raw)
         if replacement != raw:
@@ -102,7 +97,7 @@ def _navigation(modules: dict) -> str:
         )
         for name, info in sorted(modules.items())
     )
-    return f'''<!doctype html>
+    return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Netlib API navigation</title>
@@ -121,7 +116,7 @@ def _navigation(modules: dict) -> str:
 <label><input type="radio" name="color_theme" value="light">light</label>
 <label><input type="radio" name="color_theme" value="dark">dark</label>
 </form></div></nav></div></body></html>
-'''
+"""
 
 
 def package_api(source: Path, destination: Path) -> dict:
@@ -158,8 +153,7 @@ def package_api(source: Path, destination: Path) -> dict:
     for info in modules.values():
         info["importedBy"] = [name for name in info["importedBy"] if name in modules]
     module_pages = {
-        _local_path(PurePosixPath("index.html"), info["url"])
-        for info in modules.values()
+        _local_path(PurePosixPath("index.html"), info["url"]) for info in modules.values()
     }
     if not modules or None in module_pages:
         raise ValueError("The doc-gen4 output has no valid Netlib module index.")
@@ -189,7 +183,8 @@ def package_api(source: Path, destination: Path) -> dict:
     }
     pages = {
         page: (source / str(page)).read_text()
-        for page in module_pages | {
+        for page in module_pages
+        | {
             PurePosixPath("index.html"),
             PurePosixPath("search.html"),
             PurePosixPath("404.html"),
@@ -199,14 +194,14 @@ def package_api(source: Path, destination: Path) -> dict:
     pages[PurePosixPath("index.html")] = _replace_main(
         pages[PurePosixPath("index.html")],
         '<main><a id="top"></a><h1>Netlib API</h1>'
-        '<p>These pages describe the Netlib declarations and proofs.</p>'
+        "<p>These pages describe the Netlib declarations and proofs.</p>"
         '<p><a href="Netlib.html">Open the library root.</a> '
         '<a href="../manual/">Read the manual.</a></p></main>',
     )
     pages[PurePosixPath("404.html")] = _replace_main(
         pages[PurePosixPath("404.html")],
-        '<main><h1>Page not found</h1>'
-        '<p>Use the module list or search to find a declaration.</p>'
+        "<main><h1>Page not found</h1>"
+        "<p>Use the module list or search to find a declaration.</p>"
         '<div id="howabout"></div></main>',
     )
     pages[PurePosixPath("navbar.html")] = _navigation(modules)

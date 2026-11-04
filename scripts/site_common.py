@@ -15,20 +15,31 @@ def digest(data):
 
 def input_hashes():
     paths = {
-        ROOT / name for name in [
-            "README.md", "GLOSSARY.md", "Netlib.lean", "Main.lean", "lean-toolchain",
-            "lakefile.toml", "lake-manifest.json", "docbuild/lakefile.toml",
+        ROOT / name
+        for name in [
+            "README.md",
+            "GLOSSARY.md",
+            "Netlib.lean",
+            "Main.lean",
+            "lean-toolchain",
+            "lakefile.toml",
+            "lake-manifest.json",
+            "docbuild/lakefile.toml",
             "docbuild/lean-toolchain",
-            "docbuild/lake-manifest.json", "scripts/build_docs.py",
-            "scripts/package_api.py", "scripts/site_common.py", "scripts/check_site.py",
+            "docbuild/lake-manifest.json",
+            "scripts/build_docs.py",
+            "scripts/package_api.py",
+            "scripts/site_common.py",
+            "scripts/check_site.py",
         ]
     }
     paths.update((ROOT / "Netlib").rglob("*.lean"))
     paths.update((ROOT / "docbuild").glob("*.lean"))
     paths.update((ROOT / "docs").glob("*.md"))
     paths.update((ROOT / "docs/assets").rglob("*"))
-    return {p.relative_to(ROOT).as_posix(): digest(p.read_bytes())
-            for p in sorted(paths) if p.is_file()}
+    return {
+        p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in sorted(paths) if p.is_file()
+    }
 
 
 def tree_hash(inputs):

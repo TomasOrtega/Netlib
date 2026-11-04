@@ -1,11 +1,10 @@
 """Check a small set of prose rules. Do not run Lean."""
 
+import re
+import sys
 from dataclasses import dataclass
 from html.parser import HTMLParser
 from pathlib import Path
-import re
-import sys
-
 
 ROOT = Path(__file__).resolve().parent.parent
 BANNED = {
@@ -19,16 +18,44 @@ BANNED = {
     "in order to": "to",
 }
 IMPERATIVES = {
-    "add", "apply", "commit", "define", "disable", "do", "end", "give",
-    "handle", "install", "keep", "open", "preserve", "prove", "put", "read",
-    "reject", "remove", "review", "run", "save", "select", "set", "start",
-    "state", "supply", "update", "use", "validate", "verify", "write",
+    "add",
+    "apply",
+    "commit",
+    "define",
+    "disable",
+    "do",
+    "end",
+    "give",
+    "handle",
+    "install",
+    "keep",
+    "open",
+    "preserve",
+    "prove",
+    "put",
+    "read",
+    "reject",
+    "remove",
+    "review",
+    "run",
+    "save",
+    "select",
+    "set",
+    "start",
+    "state",
+    "supply",
+    "update",
+    "use",
+    "validate",
+    "verify",
+    "write",
 }
 WORDS = re.compile(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*")
 CONTRACTIONS = re.compile(
     r"\b(?:[A-Za-z]+n['’]t|[A-Za-z]+['’](?:m|re|ve|ll|d)|"
     r"(?:i|you|he|she|it|we|they|that|there|here|what|who|where|when|why|how|let)"
-    r"['’](?:m|re|s|ve|ll|d))\b", re.I
+    r"['’](?:m|re|s|ve|ll|d))\b",
+    re.I,
 )
 
 
@@ -53,17 +80,23 @@ def literal(text):
 def inline_text(text):
     text = re.sub(r"\{\{[^{}]+\}\}", lambda match: literal(match.group()), text)
     text = re.sub(r"(`+)(.*?)\1", lambda match: literal(match.group()), text, flags=re.S)
-    text = re.sub(r"<!--.*?-->", lambda match: re.sub(r"[^\n]", " ", match.group()), text, flags=re.S)
+    text = re.sub(
+        r"<!--.*?-->", lambda match: re.sub(r"[^\n]", " ", match.group()), text, flags=re.S
+    )
     text = re.sub(r"<(?:https?://|mailto:)[^>]+>", lambda match: literal(match.group()), text)
     # A quoted source title is a literal, not authored prose.
-    text = re.sub(r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)",
-                  lambda match: literal(match.group()), text, flags=re.S)
+    text = re.sub(
+        r"(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)",
+        lambda match: literal(match.group()),
+        text,
+        flags=re.S,
+    )
     result = []
     index = 0
     while index < len(text):
         if text[index] == "[":
             end = text.find("]", index + 1)
-            if end >= 0 and text[end + 1:end + 2] in {"(", "["}:
+            if end >= 0 and text[end + 1 : end + 2] in {"(", "["}:
                 opener = text[end + 1]
                 closer = ")" if opener == "(" else "]"
                 depth = 1
@@ -78,8 +111,8 @@ def inline_text(text):
                         depth -= 1
                     stop += 1
                 if depth == 0:
-                    result.append(" " + text[index + 1:end] + " ")
-                    result.append(re.sub(r"[^\n]", " ", text[end + 1:stop]))
+                    result.append(" " + text[index + 1 : end] + " ")
+                    result.append(re.sub(r"[^\n]", " ", text[end + 1 : stop]))
                     index = stop
                     continue
         result.append(text[index])
@@ -88,7 +121,9 @@ def inline_text(text):
 
 
 def markdown_blocks(text, start_line=1):
-    text = re.sub(r"<!--.*?-->", lambda match: re.sub(r"[^\n]", " ", match.group()), text, flags=re.S)
+    text = re.sub(
+        r"<!--.*?-->", lambda match: re.sub(r"[^\n]", " ", match.group()), text, flags=re.S
+    )
     blocks = []
     pending = []
     first_line = start_line
@@ -105,7 +140,12 @@ def markdown_blocks(text, start_line=1):
         line_number = start_line + index
         marker = re.match(r"^\s{0,3}(`{3,}|~{3,})(.*)$", line)
         if fence:
-            if marker and marker[1][0] == fence[0] and len(marker[1]) >= len(fence) and not marker[2].strip():
+            if (
+                marker
+                and marker[1][0] == fence[0]
+                and len(marker[1]) >= len(fence)
+                and not marker[2].strip()
+            ):
                 fence = None
             continue
         if marker:
@@ -121,9 +161,12 @@ def markdown_blocks(text, start_line=1):
         if index + 1 < len(lines) and re.fullmatch(r"\s*(?:=+|-+)\s*", lines[index + 1]):
             flush()
             continue
-        if (not line.strip() or re.match(r"^\s*(?:#{1,6}\s|>|\[[^]]+\]:|: )", line)
-                or re.fullmatch(r"\s*(?:[-*_]\s*){3,}", line)
-                or re.fullmatch(r"\s*\*\*[^*]+\*\*:\s*", line)):
+        if (
+            not line.strip()
+            or re.match(r"^\s*(?:#{1,6}\s|>|\[[^]]+\]:|: )", line)
+            or re.fullmatch(r"\s*(?:[-*_]\s*){3,}", line)
+            or re.fullmatch(r"\s*\*\*[^*]+\*\*:\s*", line)
+        ):
             flush()
             continue
         if re.match(r"^\s*\|", line):
@@ -152,15 +195,20 @@ def glossary_terms(text):
 
 def is_instruction(sentence):
     words = WORDS.findall(sentence.lower())
-    return (bool(words) and words[0] in IMPERATIVES
-            and (len(words) == 1 or words[1] not in {"of", "for", "from", "with"}))
+    return (
+        bool(words)
+        and words[0] in IMPERATIVES
+        and (len(words) == 1 or words[1] not in {"of", "for", "from", "with"})
+    )
 
 
 def check_block(block, allowed_terms=()):
     text = inline_text(block.text)
     allowed = []
     for term in allowed_terms:
-        allowed.extend(match.span() for match in re.finditer(r"\b" + re.escape(term) + r"\b", text, re.I))
+        allowed.extend(
+            match.span() for match in re.finditer(r"\b" + re.escape(term) + r"\b", text, re.I)
+        )
     issues = []
 
     def report(offset, rule, message):
@@ -186,8 +234,11 @@ def check_block(block, allowed_terms=()):
 
 
 def check_markdown(text, allowed_terms=(), start_line=1):
-    return [issue for block in markdown_blocks(text, start_line)
-            for issue in check_block(block, allowed_terms)]
+    return [
+        issue
+        for block in markdown_blocks(text, start_line)
+        for issue in check_block(block, allowed_terms)
+    ]
 
 
 def lean_docstrings(text):
@@ -214,7 +265,7 @@ def lean_docstrings(text):
                 else:
                     index += 1
         elif text.startswith("/-", index):
-            documented = text[index:index + 3] in {"/--", "/-!"}
+            documented = text[index : index + 3] in {"/--", "/-!"}
             start = index + (3 if documented else 2)
             index = start
             depth = 1
@@ -243,25 +294,67 @@ def lean_docstrings(text):
 
 
 def check_lean(text, allowed_terms=()):
-    return [issue for block in lean_docstrings(text)
-            for issue in check_markdown(block.text, allowed_terms, block.line)]
+    return [
+        issue
+        for block in lean_docstrings(text)
+        for issue in check_markdown(block.text, allowed_terms, block.line)
+    ]
 
 
 def check_manual(text, allowed_terms=()):
     marker = re.search(r"^#doc\b.*?=>[^\n]*\n", text, re.M)
     if marker is None:
         return [Issue(1, "source", "Add the Verso document entry.")]
-    return check_markdown(text[marker.end():], allowed_terms, 1 + text[:marker.end()].count("\n"))
+    return check_markdown(text[marker.end() :], allowed_terms, 1 + text[: marker.end()].count("\n"))
 
 
 class HTMLProse(HTMLParser):
     BLOCKS = {
-        "article", "aside", "blockquote", "br", "dd", "div", "dl", "dt",
-        "figcaption", "figure", "footer", "h1", "h2", "h3", "h4", "h5", "h6",
-        "header", "li", "main", "nav", "ol", "p", "section", "table", "td",
-        "th", "title", "tr", "ul",
+        "article",
+        "aside",
+        "blockquote",
+        "br",
+        "dd",
+        "div",
+        "dl",
+        "dt",
+        "figcaption",
+        "figure",
+        "footer",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "header",
+        "li",
+        "main",
+        "nav",
+        "ol",
+        "p",
+        "section",
+        "table",
+        "td",
+        "th",
+        "title",
+        "tr",
+        "ul",
     }
-    VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "wbr"}
+    VOID = {
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "source",
+        "wbr",
+    }
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -294,7 +387,11 @@ class HTMLProse(HTMLParser):
                 self.skipped += 1
             return
         fields = dict(attrs)
-        if tag in {"script", "style", "pre", "code"} or "hidden" in fields or fields.get("aria-hidden") == "true":
+        if (
+            tag in {"script", "style", "pre", "code"}
+            or "hidden" in fields
+            or fields.get("aria-hidden") == "true"
+        ):
             if tag == "code":
                 self.add("X", self.getpos()[0])
             else:
@@ -336,9 +433,14 @@ def check_html(text, allowed_terms=()):
 
 
 def main():
-    paths = [ROOT / "README.md", ROOT / "GLOSSARY.md", *ROOT.joinpath("docs").glob("*.md"),
-             *ROOT.joinpath("Netlib").rglob("*.lean"), ROOT / "docbuild/Manual.lean",
-             ROOT / "docs/assets/index.html"]
+    paths = [
+        ROOT / "README.md",
+        ROOT / "GLOSSARY.md",
+        *ROOT.joinpath("docs").glob("*.md"),
+        *ROOT.joinpath("Netlib").rglob("*.lean"),
+        ROOT / "docbuild/Manual.lean",
+        ROOT / "docs/assets/index.html",
+    ]
     terms = glossary_terms(ROOT.joinpath("GLOSSARY.md").read_text())
     errors = []
     for path in sorted(paths):
