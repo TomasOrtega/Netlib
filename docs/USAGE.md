@@ -114,6 +114,7 @@ Use the dedicated guides for their input formats and model assumptions:
 
 - [Wi-Fi deployment checks](WIFI.md).
 - [EAP frames, guarded authentication, and session admission](EAP.md).
+- [Session-derived firewall compilation and native snapshot checks](SESSION_FIREWALL.md).
 - [Packet, route, and request checks](DATAPLANE.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).

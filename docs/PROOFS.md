@@ -840,6 +840,29 @@ Native EAP-TLS observations and producer logs supply finite evidence rather than
 Certificate policy, method freshness, round attribution, clock meaning, physical enforcement, and complete wireless behavior remain assumptions.
 The [EAP guide](EAP.md) records the source clauses, selected profile, native evidence, and input schema.
 
+## Session-derived firewall enforcement
+
+`Netlib/Compile/SessionFirewall.lean` derives unordered packet requirements from current scope guards.
+`Certified.permits_iff` gives exact selected-class permission.
+`permitted_valid` supplies the current complete credential guard and EAP readiness.
+`denied_requirement` excludes every header in each denied requirement.
+`statefulSnapshot_permits` preserves the generated policy for every conntrack state.
+Existing conflict certificates reject incompatible scope mappings with a header witness.
+
+`Netlib/Check/SessionFirewall.lean` computes each checkpoint from its authentication-event prefix.
+`Finding.correct` equates successful bidirectional comparison with exact native state/header equivalence.
+`Report.permitted_valid` transfers native permission to current authentication and credentials.
+The report covers every supplied snapshot and checks the generated hook and priority.
+Its total partition budget includes source compilation and both comparison directions.
+
+`Netlib/Examples/SessionFirewallDeployment.lean` uses actual lifecycle output and its post-DNAT forward header.
+`output_current_permission` supplies a selected valid scope and current method readiness.
+`output_matching_scope_valid` establishes validity for each matching requirement.
+`postlogoff_output_none`, `postclose_output_none`, and `postrevoke_output_none` exclude output for arbitrary cached tables with current policy installed.
+Buffered results cover new admissions and retain the distinction from earlier queued deliveries.
+
+The [session firewall guide](SESSION_FIREWALL.md) defines the native evidence and trusted installation, identity-binding, and cryptographic assumptions.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,

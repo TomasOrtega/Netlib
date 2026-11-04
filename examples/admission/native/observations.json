@@ -1,0 +1,340 @@
+{
+  "schema": 1,
+  "scope": "wired-gateway-session-admission",
+  "stages": [
+    {
+      "stage": "unauthenticated",
+      "policy": "deny",
+      "startNs": 56546998478576,
+      "endNs": 56547589802438,
+      "sent": {
+        "startNs": 56546998721534,
+        "endNs": 56546999255867,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "admission:unauthenticated:request"
+        }
+      },
+      "server": {
+        "startNs": 56546999729450,
+        "endNs": 56547260203252,
+        "result": null
+      },
+      "reply": null,
+      "client": {
+        "startNs": 56547260916543,
+        "endNs": 56547521182637,
+        "result": null
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/unauthenticated-load.json"
+        ],
+        "startNs": 56546991417876,
+        "endNs": 56546998448076,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/deny.json",
+        "batch": "unauthenticated-load.json"
+      },
+      "firewall": "unauthenticated-firewall.json",
+      "ruleset": "unauthenticated-ruleset.json",
+      "conntrack": "unauthenticated-conntrack.json",
+      "snapshot": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/capture_conntrack.py",
+          "--output",
+          "/tmp/netlib-admission/unauthenticated-conntrack.json"
+        ],
+        "startNs": 56547533809248,
+        "endNs": 56547589799438,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "stage": "authenticated-only",
+      "policy": "deny",
+      "startNs": 56549691662008,
+      "endNs": 56550273689842,
+      "sent": {
+        "startNs": 56549693041424,
+        "endNs": 56549693204299,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "admission:authenticated-only:request"
+        }
+      },
+      "server": {
+        "startNs": 56549693538590,
+        "endNs": 56549946276693,
+        "result": null
+      },
+      "reply": null,
+      "client": {
+        "startNs": 56549946930109,
+        "endNs": 56550204514249,
+        "result": null
+      },
+      "load": null,
+      "firewall": "authenticated-only-firewall.json",
+      "ruleset": "authenticated-only-ruleset.json",
+      "conntrack": "authenticated-only-conntrack.json",
+      "snapshot": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/capture_conntrack.py",
+          "--output",
+          "/tmp/netlib-admission/authenticated-only-conntrack.json"
+        ],
+        "startNs": 56550218339068,
+        "endNs": 56550273687383,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "stage": "credential-permitted",
+      "policy": "permit",
+      "startNs": 56550283374290,
+      "endNs": 56550314771506,
+      "sent": {
+        "startNs": 56550283441206,
+        "endNs": 56550283511665,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "admission:credential-permitted:request"
+        }
+      },
+      "server": {
+        "startNs": 56550283604164,
+        "endNs": 56550283616706,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "admission:credential-permitted:request"
+        }
+      },
+      "reply": {
+        "startNs": 56550283691581,
+        "endNs": 56550283717331,
+        "result": {
+          "source": "198.51.100.2",
+          "sourcePort": 9000,
+          "destination": "192.0.2.2",
+          "destinationPort": 41000,
+          "payload": "admission:credential-permitted:reply"
+        }
+      },
+      "client": {
+        "startNs": 56550283814998,
+        "endNs": 56550283824581,
+        "result": {
+          "source": "198.51.100.2",
+          "sourcePort": 9000,
+          "destination": "192.0.2.2",
+          "destinationPort": 41000,
+          "payload": "admission:credential-permitted:reply"
+        }
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/credential-permitted-load.json"
+        ],
+        "startNs": 56550274447841,
+        "endNs": 56550283367206,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/permit.json",
+        "batch": "credential-permitted-load.json"
+      },
+      "firewall": "credential-permitted-firewall.json",
+      "ruleset": "credential-permitted-ruleset.json",
+      "conntrack": "credential-permitted-conntrack.json",
+      "snapshot": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/capture_conntrack.py",
+          "--output",
+          "/tmp/netlib-admission/credential-permitted-conntrack.json"
+        ],
+        "startNs": 56550286502828,
+        "endNs": 56550314770673,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    {
+      "stage": "logged-off-cached",
+      "policy": "deny",
+      "startNs": 56550320624750,
+      "endNs": 56550881173149,
+      "sent": {
+        "startNs": 56550320670291,
+        "endNs": 56550320705916,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "admission:logged-off-cached:request"
+        }
+      },
+      "server": {
+        "startNs": 56550320766541,
+        "endNs": 56550573657645,
+        "result": null
+      },
+      "reply": null,
+      "client": {
+        "startNs": 56550574437311,
+        "endNs": 56550832132201,
+        "result": null
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/logged-off-cached-load.json"
+        ],
+        "startNs": 56550316168671,
+        "endNs": 56550320621708,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/deny.json",
+        "batch": "logged-off-cached-load.json"
+      },
+      "firewall": "logged-off-cached-firewall.json",
+      "ruleset": "logged-off-cached-ruleset.json",
+      "conntrack": "logged-off-cached-conntrack.json",
+      "snapshot": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/capture_conntrack.py",
+          "--output",
+          "/tmp/netlib-admission/logged-off-cached-conntrack.json"
+        ],
+        "startNs": 56550841211733,
+        "endNs": 56550881171399,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  ],
+  "credentialInstall": {
+    "command": [
+      "install",
+      "-m",
+      "0644",
+      "/task/admission/input/demo-credential.json",
+      "/run/netlib-admission/demo-credential.json"
+    ],
+    "startNs": 56550273724300,
+    "endNs": 56550274131508,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "logoff": {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "logoff"
+    ],
+    "startNs": 56550314772881,
+    "endNs": 56550315520172,
+    "returncode": 0,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  "eap": {
+    "name": "success",
+    "phaseId": 1,
+    "startNs": 56546746520641,
+    "endNs": 56551311503438,
+    "authenticatorCommand": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd",
+      "-dd",
+      "/tmp/netlib-admission/eap/hostapd.conf"
+    ],
+    "supplicantCommand": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_supplicant",
+      "-dd",
+      "-D",
+      "wired",
+      "-i",
+      "peer0",
+      "-c",
+      "/tmp/netlib-admission/eap/success-supplicant.conf"
+    ]
+  }
+}

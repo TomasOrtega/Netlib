@@ -593,6 +593,129 @@ def eap_checks():
         invoke("eap", path, code=2)
 
 
+def admission_checks():
+    from build_admission_examples import build
+
+    directory = ROOT / "examples/admission"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    assert set(provenance["artifactSHA256"]) == {
+        path.relative_to(directory).as_posix()
+        for path in (directory / "native").rglob("*")
+        if path.is_file()
+    }
+    for relative, digest in provenance["artifactSHA256"].items():
+        assert hashlib.sha256((directory / relative).read_bytes()).hexdigest() == digest, relative
+    for group in ["verifierSHA256", "projectionSHA256"]:
+        for relative, digest in provenance[group].items():
+            assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, authentication, bundle = build()
+    for name, value in [
+        ("checked-evidence", evidence),
+        ("authentication", authentication),
+        ("bundle", bundle),
+    ]:
+        assert value == json.loads((directory / f"{name}.json").read_text())
+    assert evidence["eapFrameCount"] == 18 and evidence["frameCount"] == 7
+    assert [stage["delivered"] for stage in evidence["stages"]] == [False, False, True, False]
+    assert [snapshot["after"] for snapshot in bundle["snapshots"]] == [1, 18, 19, 21]
+    trace = directory / "authentication.json"
+    intent = directory / "requirements.json"
+    report = json.loads(invoke("session-firewall", directory / "bundle.json", "--json"))
+    assert report["compliant"] and report["authenticationMatches"]
+    assert report["scope"] == "eap-derived-native-firewall-snapshots" and report["assumptions"]
+    assert [snapshot["authorized"] for snapshot in report["snapshots"]] == [
+        False,
+        True,
+        True,
+        False,
+    ]
+    assert [snapshot["credentialPresent"] for snapshot in report["snapshots"]] == [
+        False,
+        False,
+        True,
+        False,
+    ]
+    assert all(snapshot["equivalent"] for snapshot in report["snapshots"])
+    assert report["partitionCells"] == report["compilationCells"] + report["comparisonCells"]
+    assert json.loads(invoke("eap", trace, "--json"))["compliant"]
+    for after, policy in [(0, "deny"), (1, "deny"), (18, "deny"), (19, "permit"), (21, "deny")]:
+        generated = json.loads(invoke("compile-session", trace, intent, "--after", after))
+        assert generated == json.loads((directory / f"{policy}.json").read_text())
+    assert json.loads(invoke("compile-session", trace, intent)) == json.loads(
+        (directory / "deny.json").read_text()
+    )
+    invoke("compile-session", trace, intent, "--after", "22", code=2)
+    invoke("compile-session", trace, intent, "--after", "invalid", code=2)
+    invoke("compile-session", trace, intent, "--budget", "0", code=2)
+    invoke("session-firewall", directory / "bundle.json", "--budget", report["partitionCells"])
+    invoke(
+        "session-firewall",
+        directory / "bundle.json",
+        "--budget",
+        report["partitionCells"] - 1,
+        code=2,
+    )
+    with tempfile.TemporaryDirectory(prefix="netlib-admission-") as folder:
+        path = Path(folder) / "altered.json"
+        altered = json.loads(json.dumps(bundle))
+        firewall = altered["snapshots"][-1]["firewall"]["nftables"]
+        chain = next(row["chain"] for row in firewall if "chain" in row)
+        firewall.append(
+            {
+                "rule": {
+                    "family": "ip",
+                    "table": chain["table"],
+                    "chain": chain["name"],
+                    "handle": 999,
+                    "expr": [
+                        {
+                            "match": {
+                                "op": "in",
+                                "left": {"ct": {"key": "state"}},
+                                "right": ["established"],
+                            }
+                        },
+                        {"accept": None},
+                    ],
+                }
+            }
+        )
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("session-firewall", path, "--json", code=1))
+        assert failed["snapshots"][-1]["unexpectedPermit"]["state"] == "established"
+        assert failed["snapshots"][-1]["missingPermit"] is None
+        altered = json.loads(json.dumps(bundle))
+        altered["snapshots"][2]["firewall"]["nftables"] = [
+            row
+            for row in altered["snapshots"][2]["firewall"]["nftables"]
+            if row.get("rule", {}).get("comment") != "REPLY"
+        ]
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("session-firewall", path, "--json", code=1))
+        assert failed["snapshots"][2]["missingPermit"] is not None
+        assert failed["snapshots"][2]["unexpectedPermit"] is None
+        altered = json.loads(json.dumps(authentication))
+        altered["events"][17]["subject"] = "anonymous@campus.example.test"
+        path.write_text(json.dumps(altered))
+        invoke("compile-session", path, intent, "--after", "19", code=1)
+        altered = json.loads(json.dumps(bundle))
+        altered["snapshots"][0]["after"] = 22
+        path.write_text(json.dumps(altered))
+        invoke("session-firewall", path, code=2)
+        altered = json.loads(json.dumps(bundle))
+        for row in altered["snapshots"][0]["firewall"]["nftables"]:
+            if "chain" in row:
+                row["chain"]["prio"] = 1
+        path.write_text(json.dumps(altered))
+        invoke("session-firewall", path, code=2)
+        conflicting = json.loads(intent.read_text())
+        conflict = json.loads(json.dumps(conflicting["requirements"][0]))
+        conflict.update(id="OTHER_SCOPE", scope={"resource": "management", "operation": "use"})
+        conflicting["requirements"].append(conflict)
+        path.write_text(json.dumps(conflicting))
+        invoke("compile-session", trace, path, "--after", "19", code=1)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -602,6 +725,7 @@ def main():
     revocation_checks()
     buffered_checks()
     eap_checks()
+    admission_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

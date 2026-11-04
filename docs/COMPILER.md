@@ -3,6 +3,7 @@
 The compiler accepts unordered permit and hard-deny requirements over packet classes.
 It generates a firewall only when every permit is compatible with every prohibition.
 Unspecified traffic is denied.
+The [session compiler](SESSION_FIREWALL.md) derives these requirements from current EAP authorization and application credentials.
 
 ```sh
 lake exe netlib compile-acl examples/linux/intent.json > generated.json

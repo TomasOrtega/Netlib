@@ -3,6 +3,7 @@
 This layer connects raw EAPOL frames, guarded authentication results, session credentials, and campus application paths.
 It separates packet correlation from cryptographic method evidence.
 An EAP Success packet alone cannot authenticate the modeled session.
+The [session firewall guide](SESSION_FIREWALL.md) connects current scope guards to generated native policies and measured gateway packets.
 
 ## Run the native examples
 
