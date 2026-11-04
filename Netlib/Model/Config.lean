@@ -1,3 +1,4 @@
+import Netlib.Import.Json
 import Lean
 
 namespace Netlib
@@ -130,7 +131,7 @@ def fromJson (j : Lean.Json) : Except String Config := do
     ← groups.toList.mapM groupFromJson⟩
 
 def parse (text : String) : Except String Config := do
-  fromJson (← Lean.Json.parse text)
+  fromJson (← Netlib.Import.Json.parse text)
 
 end Config
 end Netlib

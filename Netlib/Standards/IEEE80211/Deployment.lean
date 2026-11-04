@@ -1,3 +1,4 @@
+import Netlib.Import.Json
 import Netlib.Standards.IEEE80211.Enterprise
 import Netlib.Check.DataPlane
 
@@ -31,7 +32,7 @@ def deploymentQueries (ap : String) : List DataPlane.Query := [
 
 private def parseDeployment (ap : Hostapd.Config) (text : String) :
     Except String (Binding × DataPlane.Config) := do
-  let json ← Lean.Json.parse text
+  let json ← Netlib.Import.Json.parse text
   fields json ["schema", "binding", "model"]
   if (← (← json.getObjVal? "schema").getNat?) != 1 then throw "Use Wi-Fi deployment schema 1."
   let bindingJson ← json.getObjVal? "binding"

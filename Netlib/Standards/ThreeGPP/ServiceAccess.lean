@@ -1,3 +1,4 @@
+import Netlib.Import.Json
 import Netlib.Protocol.Session
 import Netlib.Standards.Basic
 
@@ -245,7 +246,7 @@ def fromJson (value : Lean.Json) : Except String Trace := do
   return ⟨context, events⟩
 
 def parse (text : String) : Except String Trace := do
-  fromJson (← Lean.Json.parse text)
+  fromJson (← Netlib.Import.Json.parse text)
 
 def run (text : String) : Except String Report := do
   return check (← parse text)
