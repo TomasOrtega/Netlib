@@ -423,10 +423,11 @@ An exhausted cell budget returns an error without a compliance result.
 Universal ACL refinement has an executable decision and a semantic theorem:
 
 ```lean
-example (stronger weaker : Netlib.Packet.ACL) :
-    Netlib.Packet.Partition.checkACLRefines stronger weaker = true ↔
+open Netlib.Packet in
+example (stronger weaker : ACL) :
+    Partition.checkACLRefines stronger weaker = true ↔
       stronger.Refines weaker :=
-  Netlib.Packet.Partition.checkACLRefines_iff stronger weaker
+  Partition.checkACLRefines_iff stronger weaker
 ```
 
 ## Traces and update plans
