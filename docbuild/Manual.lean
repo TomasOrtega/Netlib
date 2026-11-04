@@ -53,12 +53,12 @@ A logical countermodel is not a proposed network deployment.
 The source tree separates the library into these parts:
 
  * `Netlib.Core` defines formulas and finite logical analysis.
- * `Netlib.Theory` proves queue conservation, backlog bounds, and finite draining.
+ * `Netlib.Theory` proves queue laws and limits of header-only NAT decisions.
  * `Netlib.Network` defines paths, cuts, gateways, and refinements.
- * `Netlib.Packet` defines packet fields, matches, and access control lists.
+ * `Netlib.Packet` defines packet fields, policies, transformations, and transfer relations.
  * `Netlib.Routing` selects destination routes.
  * `Netlib.Security` defines request policy and gateway enforcement.
- * `Netlib.Protocol` defines session states and admission invariants.
+ * `Netlib.Protocol` defines sessions, timed flow grants, and NAT state.
  * `Netlib.Standards` records sources and selected standards profiles.
  * `Netlib.Import` reads strict hostapd, Linux route, and nftables inputs.
  * `Netlib.Compile` translates packet intent to certified firewall policies.
@@ -73,6 +73,8 @@ A match can restrict any supported header field.
 An absent field accepts every value for that field.
 The original `check` command uses named traffic classes.
 The `dataplane` command uses fixed packet headers and named requests.
+The `transfer` command tracks a changing header through each forwarding step.
+The `nat-trace` command checks observed translations and timed return-flow authorization.
 
 # Proof patterns
 %%%
@@ -508,6 +510,99 @@ These tests establish interoperability evidence, separate from the structured tr
 The generated additions require a fresh table and exclusive modeled forwarding behavior.
 The compiler does not apply a deployment operation.
 
+# Packet transformations and flow state
+%%%
+tag := "stateful"
+file := "stateful"
+%%%
+
+## Header-changing paths
+
+A transfer state contains both a node and the current packet header.
+Each link first checks its guard and then applies its rewrite.
+A later firewall stage therefore reads the changed header.
+Matching links represent alternatives.
+Separate stage nodes represent ordered processing.
+
+Rewrites can overwrite any of the five supported fields.
+An absent replacement preserves the field.
+Composition applies the first rewrite and then the second:
+
+```lean
+open Netlib.Packet in
+example (first second : Rewrite) (header : Header) :
+    (first.comp second).apply header =
+      second.apply (first.apply header) :=
+  Rewrite.comp_apply first second header
+```
+
+The checker builds a finite universe from the initial header and overwrite constants.
+The universe is closed under all declared rewrites and header reversal.
+Each returned path or cut has a checked certificate.
+Reachability permits any resulting header at the target.
+Isolation and mediation cover every resulting header and modeled path for the supplied initial header.
+
+Run a translation and a firewall bypass:
+
+```
+lake exe netlib transfer examples/transfer/dnat.json --json
+lake exe netlib transfer examples/transfer/gateway-bypass.json --json
+```
+
+The default budget is 4,096 node/header states.
+The checker computes the exact state-list size before constructing it.
+Budget exhaustion or certificate failure returns an error without a query result.
+Every returned answer agrees with the full semantic query.
+The library has no separate theorem that guarantees successful search completion for every valid input.
+
+## Timed translation traces
+
+The local source-NAPT model separates public endpoint mappings from return-flow grants.
+Mapping selection depends on the inside endpoint and protocol.
+Several remote peers can share that mapping.
+Each reply still needs a live grant for its exact reversed five-tuple.
+The current clock must precede the grant deadline.
+
+The trace auditor derives outbound permission from a certified packet-intent policy.
+The input cannot supply its own authorization result.
+The auditor compares each recorded output or drop with the model output.
+A passing report covers every supplied packet event.
+Each restored reply has an earlier outbound event permitted by the declared intent.
+
+```
+lake exe netlib nat-trace examples/nat/secure.json --json
+lake exe netlib nat-trace examples/nat/expired-admitted.json --json
+```
+
+The trace starts with empty mappings and grants.
+It can advance the clock, close a flow, or flush the tables.
+The input supplies public allocations and deadlines in one abstract time unit.
+The default budget limits policy compilation to 100,000 partition cells.
+It does not bound trace length or table size.
+Accurate observations and a complete trace remain assumptions.
+
+## Alias reuse and packet freshness
+
+Source translation removes the inside endpoint from the external header.
+An old flow can expire before a new flow reuses the same public alias.
+When the remote endpoint and protocol match, their external reply headers are equal.
+Any decision function given the same state and header must treat those replies alike.
+The library proves that this holds for arbitrary decision functions over the header abstraction.
+
+```
+lake exe netlib nat-trace examples/nat/alias-reuse.json --json
+```
+
+This passing trace restores a delayed old reply to the new inside endpoint.
+The current NAT safety invariant still holds.
+Policy provenance and mapping consistency cannot establish packet freshness.
+Stronger claims need additional observations or lifecycle assumptions.
+
+These models exclude TCP flags, sequence windows, handshake state, checksums, and fragmentation.
+They do not establish full NAT standards conformance or native Linux conntrack correspondence.
+The Linux snapshot importer retains its documented stateless scope.
+The packet-transformation and stateful models need separate native bindings.
+
 # Documentation process
 %%%
 tag := "documentation"
@@ -615,6 +710,14 @@ file := "glossary"
 : Isolation
 
   No permitted path connects any selected source and target pair.
+
+: Flow grant
+
+  A timed permission for a reply with the exact reversed five-tuple.
+
+: NAPT
+
+  Translation of a network address and transport port.
 
 : Packet header
 

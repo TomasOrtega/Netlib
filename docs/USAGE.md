@@ -117,6 +117,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Packet requirement compilation](COMPILER.md).
+- [Packet rewrites and timed flow authorization](STATEFUL.md).
 - [5G admission traces](FIVEG.md).
 - [Policy analysis and search budgets](SOLVER.md).
 

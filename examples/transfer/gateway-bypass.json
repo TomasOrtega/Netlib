@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "nodes": [
+    "client",
+    "nat",
+    "firewall",
+    "server",
+    "management"
+  ],
+  "links": [
+    {
+      "from": "client",
+      "to": "nat",
+      "match": {
+        "source": null,
+        "destination": {
+          "address": 3405803786,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 80,
+          "last": 80
+        }
+      },
+      "rewrite": {
+        "source": null,
+        "destination": "198.51.100.10",
+        "protocol": null,
+        "sourcePort": null,
+        "destinationPort": 443
+      }
+    },
+    {
+      "from": "nat",
+      "to": "firewall",
+      "match": {
+        "source": null,
+        "destination": {
+          "address": 3325256714,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 443,
+          "last": 443
+        }
+      },
+      "rewrite": {
+        "source": null,
+        "destination": null,
+        "protocol": null,
+        "sourcePort": null,
+        "destinationPort": null
+      }
+    },
+    {
+      "from": "firewall",
+      "to": "server",
+      "match": {
+        "source": null,
+        "destination": {
+          "address": 3325256714,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 443,
+          "last": 443
+        }
+      },
+      "rewrite": {
+        "source": null,
+        "destination": null,
+        "protocol": null,
+        "sourcePort": null,
+        "destinationPort": null
+      }
+    },
+    {
+      "from": "nat",
+      "to": "server",
+      "match": {
+        "source": null,
+        "destination": {
+          "address": 3325256714,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 443,
+          "last": 443
+        }
+      },
+      "rewrite": {
+        "source": null,
+        "destination": null,
+        "protocol": null,
+        "sourcePort": null,
+        "destinationPort": null
+      }
+    }
+  ],
+  "query": {
+    "kind": "mediated",
+    "source": "client",
+    "target": "server",
+    "header": {
+      "source": "10.0.0.1",
+      "destination": "203.0.113.10",
+      "protocol": 6,
+      "sourcePort": 40000,
+      "destinationPort": 80
+    },
+    "gateways": [
+      "firewall"
+    ]
+  }
+}

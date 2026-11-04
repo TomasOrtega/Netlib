@@ -142,9 +142,55 @@ def linux_checks():
         invoke("compile-acl", invalid, code=2)
 
 
+def stateful_checks():
+    nat = ROOT / "examples/nat"
+    for path in sorted(nat.glob("*.json")):
+        passed = path.stem in {"secure", "udp", "alias-reuse"}
+        invalid = path.stem in {"invalid-clock", "forged-authority"}
+        code = 2 if invalid else 0 if passed else 1
+        output = invoke("nat-trace", path, "--json", code=code)
+        if not invalid:
+            report = json.loads(output)
+            assert report["compliant"] == passed and report["scope"] == "local-source-napt-trace"
+            assert len(report["findings"]) == len(json.loads(path.read_text())["events"])
+            assert all(row["source"] == f"/events/{i}" for i, row in enumerate(report["findings"]))
+            assert all(row["matched"] for row in report["findings"]) == passed
+    reuse = json.loads(invoke("nat-trace", nat / "alias-reuse.json", "--json"))
+    assert reuse["findings"][-1]["observed"]["destination"] == "10.0.0.2"
+    assert reuse["findings"][-1]["observed"]["destinationPort"] == 41000
+    invoke("nat-trace", nat / "secure.json", "--budget", "0", code=2)
+    transfer = ROOT / "examples/transfer"
+    for path in sorted(transfer.glob("*.json")):
+        passed = path.stem in {"dnat", "cycle", "mediated", "isolation"}
+        report = json.loads(invoke("transfer", path, "--json", code=0 if passed else 1))
+        assert report["compliant"] == passed
+        assert report["scope"] == "fixed-input-header-changing-forwarding"
+        assert report["stateCount"] <= 4096
+        assert report["path"] is not None or report["cut"] is not None or report["endpointGateway"]
+    rewritten = json.loads(invoke("transfer", transfer / "dnat.json", "--json"))
+    assert rewritten["path"][0]["packet"]["destinationPort"] == 80
+    assert rewritten["path"][-1]["packet"]["destinationPort"] == 443
+    assert rewritten["path"][-1]["packet"]["destination"] == "198.51.100.10"
+    bypass = json.loads(invoke("transfer", transfer / "gateway-bypass.json", "--json", code=1))
+    assert all(state["node"] != "firewall" for state in bypass["path"])
+    invoke("transfer", transfer / "dnat.json", "--budget", "0", code=2)
+    invoke("transfer", transfer / "dnat.json", "--budget", "invalid", code=2)
+    with tempfile.TemporaryDirectory(prefix="netlib-transfer-") as directory:
+        path = Path(directory) / "invalid.json"
+        model = json.loads((transfer / "dnat.json").read_text())
+        model["links"][0]["rewrite"]["destination"] = "198.51.100.256"
+        path.write_text(json.dumps(model))
+        invoke("transfer", path, code=2)
+        model = json.loads((transfer / "dnat.json").read_text())
+        model["query"]["gateways"] = ["firewall"]
+        path.write_text(json.dumps(model))
+        invoke("transfer", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
+    stateful_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -201,9 +247,7 @@ def main():
         invoke("analyze", policy, "--budget", "0", code=2)
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
-    print(
-        f"Profile CLI checks passed for {count} fixtures, coverage, traffic, Linux, and compilation."
-    )
+    print(f"Profile CLI checks passed for {count} fixtures and extended packet/stateful commands.")
 
 
 if __name__ == "__main__":

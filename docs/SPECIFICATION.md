@@ -73,9 +73,9 @@ Routing selects the longest matching destination prefix. Equal prefix lengths
 preserve the first route. A route supplies a next hop or a drop action.
 Routing and access control lists define packet-specific forwarding networks.
 
-These forwarding models are stateless.
+The `dataplane` and `traffic` forwarding models are stateless.
 They keep the same header throughout a path.
-They exclude packet rewriting and dynamic routing protocols.
+They exclude dynamic routing protocols.
 The `dataplane` command imports these models through JSON schema 1.
 The `traffic` command checks every header selected by a packet match.
 It partitions headers at every ACL, route, and selection boundary.
@@ -100,6 +100,84 @@ An empty selection cannot satisfy a query.
 `Config.finiteNetwork_eq_model` connects executable edges to the composed library graph.
 `DataPlane.Check.Report.compliant_iff` connects the final status to every original query.
 The [data-plane guide](DATAPLANE.md) defines the complete schema.
+
+## Header-changing forwarding
+
+`Netlib/Packet/Rewrite.lean` provides constant overwrites of address, protocol, and port fields.
+An absent overwrite preserves its incoming value.
+Sequential rewrites compose, and flow reversal exchanges the two endpoints.
+Reply inversion requires the original endpoint as explicit information.
+
+`Netlib/Packet/Transfer.lean` defines guards, rewrites, and their ordered composition.
+Its forwarding graph retains both the current node and current header.
+Physical links still constrain each modeled program step.
+Header-preserving programs embed the existing forwarding graph semantics.
+
+The `transfer` command checks one initial packet.
+`Netlib/Import/TransferConfig.lean` imports declared nodes, guarded links, constant rewrites, and one query.
+Each link tests the incoming header, applies its rewrite, and arrives at its fixed target.
+Matching links remain permitted alternatives.
+Separate stage nodes express processing order.
+Routing lookup and Linux hook order are not implicit.
+
+Reachability permits any resulting header at the target node.
+Isolation excludes every resulting header.
+Mediation requires a gateway on every path, including rewritten paths.
+Gateway endpoints and zero-step reachability retain their existing meanings.
+`Netlib/Check/Transfer.lean` checks packet-state path and cut certificates.
+Its returned status agrees exactly with the stated query.
+
+Initial values and overwrite constants generate a finite header universe.
+Closure proofs cover every modeled path from the initial packet.
+The default budget is 4,096 device/header states.
+The checker counts that product before constructing the states.
+Budget exhaustion or certificate rejection returns an error without an answer.
+There is no theorem guaranteeing successful search completion for every valid input.
+All-header class verification across rewrites remains future work.
+
+## Timed flow state and source NAPT
+
+`Netlib/Protocol/Conntrack.lean` grants one TCP or UDP flow and its exact reverse reply until its deadline.
+Time is monotone.
+Closing a flow removes its grant.
+`Netlib/Protocol/NAT.lean` maps an inside endpoint and protocol to a supplied public endpoint.
+The mapping can serve several remote peers.
+Each peer still needs a separate live reverse-flow grant.
+
+Accepted transitions preserve live entries and unique mapping keys.
+An accepted outbound packet has a source-endpoint rewrite.
+Its exact reverse reply restores the inside endpoint while the grant remains live.
+Public-endpoint collisions and changes to an existing live mapping cause denial.
+Expiration removes old entries.
+Closing a flow can leave its mapping in place.
+Flush clears grants and mappings while preserving the clock.
+
+The `nat-trace` command audits every supplied packet observation from an empty initial state.
+`Netlib/Check/NATTrace.lean` obtains outbound permission from the declared packet-intent policy.
+The input cannot supply an authorization result.
+Each finding compares observed output with independently computed model output.
+Correct denials can pass.
+Every matched restored reply has an earlier outbound source permitted by that policy.
+Accurate observations, complete traces, and clock interpretation remain assumptions.
+
+Allocations and expiration deadlines remain supplied inputs.
+The default budget covers 100,000 policy partition cells, not trace processing.
+`Netlib/Import/PacketFields.lean` reads bounded packet fields and dotted IPv4 addresses.
+Its codec and the trace parser have runtime tests rather than parser-correctness proofs.
+
+`Netlib/Theory/NATReuse.lean` proves a freshness limit after public-alias reuse.
+Different inside endpoints can produce identical external reply headers for the same remote endpoint and protocol.
+No deterministic decision using only that header and the same current state can distinguish them.
+A proved trace expires the old flow, reuses its alias, and delivers the delayed reply to the new inside endpoint.
+The current mapping and grant safety invariant still holds.
+That invariant therefore cannot establish rejection of retired replies.
+
+These models exclude checksums, fragmentation, TCP flags, sequence windows, and transport handshakes.
+They do not establish allocator correctness, public-address ownership, Linux conntrack correspondence, or complete RFC conformance.
+The native Linux adapter remains limited to its stateless subset.
+The transfer graph and NAT trace have separate semantics.
+A combined forwarding and cross-packet state proof remains future work.
+The [stateful guide](STATEFUL.md) defines the input formats and evidence limits.
 
 ## Request model
 
@@ -318,9 +396,12 @@ The [roadmap](ROADMAP.md) separates this foundation from the complete deployment
 Linux snapshot import and packet-intent compilation have structured translation proofs.
 The native forwarding graph preserves source route lookup and source firewall evaluation under the documented transit assumptions.
 The intent compiler rejects incompatible permits and prohibitions before it emits a certified ACL.
-The native-format emitter preserves that ACL for every header.
+The emitter's structured native-format snapshot preserves that ACL for every header.
 JSON parsing, serialization, kernel execution, and deployment operations need separate evidence.
 The [Linux](LINUX.md) and [compiler](COMPILER.md) guides distinguish these guarantees.
+The transfer checker separately certifies header-changing paths and cuts.
+The NAT auditor separately certifies agreement with supplied packet observations.
+Their current theorems do not connect those models to native NAT implementations.
 
 Lean verifies the theorem statements and proofs with the pinned toolchain.
 Each theorem establishes its conclusion under its explicit hypotheses.
@@ -384,6 +465,9 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 9. Packet, routing, and request suites contain 94 theorem examples.
    The request examples distinguish admission, denied mediated paths, surviving
    bypasses, and gateway self paths.
+10. Transfer examples retain packet changes in witnesses and distinguish DNAT, bypasses, cycles, and exhausted state budgets.
+11. Flow-state tests distinguish collisions, exact replies, independent peer grants, expiration, closure, and public-alias reuse.
+12. The alias-reuse theorem identifies packet freshness that the current invariant cannot establish.
 
 ## Scope limits
 
@@ -398,10 +482,11 @@ It does not inspect live networks or deploy network changes.
 It does not certify complete CSfC, NIST, or 5G compliance.
 Reference architectures show formal patterns within the stated model.
 
-The models exclude dynamic routing protocols, packet rewriting, cryptographic
-algorithms, full authentication protocols, stateful middleboxes, temporal liveness,
-and adversarial compromise. Extensions need new semantics, proofs, and rules
-that connect their input to those semantics.
+The current models exclude dynamic routing protocols and cryptographic algorithm correctness.
+Full authentication protocols, transport handshakes, temporal liveness, and adversarial compromise remain outside their scope.
+Constant packet rewrites and one local timed source-NAPT model have the separate guarantees above.
+General stateful-middlebox composition and native implementation correspondence remain future work.
+Extensions need semantics, proofs, and rules that connect their input to those semantics.
 
 The executable analysis has no fixed atom limit.
 Its branch solver simplifies formulas after each assignment.

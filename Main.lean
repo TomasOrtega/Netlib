@@ -6,6 +6,8 @@ import Netlib.Check.Traffic
 import Netlib.Import.LinuxDeployment
 import Netlib.Compile.Policy
 import Netlib.Compile.Nftables
+import Netlib.Import.TransferConfig
+import Netlib.Check.NATTrace
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -20,6 +22,8 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib linux BUNDLE.json [--json]\n\
   netlib linux-traffic BUNDLE.json QUERY MATCH.json [--budget N] [--json]\n\
   netlib compile-acl INTENT.json [--budget N]\n\
+  netlib transfer CONFIG.json [--budget N] [--json]\n\
+  netlib nat-trace TRACE.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
   netlib wifi AP.conf [DEPLOYMENT.json] [--json]\n\
@@ -142,6 +146,19 @@ private def compileACL (path : String) (budget : Nat) : IO UInt32 := do
     return 1
   | .error error => throw (IO.userError error.describe)
 
+private def transfer (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Import.TransferConfig.Input.parse (← IO.FS.readFile path))
+  let result ← unwrap (Check.Transfer.check input.config input.query budget)
+  IO.println (if json then (Import.TransferConfig.resultJson input result).pretty
+    else Import.TransferConfig.render input result)
+  return if result.value then 0 else 1
+
+private def natTrace (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.NATTrace.Input.parse (← IO.FS.readFile path) budget)
+  let report := input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -188,6 +205,14 @@ private def run (args : List String) : IO UInt32 := do
     linuxTraffic path query selection (← budgetValue budget) true
   | ["compile-acl", path] => compileACL path 100000
   | ["compile-acl", path, "--budget", budget] => compileACL path (← budgetValue budget)
+  | ["transfer", path] => transfer path 4096 false
+  | ["transfer", path, "--json"] => transfer path 4096 true
+  | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false
+  | ["transfer", path, "--budget", budget, "--json"] => transfer path (← budgetValue budget) true
+  | ["nat-trace", path] => natTrace path 100000 false
+  | ["nat-trace", path, "--json"] => natTrace path 100000 true
+  | ["nat-trace", path, "--budget", budget] => natTrace path (← budgetValue budget) false
+  | ["nat-trace", path, "--budget", budget, "--json"] => natTrace path (← budgetValue budget) true
   | ["fiveg", path] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) false
   | ["fiveg", path, "--json"] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) true
   | ["fiveg-coverage"] => standardsReport FiveG.coverage false

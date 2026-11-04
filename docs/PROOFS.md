@@ -137,9 +137,10 @@ Equal prefix lengths preserve the first route. The routing result supplies a nex
 hop or a drop action. The library connects routing and access control lists to
 packet-specific forwarding.
 
-These packet models are stateless and preserve the header along each path.
+These ACL and routing graph models preserve the header along each path.
 The original `check` command uses named services.
 The `dataplane` command uses the composed graph below.
+Separate transfer and flow-state models appear below.
 
 ## Request enforcement
 
@@ -388,6 +389,107 @@ The regression first failed with the original parser and now covers existing JSO
 A separate differential check matched Python key detection on 2,500 generated nested cases.
 Parsing remains part of the reviewed implementation.
 
+## Packet rewrites and transfers
+
+`Netlib/Packet/Rewrite.lean` defines constant overwrites for the five packet fields.
+`Rewrite.comp_apply` connects sequential overwrites to function composition.
+`Rewrite.comp_assoc` proves associativity.
+`Header.reverse_reverse` proves that reversing a flow twice restores its header.
+The endpoint reply-roundtrip theorems require the original endpoint as explicit information.
+
+`Rewrite.Universe.ofRewrites` collects initial values and every overwrite constant.
+Its finite header product also supports reversal.
+`initial_mem`, `rewrite_mem`, and `reverse_mem` prove closure for those operations.
+`headers_length` proves the exact product size.
+The construction does not enumerate all IPv4 addresses.
+
+`Netlib/Packet/Transfer.lean` defines packet programs and forwarding over device/header states.
+`Program.seq_assoc` and `rewrite_seq` connect program composition to rewrite composition.
+`Program.guard_rewrite` states the incoming-guard, then rewrite order.
+`Transfer.physicalProjection` connects program steps to declared physical links.
+Physical isolation and mediation therefore transfer to packet-state paths.
+`Transfer.fixed_reachable_iff` embeds the previous header-preserving graph semantics.
+
+`Netlib/Check/Transfer.lean` checks one initial header against every modeled path and resulting target header.
+Each link tests the incoming header before applying its rewrite.
+The link fixes its target node.
+It supplies no implicit routing lookup or native hook order.
+`Config.edge_correct` connects the executable edge test to that step relation.
+`states_closed` proves that paths cannot escape the generated finite state space.
+`finite_reachable_iff` connects finite search to the complete query graph.
+
+`Result.correct` covers reachability, isolation, and gateway mediation.
+`Result.path_sound` preserves the exact packet-and-device walk.
+`Result.cut_valid` retains a checked separation certificate for every target header.
+Gateway endpoints and zero-step paths follow the existing network semantics.
+
+The default budget is 4,096 device/header states.
+`states_length` connects the preflight count to the generated state list.
+Budget exhaustion and rejected certificates produce errors.
+The proofs cover every returned answer.
+They do not establish successful search completion for every valid input.
+The [stateful guide](STATEFUL.md) defines the command scope.
+
+## Timed flow grants and source NAPT
+
+`Netlib/Protocol/Conntrack.lean` grants one TCP or UDP flow and its exact reverse reply.
+`permitsReply_iff` gives the live-entry conditions.
+`closed_reply_denied` proves exact-flow revocation.
+`step_safe` and `run_safe` preserve live deadlines.
+`clock_mono` prevents time reversal.
+These results do not establish transport handshakes or TCP connection states.
+
+`Netlib/Protocol/NAT.lean` separates source mapping from return-flow filtering.
+`mapping_independent_of_remote` makes mapping depend on the inside endpoint and protocol.
+Each remote flow still needs its own live reverse grant.
+`outboundState_safe`, `step_safe`, and `run_safe` preserve live mappings and grants.
+They also preserve unique inside/protocol and public/protocol keys.
+`inbound_sound` requires a live public mapping and an exact live reverse grant.
+`accepted_roundtrip` restores the private reply after an accepted outbound step.
+`trace_reply_origin` connects a restored reply to an earlier authorized outbound event.
+
+The allocator and expiration deadlines remain supplied inputs.
+Close removes the selected flow grant while its endpoint mapping can remain.
+Expiration purges old entries, and flush clears both tables.
+The Linux snapshot adapter continues to reject native NAT and connection-tracking expressions.
+These local models do not prove Linux behavior or complete RFC conformance.
+
+## Observed flow traces and packet input
+
+`Netlib/Check/NATTrace.lean` derives outbound permission from the certified packet-intent ACL.
+Its parser rejects an input authorization flag.
+The auditor advances the model independently of the observed output.
+`Report.compliant_iff` states exact agreement for every supplied packet observation.
+The report preserves the original event indices and order.
+`Report.inbound_policy_origin` proves an earlier source flow permitted by the declared intent for every matched restored reply.
+
+Accurate observations, complete event coverage, and clock interpretation remain assumptions.
+The audit starts from the declared empty state.
+Its default budget covers 100,000 policy partition cells.
+It does not bound trace length, table size, or total execution time.
+
+`Netlib/Import/PacketFields.lean` reads dotted IPv4 addresses and bounded numeric fields.
+`Netlib/Import/TransferConfig.lean` reads explicit guards, rewrites, queries, and device references.
+Input validation rejects unknown fields, duplicate declarations, and unsupported query forms.
+The shared JSON parser rejects duplicate decoded keys.
+Codec roundtrip and malformed-input tests supply implementation evidence.
+These tests do not prove JSON parser or serializer correctness.
+
+## Alias reuse and information loss
+
+`Netlib/Theory/NATReuse.lean` proves an abstraction limit.
+`translated_eq_iff` states exactly which flow fields source-alias translation retains.
+Distinct inside endpoints can produce identical wire replies when their remote endpoint and protocol agree.
+`header_only_indistinguishable` covers every deterministic decision using the same current state and packet header.
+`cannot_reject_old_accept_new` and `cannot_recover_inside` rule out distinguishing those packets through that interface.
+
+`retired_state` proves that an old flow expires completely before alias reuse.
+`delayed_reply_restored_to_new` then delivers its delayed reply to the new inside endpoint.
+`delayed_reply_not_original` separates that endpoint from the original recipient.
+`safe_but_not_retired_reply_rejection` proves that the current safety invariant still holds.
+Mapping consistency and authorized-flow provenance cannot establish packet freshness.
+The result concerns the five-tuple abstraction, not full TCP packets or native kernels.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,
@@ -399,6 +501,8 @@ Source citations and retained requirement text support review. They do not prove
 that a translation preserves unrestricted natural language. Completion concerns
 only supplied goals. It does not discover unstated security intent.
 
-The examples do not certify an external standard or live equipment. The models
-also exclude packet transformations, cryptographic correctness, and performance
-targets. See the [specification](SPECIFICATION.md) for the complete scope.
+The examples do not certify an external standard or live equipment.
+Packet transformations and flow state have the separate model scopes above.
+Their native implementation correspondence remains unproved.
+Cryptographic correctness and operational performance targets also remain unproved.
+See the [specification](SPECIFICATION.md) for the complete scope.
