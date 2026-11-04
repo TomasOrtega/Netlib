@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T22:17:32+00:00",
+  "timestampSource": "Latest file mtime in the original capture archive.",
+  "captureArchiveSHA256": "fc65baba518e30c442accb07029886ecbc4a4652f570d5e6238aa0af870c5144",
+  "kernel": "6.8.0-117-generic",
+  "producers": {
+    "conntrack-tools": {
+      "version": "1.4.9",
+      "url": "https://www.netfilter.org/projects/conntrack-tools/files/conntrack-tools-1.4.9.tar.xz",
+      "sha256": "c15afe488a8d408c9d6d61e97dbd19f3c591942f62c13df6453a961ca4231cae"
+    },
+    "libnetfilter_conntrack": {
+      "version": "1.1.1",
+      "url": "https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.1.1.tar.xz",
+      "sha256": "769d3eaf57fa4fbdb05dd12873b6cb9a5be7844d8937e222b647381d44284820"
+    },
+    "nftables": {
+      "version": "1.1.3",
+      "sha256": "9c8a64b59c90b0825e540a9b8fcb9d2d942c636f81ba50199f068fde44f34ed8",
+      "url": "https://netfilter.org/projects/nftables/files/nftables-1.1.3.tar.xz"
+    },
+    "iproute2": {
+      "version": "6.19.0",
+      "url": "https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.19.0.tar.gz",
+      "sha256": "b39ac6a76f8299968408d3f2948ea59d9502b299d3e0c78c93658b65df3be5be"
+    },
+    "tc": {
+      "version": "6.17.0",
+      "package": "iproute2-tc-6.17.0-r0",
+      "source": "Distribution package retained in the pinned parent image. Not rebuilt for this capture.",
+      "upstreamSource": "https://github.com/iproute2/iproute2/tree/v6.17.0"
+    }
+  },
+  "container": {
+    "base": "alpine@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63",
+    "capabilities": [
+      "NET_ADMIN",
+      "SYS_ADMIN"
+    ],
+    "seccomp": "unconfined",
+    "apparmor": "unconfined",
+    "hostMounts": false,
+    "hostNetworking": false,
+    "privateNetworkNamespaces": [
+      "client",
+      "router",
+      "server"
+    ],
+    "privateProcfs": true,
+    "parentImage": "netlib-conntrack-capture:1.4.9",
+    "parentImageID": "sha256:1ee471e9d7f980207c7d4b702b9da8af1107f94cea9c03d42d82c5ea1d9218fe",
+    "image": "netlib-lifecycle-capture:6.19.0",
+    "imageID": "sha256:566c6af8672a432d7b9db65593d54e5d6d5f0fd5e98e644979f9adefedc0bebd",
+    "network": "none",
+    "recipe": "examples/drain/Dockerfile",
+    "note": "Capture runs the existing pinned parent image directly. The child recipe adds no layers."
+  },
+  "queue": {
+    "device": "router/outside0",
+    "kind": "netem",
+    "handle": "10:",
+    "limit": 32,
+    "delayMilliseconds": 4000,
+    "jitterMilliseconds": 0,
+    "observedQueueLengths": [
+      0,
+      1,
+      1,
+      0
+    ],
+    "identityAssumption": "Isolated recipe and distinct socket payloads. Counters carry no payload identity."
+  },
+  "evidence": {
+    "packetTraces": 2,
+    "chainVisits": 8,
+    "stateSnapshots": 4,
+    "qdiscSnapshots": 4
+  },
+  "scope": "Finite ordinary UDP capture with matching raw conntrack bytes, exact rule exports, socket payloads, monotonic intervals, and qdisc counters. No kernel C refinement, capture authenticity, complete packet history, universal FIFO order, liveness, or drain-time bound.",
+  "files": {
+    "examples/conntrack/Dockerfile": "beea89a2d62f294cf8a563bf971a251955226a9e40619053dd23e30c44ece1e7",
+    "examples/lifecycle/Dockerfile": "e3fa6fbc3bb165b01c390a37a3bfb64cb993c3c50949135f3e875bdafd8a0661",
+    "examples/drain/Dockerfile": "e5d6f2e97fb5f1214bc4ecf1ce7b7f408d4241d0f9777c8da6fd66b38b5b745c",
+    "examples/drain/capture.sh": "c349d2c869e1db76bb781f0c89ee802036c8b2a2a878215038facab3f574969c",
+    "examples/drain/exercise.py": "23ed6bdba28c030e9d6ebd9e8d1f8c41ea07124e09920612d42d58df33e3d7e9",
+    "examples/drain/README.md": "e89d890468d72511afd3581c917694d89eaecf5eb3911ac4e229fb57371eafd4",
+    "scripts/capture_conntrack.py": "e07e5ff4ec933decc784e6b36d2e8ae3f96ce76486829444782813dd13e1b61c",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "scripts/check_drain_capture.py": "f41b71830fecb5110fcac570faf4e8cf1104ebfd382358a6c88d032d6da7c05f",
+    "scripts/test_check_drain_capture.py": "a29319bf8faca48ab666312b415495a6e38569b88b1e7b39f495990caf2c8038",
+    "docs/research/POSTROUTING_QUEUES.md": "f89808141b3bacc31831ad73ffa29d889c07ac8d3e7278db11ef163e41194407",
+    "examples/drain/checked-evidence.json": "96957ddd7fd05520c78197c44696fca3df6d71b7ac0a989cf715e64e153fe9d4",
+    "examples/drain/native/blocked-state.json": "57e093e61663c68de862d6854e93439d59a29a5b4935da882a3e3226d1be7902",
+    "examples/drain/native/client-settings.txt": "8b8da0cf32efeab2a75282a8a2461dbf8b2efe9b61da45ac9d897e5283530c65",
+    "examples/drain/native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "examples/drain/native/drained-state.json": "0c9fd08a4c3622550aad5235c9c5fb16acd2cb9448c828617b85b43bbf593f49",
+    "examples/drain/native/forward.json": "cc4a51d402e75fde6bf606283c02abd32cdc1e4b25d2c3f65eae87b1c1345866",
+    "examples/drain/native/initial-state.json": "b141a41c474db1eb022d2139bcc36836d2776ab6423eb9627925c899e1952aa1",
+    "examples/drain/native/install-barrier.nft": "a217f018679d33e5e69f37f13b051eaf22ea92be7614e95af411d4432d2a8e4d",
+    "examples/drain/native/instrumentation.json": "73f17f95aff4153223f3da6f710da0bd809334f3e22ccaf3844dadae97a06617",
+    "examples/drain/native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "examples/drain/native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "examples/drain/native/late-after.json": "f6650373a4d16e26b1939f7807905ab3c4bd9b76d7d9a0247b42b8c87aacb2eb",
+    "examples/drain/native/late-before.json": "a0d8dfdd4283b9f946d2e52f5956b263072b9cebf49ea2acc27992ae0e773ec3",
+    "examples/drain/native/library-version.txt": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
+    "examples/drain/native/links.json": "a9ec2a3dfa63bf6f38c3dbfcdd99dee4e46be7d6055012b3da5e2380f031c51d",
+    "examples/drain/native/nat.json": "98b221c8ac073f2fac8040dda840aed8ec007d2f0b1a548cece7d929abc5a1ab",
+    "examples/drain/native/neighbors.json": "bf7e56f0faf557f849bcf0b56dec8771f95370d1f5566d57989c6287d41f5197",
+    "examples/drain/native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "examples/drain/native/observations.json": "886cd2106602e7e69ec129f5e03a14708a1d6064442dfc09d4938cc604ab71ae",
+    "examples/drain/native/packages.txt": "8f0d64787547ea554f058feda17152952c714892cc284913f97e63afeb8f39a6",
+    "examples/drain/native/pending-state.json": "ef3c0d0fbeba89e106f10abffcb01f36525a82f5821589767280b6519e7adcd3",
+    "examples/drain/native/qdisc-blocked.json": "e37b8ed15d807f06ea3d689cd4810f0c52012de937fc1f87e183ff5572ea9961",
+    "examples/drain/native/qdisc-configured.json": "177e084b42134290ae7ed299c3621b866fbf44b86cd2e73adbba85f8d2b75b97",
+    "examples/drain/native/qdisc-drained.json": "53e19eac55be33669d87fb2c33f88e550f1dc8490ae686589fa4540cbe675254",
+    "examples/drain/native/qdisc-pending.json": "e37b8ed15d807f06ea3d689cd4810f0c52012de937fc1f87e183ff5572ea9961",
+    "examples/drain/native/queue-command.json": "9ceb7615a459f42a15dd838e68d67f7a0ba947a62bc0cadf6d76b3b759a878de",
+    "examples/drain/native/router-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "examples/drain/native/routes.json": "25bb0297461506c2eb0075527ced39c065bd622f9f88b1ea0c06d7e0ea0c570e",
+    "examples/drain/native/server-settings.txt": "8b8da0cf32efeab2a75282a8a2461dbf8b2efe9b61da45ac9d897e5283530c65",
+    "examples/drain/native/setup.nft": "7bfa5cd75d7408096b68e89bcd3debe54cf37c3376c024cf4a53a927cc0cbde5",
+    "examples/drain/native/tc-version.txt": "eb7e340b337c14218216b6bab7f3dd224d6d1a0d04ffd4d72c93a1b3b3a7df70",
+    "examples/drain/native/trace-errors.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/drain/native/trace.txt": "ad9815f3788b9c88aa5aab963cfd3c703edbde576141aad111927ef483498bca",
+    "scripts/build_drain_example.py": "1ebdc6fa2b3dec9eaf387aef100f5240efd0d4d85c38948108b58ea433df62da",
+    "examples/drain/replay.json": "d0bd8e8942d16664c8c93a9da57c34d93e58324635383a410765cdf7dc5568e2",
+    "examples/drain/forbidden.json": "f34fbcf0b8abd4a6009f36b102536a8cd60dd2b6d9762ac8adde1a37ddf2c24c"
+  },
+  "replayProjection": {
+    "builder": "scripts/build_drain_example.py",
+    "admissionFrom": 1,
+    "deliveryFrom": 3,
+    "serviceCapacity": 1,
+    "queueIdentity": "The isolated recipe and socket payloads associate the queued header; qdisc counters alone do not identify it.",
+    "physicalServiceRateClaim": false
+  }
+}

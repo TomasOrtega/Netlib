@@ -447,7 +447,7 @@ def main():
     paths = [
         ROOT / "README.md",
         ROOT / "GLOSSARY.md",
-        *ROOT.joinpath("docs").glob("*.md"),
+        *ROOT.joinpath("docs").rglob("*.md"),
         *ROOT.joinpath("Netlib").rglob("*.lean"),
         ROOT / "docbuild/Manual.lean",
         ROOT / "docs/assets/index.html",

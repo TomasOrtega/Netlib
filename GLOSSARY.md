@@ -369,3 +369,15 @@ A postrouting filter that denies every header in the forbidden class for every m
 
 **Cutover position**:
 The event-list position at which an operational suffix begins. It is not a physical timestamp or a packet-drain proof.
+
+**Admission boundary**:
+The schedule position after which each packet operation must select a certified late barrier.
+
+**Delivery boundary**:
+The position after the draining segment. The last draining batch can still contain older forbidden packets.
+
+**Old queue prefix**:
+The packets pending at the admission boundary, before all later arrivals.
+
+**Service capacity**:
+The number of FIFO service opportunities declared for a modeled event. Physical elapsed time requires a separate service bound.

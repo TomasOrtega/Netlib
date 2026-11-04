@@ -1,0 +1,408 @@
+{
+  "schema": 1,
+  "scope": "checked-native-drain-evidence",
+  "traceCount": 2,
+  "packetCount": 8,
+  "snapshotCount": 4,
+  "phases": [
+    {
+      "phase": "queued-before-barrier",
+      "traceId": "224fa766",
+      "inputPacket": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "new",
+      "fresh": true,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "nextHop": "server",
+      "disposition": "forwarded",
+      "output": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "fieldEvidence": {
+        "state": "matching-exported-rule-state-guard",
+        "fresh": "raw-visible-snapshot-and-ordinary-tracking-assumption",
+        "output": "post-SNAT-trace-and-delayed-socket"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 1,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 4964,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 2,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 3
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "destination",
+          "line": 4,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 4964,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 5,
+              "handle": null,
+              "text": "ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000"
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 6,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 4964,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 7,
+              "handle": null,
+              "text": "ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment \"SERVICE\""
+            }
+          ]
+        },
+        {
+          "table": "netlib_nat",
+          "chain": "source",
+          "line": 8,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 4964,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 9,
+              "handle": null,
+              "text": "ip saddr 192.0.2.0/24 meta l4proto udp snat to 203.0.113.1:40000"
+            }
+          ]
+        },
+        {
+          "table": "netlib_late",
+          "chain": "late",
+          "line": 10,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 4964,
+          "verdicts": [
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "blocked-after-barrier",
+      "traceId": "c0c18e46",
+      "inputPacket": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "state": "new",
+      "fresh": false,
+      "afterDestination": {
+        "source": "192.0.2.2",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 9000
+      },
+      "afterSource": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "nextHop": "server",
+      "disposition": "lateDrop",
+      "output": null,
+      "fieldEvidence": {
+        "state": "matching-exported-rule-state-guard",
+        "fresh": "raw-visible-snapshot-and-ordinary-tracking-assumption",
+        "output": "trace-drop-and-timeout"
+      },
+      "stages": [
+        {
+          "table": "netlib_trace",
+          "chain": "trace",
+          "line": 12,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 8080
+          },
+          "iif": "inside0",
+          "oif": null,
+          "ipId": 4973,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "continue",
+              "line": 13,
+              "handle": null,
+              "text": "meta nftrace set 1"
+            },
+            {
+              "kind": "policy",
+              "verdict": "accept",
+              "line": 14
+            }
+          ]
+        },
+        {
+          "table": "netlib_filter",
+          "chain": "forward",
+          "line": 15,
+          "packet": {
+            "source": "192.0.2.2",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 31000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 4973,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "accept",
+              "line": 16,
+              "handle": null,
+              "text": "ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment \"SERVICE\""
+            }
+          ]
+        },
+        {
+          "table": "netlib_late",
+          "chain": "late",
+          "line": 17,
+          "packet": {
+            "source": "203.0.113.1",
+            "destination": "198.51.100.2",
+            "protocol": 17,
+            "sourcePort": 40000,
+            "destinationPort": 9000
+          },
+          "iif": "inside0",
+          "oif": "outside0",
+          "ipId": 4973,
+          "verdicts": [
+            {
+              "kind": "rule",
+              "verdict": "drop",
+              "line": 18,
+              "handle": 2,
+              "text": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "queueCounts": [
+    0,
+    1,
+    1,
+    0
+  ],
+  "queueSnapshots": [
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "root": true,
+      "refcnt": 3,
+      "options": {
+        "limit": 32,
+        "delay": {
+          "delay": 4,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "seed": 3622161097214130984,
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 0,
+      "packets": 0,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "root": true,
+      "refcnt": 3,
+      "options": {
+        "limit": 32,
+        "delay": {
+          "delay": 4,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "seed": 3622161097214130984,
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 0,
+      "packets": 0,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 66,
+      "qlen": 1
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "root": true,
+      "refcnt": 3,
+      "options": {
+        "limit": 32,
+        "delay": {
+          "delay": 4,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "seed": 3622161097214130984,
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 0,
+      "packets": 0,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 66,
+      "qlen": 1
+    },
+    {
+      "kind": "netem",
+      "handle": "10:",
+      "root": true,
+      "refcnt": 3,
+      "options": {
+        "limit": 32,
+        "delay": {
+          "delay": 4,
+          "jitter": 0,
+          "correlation": 0
+        },
+        "seed": 3622161097214130984,
+        "ecn": false,
+        "gap": 0
+      },
+      "bytes": 66,
+      "packets": 1,
+      "drops": 0,
+      "overlimits": 0,
+      "requeues": 0,
+      "backlog": 0,
+      "qlen": 0
+    }
+  ],
+  "oldReceivedAfterInstall": true,
+  "install": {
+    "startNs": 52831317649091,
+    "endNs": 52831318940090,
+    "file": "install-barrier.nft"
+  },
+  "oldReceiveNs": 52835294750185,
+  "queueIdentityAssumption": "isolated-recipe-and-socket-payloads-not-qdisc-counters",
+  "limits": [
+    "finite-capture",
+    "no-kernel-C-refinement",
+    "no-capture-authenticity-proof",
+    "no-universal-FIFO-or-liveness-proof",
+    "no-drain-time-bound"
+  ]
+}

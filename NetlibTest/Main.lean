@@ -50,6 +50,9 @@ import NetlibTest.ConntrackLifecycleAudit
 import NetlibTest.StatefulExclusion
 import NetlibTest.Revocation
 import NetlibTest.ConntrackRevocation
+import NetlibTest.QueueDrain
+import NetlibTest.BufferedLifecycle
+import NetlibTest.BufferedReplay
 
 open Netlib
 
@@ -101,4 +104,7 @@ def main : IO Unit := do
   NetlibTest.StatefulExclusion.run
   NetlibTest.Revocation.run
   NetlibTest.ConntrackRevocation.run
+  NetlibTest.QueueDrain.run
+  NetlibTest.BufferedLifecycle.run
+  NetlibTest.BufferedReplay.run
   IO.println "Netlib tests passed."

@@ -39,7 +39,7 @@ def input_hashes():
     }
     paths.update((ROOT / "Netlib").rglob("*.lean"))
     paths.update((ROOT / "docbuild").glob("*.lean"))
-    paths.update((ROOT / "docs").glob("*.md"))
+    paths.update((ROOT / "docs").rglob("*.md"))
     paths.update((ROOT / "docs/assets").rglob("*"))
     paths.update((ROOT / "examples").rglob("*"))
     return {

@@ -121,6 +121,7 @@ Static filter inclusion alone does not prove traffic exclusion for that connecti
 
 The declared cutover is after the barrier has become effective for selected packets.
 Packets already beyond the late hook require a separate drain or delivery boundary.
+The [buffered cutover model](BUFFERING.md) supplies that distinction and a FIFO service-budget proof.
 The event position is not a physical timestamp or proof that a native install command completed.
 
 Every selected packet must traverse the declared hook sequence without bypass.

@@ -149,6 +149,7 @@ It does not compare routes, NAT tables, stored bindings, histories, revocation, 
 An established-only rule can preserve old traffic while denying fresh traffic.
 Static permission inclusion alone does not establish that an update removes those existing flows.
 The [output exclusion checker](REVOCATION.md) adds a separate late-filter contract and carries it through a replay suffix.
+The [buffered checker](BUFFERING.md) separates admission at the hook from later queue service and delivery.
 
 ## Native evidence
 

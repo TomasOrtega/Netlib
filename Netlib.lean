@@ -70,6 +70,10 @@ import Netlib.Check.StatefulRefinement
 import Netlib.Check.StatefulExclusion
 import Netlib.Protocol.Revocation
 import Netlib.Check.ConntrackRevocation
+import Netlib.Theory.QueueDrain
+import Netlib.Protocol.BufferedLifecycle
+import Netlib.Check.BufferedReplay
+import Netlib.Check.BufferedDrain
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

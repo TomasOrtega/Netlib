@@ -119,6 +119,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Native conntrack records](CONNTRACK.md).
 - [Tracked forwarding and stateful filter refinement](LIFECYCLE.md).
 - [Output exclusion after a policy cutover](REVOCATION.md).
+- [Buffered cutovers and delivery after draining](BUFFERING.md).
 - [Packet requirement compilation](COMPILER.md).
 - [Packet rewrites and timed flow authorization](STATEFUL.md).
 - [5G admission traces](FIVEG.md).

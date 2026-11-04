@@ -13,12 +13,12 @@ It does not establish completion of the goal.
 
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
-| Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
+| Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
 | Connected protocol stacks | Packet policies, routes, sessions, shared stores, tuple translation, and ordinary hook lifecycles. Ordered traces compose stages and successive packets. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Stateful reply failover under exact grant replication. Separate Linux snapshots supply checked forwarding. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
-| Safe operation | Certified update snapshots and packet traces preserve explicit invariants. Native filter refinement and late-filter exclusion cover every modeled state and header. Barriers exclude selected outputs through packet and deletion suffixes. | Verified native install commands, drain boundaries, routing transients, concurrent updates, monitoring, and recovery. |
+| Safe operation | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
 ## Campus landmark
@@ -68,15 +68,21 @@ The [late-filter barrier](REVOCATION.md) supplies an operational output exclusio
 Its certificate covers all state/header contexts, including cached translations and established traffic.
 The contract transfers through ordered operations and compliant observed replay suffixes.
 The cutover and translated forbidden class remain declared inputs.
-Native installation, barrier retention, packet draining, credential revocation, and complete upgrade protocols remain open.
+Native installation, barrier retention, physical drain correspondence, credential revocation, and complete upgrade protocols remain open.
+
+The [buffered model](BUFFERING.md) now separates barrier-controlled admissions from delivery of earlier queued packets.
+Its FIFO proof clears the old prefix after sufficient service even when new clean arrivals keep the total backlog growing.
+Ready certificates establish a clean pending queue and clean subsequent modeled service under retained barriers.
+A native delayed UDP capture demonstrates delivery after barrier installation.
+Physical service bounds, complete queue correspondence, native install proofs, and the campus integration remain open.
 
 ## Next implementation work
 
 1. Extend ordinary packet lifecycles through transport validation, expiry, concurrency, and additional hooks and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
-4. Connect concrete upgrade commands and drain boundaries to the certified barrier and intermediate snapshots.
-5. Compose queue guarantees and add physical timing and reliability models.
+4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.
+5. Connect physical service lower bounds and concurrent queue models to the FIFO drain proof, then add timing and reliability guarantees.
 6. Extend the campus proof through those models and real configuration inputs.
 7. Reuse the resulting contracts for other architectures and independent domains.
 
