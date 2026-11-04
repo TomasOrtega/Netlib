@@ -44,6 +44,25 @@ Don't commence.
         issues = check_text.check_markdown("Read [Don't utilize this](https://example.com).")
         self.assertEqual({issue.rule for issue in issues}, {"contraction", "word"})
 
+    def test_linked_badges_keep_labels_without_urls(self):
+        text = (
+            "[![CI](https://github.com/owner/repo/checks.yml/badge.svg?branch=main)]"
+            "(https://github.com/owner/repo/actions) "
+            "[![Ruff](https://img.shields.io/badge/code%20style-Ruff-green)]"
+            "(https://docs.astral.sh/ruff/)"
+        )
+        extracted = check_text.inline_text(text)
+        self.assertNotIn("https", extracted)
+        self.assertIn("CI", extracted)
+        self.assertIn("Ruff", extracted)
+        self.assertEqual(check_text.check_markdown(text), [])
+
+    def test_linked_image_labels_remain_prose(self):
+        issues = check_text.check_markdown(
+            "[![Don't utilize this](https://example.com/image.svg)](https://example.com)"
+        )
+        self.assertEqual({issue.rule for issue in issues}, {"contraction", "word"})
+
     def test_lists_tables_and_locations(self):
         text = """# Don't utilize this title
 
