@@ -37,6 +37,7 @@ The numerical MSS bounds do not prove startup negotiation.
 The caller supplies the startup and lower-layer size evidence.
 Without a startup MSS option, the caller must use an effective MSS of at most 536.
 The seed also assumes an established connection and its initial window history.
+The [startup extension](TCP_HANDSHAKE.md) constructs these states and their default MSS from actual checked handshake events.
 
 Each event has one of these forms:
 
@@ -132,6 +133,6 @@ These cases use constructed bytes and do not send packets.
 
 Policy inputs permit individual sends and ACK outputs.
 They do not prove congestion control, ACK scheduling, or rate control.
-Handshake, connection close, retransmission, timers, window probes, and long sequence-reuse periods remain open.
+Broader startup features, connection close, retransmission, timers, window probes, and long sequence-reuse periods remain open.
 The proof does not establish native transmission, eventual delivery, conntrack acceptance, or failover continuity.
 The full campus demonstration and all seven [research programs](ROADMAP.md) remain OPEN.

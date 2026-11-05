@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "active": {
+    "socket": {
+      "address": "192.0.2.1",
+      "port": 12345
+    },
+    "iss": 1000,
+    "capacity": 8,
+    "pendingLimit": 8,
+    "ipSendLimit": 576
+  },
+  "passive": {
+    "socket": {
+      "address": "198.51.100.2",
+      "port": 80
+    },
+    "iss": 5000,
+    "capacity": 6,
+    "pendingLimit": 8,
+    "ipSendLimit": 1500
+  },
+  "events": [
+    {
+      "kind": "activeOpen",
+      "remote": {
+        "address": "198.51.100.2",
+        "port": 80
+      },
+      "policyPermitted": true
+    },
+    {
+      "kind": "listenSyn",
+      "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
+      "path": "direct",
+      "policyPermitted": true
+    },
+    {
+      "kind": "synSentSynAck",
+      "rawIPv4Hex": "450000280000400040064e99c6336402c00002010050303900001388000003e9501200067b9b0000",
+      "path": "direct",
+      "policyPermitted": true
+    },
+    {
+      "kind": "synReceivedAck",
+      "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e900001389501000087b9a0000",
+      "path": "direct"
+    }
+  ]
+}

@@ -398,6 +398,23 @@ The command does not establish those external delivery conditions from checksums
 Replay stops at the first unsupported event and retains the unprocessed suffix.
 The [application guide](TCP_APPLICATION.md) gives the event schema, proof contract, and remaining obligations.
 
+## TCP startup histories
+
+The `tcp-handshake` command accepts local configuration and ordinary startup events, without established endpoint seeds.
+It constructs checked SYN and SYN,ACK outputs and the final ACK.
+Every successful receipt must match an earlier output and its selected direct or certified tuple path.
+The active seed becomes available on valid SYN,ACK receipt.
+The passive seed becomes available only on valid final ACK receipt.
+
+The three selected messages have no options or application data.
+Their absence derives default peer MSS 536, bounded by the explicit local IP send limit.
+Window-history fields come from the accepted startup messages.
+The active initialization selects the explicit RFC 1122 interpretation.
+
+Unsupported phases or omitted RFC actions stop replay.
+The command distinguishes supported partial histories from a completed model exchange.
+The [startup guide](TCP_HANDSHAKE.md) gives the event schema, byte-history conditions, and connection to the application theorem.
+
 ## Byte-derived NAT and TTL forwarding
 
 The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.

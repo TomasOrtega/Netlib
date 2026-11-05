@@ -1609,7 +1609,8 @@ example (input : TCP.DecodedIPv4)
 The CLI exposes `tcp-segment`, `tcp-wire`, and `tcp-sequence` checks.
 Independent constructed fixtures exercise mandatory zero checksums, option bounds, padding, circular comparisons, and malformed framing.
 These are static model checks, without native capture claims.
-Connection transitions, acknowledgment validity, receive windows, timers, negotiated options, and full TCP implementation refinement remain open.
+The following chapters add selected endpoint and startup behavior.
+Broader connection transitions, timers, negotiated options, and full TCP implementation refinement remain open.
 All seven research programs remain OPEN.
 
 # TCP receive-state projection
@@ -1667,7 +1668,8 @@ Packet generation, transmission, and scheduling remain outside this projection.
 The CLI provides the `tcp-receive` command.
 The independent oracle uses split intervals and signed ACK offsets for static fixture comparisons.
 
-Handshake provenance, send-window updates, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+The following chapters add checked sends, reads, window updates, and ordinary startup.
+Timers, retransmission, native correspondence, and TCP failover continuity remain open.
 All seven research programs remain OPEN.
 
 # TCP application events
@@ -1720,7 +1722,59 @@ The CLI provides `tcp-endpoint` for mixed events.
 Unsupported processing stops the replay and retains its unprocessed suffix.
 The independent oracle compares output bytes, read bytes, decisions, and state changes.
 Effective MSS, IP size evidence, startup state, window-history age, and output policy permission remain explicit inputs.
-Handshake, congestion control, retransmission, timers, native correspondence, and the full campus demonstration remain open.
+The next chapter adds selected ordinary startup.
+Broader startup, congestion control, retransmission, timers, native correspondence, and the full campus demonstration remain open.
+All seven research programs remain OPEN.
+
+# Checked TCP startup
+%%%
+tag := "tcp-handshake"
+file := "tcp-handshake"
+%%%
+
+The startup model constructs application states from checked ordinary handshake events.
+It emits SYN, SYN,ACK, and the final ACK with exact byte evidence.
+SYN consumes one control position and adds no application byte.
+Each successful receipt must match an earlier model output and its selected byte path.
+
+The completed history derives complementary application cursors:
+
+```lean
+open Netlib.Protocol.TCP.HandshakeExchange in
+example (input : Input) (value : Complete input) :
+    value.activeSeed.core.receiveNext =
+      value.passiveSeed.core.sendNext :=
+  value.cursors.1
+```
+
+The active endpoint enters ESTABLISHED on valid SYN,ACK receipt.
+The passive endpoint enters ESTABLISHED only after final ACK receipt.
+A generated final ACK alone does not establish the passive endpoint.
+The checked replay preserves that distinction:
+
+```lean
+open Netlib.Check.TCPHandshake in
+example (a p : Netlib.Protocol.TCP.Handshake.Local)
+    (state : Stage a p)
+    (pending : state.exchangeComplete = false) :
+    state.passiveSeed = none :=
+  state.passive_seed_before_ack pending
+```
+
+The history also derives empty buffers, peer windows, window-history fields, and default MSS.
+The active window initialization selects the explicit RFC 1122 interpretation.
+The application theorem uses these derived states without supplied cursor or empty-buffer assumptions.
+It requires supported continuation, future delivery history, finite epochs, a quiet boundary, and explicit connection-instance conditions.
+A concrete proof constructs startup, certified tuple rewrites, and application write, send, receive, and read of byte 42.
+
+The CLI provides `tcp-handshake` with local configuration and events.
+It reports phases, actual outputs, selected source indices, and derived application states.
+Its trace proof establishes exact event indices and the unprocessed suffix.
+Unsupported phases or omitted RFC actions stop replay before later transport decoding.
+
+This first profile uses no startup data or options.
+It does not declare other valid TCP startup features invalid.
+Broader startup, resets, timers, retransmission, congestion control, native refinement, and full campus integration remain open.
 All seven research programs remain OPEN.
 
 # Documentation process

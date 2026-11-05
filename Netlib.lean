@@ -184,3 +184,7 @@ import Netlib.Protocol.TCP.Output
 import Netlib.Protocol.TCP.Endpoint
 import Netlib.Protocol.TCP.ApplicationTrace
 import Netlib.Check.TCPEndpoint
+import Netlib.Protocol.TCP.ControlOutput
+import Netlib.Protocol.TCP.Handshake
+import Netlib.Protocol.TCP.HandshakeExchange
+import Netlib.Check.TCPHandshake

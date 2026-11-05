@@ -16,6 +16,7 @@ from check_replication_examples import check as replication_checks
 from check_safe_handoff_examples import check as safe_handoff_checks
 from check_tcp_endpoint_examples import check as tcp_endpoint_checks
 from check_tcp_examples import check as tcp_checks
+from check_tcp_handshake_examples import check as tcp_handshake_checks
 from check_tcp_receive_examples import check as tcp_receive_checks
 
 
@@ -1146,6 +1147,7 @@ def main():
     tcp_checks()
     tcp_receive_checks()
     tcp_endpoint_checks()
+    tcp_handshake_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

@@ -128,6 +128,9 @@ import NetlibTest.TCPOutput
 import NetlibTest.TCPEndpoint
 import NetlibTest.TCPEndpointCheck
 import NetlibTest.TCPApplicationTrace
+import NetlibTest.TCPHandshake
+import NetlibTest.TCPHandshakeExchange
+import NetlibTest.TCPHandshakeCheck
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -279,4 +282,6 @@ def main : IO Unit := do
   NetlibTest.TCPOutput.run
   NetlibTest.TCPEndpoint.run
   NetlibTest.TCPEndpointCheck.run
+  NetlibTest.TCPHandshake.run
+  NetlibTest.TCPHandshakeCheck.run
   IO.println "Netlib tests passed."

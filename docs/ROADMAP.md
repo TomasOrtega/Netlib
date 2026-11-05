@@ -111,7 +111,9 @@ Checked replay stops before omitted control or storage actions can affect later 
 Seed transmission history remains assumed.
 The [TCP application path](TCP_APPLICATION.md) adds checked sends, reads, peer-window updates, and trace byte-conservation laws.
 The paired prefix theorem uses earlier peer sends, certified payload and sequence preservation, and a bounded finite epoch.
-Seed construction, congestion control, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+The [TCP startup extension](TCP_HANDSHAKE.md) constructs valid empty application states from actual checked ordinary handshake histories.
+Its composed theorem removes caller-supplied seeds and cursor equalities from the selected startup-to-application path.
+Broader startup features, congestion control, timers, retransmission, native correspondence, and TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
