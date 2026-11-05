@@ -109,7 +109,9 @@ The [TCP receive extension](TCP_RECEIVE.md) proves exact window tests and bounde
 Its receive projection preserves buffer bounds and connects actual decoded bytes to payload append and acknowledged-prefix removal.
 Checked replay stops before omitted control or storage actions can affect later state.
 Seed transmission history remains assumed.
-Handshake provenance, send-window updates, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+The [TCP application path](TCP_APPLICATION.md) adds checked sends, reads, peer-window updates, and trace byte-conservation laws.
+The paired prefix theorem uses earlier peer sends, certified payload and sequence preservation, and a bounded finite epoch.
+Seed construction, congestion control, timers, retransmission, native correspondence, and TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.

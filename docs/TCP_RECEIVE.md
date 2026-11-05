@@ -94,7 +94,8 @@ RST, SYN, FIN, URG, congestion flags, and options are outside this receive profi
 Partial overlap, trimming, and out-of-order storage also remain unsupported.
 These scope checks do not specify the full RFC action order.
 PSH has no effect in this projection.
-Handshake provenance, send operations, retransmission, timers, congestion control, and incarnation freshness remain open.
+The separate [application extension](TCP_APPLICATION.md) adds checked sends, reads, and peer-window updates.
+Handshake provenance, retransmission, timers, congestion control, and incarnation freshness remain open.
 
 Endpoint processing does not discharge the Linux conntrack transport-tracker premise.
 The existing tuple and `seenReply` replication proofs do not establish TCP endpoint continuity after failover.

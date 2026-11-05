@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "seed": {
+    "core": {
+      "inbound": {
+        "source": "192.0.2.1",
+        "destination": "198.51.100.2",
+        "protocol": 6,
+        "sourcePort": 12345,
+        "destinationPort": 80
+      },
+      "receiveNext": 100,
+      "capacity": 8,
+      "receivedHex": "",
+      "sendUna": 1000,
+      "sendNext": 1000,
+      "sentHex": ""
+    },
+    "pendingHex": "",
+    "pendingLimit": 8,
+    "sendWindow": 8,
+    "sendWL1": 100,
+    "sendWL2": 1000,
+    "effectiveMSS": 536,
+    "ipSendLimit": 576
+  },
+  "events": [
+    {
+      "kind": "write",
+      "payloadHex": "616263646566"
+    },
+    {
+      "kind": "send",
+      "count": 3,
+      "policyPermitted": true
+    },
+    {
+      "kind": "receive",
+      "rawIPv4Hex": "4528002a4321400040060b4ec0000201c63364023039005000000064000003eb50100002164800007879"
+    },
+    {
+      "kind": "read",
+      "count": 1
+    },
+    {
+      "kind": "emitAck",
+      "policyPermitted": true
+    },
+    {
+      "kind": "send",
+      "count": 3,
+      "policyPermitted": true
+    },
+    {
+      "kind": "send",
+      "count": 2,
+      "policyPermitted": true
+    },
+    {
+      "kind": "receive",
+      "rawIPv4Hex": "452800284321400040060b50c0000201c63364023039005000000066000003ed501000008ec10000"
+    },
+    {
+      "kind": "send",
+      "count": 1,
+      "policyPermitted": true
+    },
+    {
+      "kind": "receive",
+      "rawIPv4Hex": "452800294321400040060b4fc0000201c63364023039005000000066000003ec5010000714ba00007a"
+    },
+    {
+      "kind": "read",
+      "count": 2
+    },
+    {
+      "kind": "emitAck",
+      "policyPermitted": true
+    },
+    {
+      "kind": "receive",
+      "rawIPv4Hex": "452800284321400040060b50c0000201c63364023039005000000067000003ed501000088eb80000"
+    },
+    {
+      "kind": "send",
+      "count": 1,
+      "policyPermitted": true
+    }
+  ]
+}

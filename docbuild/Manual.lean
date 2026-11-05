@@ -1670,6 +1670,59 @@ The independent oracle uses split intervals and signed ACK offsets for static fi
 Handshake provenance, send-window updates, timers, retransmission, native correspondence, and TCP failover continuity remain open.
 All seven research programs remain OPEN.
 
+# TCP application events
+%%%
+tag := "tcp-application"
+file := "tcp-application"
+%%%
+
+The bounded endpoint adds application writes, checked sends, reads, and peer-window updates.
+Each successful send selects an exact pending prefix.
+The output constructor proves its payload and current transport fields:
+
+```lean
+open Netlib.Protocol.TCP in
+example (state : EstablishedReceive.State)
+    (payload : List UInt8)
+    (value : EstablishedReceive.Input)
+    (sent : Output.emit state payload = .ok value) :
+    value.packet.segment.payload = payload :=
+  Output.emit_payload state payload value sent
+```
+
+A read returns an exact receive-buffer prefix.
+It increases the local free window and preserves the receive cursor.
+The trace records the computed result of each endpoint operation.
+Its receive conservation law includes actual read results:
+
+```lean
+open Netlib.Protocol.TCP.ApplicationTrace in
+example (seed final : Model) (steps : List Step)
+    (chain : Chain seed steps final) :
+    seed.core.received ++
+        steps.flatMap Step.acceptedPayload =
+      steps.flatMap Step.readBytes ++ final.core.received :=
+  chain.received
+```
+
+The peer-window guard uses the state before ACK removal.
+An old ACK can permit new data without changing that window.
+A duplicate ACK at the send-buffer start can update it when the freshness guard passes.
+Window shrink can leave outstanding bytes above the new window.
+The next new-data send then fails its space guard.
+
+The paired theorem requires earlier successful peer sends and preserved payload and sequence values.
+Ghost byte positions and a finite epoch below half the sequence space prevent a previous sequence cycle from supplying current bytes.
+Under these conditions, application read bytes form a prefix of peer application writes.
+This safety result permits loss and stalled progress.
+
+The CLI provides `tcp-endpoint` for mixed events.
+Unsupported processing stops the replay and retains its unprocessed suffix.
+The independent oracle compares output bytes, read bytes, decisions, and state changes.
+Effective MSS, IP size evidence, startup state, window-history age, and output policy permission remain explicit inputs.
+Handshake, congestion control, retransmission, timers, native correspondence, and the full campus demonstration remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"
