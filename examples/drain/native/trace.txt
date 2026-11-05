@@ -1,0 +1,18 @@
+trace id 224fa766 ip netlib_trace trace packet: iif "inside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 4964 ip length 52 udp sport 31000 udp dport 8080 udp length 32 udp checksum 65078 
+trace id 224fa766 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id 224fa766 ip netlib_trace trace policy accept 
+trace id 224fa766 ip netlib_nat destination packet: iif "inside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 4964 ip length 52 udp sport 31000 udp dport 8080 udp length 32 udp checksum 65078 
+trace id 224fa766 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 (verdict accept)
+trace id 224fa766 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 4964 ip length 52 udp sport 31000 udp dport 9000 udp length 32 udp checksum 60521 
+trace id 224fa766 ip netlib_filter forward rule ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment "SERVICE" (verdict accept)
+trace id 224fa766 ip netlib_nat source packet: iif "inside0" oif "outside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 4964 ip length 52 udp sport 31000 udp dport 9000 udp length 32 udp checksum 60521 
+trace id 224fa766 ip netlib_nat source rule ip saddr 192.0.2.0/24 meta l4proto udp snat to 203.0.113.1:40000 (verdict accept)
+trace id 224fa766 ip netlib_late late packet: iif "inside0" oif "outside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 4964 ip length 52 udp sport 40000 udp dport 9000 udp length 32 udp checksum 26217 
+trace id 224fa766 ip netlib_late late policy accept 
+trace id c0c18e46 ip netlib_trace trace packet: iif "inside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 4973 ip length 51 udp sport 31000 udp dport 8080 udp length 31 udp checksum 65077 
+trace id c0c18e46 ip netlib_trace trace rule meta nftrace set 1 (verdict continue)
+trace id c0c18e46 ip netlib_trace trace policy accept 
+trace id c0c18e46 ip netlib_filter forward packet: iif "inside0" oif "outside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 4973 ip length 51 udp sport 31000 udp dport 9000 udp length 31 udp checksum 60520 
+trace id c0c18e46 ip netlib_filter forward rule ct state new ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 accept comment "SERVICE" (verdict accept)
+trace id c0c18e46 ip netlib_late late packet: iif "inside0" oif "outside0" ether saddr 02:00:00:00:01:02 ether daddr 02:00:00:00:01:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 4973 ip length 51 udp sport 40000 udp dport 9000 udp length 31 udp checksum 26216 
+trace id c0c18e46 ip netlib_late late unknown rule handle 2 (verdict drop)

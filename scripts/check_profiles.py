@@ -401,6 +401,103 @@ def revocation_checks():
         invoke("lifecycle-blocks", trace, malformed, "--from", str(start), code=2)
 
 
+def buffered_checks():
+    from build_drain_example import build
+
+    directory = ROOT / "examples/drain"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    for relative, digest in provenance["files"].items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, replay, forbidden, start, drained_at = build()
+    for name, expected in [
+        ("checked-evidence", evidence),
+        ("replay", replay),
+        ("forbidden", forbidden),
+    ]:
+        assert expected == json.loads((directory / (name + ".json")).read_text())
+    assert evidence["oldReceivedAfterInstall"] and evidence["queueCounts"] == [0, 1, 1, 0]
+    trace, selection = directory / "replay.json", directory / "forbidden.json"
+    args = ["buffered-lifecycle", trace, selection, "--from", str(start), "--drained-at"]
+    result = json.loads(invoke(*args, str(drained_at), "--json"))
+    assert result["compliant"] and result["ready"] and result["observationsAgree"]
+    assert result["scope"] == "buffered-cutover-delivery-exclusion" and result["barrierCertified"]
+    assert result["cutoverBacklog"] == result["serviceCapacity"] == 1
+    assert result["remainingOldBound"] == 0 and result["pendingAtDeliveryBoundary"] == []
+    findings = result["replay"]["findings"]
+    assert len(findings) == 3 and findings[0]["admitted"] == findings[2]["served"]
+    assert findings[1]["admitted"] == [] and findings[1]["beforePending"] == findings[0]["admitted"]
+    assert findings[1]["operation"]["expected"]["classification"] == "new"
+    assert not findings[1]["operation"]["expected"]["fresh"]
+    assert result["replay"]["delivered"][0]["destination"] == "198.51.100.2"
+    premature = json.loads(invoke(*args, str(drained_at - 1), "--json", code=1))
+    assert premature["barrierCertified"] and premature["observationsAgree"]
+    assert not premature["ready"] and not premature["drainBudgetSufficient"]
+    before = json.loads(
+        invoke(
+            "buffered-lifecycle",
+            trace,
+            selection,
+            "--from",
+            "0",
+            "--drained-at",
+            "3",
+            "--json",
+            code=1,
+        )
+    )
+    assert before["observationsAgree"] and not before["barrierCertified"]
+    cells = result["partitionCells"]
+    invoke(*args, str(drained_at), "--budget", str(cells))
+    invoke(*args, str(drained_at), "--budget", str(cells - 1), code=2)
+    invoke(*args, str(drained_at), "--budget", "invalid", code=2)
+    for boundary in ["0", "4", "-1", "invalid"]:
+        invoke(*args, boundary, code=2)
+    invoke("buffered-lifecycle", trace, selection, "--from", "3", "--drained-at", "3", code=2)
+    invoke("buffered-lifecycle", trace, selection, "--from", "2", "--drained-at", "3", code=2)
+    with tempfile.TemporaryDirectory(prefix="netlib-buffered-") as folder:
+        path = Path(folder) / "changed.json"
+        altered = json.loads(json.dumps(replay))
+        altered["schedule"][0]["pending"] = []
+        path.write_text(json.dumps(altered))
+        failed = json.loads(
+            invoke(
+                "buffered-lifecycle",
+                path,
+                selection,
+                "--from",
+                "1",
+                "--drained-at",
+                "3",
+                "--json",
+                code=1,
+            )
+        )
+        assert failed["ready"] and not failed["observationsAgree"]
+        assert failed["replay"]["findings"][1]["matched"]
+        altered = json.loads(json.dumps(replay))
+        altered["schedule"][2]["served"] = []
+        path.write_text(json.dumps(altered))
+        failed = json.loads(
+            invoke(
+                "buffered-lifecycle",
+                path,
+                selection,
+                "--from",
+                "1",
+                "--drained-at",
+                "3",
+                "--json",
+                code=1,
+            )
+        )
+        assert failed["ready"] and not failed["observationsAgree"]
+        assert failed["replay"]["delivered"] == result["replay"]["delivered"]
+        altered = json.loads(json.dumps(replay))
+        altered["schedule"].pop(0)
+        path.write_text(json.dumps(altered))
+        invoke("buffered-lifecycle", path, selection, "--from", "0", "--drained-at", "2", code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -408,6 +505,7 @@ def main():
     conntrack_checks()
     lifecycle_checks()
     revocation_checks()
+    buffered_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -465,7 +563,7 @@ def main():
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
     print(
-        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, lifecycle, and revocation commands."
+        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, lifecycle, revocation, and buffered commands."
     )
 
 

@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "qdisc": {
+    "configured": {
+      "startNs": 52831150397450,
+      "endNs": 52831151083116,
+      "file": "qdisc-configured.json"
+    },
+    "pending": {
+      "startNs": 52831288906235,
+      "endNs": 52831290348400,
+      "file": "qdisc-pending.json"
+    },
+    "blocked": {
+      "startNs": 52831347434446,
+      "endNs": 52831348618904,
+      "file": "qdisc-blocked.json"
+    },
+    "drained": {
+      "startNs": 52835552254063,
+      "endNs": 52835557376976,
+      "file": "qdisc-drained.json"
+    }
+  },
+  "conntrack": {
+    "initial": {
+      "startNs": 52831151084825,
+      "endNs": 52831179429806,
+      "file": "initial-state.json"
+    },
+    "pending": {
+      "startNs": 52831290409859,
+      "endNs": 52831317598758,
+      "file": "pending-state.json"
+    },
+    "blocked": {
+      "startNs": 52831320237673,
+      "endNs": 52831347432488,
+      "file": "blocked-state.json"
+    },
+    "drained": {
+      "startNs": 52835557390601,
+      "endNs": 52835599619158,
+      "file": "drained-state.json"
+    }
+  },
+  "receiver": {
+    "readyNs": 52831288650193
+  },
+  "install": {
+    "startNs": 52831317649091,
+    "endNs": 52831318940090,
+    "file": "install-barrier.nft"
+  },
+  "old": {
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "drain-old-already-queued",
+      "startNs": 52831288779360,
+      "endNs": 52831288854026
+    },
+    "server": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "drain-old-already-queued",
+      "startNs": 52831288636652,
+      "endNs": 52835294750185
+    }
+  },
+  "receiverAfterOld": {
+    "readyNs": 52835295682435
+  },
+  "blocked": {
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "drain-new-after-barrier",
+      "startNs": 52831320018256,
+      "endNs": 52831320043964
+    },
+    "server": null,
+    "timeout": {
+      "packet": null,
+      "payload": null,
+      "startNs": 52835295651018,
+      "endNs": 52835551613271
+    }
+  }
+}

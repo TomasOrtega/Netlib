@@ -16,7 +16,7 @@ from package_api import package_api
 from site_common import ARCHIVE, MANIFEST, ROOT, digest, input_hashes, tree_hash
 
 GROUPS = {
-    "Theory": "Prove queue laws and limits of header-only NAT decisions.",
+    "Theory": "Prove queue conservation, old-prefix drain bounds, and limits of header-only NAT decisions.",
     "Core": "State requirements as logic formulas.",
     "Model": "Read a finite network model.",
     "Network": "Compose domains and prove path, failure, and update properties.",

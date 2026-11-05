@@ -861,6 +861,54 @@ Native installation, barrier retention, hook traversal, and packets already beyo
 The declared event position does not prove a physical drain or credential revocation.
 All ordinary lifecycle transport and native correspondence assumptions still apply.
 
+# Buffered cutovers and queue service
+%%%
+tag := "buffering"
+file := "buffering"
+%%%
+
+A late barrier controls new admissions to a queue.
+Earlier admitted packets can remain queued and arrive after installation.
+The buffered lifecycle therefore separates the admission boundary from the delivery boundary.
+Computed operation outputs join the FIFO tail.
+Drops and explicit deletions enqueue nothing.
+Service events remove exactly the smaller of their capacity and the pending length.
+
+The old-prefix proof requires every later arrival to have the desired property.
+Service capacity covering the initial backlog then establishes a clean pending queue:
+
+```lean
+open Netlib.Theory in
+example (property : Nat → Prop) (initial : Queue.State Nat)
+    (ticks : List (Queue.Tick Nat))
+    (arrivals : QueueDrain.CleanArrivals property ticks)
+    (enough : initial.pending.length ≤
+      QueueDrain.totalCapacity ticks) :
+    QueueDrain.CleanPending property
+      (Queue.run initial ticks) :=
+  QueueDrain.run_pending_clean property initial ticks
+    arrivals enough
+```
+
+The total backlog can keep growing under overload while the older prefix clears.
+The last draining batch can still contain older forbidden packets.
+The exclusion guarantee starts after that batch and preserves earlier delivered history.
+The buffered report computes both boundary states from the complete execution prefix.
+A ready certificate establishes a clean pending queue, including at the end of the schedule.
+Any later modeled continuation that retains the barrier has clean service outputs.
+Observation agreement also transfers the result to the supplied service batches.
+
+```
+lake exe netlib buffered-lifecycle examples/drain/replay.json examples/drain/forbidden.json --from 1 --drained-at 3 --json
+```
+
+The native example records a queued old UDP packet arriving after barrier installation.
+A later same-tuple packet hits the barrier and drops.
+The model correctly retains the old forbidden delivery before the drain boundary.
+Queue counters alone do not identify packets; the isolated recipe and socket payloads supply that association.
+The proofs use declared FIFO service and make no wall-clock drain claim.
+Physical service bounds, complete queue correspondence, and native installation still need separate evidence.
+
 # Documentation process
 %%%
 tag := "documentation"

@@ -12,6 +12,7 @@ import Netlib.Check.Conntrack
 import Netlib.Check.ConntrackLifecycle
 import Netlib.Check.StatefulRefinement
 import Netlib.Check.ConntrackRevocation
+import Netlib.Check.BufferedDrain
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -32,6 +33,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib conntrack-map RAW.json ZONE HEADER.json [--json]\n\
   netlib lifecycle TRACE.json [--json]\n\
   netlib lifecycle-blocks TRACE.json MATCH.json [--from N] [--budget N] [--json]\n\
+  netlib buffered-lifecycle TRACE.json MATCH.json --from N --drained-at M [--budget N] [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -264,6 +266,48 @@ private def lifecycleBlocks (path selectionPath : String) (start budget : Nat) (
     IO.println result.pretty
   return if passed then 0 else 1
 
+private def bufferedLifecycle (path selectionPath : String) (start drainedAt budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.BufferedReplay.Input.parse (← IO.FS.readFile path))
+  let selectionText ← IO.FS.readFile selectionPath
+  let selectionSource ← unwrap (Import.Json.parse selectionText)
+  let forbidden ← unwrap (DataPlane.Config.parseTrafficSelection selectionText)
+  if start ≥ input.observations.length then throw (IO.userError "The admission cutover must select a nonempty schedule suffix.")
+  if drainedAt < start || drainedAt > input.observations.length then
+    throw (IO.userError "The delivery boundary must follow the admission cutover and fit the schedule.")
+  let suffix := input.observations.drop start
+  if !(suffix.any (·.event.isPacket)) then throw (IO.userError "The admission suffix must include a packet operation.")
+  let cells := (suffix.map fun observation => match observation.event with
+    | .operation source => match source.event with
+      | .packet config .. => Check.StatefulExclusion.cellCount config.late forbidden
+      | .erase .. => 0
+    | .serve .. => 0).sum
+  if cells > budget then throw (IO.userError "Buffered exclusion exceeds the total state/header cell budget.")
+  let report ← unwrap input.check
+  let barriers := Check.BufferedDrain.blocksFrom input.observations start forbidden
+  let backlog := (report.stateAt start).queue.pending.length
+  let service := report.capacityBetween start drainedAt
+  let ready := report.ready start drainedAt forbidden
+  let passed := ready && report.compliant
+  let result := Lean.Json.mkObj [
+    ("compliant", Lean.toJson passed), ("scope", Lean.toJson "buffered-cutover-delivery-exclusion"),
+    ("admissionFrom", Lean.toJson start), ("deliveryFrom", Lean.toJson drainedAt),
+    ("selection", selectionSource), ("partitionCells", Lean.toJson cells),
+    ("barrierCertified", Lean.toJson barriers), ("observationsAgree", Lean.toJson report.compliant),
+    ("ready", Lean.toJson ready), ("cutoverBacklog", Lean.toJson backlog),
+    ("serviceCapacity", Lean.toJson service), ("drainBudgetSufficient", Lean.toJson (decide (backlog ≤ service))),
+    ("remainingOldBound", Lean.toJson (backlog - service)),
+    ("pendingAtDeliveryBoundary", Lean.toJson ((report.stateAt drainedAt).queue.pending.map Import.PacketFields.headerJson)),
+    ("replay", report.renderJson), ("assumptions", Lean.toJson (Check.BufferedReplay.Report.assumptions ++ [
+      "Admission cutover follows effective barrier installation, and every later selected configuration retains the barrier.",
+      "The final draining service batch can contain older forbidden packets; exclusion begins after that batch.",
+      "A wall-clock drain deadline requires a separate lower bound on physical FIFO service."]))]
+  if json then IO.println result.pretty
+  else
+    IO.println (if passed then "BUFFERED CUTOVER CERTIFIED" else "BUFFERED CUTOVER NOT CERTIFIED")
+    IO.println "Scope: new admissions after the first boundary and served outputs after the declared drain boundary."
+    IO.println result.pretty
+  return if passed then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -345,6 +389,14 @@ private def run (args : List String) : IO UInt32 := do
     lifecycleBlocks path selection (← cutoverValue start) (← budgetValue budget) false
   | ["lifecycle-blocks", path, selection, "--from", start, "--budget", budget, "--json"] =>
     lifecycleBlocks path selection (← cutoverValue start) (← budgetValue budget) true
+  | ["buffered-lifecycle", path, selection, "--from", start, "--drained-at", drainedAt] =>
+    bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) 100000 false
+  | ["buffered-lifecycle", path, selection, "--from", start, "--drained-at", drainedAt, "--json"] =>
+    bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) 100000 true
+  | ["buffered-lifecycle", path, selection, "--from", start, "--drained-at", drainedAt, "--budget", budget] =>
+    bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) (← budgetValue budget) false
+  | ["buffered-lifecycle", path, selection, "--from", start, "--drained-at", drainedAt, "--budget", budget, "--json"] =>
+    bufferedLifecycle path selection (← cutoverValue start) (← cutoverValue drainedAt) (← budgetValue budget) true
   | ["stateful-refines", stronger, weaker] => statefulRefines stronger weaker 100000 false
   | ["stateful-refines", stronger, weaker, "--json"] => statefulRefines stronger weaker 100000 true
   | ["stateful-refines", stronger, weaker, "--budget", budget] =>

@@ -389,6 +389,45 @@ Cutover follows effective barrier installation; packets already beyond the hook 
 The checker does not prove native install completion, barrier retention between observations, or absence of unreported configuration changes.
 The [output exclusion guide](REVOCATION.md) states those obligations and the inherited lifecycle assumptions.
 
+## Buffered admission and delivery
+
+The buffered lifecycle composes tracked operations with an unbounded FIFO of output headers.
+An operation first computes its tracker update and optional output.
+Only that computed output enters the queue tail.
+An explicit deletion or a dropped packet enqueues nothing.
+Separate service events remove exactly the smaller of their declared capacity and the pending length.
+They preserve the tracking table.
+
+The queue theory tracks the prefix present at admission cutover.
+Every later arrival must be outside the forbidden class.
+Sufficient accumulated service clears the older prefix even if later arrivals exceed service and the total backlog keeps growing.
+The final draining batch can still contain older forbidden packets.
+The exclusion conclusion applies to service after that batch.
+
+`buffered-lifecycle TRACE.json MATCH.json --from N --drained-at M` checks this contract with schema 1.
+The root embeds a lifecycle input, initial queued headers, and an operation/service schedule.
+Operations consume every embedded lifecycle event once, in order.
+The schedule retains the modeled state reached by the complete prefix.
+Optional pending lists and required served lists are observations, never model inputs for queue updates.
+Null pending observations remain distinct from empty queues.
+
+The admission suffix must be nonempty and include a packet operation.
+The delivery boundary can be the end of the schedule.
+Readiness requires all later packet configurations to retain the certified barrier and enough capacity to cover the computed admission backlog.
+This is a sufficient capacity condition and need not find the earliest clean boundary.
+A ready certificate proves a clean pending queue at the delivery boundary.
+It also excludes selected later modeled service and arbitrary modeled continuations under retained barriers.
+Agreement with the full replay transfers the result to supplied service observations.
+Earlier forbidden deliveries remain in the report history.
+
+The policy partition budget defaults to 100,000 cells across post-cutover packet operations and all five state labels.
+It does not bound queue size or schedule length.
+Service capacity is a declared model quantity; physical rate and elapsed time require separate premises.
+Physical queue completeness, identity, placement, and order also require correspondence evidence.
+The retained native UDP example demonstrates delayed delivery after barrier installation and a later packet's drop.
+Its finite observations do not prove universal native FIFO behavior, a drain deadline, or kernel C refinement.
+The [buffering guide](BUFFERING.md) records these assumptions and the source research.
+
 ## Stateful processing and shared execution
 
 `Netlib/Packet/Processor.lean` models ordered packet processing with a shared store.
@@ -739,6 +778,7 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 13. Lifecycle tests distinguish fresh preconfirmation drops, cached unreplied bindings, dropped-reply state updates, explicit deletion, and observation mismatch.
 14. Static stateful refinement covers all five labels and every modeled header, with checked counterexamples and budget errors.
 15. Output exclusion covers cached bindings, rule order, deletion, suffix state retention, unsafe unobserved contexts, and observation mismatch.
+16. Buffered cutovers preserve FIFO order and multiplicity, separate old deliveries from later exclusion, reject premature drain boundaries, and handle growing clean backlogs.
 
 ## Scope limits
 

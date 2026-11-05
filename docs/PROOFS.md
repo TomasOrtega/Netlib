@@ -656,6 +656,44 @@ A failure can identify an unsafe state/header context absent from the supplied p
 The [output exclusion guide](REVOCATION.md) records the exact scope.
 Translated header selection, effective barrier installation, complete interval coverage, hook traversal, and packets already beyond the hook remain deployment obligations.
 
+## Buffered cutovers and FIFO drain
+
+`Netlib/Theory/QueueDrain.lean` tracks a finite old prefix independently of later arrivals.
+`run_tail_bound` bounds the remaining old prefix by the initial bound minus total declared service capacity.
+`run_pending_clean` establishes a clean pending queue once capacity covers the initial backlog and all new arrivals are clean.
+`served_after_prefix` excludes unclean packets from later service.
+The last draining batch and earlier delivered history remain outside that conclusion.
+
+The result permits arrivals that exceed service.
+The total queue can remain nonempty and grow while the old prefix clears.
+`pending_after_old_prefix` gives the exact remaining arrival suffix after sufficient service.
+The served-capacity bounds distinguish declared opportunities from actual delivered packet counts.
+`minCapacity_totalCapacity` supplies a lower capacity bound from a per-tick premise.
+Physical time needs a separate service interpretation.
+
+`Netlib/Protocol/BufferedLifecycle.lean` interleaves tracked operations with FIFO service.
+`step_operation` enqueues only the computed optional output and serves nothing.
+`step_serve` leaves tracking unchanged and removes the exact FIFO prefix allowed by its capacity.
+`Trace.operations` preserves the exact tracked-operation execution while erasing service events.
+`Trace.queue_run`, `Trace.delivered`, and `Trace.conservation` connect the full execution to queue semantics.
+`Trace.split` retains actual intermediate states and aligned event/result lists.
+`Trace.clean_after_budget` connects certified late barriers to clean service after the draining segment.
+
+`Netlib/Check/BufferedReplay.lean` consumes every embedded lifecycle event exactly once and in order.
+`Report.compliant_iff` establishes agreement with all operation, pending-queue, and served-batch observations.
+The model state advances independently of those observations.
+The replay trace binds each dynamically compiled operation to its source and actual incoming state.
+
+`Netlib/Check/BufferedDrain.lean` selects separate admission and delivery boundaries by list position.
+`Report.ready_correct` certifies barrier retention, boundary order, and sufficient capacity for the computed cutover backlog.
+`pending_clean_of_ready` establishes a clean pending queue even when the delivery boundary is the end of the schedule.
+`model_served_excluded` covers later modeled service without requiring observation agreement.
+`observed_served_excluded` also requires a compliant report.
+`continuation_served_excluded` covers arbitrary later modeled executions that retain the barrier.
+
+The [buffering guide](BUFFERING.md) states the input format, native delayed-delivery evidence, and correspondence assumptions.
+Queue counts alone do not identify packets or establish a general FIFO, native liveness, or a wall-clock drain bound.
+
 ## Stateful composition and execution
 
 `Netlib/Packet/Processor.lean` returns an updated store and an optional packet.

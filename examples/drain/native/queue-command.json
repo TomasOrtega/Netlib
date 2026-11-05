@@ -1,0 +1,15 @@
+[
+  "tc",
+  "qdisc",
+  "add",
+  "dev",
+  "outside0",
+  "root",
+  "handle",
+  "10:",
+  "netem",
+  "limit",
+  "32",
+  "delay",
+  "4000ms"
+]
