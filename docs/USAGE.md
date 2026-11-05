@@ -10,11 +10,13 @@ The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication,
 lake exe netlib tcp-segment examples/tcp/segment.json --json
 lake exe netlib tcp-wire examples/tcp/frame.json --json
 lake exe netlib tcp-sequence examples/tcp/sequence.json --json
+lake exe netlib tcp-receive examples/tcp-receive/trace.json --json
 ```
 
 The [TCP guide](TCP.md) describes input fields, mandatory checksum validation, preserved options, and bounded serial-order laws.
 Byte validity does not establish a connection or acceptable acknowledgment.
 The report gives the MSS placement result separately from structural acceptance.
+The [receive-state guide](TCP_RECEIVE.md) describes seeded replay, bounded ACK processing, and the stop at unsupported continuations.
 
 ## Interface-bound campus admission
 

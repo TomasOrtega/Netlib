@@ -37,7 +37,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Check tracked forwarding and operational cutovers | [Lifecycle](docs/LIFECYCLE.md), [Stateful failover](docs/STATEFUL_FAILOVER.md), [Safe handoff](docs/SAFE_HANDOFF.md), [Campus deployment](docs/CAMPUS_DEPLOYMENT.md) |
 | Compile packet or session requirements to a firewall | [Compiler](docs/COMPILER.md), [Session enforcement](docs/SESSION_FIREWALL.md) |
 | Bind current sessions to input interfaces and fragment admission | [Ingress attachments](docs/INGRESS_ATTACHMENTS.md), [Fragment admission](docs/FRAGMENT_ADMISSION.md) |
-| Do checks of TCP bytes, tuple rewriting, and sequence arithmetic | [TCP foundations](docs/TCP.md) |
+| Do checks of TCP framing and receive-state processing | [TCP foundations](docs/TCP.md) |
 | Check rewrites and timed flow authorization | [Stateful models](docs/STATEFUL.md) |
 | Check 5G admission traces | [5G](docs/FIVEG.md) |
 | Analyze policies and set search budgets | [Solver](docs/SOLVER.md) |

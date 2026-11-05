@@ -29,6 +29,7 @@ import Netlib.Check.CampusDeployment
 import Netlib.Check.AttachmentCampusJson
 import Netlib.Check.TCP
 import Netlib.Check.WireTCP
+import Netlib.Check.TCPReceive
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -57,6 +58,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib tcp-segment SEGMENT.json [--json]\n\
   netlib tcp-wire FRAME.json [--json]\n\
   netlib tcp-sequence QUERY.json [--json]\n\
+  netlib tcp-receive TRACE.json [--json]\n\
   netlib wire-forward TRACE.json [--json]\n\
   netlib wire-mtu TRACE.json [--json]\n\
   netlib wire-icmp TRACE.json [--json]\n\
@@ -236,6 +238,12 @@ private def tcpSequence (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.TCP.SequenceInput.parse (← IO.FS.readFile path))
   IO.println ((if json then "" else "TCP SERIAL ARITHMETIC\n") ++ input.renderJson.pretty)
   return 0
+
+private def tcpReceive (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.TCPReceive.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.supported then 0 else 2
 
 private def wireForward (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.WireForwarding.Input.parse (← IO.FS.readFile path))
@@ -532,6 +540,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["tcp-wire", path, "--json"] => tcpWire path true
   | ["tcp-sequence", path] => tcpSequence path false
   | ["tcp-sequence", path, "--json"] => tcpSequence path true
+  | ["tcp-receive", path] => tcpReceive path false
+  | ["tcp-receive", path, "--json"] => tcpReceive path true
   | ["wire-forward", path] => wireForward path false
   | ["wire-forward", path, "--json"] => wireForward path true
   | ["wire-mtu", path] => wireMTU path false

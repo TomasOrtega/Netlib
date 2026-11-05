@@ -2,7 +2,7 @@
 
 Netlib does checks of TCP segment bytes, their selected IPv4 envelope, and circular sequence arithmetic.
 It also supplies certified tuple rewriting and a byte adapter for completed IPv4 reassembly.
-These results support later connection-state semantics.
+The [receive-state model](TCP_RECEIVE.md) adds sequence tests and bounded ACK processing above these byte contracts.
 They do not establish a TCP connection, transport delivery, native conntrack classification, or full implementation refinement.
 
 ## Check commands
@@ -103,6 +103,7 @@ The manual checker compares CLI results with expected fields and Ethernet/IPv4 f
 These are constructed conformance cases, without native capture claims.
 
 The [source investigation](research/TCP_FOUNDATION.md) records the selected RFC clauses and checksum-zero arithmetic.
-Future work includes transmission control blocks, acknowledgment validity, receive windows, reordering, retransmission, timers, and connection incarnation reuse.
+The receive-state extension supplies selected window and ACK rules under explicit seed assumptions.
+Handshake provenance, send behavior, reordering, retransmission, timers, congestion control, and connection incarnation reuse remain open.
 Negotiated option semantics, TCP-aware ordinary tracking, native classification, and full application-stack correspondence remain open.
 All seven [research programs](ROADMAP.md) and the full campus landmark remain OPEN.

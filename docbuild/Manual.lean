@@ -1612,6 +1612,64 @@ These are static model checks, without native capture claims.
 Connection transitions, acknowledgment validity, receive windows, timers, negotiated options, and full TCP implementation refinement remain open.
 All seven research programs remain OPEN.
 
+# TCP receive-state projection
+%%%
+tag := "tcp-receive"
+file := "tcp-receive"
+%%%
+
+The receive-window module gives the four sequence tests.
+It proves that interval overlap alone does not imply acceptance.
+The occupied length includes SYN and FIN positions.
+Control actions remain outside the sequence predicate.
+
+The next theorem states the sequence condition at a zero window:
+
+```lean
+open Netlib.Protocol.TCP in
+example (next sequence : Seq) (length : Nat) :
+    ReceiveWindow.accepts next 0 sequence length = true ↔
+      length = 0 ∧ sequence = next :=
+  ReceiveWindow.zero_window next sequence length
+```
+
+The receive projection starts from an explicit pre-established seed.
+The seed gives local capacity, buffers, and cursors.
+Its sent bytes remain an assumed transmission history.
+The fixed ACK arc uses 65535 as the permitted unscaled maximum.
+An old ACK inside that arc can accompany new data.
+
+The typed input contains a proof of IPv4/TCP decoding.
+Seed validity gives buffer bounds and consistent send cursors.
+The result remains valid after every computed step:
+
+```lean
+open Netlib.Protocol.TCP in
+example (state : EstablishedReceive.State)
+    (input : EstablishedReceive.Input)
+    (valid : state.Valid) :
+    (EstablishedReceive.receive state input).state.Valid :=
+  EstablishedReceive.receive_valid state input valid
+```
+
+Accepted data appends the exact payload and advances the receive cursor.
+An advancing ACK removes an exact prefix from the assumed sent bytes.
+The send-buffer end stays unchanged.
+Certified NAT rewriting preserves the decision after the endpoint tuple changes.
+This result requires matching input and endpoint tuples.
+
+Out-of-profile controls and options stop processing before the ordinary sequence test.
+This scope check retains the zero-window RST and URG obligations for a later extension.
+Trimming and out-of-order storage also remain unsupported.
+Checked replay stops at the first unsupported result and retains its actual processed prefix.
+The model can request an ACK.
+Packet generation, transmission, and scheduling remain outside this projection.
+The CLI provides the `tcp-receive` command.
+The independent oracle uses split intervals and signed ACK offsets for static fixture comparisons.
+
+Handshake provenance, send-window updates, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"
