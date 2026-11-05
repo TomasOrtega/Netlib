@@ -90,6 +90,10 @@ import Netlib.Protocol.UDP
 import Netlib.Import.EthernetIPv4
 import Netlib.Check.Wire
 import Netlib.Examples.WireSessionDeployment
+import Netlib.Protocol.UDPRewrite
+import Netlib.Protocol.WireForwarding
+import Netlib.Check.WireForwarding
+import Netlib.Examples.WireNATDeployment
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

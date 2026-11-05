@@ -794,6 +794,121 @@ def wire_checks():
             invoke("wire", path, code=2)
 
 
+def wire_forwarding_checks():
+    from build_wire_nat_examples import build
+
+    directory = ROOT / "examples/wire-nat"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    assert set(provenance["artifactSHA256"]) == {
+        path.relative_to(directory).as_posix()
+        for path in (directory / "native").rglob("*")
+        if path.is_file()
+    }
+    for relative, digest in provenance["artifactSHA256"].items():
+        assert hashlib.sha256((directory / relative).read_bytes()).hexdigest() == digest, relative
+    for group in ["verifierSHA256", "projectionSHA256"]:
+        for relative, digest in provenance[group].items():
+            assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, authentication, session, replay = build()
+    for name, value in [
+        ("checked-evidence", evidence),
+        ("authentication", authentication),
+        ("session", session),
+        ("replay", replay),
+    ]:
+        assert value == json.loads((directory / f"{name}.json").read_text())
+    assert evidence["frameCount"] == 17 and evidence["udpFrameCount"] == 14
+    assert evidence["icmpFrameCount"] == 3 and len(evidence["packetSamples"]) == 10
+    assert replay["initial"] is not None
+    report = json.loads(invoke("wire-forward", directory / "replay.json", "--json"))
+    assert report["compliant"] and report["eventCount"] == 11
+    assert report["scope"] == "byte-derived-ipv4-udp-tracked-forwarding" and report["assumptions"]
+    assert all(
+        finding["matched"] and finding["stateObserved"] and finding["stateMatched"]
+        for finding in report["findings"]
+    )
+    assert [
+        finding["expected"]["disposition"] if finding["expected"] else "erased"
+        for finding in report["findings"]
+    ] == [
+        "forwardDrop",
+        "forwardDrop",
+        "forwarded",
+        "ttlExpired",
+        "forwarded",
+        "forwardDrop",
+        "erased",
+        "ttlExpired",
+        "ttlExpired",
+        "forwarded",
+        "forwarded",
+    ]
+    assert not report["findings"][2]["expectedState"][0]["seenReply"]
+    assert report["findings"][3]["expectedState"][0]["seenReply"]
+    assert report["findings"][6]["expectedState"] == []
+    assert report["findings"][7]["expectedState"] == report["findings"][8]["expectedState"] == []
+    assert report["findings"][9]["expected"]["output"]["ttl"] == 1
+    assert report["findings"][10]["expected"]["output"]["udpChecksum"] == 0
+    request = report["findings"][2]["expected"]["output"]["header"]
+    assert request == {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000,
+    }
+    reply = report["findings"][4]["expected"]["output"]["header"]
+    assert reply == {
+        "source": "203.0.113.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 8080,
+        "destinationPort": 41000,
+    }
+    assert json.loads(invoke("session-firewall", directory / "session.json", "--json"))["compliant"]
+    assert json.loads(
+        invoke(
+            "compile-session",
+            directory / "authentication.json",
+            directory / "requirements.json",
+            "--after",
+            "19",
+        )
+    ) == json.loads((directory / "permit.json").read_text())
+    with tempfile.TemporaryDirectory(prefix="netlib-wire-forward-") as folder:
+        path = Path(folder) / "changed.json"
+        altered = json.loads(json.dumps(replay))
+        altered["events"][2]["observed"]["output"] = None
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("wire-forward", path, "--json", code=1))
+        assert not failed["findings"][2]["matched"] and failed["final"] == report["final"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"][3]["state"] = altered["events"][2]["state"]
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("wire-forward", path, "--json", code=1))
+        assert not failed["findings"][3]["stateMatched"]
+        assert failed["findings"][4]["matched"] and failed["final"] == report["final"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"][9]["observed"]["disposition"] = "forwardDrop"
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("wire-forward", path, "--json", code=1))
+        assert not failed["findings"][9]["matched"]
+        for field, value in [
+            ("zone", 65536),
+            ("config", "missing"),
+            ("raw", "0"),
+            ("packet", request),
+        ]:
+            altered = json.loads(json.dumps(replay))
+            altered["events"][0][field] = value
+            path.write_text(json.dumps(altered))
+            invoke("wire-forward", path, code=2)
+        altered = json.loads(json.dumps(replay))
+        altered["events"] = []
+        path.write_text(json.dumps(altered))
+        invoke("wire-forward", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -805,6 +920,7 @@ def main():
     eap_checks()
     admission_checks()
     wire_checks()
+    wire_forwarding_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

@@ -67,6 +67,10 @@ import NetlibTest.UDP
 import NetlibTest.EthernetIPv4
 import NetlibTest.WireCheck
 import NetlibTest.WireSessionDeployment
+import NetlibTest.UDPRewrite
+import NetlibTest.WireForwarding
+import NetlibTest.WireForwardingCheck
+import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
 
@@ -139,4 +143,8 @@ def main : IO Unit := do
   NetlibTest.EthernetIPv4.run
   NetlibTest.WireCheck.run
   NetlibTest.WireSessionDeployment.run
+  NetlibTest.UDPRewrite.run
+  NetlibTest.WireForwarding.run
+  NetlibTest.WireForwardingCheck.run
+  NetlibTest.WireNATDeployment.run
   IO.println "Netlib tests passed."

@@ -1,0 +1,2 @@
+wpa_supplicant v2.12
+Copyright (c) 2003-2026, Jouni Malinen <j@w1.fi> and contributors

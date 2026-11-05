@@ -1,0 +1,1811 @@
+{
+  "schema": 1,
+  "routing": {
+    "version": "6.19.0",
+    "bindings": [
+      {
+        "device": "auth0",
+        "nextNode": "peer",
+        "gateway": null
+      },
+      {
+        "device": "service0",
+        "nextNode": "server",
+        "gateway": null
+      }
+    ],
+    "routes": [
+      {
+        "dst": "192.0.2.0/24",
+        "dev": "auth0",
+        "protocol": "kernel",
+        "scope": "link",
+        "prefsrc": "192.0.2.1",
+        "flags": []
+      },
+      {
+        "dst": "198.51.100.0/24",
+        "dev": "service0",
+        "protocol": "kernel",
+        "scope": "link",
+        "prefsrc": "198.51.100.1",
+        "flags": []
+      }
+    ]
+  },
+  "configs": [
+    {
+      "id": "unauthenticated",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 5
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 3
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "destination",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "source",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "destination",
+              "handle": 3,
+              "comment": "DNAT_SERVICE",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "source",
+              "handle": 4,
+              "comment": "SNAT_PEER",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": {
+                      "prefix": {
+                        "addr": "192.0.2.0",
+                        "len": 24
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "authenticated-only",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 5
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 3
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "destination",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "source",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "destination",
+              "handle": 3,
+              "comment": "DNAT_SERVICE",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "source",
+              "handle": 4,
+              "comment": "SNAT_PEER",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": {
+                      "prefix": {
+                        "addr": "192.0.2.0",
+                        "len": 24
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "credential-permitted",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 6
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 2,
+              "comment": "REQUEST",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 3,
+              "comment": "REPLY",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 3
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "destination",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "source",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "destination",
+              "handle": 3,
+              "comment": "DNAT_SERVICE",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "source",
+              "handle": 4,
+              "comment": "SNAT_PEER",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": {
+                      "prefix": {
+                        "addr": "192.0.2.0",
+                        "len": 24
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "logged-off-cached",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 7
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 3
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "destination",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "source",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "destination",
+              "handle": 3,
+              "comment": "DNAT_SERVICE",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "source",
+              "handle": 4,
+              "comment": "SNAT_PEER",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": {
+                      "prefix": {
+                        "addr": "192.0.2.0",
+                        "len": 24
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ttl-probes",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 8
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 2,
+              "comment": "REQUEST",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 3,
+              "comment": "REPLY",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 3
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "destination",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "source",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "destination",
+              "handle": 3,
+              "comment": "DNAT_SERVICE",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "source",
+              "handle": 4,
+              "comment": "SNAT_PEER",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": {
+                      "prefix": {
+                        "addr": "192.0.2.0",
+                        "len": 24
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "initial": {
+    "schema": 1,
+    "family": 2,
+    "entries": [],
+    "messages": [
+      "14000000030002002e5031da6500000000000000"
+    ],
+    "request": "14000000010101032e5031da6500000002000000"
+  },
+  "events": [
+    {
+      "type": "packet",
+      "config": "unauthenticated",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500003cf37d40004011492ec0000202cb007102a0281f9000281b10776972652d6e61743a756e61757468656e746963617465643a72657175657374",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": null,
+        "nextHop": "server",
+        "disposition": "forwardDrop",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [],
+        "messages": [
+          "14000000030002009df42d106b00000000000000"
+        ],
+        "request": "14000000010101039df42d106b00000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "authenticated-only",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500003ffa5d40004011424bc0000202cb007102a0281f90002b3fd8776972652d6e61743a61757468656e746963617465642d6f6e6c793a72657175657374",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": null,
+        "nextHop": "server",
+        "disposition": "forwardDrop",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [],
+        "messages": [
+          "14000000030002000e1085a87600000000000000"
+        ],
+        "request": "14000000010101030e1085a87600000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "credential-permitted",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea02080045000041facc4000401141dac0000202cb007102a0281f90002d91bd776972652d6e61743a63726564656e7469616c2d7065726d69747465643a72657175657374",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": {
+          "source": "203.0.113.1",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 40000,
+          "destinationPort": 9000
+        },
+        "nextHop": "server",
+        "disposition": "forwarded",
+        "output": "02000000eb0202000000eb01080045000041facc40003f11daa7cb007101c63364029c402328002d29db776972652d6e61743a63726564656e7469616c2d7065726d69747465643a72657175657374"
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 440,
+            "id": 2153785086,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200e10471177900000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00806026fe08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a400000000012200e10471177900000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00806026fe08000b0000000001080007000000001d",
+          "1400000003000200e10471177900000000000000"
+        ],
+        "request": "1400000001010103e10471177900000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "credential-permitted",
+      "zone": 0,
+      "raw": "02000000eb0102000000eb0208004500004722ff40000111f06fc6336402cb00710123289c400033d60d776972652d6e61743a63726564656e7469616c2d7065726d69747465643a74746c2d6f6e652d7265706c79",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "198.51.100.2",
+          "destination": "192.0.2.2",
+          "protocol": 17,
+          "sourcePort": 9000,
+          "destinationPort": 41000
+        },
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "ttlExpired",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 442,
+            "id": 2153785086,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200945ef1997a00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a400000000012200945ef1997a00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d",
+          "1400000003000200945ef1997a00000000000000"
+        ],
+        "request": "1400000001010103945ef1997a00000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "credential-permitted",
+      "zone": 0,
+      "raw": "02000000eb0102000000eb0208004500003f238f40004011b0e7c6336402cb00710123289c40002b8b5b776972652d6e61743a63726564656e7469616c2d7065726d69747465643a7265706c79",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "198.51.100.2",
+          "destination": "192.0.2.2",
+          "protocol": 17,
+          "sourcePort": 9000,
+          "destinationPort": 41000
+        },
+        "afterSource": {
+          "source": "203.0.113.2",
+          "destination": "192.0.2.2",
+          "protocol": 17,
+          "sourcePort": 8080,
+          "destinationPort": 41000
+        },
+        "nextHop": "peer",
+        "disposition": "forwarded",
+        "output": "02000000ea0202000000ea0108004500003f238f40003f111a1acb007102c00002021f90a028002bf33d776972652d6e61743a63726564656e7469616c2d7065726d69747465643a7265706c79"
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 442,
+            "id": 2153785086,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220009f47fed7f00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a40000000001220009f47fed7f00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d",
+          "140000000300020009f47fed7f00000000000000"
+        ],
+        "request": "140000000101010309f47fed7f00000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "logged-off-cached",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500003efc3d40004011406cc0000202cb007102a0281f90002ac944776972652d6e61743a6c6f676765642d6f66662d6361636865643a72657175657374",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": null,
+        "nextHop": "server",
+        "disposition": "forwardDrop",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 442,
+            "id": 2153785086,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220051d3dc518700000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a40000000001220051d3dc518700000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00806026fe08000b0000000001080007000000001d",
+          "140000000300020051d3dc518700000000000000"
+        ],
+        "request": "140000000101010351d3dc518700000002000000"
+      }
+    },
+    {
+      "type": "erase",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea02080045000041facc4000401141dac0000202cb007102a0281f90002d91bd776972652d6e61743a63726564656e7469616c2d7065726d69747465643a72657175657374",
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [],
+        "messages": [
+          "1400000003000200f2b87c878900000000000000"
+        ],
+        "request": "1400000001010103f2b87c878900000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "ttl-probes",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500002afc004000001180bdc0000202cb007102a0281f900016ed41776972652d6e61743a74746c2d30",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "ttlExpired",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [],
+        "messages": [
+          "14000000030002004fb74d6d9100000000000000"
+        ],
+        "request": "14000000010101034fb74d6d9100000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "ttl-probes",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500002afc01400001117fbcc0000202cb007102a0281f900016ed40776972652d6e61743a74746c2d31",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "ttlExpired",
+        "output": null
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [],
+        "messages": [
+          "1400000003000200e6184e969400000000000000"
+        ],
+        "request": "1400000001010103e6184e969400000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "ttl-probes",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500002afc02400002117ebbc0000202cb007102a0281f900016ed3f776972652d6e61743a74746c2d32",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": {
+          "source": "203.0.113.1",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 40000,
+          "destinationPort": 9000
+        },
+        "nextHop": "server",
+        "disposition": "forwarded",
+        "output": "02000000eb0202000000eb0108004500002afc02400001111789cb007101c63364029c4023280016855d776972652d6e61743a74746c2d32"
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 440,
+            "id": 1399373998,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200fb3a01c99700000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c005368c0ae08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a400000000012200fb3a01c99700000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c005368c0ae08000b0000000001080007000000001d",
+          "1400000003000200fb3a01c99700000000000000"
+        ],
+        "request": "1400000001010103fb3a01c99700000002000000"
+      }
+    },
+    {
+      "type": "packet",
+      "config": "ttl-probes",
+      "zone": 0,
+      "raw": "02000000ea0102000000ea0208004500002dfc034000401140b7c0000202cb007102a0281f9000190000776972652d6e61743a7564702d7a65726f",
+      "observed": {
+        "classification": null,
+        "fresh": null,
+        "afterDestination": {
+          "source": "192.0.2.2",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 9000
+        },
+        "afterSource": {
+          "source": "203.0.113.1",
+          "destination": "198.51.100.2",
+          "protocol": 17,
+          "sourcePort": 40000,
+          "destinationPort": 9000
+        },
+        "nextHop": "server",
+        "disposition": "forwarded",
+        "output": "02000000eb0202000000eb0108004500002dfc0340003f11d984cb007101c63364029c40232800190000776972652d6e61743a7564702d7a65726f"
+      },
+      "state": {
+        "schema": 1,
+        "family": 2,
+        "entries": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "remainingTTL": 29,
+            "status": 440,
+            "id": 1399373998,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200d966ece89a00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c005368c0ae08000b0000000001080007000000001d"
+          }
+        ],
+        "messages": [
+          "a400000000012200d966ece89a00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c005368c0ae08000b0000000001080007000000001d",
+          "1400000003000200d966ece89a00000000000000"
+        ],
+        "request": "1400000001010103d966ece89a00000002000000"
+      }
+    }
+  ]
+}

@@ -6,3 +6,6 @@ examples/admission/build-stdout.txt -whitespace
 examples/admission/build-stderr.txt -whitespace
 examples/wire/build-stdout.txt -whitespace
 examples/wire/build-stderr.txt -whitespace
+examples/wire-nat/build-stdout.txt -whitespace
+examples/wire-nat/build-stderr.txt -whitespace
+examples/wire-nat/native/trace.txt -whitespace

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "captureContainer": "netlib-wire-nat-final",
+  "captureImageID": "sha256:b5aaf7b42f0562107f2a7580a2407adf482ace71c2ebf5c5e662f5096e99f673",
+  "captureStartedAt": "2026-11-05T00:05:37.233390243Z",
+  "captureCompletedAt": "2026-11-05T00:05:43.64715161Z",
+  "actualBuildCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-wire-nat-capture:1",
+    "/private/tmp/netlib-wire-nat-build"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "run",
+    "--name",
+    "netlib-wire-nat-final",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-wire-nat-capture:1"
+  ],
+  "recipeNote": "The packaged recipe uses Docker create/start with the same inputs and options. The retained run used Docker run directly. Build and runtime logs are from the final capture with the initial Netlink snapshot."
+}

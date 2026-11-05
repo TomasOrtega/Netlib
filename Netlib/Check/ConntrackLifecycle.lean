@@ -281,6 +281,10 @@ private def parseConfig (json : Lean.Json) (index : Nat) : Except String Config 
   let nat ← Import.NftablesNAT.Snapshot.fromJson (← json.getObjVal? "nat")
   return ⟨id, index, forward, late, nat, json⟩
 
+def routingFromJson (json : Lean.Json) : Except String Import.LinuxRoute.Snapshot := parseRouting json
+
+def Config.fromJson (json : Lean.Json) (index : Nat) : Except String Config := parseConfig json index
+
 private def parseEvent (json : Lean.Json) (index : Nat) (configs : List Config) : Except String Observation := do
   let kind ← (← json.getObjVal? "type").getStr?
   let event ← match kind with
@@ -354,6 +358,8 @@ private def recordJson (record : Record) : Lean.Json := Lean.Json.mkObj [
   ("originalZone", Lean.toJson record.entry.flow.originalZone), ("replyZone", Lean.toJson record.entry.flow.replyZone),
   ("sourceNAT", Lean.toJson record.entry.sourceNAT), ("destinationNAT", Lean.toJson record.entry.destinationNAT),
   ("seenReply", Lean.toJson record.seenReply)]
+
+def stateJson (state : State) : Lean.Json := Lean.toJson (state.records.map recordJson)
 
 namespace Report
 

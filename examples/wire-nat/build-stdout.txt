@@ -1,0 +1,13 @@
+Sending build context to Docker daemon  29.18kB
+Step 1/4 : FROM netlib-wire-capture:1
+ ---> 55ab678c7fc4
+Step 2/4 : COPY exercise.py capture.sh /task/wire-nat/
+ ---> 122bae25b0c9
+Step 3/4 : COPY requirements.json deny.json permit.json demo-credential.json /task/admission/input/
+ ---> 268942e89661
+Step 4/4 : CMD ["sh", "/task/wire-nat/capture.sh"]
+ ---> Running in 1fcb2b8824d5
+ ---> Removed intermediate container 1fcb2b8824d5
+ ---> b5aaf7b42f05
+Successfully built b5aaf7b42f05
+Successfully tagged netlib-wire-nat-capture:1

@@ -172,7 +172,8 @@ A proved trace expires the old flow, reuses its alias, and delivers the delayed 
 The current mapping and grant safety invariant still holds.
 That invariant therefore cannot establish rejection of retired replies.
 
-These models exclude checksums, fragmentation, TCP flags, sequence windows, and transport handshakes.
+These local flow models exclude checksums, fragmentation, TCP flags, sequence windows, and transport handshakes.
+The separate byte-derived forwarding model below adds selected UDP checksum and TTL semantics.
 They do not establish allocator correctness, public-address ownership, Linux conntrack correspondence, or complete RFC conformance.
 The Linux deployment adapter retains its stateless subset.
 The [stateful guide](STATEFUL.md) defines the input formats and evidence limits.
@@ -337,6 +338,65 @@ Expiry, concurrent changes, helpers, related traffic, offload, hidden clashes, a
 The main-table route context and exclusive captured NAT/filter hook sequence must apply to the selected traffic.
 Faithful observations and complete selected-traffic coverage remain assumptions.
 The [lifecycle guide](LIFECYCLE.md) defines the schema, producer versions, and native evidence boundary.
+
+## Byte-derived NAT and TTL forwarding
+
+The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.
+Input and observed output tuples come from raw Ethernet bytes through `Check.Wire`.
+Supplied headers cannot replace decoded packet fields.
+The profile requires untagged Ethernet without FCS, IPv4 IHL five, no fragmentation, and UDP length equal to the entire IP payload.
+Zero UDP checksum denotes omission rather than successful checksum validation.
+The [wire guide](WIRE.md) defines the codecs and checksum boundary.
+
+`Protocol.UDPRewrite` takes a validated decoded packet, a translated tuple, and a chosen TTL.
+It preserves the complete UDP payload, TOS, identification, and DF.
+The generated packet has the chosen addresses, ports, and TTL, with canonical IPv4 checksum and no link padding.
+An omitted UDP checksum stays omitted.
+A present checksum is recomputed over the translated pseudoheader and preserved payload.
+A computed zero is transmitted as 65535.
+Input bounds prove the rewritten packet remains encodable, including the maximum selected IPv4 length.
+Encoding therefore cannot fail after modeled confirmation.
+
+`Protocol.WireForwarding` validates the input, attaches tracking, applies destination NAT, and selects the destination route.
+A missing route produces a route drop.
+For a selected route, TTL zero or one stops before forward filtering, source NAT, late filtering, and confirmation.
+An existing reply retains its earlier seen-reply update after TTL expiry.
+A fresh expired candidate does not enter the confirmed table.
+Longer-TTL processing reuses the existing lifecycle's filter, NAT, and confirmation semantics.
+Each emission preserves payload and contains the actual decremented TTL.
+Its IPv4 checksum and any present UDP checksum are valid.
+UDP checksum omission remains explicit through translation.
+
+`Check.WireForwarding` retains the shared route, NAT, filter, and ordinary-table parsers.
+Their earlier adapter semantics remain unchanged.
+The checker derives candidates only on lookup misses and processes every supplied event in order.
+Observation mismatches do not modify computed state.
+Every finding remains linked to its actual preceding table and model step.
+`Report.compliant_iff` establishes complete supplied-observation agreement.
+`Trace.valid` proves structural table validity throughout the modeled replay.
+`Report.observed_output_payload` proves compliant observed outputs preserve the input payload and decrement TTL.
+
+Output comparison covers decoded IP fields and the complete UDP datagram, including its checksum word.
+Both raw packets must pass their independent wire validation.
+IPv4 checksums and present UDP checksums are validated.
+Ethernet adjacency, link padding, and the IPv4 checksum's zero representation are separate from that equality.
+Null intermediate fields mean unobserved values.
+Null output asserts no selected UDP egress within the declared complete observation scope.
+Table comparisons retain the existing tuple, zone, NAT-flag, and seen-reply projection.
+Native IDs, order, and timeout evidence remain outside that projection.
+
+`Examples.WireNATDeployment` connects these emissions to current scope permission and EAP readiness.
+The input comes from a checked capture; the scope uses the computed post-destination-NAT header.
+The theorem preserves exact payload and TTL effects without assuming a separate packet header.
+It still requires the current native filter snapshot and the reviewed binding between the principal and packet class.
+Global installation timing and source authenticity remain deployment assumptions.
+
+The retained native experiment contains 17 IP frames: 14 UDP frames and three ICMP frames.
+Four EAP stages distinguish missing authentication, missing credentials, permitted traffic, and cached denial after Logoff.
+Additional probes cover an expired cached reply, a later real reply, targeted deletion, TTL zero through two, and UDP checksum omission.
+ICMP observations remain evidence; the model does not generate those packets.
+MTU handling, fragmentation, full transport behavior, expiry, concurrency, and kernel C refinement remain outside this profile.
+The [wire forwarding guide](WIRE_FORWARDING.md) defines the schema, native cases, and assumptions.
 
 ## Static stateful filter refinement
 
@@ -745,7 +805,8 @@ JSON parsing, serialization, kernel execution, and deployment operations need se
 The [Linux](LINUX.md) and [compiler](COMPILER.md) guides distinguish these guarantees.
 The transfer checker separately certifies header-changing paths and cuts.
 The NAT auditor separately certifies agreement with supplied packet observations.
-Their current theorems do not connect those models to native NAT implementations.
+The byte-derived forwarding extension adds selected payload, TTL, and checksum effects through tracked NAT.
+Native implementation correspondence still requires separate evidence and refinement.
 The conntrack adapter adds checked visible tuples and status-aware endpoint algebra.
 The separate lifecycle checker proves agreement with an explicit sequence of modeled route, filter, NAT, and deletion operations.
 Its structural invariant does not establish transport validity or an arbitrary security contract.
@@ -826,6 +887,8 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
     Earlier queued packets can still be delivered.
 19. Wire tests cover checksum synthesis, odd padding, zero representations, exact byte reconstruction, IPv4 profile errors, UDP pseudoheaders, and checksum omission.
     Fresh native socket packets carry complete checksums; separate malformed probes distinguish forwarding from transport reception.
+20. Wire forwarding tests cover exact NAT payloads, checksum regeneration, omission, maximum lengths, TTL boundaries, cached reply updates, and fresh confirmation.
+    Compliant observed outputs retain payload and TTL guarantees; current Logoff filters deny cached traffic without deleting its binding.
 
 ## Scope limits
 
@@ -845,6 +908,8 @@ The current models exclude dynamic routing protocols and cryptographic algorithm
 Full authentication protocols, transport handshakes, temporal liveness, and adversarial compromise remain outside their scope.
 Constant packet rewrites and one local timed source-NAPT model have the separate guarantees above.
 Fixed-endpoint tuple translation and ordinary forwarded-packet replay also have explicit domain and evidence limits.
+The selected byte-derived UDP model adds payload-preserving NAT, checksum regeneration, and TTL handling under its stated assumptions.
+MTU, ICMP generation, fragmentation, full transport behavior, and kernel refinement remain separate work.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.

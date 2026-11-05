@@ -1063,7 +1063,56 @@ An omitted checksum can reach the socket while supplying no UDP checksum verific
 The earlier admission capture retains offload intermediates and makes its original tuple-level claims.
 The new wire checker rejects those partial checksums as completed wire bytes.
 
-Options, fragments, IPv6, full TCP, native NAT checksum updates, and cryptographic implementation refinement remain open.
+Options, fragments, IPv6, full TCP, and native implementation refinement remain open.
+
+# Wire forwarding and NAT
+%%%
+tag := "wire-forwarding"
+file := "wire-forwarding"
+%%%
+
+The forwarding wrapper derives its tuple from the checked IPv4/UDP input.
+It attaches conntrack once, applies destination NAT, and selects the route before testing TTL.
+A routed packet with TTL zero or one produces no selected UDP transit output.
+It retains prepared reply observations and never confirms a fresh record.
+
+Other packets use the existing forward filter, source NAT, late filter, and confirmation sequence.
+Permitted output has decremented TTL and updated checksums.
+The payload remains exact:
+
+```lean
+open Netlib.Protocol in
+example {packet : UDP.DecodedIPv4}
+    {target : Netlib.Packet.Header} {ttl : UInt8}
+    (result : UDPRewrite.Certified packet target ttl) :
+    result.packet.datagram.payload =
+      packet.datagram.payload := result.payload
+```
+
+The transformation also preserves TOS, identification, DF, and packet length.
+An omitted UDP checksum remains omitted.
+A present checksum is recomputed using the translated tuple.
+The inherited payload bound prevents an encoding failure after confirmation.
+
+The replay checker validates actual ingress and egress bytes.
+Its compliant-report theorem establishes agreement for every supplied event and table observation in order.
+Matched observed outputs preserve payload and decrement TTL exactly once.
+Intermediate null fields remain unobserved; null output means no selected UDP egress.
+
+```
+lake exe netlib wire-forward examples/wire-nat/replay.json --json
+lake exe netlib session-firewall examples/wire-nat/session.json --json
+```
+
+The native capture uses two-sided NAT with complete checksums.
+A TTL-one reply marks the cached record seen-reply despite having no UDP egress.
+A later normal reply reaches the client.
+Logoff and the current deny policy stop the same cached flow.
+Separate probes cover erasure, TTL zero, TTL two, and UDP checksum omission.
+
+The deployment theorem combines exact emitted packet facts with current scope credentials and EAP readiness.
+MTU, fragmentation, ICMP generation, concurrency, and kernel C refinement remain outside this model.
+Identity bindings, capture location, current installation, and cryptographic method fidelity remain assumptions.
 
 # Documentation process
 %%%
