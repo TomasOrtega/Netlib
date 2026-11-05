@@ -1,0 +1,566 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-05T01:04:10.158362665Z",
+  "completedAt": "2026-11-05T01:04:20.459050717Z",
+  "kernel": "6.8.0-117-generic",
+  "container": {
+    "parentImage": "netlib-mtu-capture:1",
+    "parentImageID": "sha256:5339283b9b4b22088fccf90e4730e7d841b0f2ab2e42901fa539c6ba99c63b59",
+    "image": "netlib-icmp-capture:1",
+    "imageID": "sha256:08969d1b8e9861ded58795860824c9e3890344590b71f4f1ce96933fcb1e6a68",
+    "network": "none",
+    "hostMounts": false,
+    "capabilities": [
+      "CAP_NET_ADMIN",
+      "CAP_SYS_ADMIN"
+    ],
+    "securityOptions": [
+      "seccomp=unconfined",
+      "apparmor=unconfined"
+    ],
+    "privateNetworkNamespaces": [
+      "peer",
+      "auth",
+      "server"
+    ],
+    "command": [
+      "sh",
+      "/task/icmp/capture.sh"
+    ],
+    "exitCode": 0
+  },
+  "evidence": {
+    "ipv4Frames": 43,
+    "udpFragmentFrames": 31,
+    "icmpFrames": 12,
+    "eapolFrames": 18,
+    "packetEpisodes": 20,
+    "initialSnapshot": "initial-conntrack.json",
+    "normalRequestPayloadBytes": 1200,
+    "normalFragmentIPLengths": [
+      596,
+      596,
+      76
+    ],
+    "normalFragmentByteOffsets": [
+      0,
+      576,
+      1152
+    ],
+    "sysctlSettingsFile": "native/icmp-settings.txt",
+    "outputClassification": "RELATED filter match and accept observed before POSTROUTING source NAT",
+    "icmpQuoteInputIPLengths": [
+      63,
+      64,
+      547,
+      548,
+      549,
+      576,
+      577,
+      575
+    ],
+    "outerIPv4ID": "Observed allocation choice decoded from raw output, not a deterministic generation parameter or error-kind/quote authority."
+  },
+  "mtus": {
+    "peer0": 4096,
+    "auth0": 4096,
+    "service0": 600,
+    "server0": 600
+  },
+  "nat": {
+    "original": {
+      "source": "192.0.2.2",
+      "destination": "203.0.113.2",
+      "protocol": 17,
+      "sourcePort": 41000,
+      "destinationPort": 8080
+    },
+    "requestEgress": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.2",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    },
+    "replyIngress": {
+      "source": "198.51.100.2",
+      "destination": "203.0.113.1",
+      "protocol": 17,
+      "sourcePort": 9000,
+      "destinationPort": 40000
+    }
+  },
+  "probeOutcomes": [
+    {
+      "name": "unauthenticated-request",
+      "disposition": "forwardDrop",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "authenticated-only-request",
+      "disposition": "forwardDrop",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "credential-permitted-request",
+      "disposition": "forwarded",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "cached-ttl-one-reply",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        66
+      ]
+    },
+    {
+      "name": "credential-permitted-reply",
+      "disposition": "forwarded",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "logged-off-cached-request",
+      "disposition": "forwardDrop",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "cached-df-oversize",
+      "disposition": "mtuExceeded",
+      "icmpTypes": [
+        [
+          3,
+          4
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "fresh-df-oversize",
+      "disposition": "mtuExceeded",
+      "icmpTypes": [
+        [
+          3,
+          4
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "ttl-one-df-oversize",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "exact-mtu-df",
+      "disposition": "forwarded",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "oversize-df-clear",
+      "disposition": "forwarded",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "udp-zero-fragments",
+      "disposition": "forwarded",
+      "icmpTypes": [],
+      "quoteLengths": []
+    },
+    {
+      "name": "quote-short-odd",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        63
+      ]
+    },
+    {
+      "name": "quote-short-even",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        64
+      ]
+    },
+    {
+      "name": "quote-cap-minus-one",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        547
+      ]
+    },
+    {
+      "name": "quote-cap-exact",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "quote-cap-plus-one",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "quote-ip-576",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "quote-ip-577-zero",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    },
+    {
+      "name": "quote-reply-odd",
+      "disposition": "ttlExpired",
+      "icmpTypes": [
+        [
+          11,
+          0
+        ]
+      ],
+      "quoteLengths": [
+        548
+      ]
+    }
+  ],
+  "packetPolicy": "No captured Ethernet frame or checksum is rewritten. Explicitly synthetic mutation cases are confined to checker/CLI tests.",
+  "timing": "Userspace raw frame reads precede the selected post-step raw Netlink dump; these fences do not establish internal kernel execution times.",
+  "producerSourceSHA256": {
+    "examples/icmp/exercise.py": "26c086756ff2980aa5db5b5c53b6f58cb19385424e190191112a19ece65d4f04"
+  },
+  "artifactSHA256": {
+    "native/after-ttl-one-reply-conntrack.json": "3c3e5f917ffb13fbd9abc6f50a018489ce301a435496196c6f952cebc6e7c121",
+    "native/auth-addresses.json": "ea644ea42d6760b4cded4eb35080a5c9c6ff3848a64013b2366fc54e98dab773",
+    "native/auth-links.json": "fe1ec1cab9a2e31a8faef778218d5e93f6489c8e560c8342c1a8ae3ed489dc7e",
+    "native/auth-neighbors.json": "618d50bfaf58a0ad54a15c4dcf8df58c894e1df93937a0ebf4bc785da43a1333",
+    "native/auth-routes.json": "41c15099d26eb8c24f25ebb8450d2343e20381f81e2757fc12cdf056bdb0fcda",
+    "native/auth-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/authenticated-only-conntrack.json": "ead1e772a3f4e61a40d1725ff70fd006949e1547ecbae8e14542a7fe1ba76784",
+    "native/authenticated-only-firewall.json": "c465574ad0d795e0186bb8abbd689377d6e7457b8c9acf6fe28da7c621165803",
+    "native/authenticated-only-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/authenticated-only-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/authenticated-only-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/authenticated-only-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/authenticated-only-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/authenticated-only-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/authenticated-only-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/authenticated-only-ruleset.json": "95f06bc06bb1b7ddba66caf11c6493197f8a05069cbe9a3d28f20c9886e742e4",
+    "native/before-ttl-one-reply-conntrack.json": "7cd0fb60dad3cba5b7c2a0549be37d83691cfb9cfba1ca67b105d22447eca8ea",
+    "native/cached-df-oversize-after-conntrack.json": "9df4fedd6cb655173f8984834a6b1ab05c03973ab0ddd379511cd9a4970d8668",
+    "native/cached-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/cached-df-oversize-before-conntrack.json": "f1ce8091a5f5ee7c108e2c2bcba56453a4da823b21432b4d5968359fc30f543a",
+    "native/cached-df-oversize-input.json": "65bc7a375c78a97c189431ce9128935cf27b63554cc65377f55788694297b0d1",
+    "native/cached-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/cached-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/cached-ttl-one-reply-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/cached-ttl-one-reply-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/cached-ttl-one-reply-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/commands.json": "8a91962136f2aa04d675f51d45191f413d19cdf78c164e6d8fc35c9384bf2ba7",
+    "native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "native/credential-permitted-conntrack.json": "f7180cd0a5d082df284f9fb05e68b35e010f5d6e86e5da51bcc563450fca5977",
+    "native/credential-permitted-firewall.json": "dac52792a2cd79c32a1fdeeb6e94929cbf8725cbdcbe23f5301481477a0ca982",
+    "native/credential-permitted-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/credential-permitted-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/credential-permitted-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/credential-permitted-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/credential-permitted-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/credential-permitted-reply-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/credential-permitted-reply-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/credential-permitted-reply-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/credential-permitted-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/credential-permitted-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/credential-permitted-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/credential-permitted-ruleset.json": "aec20d52595ab7aed74437b06d61b6bb28f1b86b7ba72f6d74d1f08304aaf935",
+    "native/eap/auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/eap/authorized-station.txt": "b2eaed2a89db6c452f9698ddccf43f05c092503514079db6879be2b8f3d30e38",
+    "native/eap/bad-server-supplicant.conf": "0268a3c7c1663b5c3edc9a0be02d53effd957338e5c95817ca9029d6c5548bc7",
+    "native/eap/ca-certificate.txt": "fdf5e9881e58ca0d3850c2cb02041b55fe62952745cd5b071548f6086e5b7dfa",
+    "native/eap/ca-chain.pem": "4bb8b2f7a318f78bfcd77e03577b0b0e617dbcd2942c100ffb57191fae881e8e",
+    "native/eap/ca.crl.pem": "e181e3cfa20f1df3f5834ffcb8d33efabdfba0a96bedc721b0cf242759c2b6ed",
+    "native/eap/ca.pem": "c8c66b4774c4eafe03f3523b318cd340bc9d4251792443f8577410913a43e2a6",
+    "native/eap/client-certificate.txt": "8d34956b29161661294964044abb11a5dd445073eeaeb8472b6754f5a4756e02",
+    "native/eap/client.pem": "d31da40814888ff6580f67a22f4db43c24d7795f875388751ab27e86c2565f15",
+    "native/eap/commands.json": "9a8dabd5f0b6b2b60bbf2c3a4faad17e5e45850c4ad82ef053964a80ae9170b2",
+    "native/eap/hostapd.conf": "3943b8e7deae951a6ae0dc060707d5aa44d9837c66ea83183d9dea443fd5f1f7",
+    "native/eap/logged-off-station.txt": "0e273bc54cc83bcc5b6e6c061995138a1c0c6e88e990d61f0327c3e4c103e901",
+    "native/eap/peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/eap/server-certificate.txt": "4aba3fc47db85c411314cf191f87f80854dce1ee6fc84a6abae5820a8179aeb8",
+    "native/eap/server.ocsp.der": "22aed5f1134c6c2d2ed509d41f76e03d2d1cadc82e3b918067f7f9720cd3edd5",
+    "native/eap/server.pem": "d2c5937b120444fb35673b28fb6aa3a77d1a1cee9db88851898026b3c7bff9bd",
+    "native/eap/success-authenticator.jsonl": "33804c2c291d9718b2375d15de6fb5e681e5dfedb301505908088900b616bccb",
+    "native/eap/success-frames.jsonl": "96d32be4ae409e0f41845906242827ce57d00fa2908162c3065850036a6da32f",
+    "native/eap/success-supplicant.conf": "59d0cc7f5d28d8847a62e10c4f3580672896ee363976b08269de524e06ddd1f9",
+    "native/eap/success-supplicant.jsonl": "95244eaeeb9bd6bf04d6178c4499fcd653e27600f7d87d0f0970ad6073bdad85",
+    "native/eap/supplicant-status.txt": "719a0f4ef326caaf6295b1673f189ad6aac26327d4abf19fb4811807ac287292",
+    "native/eap/users": "f8b1102070fa116a9eb09ecc69b4198ce819d52e74a0859df18eae0825d1e38d",
+    "native/erased-conntrack.json": "09fc1745211b6d3d47da31c938588f0dc1cc96bbf8ac54c19388e85d5319d00c",
+    "native/exact-mtu-df-after-conntrack.json": "c52a98a80916e7894736bea5e7498c97dd35128bf48e3de1e9829c884323da3a",
+    "native/exact-mtu-df-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/exact-mtu-df-before-conntrack.json": "57f17470010498ced97faddafe542589464f3f087a6c65b3266c95a5df955873",
+    "native/exact-mtu-df-input.json": "bca1b1fdf510a4620abf685d778259f943bccfee142355ca0f4e11a734661088",
+    "native/exact-mtu-df-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/exact-mtu-df-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/frames.jsonl": "8e6d6dd61b1b3373d9a2c3586bbe74fec9c79aa0201e5f36d433637a5a2fa67f",
+    "native/fresh-df-oversize-after-conntrack.json": "607f78ceb6ea9ac1c02c23c37a4b57064ac29cf25aa4f780bbf0de7616cf3882",
+    "native/fresh-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/fresh-df-oversize-before-conntrack.json": "5a4cfae9324e34d0d7cecac770c66498c33535c867df75cd85d8980f1f28e916",
+    "native/fresh-df-oversize-input.json": "565877faa13503e79db7fb8918990cb392de91d7dd6a258acd8e77b576c5e35a",
+    "native/fresh-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/fresh-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/helper-sha256.txt": "fc689e628386671be0e3f9ccf18881f925a7e646d3ed72dcfa3666edc9278a95",
+    "native/hostapd-version.txt": "df543fbc99883a1ee0f9bda917b8e13f37b8d57192c233101c82310cf3c8ff8e",
+    "native/icmp-final-firewall.json": "b15eed9c4d88608df38d4565322c1a429445da2e216e834501f3f0580a658f41",
+    "native/icmp-final-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/icmp-final-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/icmp-final-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/icmp-final-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/icmp-final-ruleset.json": "8afadbebcf1a6c8a4539c83af7153455914126351e7af5a0452b8e3a7afb9dc4",
+    "native/icmp-settings.txt": "b70d4990389c1e6464b5bb03616e25b08b0dada72bda9561ab98d1177c1e5612",
+    "native/initial-conntrack.json": "e9929736dfe31350f5c349891f62d2d072e0f121565a29a60e046bbe1e7f5b0b",
+    "native/input/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/input/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "native/input/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "native/input/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "native/installed-demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "native/logged-off-cached-conntrack.json": "d05727ae1ff178d5323f680256e81dfc53899cfe3ac21735de9b189c02ee5d68",
+    "native/logged-off-cached-firewall.json": "a89f35e2c5771972e49ea4d3ece605f1b813a3828555751d722e1022824f1335",
+    "native/logged-off-cached-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/logged-off-cached-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/logged-off-cached-load.json": "c7d8db7f6d7e68b0e84b5f88c52b7dc03f4e8789236afc2005de1126e5aadc4e",
+    "native/logged-off-cached-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/logged-off-cached-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/logged-off-cached-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/logged-off-cached-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/logged-off-cached-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/logged-off-cached-ruleset.json": "a092fc68f9bc1771b03e1d821265b9d6e97f43d26caab49e061821dd1efaf94c",
+    "native/mtu-probes-firewall.json": "b15eed9c4d88608df38d4565322c1a429445da2e216e834501f3f0580a658f41",
+    "native/mtu-probes-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/mtu-probes-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/mtu-probes-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/mtu-probes-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/mtu-probes-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/mtu-probes-ruleset.json": "2b76b64625c635d4bf34047801890b73c61b204fb2a5f610e446b574d403e1bf",
+    "native/nat-and-trace.nft": "14fb37e2b5c6d527272fd8faa472ce47d948022fdde7b4fe75ea0fb9b2198db3",
+    "native/network-auth-addresses.json": "30a4809a27cf92f8e17e3ea8106119db6d859149bee9b598f7850f9024e8a3c6",
+    "native/network-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/network-auth-neighbors.json": "618d50bfaf58a0ad54a15c4dcf8df58c894e1df93937a0ebf4bc785da43a1333",
+    "native/network-auth-routes.json": "41c15099d26eb8c24f25ebb8450d2343e20381f81e2757fc12cdf056bdb0fcda",
+    "native/network-peer-addresses.json": "072ed87c61141472cf2f31ada79ca18a279d0812865219bfd6a13c1e991aaed4",
+    "native/network-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/network-peer-neighbors.json": "743cbc449a22ded843a088d89a2d5fd61c87470f1439041d6ee70a4019251bb3",
+    "native/network-peer-routes.json": "9769d3305544599195ae752d7c3a83e2f52b70c6987b64e88399d5e43041f6ff",
+    "native/network-server-addresses.json": "5ce631f151db907eadde97ec4b36310a3e5a3261af438f6ff294943ed1848778",
+    "native/network-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/network-server-neighbors.json": "243d7df725028db85bfa9782f11ce043174ecba39745f8faf3cddf7d0c4faf8f",
+    "native/network-server-routes.json": "3e630174592d206c4862bf7e99507cab124d08417dd0cd91cb3d9b4be4e3c820",
+    "native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "native/observations.json": "5d5a7244568879570c823ee3500dad39d9ca44a44c5990c032799c06f917ee49",
+    "native/offloads.json": "56fc95483b81860116deda32f3b450c29fc3a4cf73d60b5896f79e18af7d1ce6",
+    "native/openssl-version.txt": "99009aa0848eaa01ceea26381659dc525e4ce21a4c90ca255b3c58b0089f8f8a",
+    "native/oversize-df-clear-after-conntrack.json": "d1eb11966bb824450e92943757164a1b267340a637cef64025c130eb8a49ba73",
+    "native/oversize-df-clear-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/oversize-df-clear-before-conntrack.json": "185d5463e4a03b17a1c372456e33ec8d9832adf03461e26a0dffbfa07aa3b50e",
+    "native/oversize-df-clear-input.json": "64876601cfb94cc65dfe73312c11f3665372addf307cf948c376c9e2ee39511d",
+    "native/oversize-df-clear-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/oversize-df-clear-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/packages.txt": "336c612cd12b21f83ac95f019e43187dca868a17cb5089d770ae4534260ce59e",
+    "native/peer-addresses.json": "1ea0f2cc6bfd1697139c52dc2e918522f685d31db0637718cdc075f10d812b78",
+    "native/peer-links.json": "f44ad5f0089964f8c2ae54b721c4bc5d6a2ddaed5338754a2d9f28fd7a527d5b",
+    "native/peer-neighbors.json": "743cbc449a22ded843a088d89a2d5fd61c87470f1439041d6ee70a4019251bb3",
+    "native/peer-routes.json": "9769d3305544599195ae752d7c3a83e2f52b70c6987b64e88399d5e43041f6ff",
+    "native/peer-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/producer-sha256.txt": "8661f96d16885236ec3b592f8b83cdde8165941cf557a3e259b89b8a11c3373f",
+    "native/quote-cap-exact-after-conntrack.json": "6235d452070c188e112363bc42918b0b958afb554de9ab7438a481a92c48ec5d",
+    "native/quote-cap-exact-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-cap-exact-before-conntrack.json": "8c15f971c868a9f45bf5430da63f554faddca9f8ece5afe5132cc737e05914fb",
+    "native/quote-cap-exact-input.json": "024607662c6b008db92d88bb450f53804e8e1e73f24513a936d9a2c74fb2e8fb",
+    "native/quote-cap-exact-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-cap-exact-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-cap-minus-one-after-conntrack.json": "a4eac123aeadb688994637263115fba10787eb66c32534bf59cf33fc3f0fdea9",
+    "native/quote-cap-minus-one-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-cap-minus-one-before-conntrack.json": "7bb2d80efec2a013c022c8ae31623cb9089464fecc5abab881a283357097626a",
+    "native/quote-cap-minus-one-input.json": "0919c1b2f32aa738d1a92494ac8eb89653f70e6eab97cc67909345cb02244c21",
+    "native/quote-cap-minus-one-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-cap-minus-one-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-cap-plus-one-after-conntrack.json": "67877d7012d2206b4375c85baa421e686ee69e6d81f4ba763955ecee1d50b06d",
+    "native/quote-cap-plus-one-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-cap-plus-one-before-conntrack.json": "932e570e531a1d9e6d13ac004b5e4b8d6012f8876425631aa2e5d51ce88dcfe1",
+    "native/quote-cap-plus-one-input.json": "4a03bddf663a67f10e4513a735f3fbb9da2ff809d6c5a9548078c56e5eed6cda",
+    "native/quote-cap-plus-one-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-cap-plus-one-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-ip-576-after-conntrack.json": "89ec0ec8f857893f81844b7e6608d605bac7399cb32dae7aa3d5c715398b23ed",
+    "native/quote-ip-576-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-ip-576-before-conntrack.json": "248f23a4bfe1109eb6328097aeba70f048420ca6b19fd30a841c400d9e3bbf4a",
+    "native/quote-ip-576-input.json": "1680c4303c7af392f6bfbe479fa5715d899cad5f9f25a364d1a35ebf52a2a788",
+    "native/quote-ip-576-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-ip-576-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-ip-577-zero-after-conntrack.json": "1cb3c30e73db50076c8f2e0432e7a3bcf01457cb29dd7ddb018ac6988541629d",
+    "native/quote-ip-577-zero-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-ip-577-zero-before-conntrack.json": "de55974edc705dedb09f6444753bee50c398240535f43a6fd047161699124019",
+    "native/quote-ip-577-zero-input.json": "29707ae3dd3e6a94df1eaf6fe7c449208637c61cd8152e551da3ee9f3b34bf64",
+    "native/quote-ip-577-zero-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-ip-577-zero-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-reply-odd-after-conntrack.json": "4e8df677ca071b43a3a64b0a3ee7cb32cb0ceeb63dc8327f04c7631c894c812b",
+    "native/quote-reply-odd-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-reply-odd-before-conntrack.json": "44187f8520de2720711a0ef8577861f148d0abbd90ca084cfb03f8124b7ccc9f",
+    "native/quote-reply-odd-input.json": "052e5731a704b5dabbdee368c361170e14cd91212bf833e0f821a093578fb09f",
+    "native/quote-reply-odd-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-reply-odd-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-short-even-after-conntrack.json": "b4f8d674847e5960c9a5e76b45f9e4ddc604673b2f9e2b064b1a7aa9b3884698",
+    "native/quote-short-even-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-short-even-before-conntrack.json": "ab4607f455581fef8be0e0652cf4623246d5822e82a0982d0f7b55565e8d20a3",
+    "native/quote-short-even-input.json": "9954f1e6b1546f7aea11d40ed4b1ec91bece1038d3abf5db6b4421cd4abc4a61",
+    "native/quote-short-even-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-short-even-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/quote-short-odd-after-conntrack.json": "5f294909c232ed34c25d62a953a182fabfcef061a364e8a41ad762ef3544f143",
+    "native/quote-short-odd-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/quote-short-odd-before-conntrack.json": "54891fbfff676e90415b0dc205e73fb0e34170017bc6de505aa87e9eb8a1b0dd",
+    "native/quote-short-odd-input.json": "0dae2ac35543558c4f23c3ca3018b2f1c40e74839a45287abbc99adc29e74bd5",
+    "native/quote-short-odd-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/quote-short-odd-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/server-addresses.json": "9141bb17a2c71730824a314fe15c0ca51edb4e5b03d59a36c50002de6ea60563",
+    "native/server-links.json": "64e8b6d962649adc24fc56da22d20817571a97586687edeaa46710fd9f8d1c77",
+    "native/server-neighbors.json": "243d7df725028db85bfa9782f11ce043174ecba39745f8faf3cddf7d0c4faf8f",
+    "native/server-routes.json": "1ce2e6ce46923b5b9ccf1f23a4bac8d66a0a41b764eb76f6d09a1015e528bd92",
+    "native/server-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/supplicant-version.txt": "320a976c97614caa812c6fd36087e15634922ed7766d08fb98477f0c6312c265",
+    "native/trace-errors.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native/trace.txt": "4acc28e2ac9207d3359f3b52a0c0dbea51d5ecc1f8add8ff5da24ff6053cd147",
+    "native/tracking.nft": "a5308947709169d1e91dac4fd83e8747c295550b35963a59efcb6c36bdb985ed",
+    "native/ttl-one-df-oversize-after-conntrack.json": "3a22d8f3f7fa02d764d4927e52ad8ea9a267f36875bceccf7dce406f9008a13d",
+    "native/ttl-one-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/ttl-one-df-oversize-before-conntrack.json": "5b3485126970a846fd6c3533b6f247f525501090582f6ee8f57d73757178b371",
+    "native/ttl-one-df-oversize-input.json": "28a915118fef520aece23f341135c43b399d94c3457b0617bc82933c2f2ecd8a",
+    "native/ttl-one-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/ttl-one-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/udp-zero-fragments-after-conntrack.json": "fd2393497af3085e84258196d05424cdc0899944eb1c8941c9ae5ed926bc3eae",
+    "native/udp-zero-fragments-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/udp-zero-fragments-before-conntrack.json": "22152c2f8f1ad74e0df67a21a5bf170d8bc1079dd4ee5d527529214e576217db",
+    "native/udp-zero-fragments-input.json": "55a9e0a2876e456d6e37448d186120aeab962f7e3af035e59d663234900dd34c",
+    "native/udp-zero-fragments-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/udp-zero-fragments-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/unauthenticated-conntrack.json": "55fc312dbdd6944bbc243d050b9160a6feb43e38736dd626e7cd1e4668948533",
+    "native/unauthenticated-firewall.json": "c465574ad0d795e0186bb8abbd689377d6e7457b8c9acf6fe28da7c621165803",
+    "native/unauthenticated-icmpLate.json": "9fbccf139726020032268f346ab35345bcead071eb9e5e73697fb512fbd6d3e2",
+    "native/unauthenticated-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/unauthenticated-load.json": "758ae26fe104eb85986e9037bfd31be09948092c83e5c9d4511bc398f233bbd9",
+    "native/unauthenticated-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/unauthenticated-output.json": "9fae94ffa0e85bc21d1113336bc6a47fb4de9daf156acca608cff74647650338",
+    "native/unauthenticated-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/unauthenticated-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/unauthenticated-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/unauthenticated-ruleset.json": "20d4e0a1aa6e0256404b60f2963835434a4afd7a5954ddb589517a3f01efe87d"
+  },
+  "verifierSHA256": {
+    "scripts/check_admission_capture.py": "53121c7c8254c6b3ba98c72729732f4dc1706ecacef5645ea34b8a6578cb0c4b",
+    "scripts/check_eap_capture.py": "9d94275e903a2911dc042141097832049dc688917bf96a888c7bb90b5b6544df",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "scripts/check_wire_capture.py": "5482e3f410de6cc5f4ee8fd3c208e831bf49940dfac3228f8032e688f0036d29",
+    "scripts/check_wire_nat_capture.py": "fa2e516fa276ed55935870ea8e5efff0b381155cf7baeb479e103717c4ca77c4",
+    "scripts/check_mtu_capture.py": "ce47fb0f128e0beb363e2a10e8edb28847359966bcd30b416512a81e23662454",
+    "scripts/check_icmp_capture.py": "9a641198ada77e98ad3462dbc205f572ca8da75743e7517830b44bd0d336b5b7",
+    "scripts/test_check_icmp_capture.py": "7d82e60b9d44ac740137bb47e65c23d206640f1774dc56f56b24fa49b0a050d3"
+  },
+  "projection": "Independent native verification supplies raw error frames, complete and partial quote observations, whole UDP hook checksums, and one-to-one output trace attribution. The shared EAP/session projector and ICMP builder derive the replay inputs. Model output never constructs native observations. Synthetic quotation boundary cases remain separate tests.",
+  "projectionSHA256": {
+    "docs/ICMP.md": "404db811ba505029145031a1c0529ac4215d8852d717867d44c6df7a8f563f41",
+    "docs/research/ICMP_ERRORS.md": "711e2071d7ca472deec1be2c55532509f779fed90370a67e9bbb6366bd5ce901",
+    "examples/icmp/Dockerfile": "e1973cf4db8c9a7d5b3a554f559deb881e08d16c345e42d46fdc58ad167faf6e",
+    "examples/icmp/README.md": "4f38437eb775c45a9fc4f1d9eaae727e9852a9442a688b88c989769f9d65cb93",
+    "examples/icmp/authentication.json": "b5ce70edebbc301b41c85a86ad7ee4dcd019a5a5e0fdfe456d7aff505e3b6a9f",
+    "examples/icmp/build-stderr.txt": "d86cb49dd44ce17a9da506b4e732433d5755f98bac9a709da0462523638defc5",
+    "examples/icmp/build-stdout.txt": "45c91207088b3475ca7f3aba2b0296c6d4b8919d02124ca43136656ec0918351",
+    "examples/icmp/capture-invocation.json": "0f083b86b0bdd880702af973db7f5aa6ce92d2daac2085475dd85a004a636f4e",
+    "examples/icmp/capture-stderr.txt": "2d6d9c9e6400fad65b029e57396715833a2f2e6bd5ca82c564015de8040d0378",
+    "examples/icmp/capture-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/icmp/capture.sh": "cf6bd1d21df96ae3ba2e1c3a4926c737f1d9b94fc22571d01188e0c1e4719538",
+    "examples/icmp/checked-evidence.json": "2911c42170e7b81284aeaea881a1ffd461356f996a797e2284b744ac8da95aae",
+    "examples/icmp/container-inspect.json": "7bc64a9106c39cedae1b55aef916cb165d17e30ddffbbe314a41a054158104d9",
+    "examples/icmp/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "examples/icmp/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "examples/icmp/exercise.py": "26c086756ff2980aa5db5b5c53b6f58cb19385424e190191112a19ece65d4f04",
+    "examples/icmp/image-id.txt": "246694bca9bf5a4a72a3f13b5d91c0a1cd800fbb7d639bc5c164d4b0727ebe75",
+    "examples/icmp/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "examples/icmp/recapture.sh": "dde25bef4a62fc8e288fa3fda9c3cbf4c3bc6ff61796dd797417b3028c15eb46",
+    "examples/icmp/replay.json": "e5ddd38d1deeb1e84ff0f9a02fdee36ca728863d378e034d60e2b131e8c94414",
+    "examples/icmp/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "examples/icmp/session.json": "a799c6d085bd717b07275711c2871914a2c4c833ae53c68cdcdc0966c7e97692",
+    "scripts/build_admission_examples.py": "b41f6f78d83e76dbb8b238aad959e2af65d49c8cc9bd5b91fed6e2c206703603",
+    "scripts/build_icmp_examples.py": "916eda59e1b20a4375bc4a779eadd76d4493de933cd0cbf5071b15e09bbebb51"
+  }
+}

@@ -432,6 +432,40 @@ ICMP packets are retained as native evidence, while their generation remains out
 Input fragmentation, gateway reassembly, options, PMTU discovery, offloads, resource failures, and kernel refinement remain separate work.
 The [MTU guide](MTU.md) defines the schema, proofs, and complete assumptions.
 
+## Generated ICMP forwarding errors
+
+The `wire-icmp` command adds generated Time Exceeded and Fragmentation Needed to the selected whole-input UDP profile.
+It reuses the existing transit processing, NAT configuration, filters, and ordinary-table observations.
+Rejection kind and reported MTU come from the computed transit outcome.
+Return routing supplies effective MTU, initial source, and output TTL.
+Identification is an explicit nondeterministic choice rather than a proved allocator result.
+
+The model checks source, destination, configured broadcast addresses, and link-group suppression.
+It constructs a post-destination-NAT quotation and restores its tuple through related NAT in the opposite connection direction.
+Incremental checksum arithmetic proves valid translation without requiring unquoted application bytes.
+Inverse translation restores the exact input quote packet and UDP checksum.
+The IPv4 header checksum can use either valid zero representation.
+
+The quote budget is the smaller of input length and `min(returnMTU, 576) - 28`.
+Quoted IPv4 and UDP lengths continue to describe the original complete input.
+The quotation parser accepts truncation, while complete quoted UDP datagrams receive checksum validation.
+An incomplete quote establishes no whole-transport checksum validity.
+
+Generated control packets traverse separate related-state output and late policies.
+Their processing preserves the transit model's table effects.
+Fresh rejected candidates remain unconfirmed, and earlier cached reply observations survive.
+A control error does not establish application authorization because TTL and DF rejection precede forward filtering.
+
+Replay schema one adds `icmpProfile`, per-configuration `output` and `icmpLate` snapshots, and per-packet `icmpOutput` arrays.
+The checker derives semantic fields independently of the supplied identification choice.
+It checks complete output presence, wire validity, quotation semantics, and table observations in order.
+Observed mismatches cannot replace computed state.
+
+The fresh capture retains twelve ICMP errors and checks related output hooks, NAT correction, quotation boundaries, TOS, and checksum omission.
+The selected profile requires disabled rate limiting and successful allocation and transmission.
+Received errors, PMTU-cache evolution, input fragments, extensions, concurrency, and kernel implementation refinement remain separate work.
+The [ICMP guide](ICMP.md) records the schema, proofs, native recipe, and environmental assumptions.
+
 ## Static stateful filter refinement
 
 The `stateful-refines` command checks permission inclusion between two stateful source chains.
@@ -946,7 +980,8 @@ Constant packet rewrites and one local timed source-NAPT model have the separate
 Fixed-endpoint tuple translation and ordinary forwarded-packet replay also have explicit domain and evidence limits.
 The selected byte-derived UDP model adds payload-preserving NAT, checksum regeneration, and TTL handling under its stated assumptions.
 The MTU extension adds output fragmentation and strict family reassembly.
-ICMP generation, input reassembly, full transport behavior, and kernel refinement remain separate work.
+The ICMP extension adds selected local error generation and related quotation NAT.
+Received ICMP, input reassembly, full transport behavior, and kernel refinement remain separate work.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.

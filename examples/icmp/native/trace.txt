@@ -1,0 +1,448 @@
+trace id ea7b6dc2 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 18821 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 29546 
+trace id ea7b6dc2 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id ea7b6dc2 ip netlib_trace before policy accept 
+trace id ea7b6dc2 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 18821 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 29546 
+trace id ea7b6dc2 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id ea7b6dc2 ip netlib_tracking prerouting policy accept 
+trace id ea7b6dc2 ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 18821 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 29546 
+trace id ea7b6dc2 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id ea7b6dc2 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 18821 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 33183 
+trace id ea7b6dc2 ip netlib_trace afterDestination policy accept 
+trace id ea7b6dc2 ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 18821 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 33183 
+trace id ea7b6dc2 ip netlib forward policy drop 
+trace id d3d8ac34 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 19568 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 50038 
+trace id d3d8ac34 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id d3d8ac34 ip netlib_trace before policy accept 
+trace id d3d8ac34 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 19568 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 50038 
+trace id d3d8ac34 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id d3d8ac34 ip netlib_tracking prerouting policy accept 
+trace id d3d8ac34 ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 19568 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 50038 
+trace id d3d8ac34 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id d3d8ac34 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 19568 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 53675 
+trace id d3d8ac34 ip netlib_trace afterDestination policy accept 
+trace id d3d8ac34 ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 19568 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 53675 
+trace id d3d8ac34 ip netlib forward policy drop 
+trace id c3de9885 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20034 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 9537 
+trace id c3de9885 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id c3de9885 ip netlib_trace before policy accept 
+trace id c3de9885 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20034 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 9537 
+trace id c3de9885 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id c3de9885 ip netlib_tracking prerouting policy accept 
+trace id c3de9885 ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20034 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 9537 
+trace id c3de9885 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id c3de9885 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20034 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 13174 
+trace id c3de9885 ip netlib_trace afterDestination policy accept 
+trace id c3de9885 ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 13174 
+trace id c3de9885 ip netlib forward unknown rule handle 2 (verdict accept)
+trace id c3de9885 ip netlib_trace beforeSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 13174 
+trace id c3de9885 ip netlib_trace beforeSource policy accept 
+trace id c3de9885 ip netlib_nat source packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 13174 
+trace id c3de9885 ip netlib_nat source rule ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 snat to 203.0.113.1:40000 comment "SNAT_PEER" (verdict accept)
+trace id c3de9885 ip netlib_trace afterSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 48478 
+trace id c3de9885 ip netlib_trace afterSource policy accept 
+trace id c3de9885 ip netlib_icmp_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 48478 
+trace id c3de9885 ip netlib_icmp_late late policy accept 
+trace id c3de9885 ip netlib_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20034 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 48478 
+trace id c3de9885 ip netlib_late late policy accept 
+trace id bee1d9cd ip netlib_trace before packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64973 ip length 66 udp sport 9000 udp dport 40000 udp length 46 udp checksum 52977 
+trace id bee1d9cd ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id bee1d9cd ip netlib_trace before policy accept 
+trace id bee1d9cd ip netlib_tracking prerouting packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64973 ip length 66 udp sport 9000 udp dport 40000 udp length 46 udp checksum 52977 
+trace id bee1d9cd ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id bee1d9cd ip netlib_tracking prerouting policy accept 
+trace id bee1d9cd ip netlib_trace afterDestination packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64973 ip length 66 udp sport 9000 udp dport 41000 udp length 46 udp checksum 17673 
+trace id bee1d9cd ip netlib_trace afterDestination policy accept 
+trace id 0d5726e9 ip netlib_icmp outputBefore packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 0d5726e9 ip netlib_icmp outputBefore policy accept 
+trace id 0d5726e9 ip netlib_icmp outputRelated packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 0d5726e9 ip netlib_icmp outputRelated policy accept 
+trace id 0d5726e9 ip netlib_icmp_output output packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 0d5726e9 ip netlib_icmp outputAfter packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_icmp outputAfter policy accept 
+trace id 0d5726e9 ip netlib_trace beforeSource packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_trace beforeSource policy accept 
+trace id 0d5726e9 ip netlib_trace afterSource packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_trace afterSource policy accept 
+trace id 0d5726e9 ip netlib_icmp_late late packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_icmp_late late policy accept 
+trace id 0d5726e9 ip netlib_late late packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 62673 ip length 94 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0d5726e9 ip netlib_late late policy accept 
+trace id 14f0bcfa ip netlib_trace before packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 65144 ip length 58 udp sport 9000 udp dport 40000 udp length 38 udp checksum 3255 
+trace id 14f0bcfa ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 14f0bcfa ip netlib_trace before policy accept 
+trace id 14f0bcfa ip netlib_tracking prerouting packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 65144 ip length 58 udp sport 9000 udp dport 40000 udp length 38 udp checksum 3255 
+trace id 14f0bcfa ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 14f0bcfa ip netlib_tracking prerouting policy accept 
+trace id 14f0bcfa ip netlib_trace afterDestination packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 65144 ip length 58 udp sport 9000 udp dport 41000 udp length 38 udp checksum 33486 
+trace id 14f0bcfa ip netlib_trace afterDestination policy accept 
+trace id 14f0bcfa ip netlib forward packet: iif "service0" oif "auth0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 65144 ip length 58 udp sport 9000 udp dport 41000 udp length 38 udp checksum 33486 
+trace id 14f0bcfa ip netlib forward unknown rule handle 3 (verdict accept)
+trace id 14f0bcfa ip netlib_trace beforeSource packet: iif "service0" oif "auth0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 65144 ip length 58 udp sport 9000 udp dport 41000 udp length 38 udp checksum 33486 
+trace id 14f0bcfa ip netlib_trace beforeSource policy accept 
+trace id 14f0bcfa ip netlib_trace afterSource packet: iif "service0" oif "auth0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 65144 ip length 58 udp sport 8080 udp dport 41000 udp length 38 udp checksum 29849 
+trace id 14f0bcfa ip netlib_trace afterSource policy accept 
+trace id 14f0bcfa ip netlib_icmp_late late packet: iif "service0" oif "auth0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 65144 ip length 58 udp sport 8080 udp dport 41000 udp length 38 udp checksum 29849 
+trace id 14f0bcfa ip netlib_icmp_late late policy accept 
+trace id 14f0bcfa ip netlib_late late packet: iif "service0" oif "auth0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 65144 ip length 58 udp sport 8080 udp dport 41000 udp length 38 udp checksum 29849 
+trace id 14f0bcfa ip netlib_late late policy accept 
+trace id ebd845f4 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20179 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 9361 
+trace id ebd845f4 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id ebd845f4 ip netlib_trace before policy accept 
+trace id ebd845f4 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20179 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 9361 
+trace id ebd845f4 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id ebd845f4 ip netlib_tracking prerouting policy accept 
+trace id ebd845f4 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 20179 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 12998 
+trace id ebd845f4 ip netlib_trace afterDestination policy accept 
+trace id ebd845f4 ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 20179 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 12998 
+trace id ebd845f4 ip netlib forward policy drop 
+trace id 950dc379 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64768 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 41580 
+trace id 950dc379 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 950dc379 ip netlib_trace before policy accept 
+trace id 950dc379 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64768 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 41580 
+trace id 950dc379 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 950dc379 ip netlib_tracking prerouting policy accept 
+trace id 950dc379 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64768 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 45217 
+trace id 950dc379 ip netlib_trace afterDestination policy accept 
+trace id e94cf993 ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id e94cf993 ip netlib_icmp outputBefore policy accept 
+trace id e94cf993 ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id e94cf993 ip netlib_icmp outputRelated policy accept 
+trace id e94cf993 ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id e94cf993 ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_icmp outputAfter policy accept 
+trace id e94cf993 ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_trace beforeSource policy accept 
+trace id e94cf993 ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_trace afterSource policy accept 
+trace id e94cf993 ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_icmp_late late policy accept 
+trace id e94cf993 ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8335 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id e94cf993 ip netlib_late late policy accept 
+trace id 00848458 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64769 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 43819 
+trace id 00848458 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 00848458 ip netlib_trace before policy accept 
+trace id 00848458 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64769 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 43819 
+trace id 00848458 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 00848458 ip netlib_tracking prerouting policy accept 
+trace id 00848458 ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64769 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 43819 
+trace id 00848458 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id 00848458 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64769 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 47456 
+trace id 00848458 ip netlib_trace afterDestination policy accept 
+trace id 6a22dd0f ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 6a22dd0f ip netlib_icmp outputBefore policy accept 
+trace id 6a22dd0f ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 6a22dd0f ip netlib_icmp outputRelated policy accept 
+trace id 6a22dd0f ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 6a22dd0f ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_icmp outputAfter policy accept 
+trace id 6a22dd0f ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_trace beforeSource policy accept 
+trace id 6a22dd0f ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_trace afterSource policy accept 
+trace id 6a22dd0f ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_icmp_late late policy accept 
+trace id 6a22dd0f ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8489 ip length 576 icmp type destination-unreachable icmp code 4 icmp id 0 icmp sequence 600 
+trace id 6a22dd0f ip netlib_late late policy accept 
+trace id 1eb67107 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64770 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 41593 
+trace id 1eb67107 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 1eb67107 ip netlib_trace before policy accept 
+trace id 1eb67107 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64770 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 41593 
+trace id 1eb67107 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 1eb67107 ip netlib_tracking prerouting policy accept 
+trace id 1eb67107 ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64770 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 41593 
+trace id 1eb67107 ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id 1eb67107 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 1 ip id 64770 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 45230 
+trace id 1eb67107 ip netlib_trace afterDestination policy accept 
+trace id 0e3443bd ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 0e3443bd ip netlib_icmp outputBefore policy accept 
+trace id 0e3443bd ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 0e3443bd ip netlib_icmp outputRelated policy accept 
+trace id 0e3443bd ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 0e3443bd ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_icmp outputAfter policy accept 
+trace id 0e3443bd ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_trace beforeSource policy accept 
+trace id 0e3443bd ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_trace afterSource policy accept 
+trace id 0e3443bd ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_icmp_late late policy accept 
+trace id 0e3443bd ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn not-ect ip ttl 64 ip id 8813 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0e3443bd ip netlib_late late policy accept 
+trace id bfea442e ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64771 ip length 600 udp sport 41000 udp dport 8080 udp length 580 udp checksum 533 
+trace id bfea442e ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id bfea442e ip netlib_trace before policy accept 
+trace id bfea442e ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64771 ip length 600 udp sport 41000 udp dport 8080 udp length 580 udp checksum 533 
+trace id bfea442e ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id bfea442e ip netlib_tracking prerouting policy accept 
+trace id bfea442e ip netlib_nat destination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64771 ip length 600 udp sport 41000 udp dport 8080 udp length 580 udp checksum 533 
+trace id bfea442e ip netlib_nat destination rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE" (verdict accept)
+trace id bfea442e ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64771 ip length 600 udp sport 41000 udp dport 9000 udp length 580 udp checksum 4170 
+trace id bfea442e ip netlib_trace afterDestination policy accept 
+trace id bfea442e ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 41000 udp dport 9000 udp length 580 udp checksum 4170 
+trace id bfea442e ip netlib forward unknown rule handle 2 (verdict accept)
+trace id bfea442e ip netlib_trace beforeSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 41000 udp dport 9000 udp length 580 udp checksum 4170 
+trace id bfea442e ip netlib_trace beforeSource policy accept 
+trace id bfea442e ip netlib_nat source packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 41000 udp dport 9000 udp length 580 udp checksum 4170 
+trace id bfea442e ip netlib_nat source rule ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 snat to 203.0.113.1:40000 comment "SNAT_PEER" (verdict accept)
+trace id bfea442e ip netlib_trace afterSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 40000 udp dport 9000 udp length 580 udp checksum 39474 
+trace id bfea442e ip netlib_trace afterSource policy accept 
+trace id bfea442e ip netlib_icmp_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 40000 udp dport 9000 udp length 580 udp checksum 39474 
+trace id bfea442e ip netlib_icmp_late late policy accept 
+trace id bfea442e ip netlib_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64771 ip length 600 udp sport 40000 udp dport 9000 udp length 580 udp checksum 39474 
+trace id bfea442e ip netlib_late late policy accept 
+trace id 10d6672d ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64772 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 38736 
+trace id 10d6672d ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 10d6672d ip netlib_trace before policy accept 
+trace id 10d6672d ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64772 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 38736 
+trace id 10d6672d ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 10d6672d ip netlib_tracking prerouting policy accept 
+trace id 10d6672d ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64772 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 42373 
+trace id 10d6672d ip netlib_trace afterDestination policy accept 
+trace id 10d6672d ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64772 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 42373 
+trace id 10d6672d ip netlib forward unknown rule handle 2 (verdict accept)
+trace id 10d6672d ip netlib_trace beforeSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64772 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 42373 
+trace id 10d6672d ip netlib_trace beforeSource policy accept 
+trace id 10d6672d ip netlib_trace afterSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64772 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 12142 
+trace id 10d6672d ip netlib_trace afterSource policy accept 
+trace id 10d6672d ip netlib_icmp_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64772 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 12142 
+trace id 10d6672d ip netlib_icmp_late late policy accept 
+trace id 10d6672d ip netlib_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64772 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 12142 
+trace id 10d6672d ip netlib_late late policy accept 
+trace id 5aa5b043 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64773 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 5aa5b043 ip netlib_trace before policy accept 
+trace id 5aa5b043 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64773 ip length 1228 udp sport 41000 udp dport 8080 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 5aa5b043 ip netlib_tracking prerouting policy accept 
+trace id 5aa5b043 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 64773 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_trace afterDestination policy accept 
+trace id 5aa5b043 ip netlib forward packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64773 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib forward unknown rule handle 2 (verdict accept)
+trace id 5aa5b043 ip netlib_trace beforeSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64773 ip length 1228 udp sport 41000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_trace beforeSource policy accept 
+trace id 5aa5b043 ip netlib_trace afterSource packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64773 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_trace afterSource policy accept 
+trace id 5aa5b043 ip netlib_icmp_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64773 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_icmp_late late policy accept 
+trace id 5aa5b043 ip netlib_late late packet: iif "auth0" oif "service0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 64773 ip length 1228 udp sport 40000 udp dport 9000 udp length 1208 udp checksum 0 
+trace id 5aa5b043 ip netlib_late late policy accept 
+trace id c3de9885 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64774 ip length 63 udp sport 41000 udp dport 8080 udp length 43 udp checksum 10975 
+trace id c3de9885 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id c3de9885 ip netlib_trace before policy accept 
+trace id c3de9885 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64774 ip length 63 udp sport 41000 udp dport 8080 udp length 43 udp checksum 10975 
+trace id c3de9885 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id c3de9885 ip netlib_tracking prerouting policy accept 
+trace id c3de9885 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64774 ip length 63 udp sport 41000 udp dport 9000 udp length 43 udp checksum 14612 
+trace id c3de9885 ip netlib_trace afterDestination policy accept 
+trace id 0873d2e3 ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 0873d2e3 ip netlib_icmp outputBefore policy accept 
+trace id 0873d2e3 ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 0873d2e3 ip netlib_icmp outputRelated policy accept 
+trace id 0873d2e3 ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 0873d2e3 ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_icmp outputAfter policy accept 
+trace id 0873d2e3 ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_trace beforeSource policy accept 
+trace id 0873d2e3 ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_trace afterSource policy accept 
+trace id 0873d2e3 ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_icmp_late late policy accept 
+trace id 0873d2e3 ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 9354 ip length 91 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 0873d2e3 ip netlib_late late policy accept 
+trace id c41e7a78 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64775 ip length 64 udp sport 41000 udp dport 8080 udp length 44 udp checksum 12129 
+trace id c41e7a78 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id c41e7a78 ip netlib_trace before policy accept 
+trace id c41e7a78 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64775 ip length 64 udp sport 41000 udp dport 8080 udp length 44 udp checksum 12129 
+trace id c41e7a78 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id c41e7a78 ip netlib_tracking prerouting policy accept 
+trace id c41e7a78 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64775 ip length 64 udp sport 41000 udp dport 9000 udp length 44 udp checksum 15766 
+trace id c41e7a78 ip netlib_trace afterDestination policy accept 
+trace id 276d2cce ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 276d2cce ip netlib_icmp outputBefore policy accept 
+trace id 276d2cce ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 276d2cce ip netlib_icmp outputRelated policy accept 
+trace id 276d2cce ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 276d2cce ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_icmp outputAfter policy accept 
+trace id 276d2cce ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_trace beforeSource policy accept 
+trace id 276d2cce ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_trace afterSource policy accept 
+trace id 276d2cce ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_icmp_late late policy accept 
+trace id 276d2cce ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9377 ip length 92 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 276d2cce ip netlib_late late policy accept 
+trace id f5ebbc6c ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64776 ip length 547 udp sport 41000 udp dport 8080 udp length 527 udp checksum 27017 
+trace id f5ebbc6c ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id f5ebbc6c ip netlib_trace before policy accept 
+trace id f5ebbc6c ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64776 ip length 547 udp sport 41000 udp dport 8080 udp length 527 udp checksum 27017 
+trace id f5ebbc6c ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id f5ebbc6c ip netlib_tracking prerouting policy accept 
+trace id f5ebbc6c ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64776 ip length 547 udp sport 41000 udp dport 9000 udp length 527 udp checksum 30654 
+trace id f5ebbc6c ip netlib_trace afterDestination policy accept 
+trace id b1b17d10 ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id b1b17d10 ip netlib_icmp outputBefore policy accept 
+trace id b1b17d10 ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id b1b17d10 ip netlib_icmp outputRelated policy accept 
+trace id b1b17d10 ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id b1b17d10 ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_icmp outputAfter policy accept 
+trace id b1b17d10 ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_trace beforeSource policy accept 
+trace id b1b17d10 ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_trace afterSource policy accept 
+trace id b1b17d10 ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_icmp_late late policy accept 
+trace id b1b17d10 ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 9562 ip length 575 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b1b17d10 ip netlib_late late policy accept 
+trace id 7d32e374 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x1f ip ecn ect0 ip ttl 1 ip id 64777 ip length 548 udp sport 41000 udp dport 8080 udp length 528 udp checksum 24765 
+trace id 7d32e374 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 7d32e374 ip netlib_trace before policy accept 
+trace id 7d32e374 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x1f ip ecn ect0 ip ttl 1 ip id 64777 ip length 548 udp sport 41000 udp dport 8080 udp length 528 udp checksum 24765 
+trace id 7d32e374 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 7d32e374 ip netlib_tracking prerouting policy accept 
+trace id 7d32e374 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp 0x1f ip ecn ect0 ip ttl 1 ip id 64777 ip length 548 udp sport 41000 udp dport 9000 udp length 528 udp checksum 28402 
+trace id 7d32e374 ip netlib_trace afterDestination policy accept 
+trace id bbc7b23f ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id bbc7b23f ip netlib_icmp outputBefore policy accept 
+trace id bbc7b23f ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id bbc7b23f ip netlib_icmp outputRelated policy accept 
+trace id bbc7b23f ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id bbc7b23f ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_icmp outputAfter policy accept 
+trace id bbc7b23f ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_trace beforeSource policy accept 
+trace id bbc7b23f ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_trace afterSource policy accept 
+trace id bbc7b23f ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_icmp_late late policy accept 
+trace id bbc7b23f ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 9858 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id bbc7b23f ip netlib_late late policy accept 
+trace id 74eed073 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64778 ip length 549 udp sport 41000 udp dport 8080 udp length 529 udp checksum 5847 
+trace id 74eed073 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 74eed073 ip netlib_trace before policy accept 
+trace id 74eed073 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64778 ip length 549 udp sport 41000 udp dport 8080 udp length 529 udp checksum 5847 
+trace id 74eed073 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 74eed073 ip netlib_tracking prerouting policy accept 
+trace id 74eed073 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64778 ip length 549 udp sport 41000 udp dport 9000 udp length 529 udp checksum 9484 
+trace id 74eed073 ip netlib_trace afterDestination policy accept 
+trace id c70098bf ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id c70098bf ip netlib_icmp outputBefore policy accept 
+trace id c70098bf ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id c70098bf ip netlib_icmp outputRelated policy accept 
+trace id c70098bf ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id c70098bf ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_icmp outputAfter policy accept 
+trace id c70098bf ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_trace beforeSource policy accept 
+trace id c70098bf ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_trace afterSource policy accept 
+trace id c70098bf ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_icmp_late late policy accept 
+trace id c70098bf ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 10024 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c70098bf ip netlib_late late policy accept 
+trace id 8ffbd493 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64779 ip length 576 udp sport 41000 udp dport 8080 udp length 556 udp checksum 5641 
+trace id 8ffbd493 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 8ffbd493 ip netlib_trace before policy accept 
+trace id 8ffbd493 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64779 ip length 576 udp sport 41000 udp dport 8080 udp length 556 udp checksum 5641 
+trace id 8ffbd493 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 8ffbd493 ip netlib_tracking prerouting policy accept 
+trace id 8ffbd493 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp 0x07 ip ecn ce ip ttl 1 ip id 64779 ip length 576 udp sport 41000 udp dport 9000 udp length 556 udp checksum 9278 
+trace id 8ffbd493 ip netlib_trace afterDestination policy accept 
+trace id 9f1b1462 ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id 9f1b1462 ip netlib_icmp outputBefore policy accept 
+trace id 9f1b1462 ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id 9f1b1462 ip netlib_icmp outputRelated policy accept 
+trace id 9f1b1462 ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id 9f1b1462 ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_icmp outputAfter policy accept 
+trace id 9f1b1462 ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_trace beforeSource policy accept 
+trace id 9f1b1462 ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_trace afterSource policy accept 
+trace id 9f1b1462 ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_icmp_late late policy accept 
+trace id 9f1b1462 ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x37 ip ecn ect0 ip ttl 64 ip id 10197 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id 9f1b1462 ip netlib_late late policy accept 
+trace id bf480473 ip netlib_trace before packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64780 ip length 577 udp sport 41000 udp dport 8080 udp length 557 udp checksum 0 
+trace id bf480473 ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id bf480473 ip netlib_trace before policy accept 
+trace id bf480473 ip netlib_tracking prerouting packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64780 ip length 577 udp sport 41000 udp dport 8080 udp length 557 udp checksum 0 
+trace id bf480473 ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id bf480473 ip netlib_tracking prerouting policy accept 
+trace id bf480473 ip netlib_trace afterDestination packet: iif "auth0" ether saddr 02:00:00:00:ea:02 ether daddr 02:00:00:00:ea:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp 0x2a ip ecn ce ip ttl 1 ip id 64780 ip length 577 udp sport 41000 udp dport 9000 udp length 557 udp checksum 0 
+trace id bf480473 ip netlib_trace afterDestination policy accept 
+trace id b8bb170e ip netlib_icmp outputBefore packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id b8bb170e ip netlib_icmp outputBefore policy accept 
+trace id b8bb170e ip netlib_icmp outputRelated packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id b8bb170e ip netlib_icmp outputRelated policy accept 
+trace id b8bb170e ip netlib_icmp_output output packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id b8bb170e ip netlib_icmp outputAfter packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_icmp outputAfter policy accept 
+trace id b8bb170e ip netlib_trace beforeSource packet: oif "auth0" ip saddr 192.0.2.1 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_trace beforeSource policy accept 
+trace id b8bb170e ip netlib_trace afterSource packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_trace afterSource policy accept 
+trace id b8bb170e ip netlib_icmp_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_icmp_late late policy accept 
+trace id b8bb170e ip netlib_late late packet: oif "auth0" ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp 0x32 ip ecn ect0 ip ttl 64 ip id 10296 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id b8bb170e ip netlib_late late policy accept 
+trace id 31f2297f ip netlib_trace before packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64781 ip length 575 udp sport 9000 udp dport 40000 udp length 555 udp checksum 16781 
+trace id 31f2297f ip netlib_trace before rule meta l4proto udp meta nftrace set 1 (verdict continue)
+trace id 31f2297f ip netlib_trace before policy accept 
+trace id 31f2297f ip netlib_tracking prerouting packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64781 ip length 575 udp sport 9000 udp dport 40000 udp length 555 udp checksum 16781 
+trace id 31f2297f ip netlib_tracking prerouting rule ct state { established, new } counter packets 0 bytes 0 (verdict continue)
+trace id 31f2297f ip netlib_tracking prerouting policy accept 
+trace id 31f2297f ip netlib_trace afterDestination packet: iif "service0" ether saddr 02:00:00:00:eb:02 ether daddr 02:00:00:00:eb:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn ce ip ttl 1 ip id 64781 ip length 575 udp sport 9000 udp dport 41000 udp length 555 udp checksum 47012 
+trace id 31f2297f ip netlib_trace afterDestination policy accept 
+trace id c08126a6 ip netlib_icmp outputBefore packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_icmp outputBefore rule meta l4proto icmp meta nftrace set 1 (verdict continue)
+trace id c08126a6 ip netlib_icmp outputBefore policy accept 
+trace id c08126a6 ip netlib_icmp outputRelated packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_icmp outputRelated rule ct state related counter packets 0 bytes 0 comment "ICMP_RELATED" (verdict continue)
+trace id c08126a6 ip netlib_icmp outputRelated policy accept 
+trace id c08126a6 ip netlib_icmp_output output packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_icmp_output output rule meta l4proto icmp ct state related accept (verdict accept)
+trace id c08126a6 ip netlib_icmp outputAfter packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_icmp outputAfter policy accept 
+trace id c08126a6 ip netlib_trace beforeSource packet: oif "service0" ip saddr 198.51.100.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_trace beforeSource policy accept 
+trace id c08126a6 ip netlib_trace afterSource packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_trace afterSource policy accept 
+trace id c08126a6 ip netlib_icmp_late late packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_icmp_late late policy accept 
+trace id c08126a6 ip netlib_late late packet: oif "service0" ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs6 ip ecn ect0 ip ttl 64 ip id 796 ip length 576 icmp type time-exceeded icmp code 0 icmp id 0 icmp sequence 0 
+trace id c08126a6 ip netlib_late late policy accept 

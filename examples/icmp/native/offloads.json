@@ -1,0 +1,478 @@
+[
+  {
+    "namespace": "peer",
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "peer",
+        "python3",
+        "/task/wire/exercise.py",
+        "offload",
+        "peer0"
+      ],
+      "startNs": 62833468808336,
+      "endNs": 62833488804739,
+      "returncode": 0,
+      "stdout": "{\"interface\": \"peer0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 62833485926491, \"endNs\": 62833485934116}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 62833485937450, \"endNs\": 62833485956991}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 62833485958825, \"endNs\": 62833485960616}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833485962741, \"endNs\": 62833485964075}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 62833485965033, \"endNs\": 62833485966325}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833485967116, \"endNs\": 62833485968075}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 62833485968950, \"endNs\": 62833485969866}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 62833485970533, \"endNs\": 62833485973825}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 62833485974741, \"endNs\": 62833485975825}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833485976616, \"endNs\": 62833485977533}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 62833485978158, \"endNs\": 62833485979158}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833485979783, \"endNs\": 62833485980741}]}\n",
+      "stderr": ""
+    },
+    "interface": "peer0",
+    "before": {
+      "txChecksum": 1,
+      "tso": 0,
+      "gso": 1,
+      "gro": 0
+    },
+    "after": {
+      "txChecksum": 0,
+      "tso": 0,
+      "gso": 0,
+      "gro": 0
+    },
+    "operations": [
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833485926491,
+        "endNs": 62833485934116
+      },
+      {
+        "command": 23,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485937450,
+        "endNs": 62833485956991
+      },
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485958825,
+        "endNs": 62833485960616
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485962741,
+        "endNs": 62833485964075
+      },
+      {
+        "command": 31,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485965033,
+        "endNs": 62833485966325
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485967116,
+        "endNs": 62833485968075
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833485968950,
+        "endNs": 62833485969866
+      },
+      {
+        "command": 36,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485970533,
+        "endNs": 62833485973825
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485974741,
+        "endNs": 62833485975825
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485976616,
+        "endNs": 62833485977533
+      },
+      {
+        "command": 44,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485978158,
+        "endNs": 62833485979158
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833485979783,
+        "endNs": 62833485980741
+      }
+    ]
+  },
+  {
+    "namespace": "auth",
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "python3",
+        "/task/wire/exercise.py",
+        "offload",
+        "auth0"
+      ],
+      "startNs": 62833488830656,
+      "endNs": 62833508598227,
+      "returncode": 0,
+      "stdout": "{\"interface\": \"auth0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 62833505677645, \"endNs\": 62833505685229}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 62833505688729, \"endNs\": 62833505711604}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 62833505713479, \"endNs\": 62833505715270}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833505717395, \"endNs\": 62833505718812}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 62833505719895, \"endNs\": 62833505721145}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833505722062, \"endNs\": 62833505723104}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 62833505723979, \"endNs\": 62833505724979}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 62833505725687, \"endNs\": 62833505729312}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 62833505730229, \"endNs\": 62833505731354}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833505732187, \"endNs\": 62833505733145}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 62833505733854, \"endNs\": 62833505734854}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833505735562, \"endNs\": 62833505736562}]}\n",
+      "stderr": ""
+    },
+    "interface": "auth0",
+    "before": {
+      "txChecksum": 1,
+      "tso": 0,
+      "gso": 1,
+      "gro": 0
+    },
+    "after": {
+      "txChecksum": 0,
+      "tso": 0,
+      "gso": 0,
+      "gro": 0
+    },
+    "operations": [
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833505677645,
+        "endNs": 62833505685229
+      },
+      {
+        "command": 23,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505688729,
+        "endNs": 62833505711604
+      },
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505713479,
+        "endNs": 62833505715270
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505717395,
+        "endNs": 62833505718812
+      },
+      {
+        "command": 31,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505719895,
+        "endNs": 62833505721145
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505722062,
+        "endNs": 62833505723104
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833505723979,
+        "endNs": 62833505724979
+      },
+      {
+        "command": 36,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505725687,
+        "endNs": 62833505729312
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505730229,
+        "endNs": 62833505731354
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505732187,
+        "endNs": 62833505733145
+      },
+      {
+        "command": 44,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505733854,
+        "endNs": 62833505734854
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833505735562,
+        "endNs": 62833505736562
+      }
+    ]
+  },
+  {
+    "namespace": "auth",
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "python3",
+        "/task/wire/exercise.py",
+        "offload",
+        "service0"
+      ],
+      "startNs": 62833508617393,
+      "endNs": 62833527105215,
+      "returncode": 0,
+      "stdout": "{\"interface\": \"service0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 62833524275175, \"endNs\": 62833524281550}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 62833524284967, \"endNs\": 62833524303717}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 62833524305467, \"endNs\": 62833524307133}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833524309300, \"endNs\": 62833524310675}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 62833524311717, \"endNs\": 62833524312967}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833524313883, \"endNs\": 62833524314883}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 62833524315800, \"endNs\": 62833524316758}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 62833524317508, \"endNs\": 62833524320800}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 62833524321758, \"endNs\": 62833524322883}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833524323758, \"endNs\": 62833524324883}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 62833524325592, \"endNs\": 62833524326633}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833524327342, \"endNs\": 62833524328383}]}\n",
+      "stderr": ""
+    },
+    "interface": "service0",
+    "before": {
+      "txChecksum": 1,
+      "tso": 0,
+      "gso": 1,
+      "gro": 0
+    },
+    "after": {
+      "txChecksum": 0,
+      "tso": 0,
+      "gso": 0,
+      "gro": 0
+    },
+    "operations": [
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833524275175,
+        "endNs": 62833524281550
+      },
+      {
+        "command": 23,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524284967,
+        "endNs": 62833524303717
+      },
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524305467,
+        "endNs": 62833524307133
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524309300,
+        "endNs": 62833524310675
+      },
+      {
+        "command": 31,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524311717,
+        "endNs": 62833524312967
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524313883,
+        "endNs": 62833524314883
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833524315800,
+        "endNs": 62833524316758
+      },
+      {
+        "command": 36,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524317508,
+        "endNs": 62833524320800
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524321758,
+        "endNs": 62833524322883
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524323758,
+        "endNs": 62833524324883
+      },
+      {
+        "command": 44,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524325592,
+        "endNs": 62833524326633
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833524327342,
+        "endNs": 62833524328383
+      }
+    ]
+  },
+  {
+    "namespace": "server",
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "server",
+        "python3",
+        "/task/wire/exercise.py",
+        "offload",
+        "server0"
+      ],
+      "startNs": 62833527125965,
+      "endNs": 62833545070953,
+      "returncode": 0,
+      "stdout": "{\"interface\": \"server0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 62833542321455, \"endNs\": 62833542326830}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 62833542330247, \"endNs\": 62833542343372}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 62833542345080, \"endNs\": 62833542346663}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833542348538, \"endNs\": 62833542349872}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 62833542350830, \"endNs\": 62833542351997}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 62833542352788, \"endNs\": 62833542353747}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 62833542354622, \"endNs\": 62833542355538}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 62833542356205, \"endNs\": 62833542359288}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 62833542360163, \"endNs\": 62833542361205}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833542361955, \"endNs\": 62833542362872}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 62833542363538, \"endNs\": 62833542364455}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 62833542365122, \"endNs\": 62833542366038}]}\n",
+      "stderr": ""
+    },
+    "interface": "server0",
+    "before": {
+      "txChecksum": 1,
+      "tso": 0,
+      "gso": 1,
+      "gro": 0
+    },
+    "after": {
+      "txChecksum": 0,
+      "tso": 0,
+      "gso": 0,
+      "gro": 0
+    },
+    "operations": [
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833542321455,
+        "endNs": 62833542326830
+      },
+      {
+        "command": 23,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542330247,
+        "endNs": 62833542343372
+      },
+      {
+        "command": 22,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542345080,
+        "endNs": 62833542346663
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542348538,
+        "endNs": 62833542349872
+      },
+      {
+        "command": 31,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542350830,
+        "endNs": 62833542351997
+      },
+      {
+        "command": 30,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542352788,
+        "endNs": 62833542353747
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 1,
+        "startNs": 62833542354622,
+        "endNs": 62833542355538
+      },
+      {
+        "command": 36,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542356205,
+        "endNs": 62833542359288
+      },
+      {
+        "command": 35,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542360163,
+        "endNs": 62833542361205
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542361955,
+        "endNs": 62833542362872
+      },
+      {
+        "command": 44,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542363538,
+        "endNs": 62833542364455
+      },
+      {
+        "command": 43,
+        "requested": 0,
+        "result": 0,
+        "startNs": 62833542365122,
+        "endNs": 62833542366038
+      }
+    ]
+  }
+]

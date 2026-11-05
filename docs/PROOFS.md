@@ -1002,3 +1002,41 @@ The native capture supplies independent socket reassembly, fragment bytes, MTU r
 
 ICMP generation, input reassembly, resource failures, concurrency, kernel refinement, and physical deployment correspondence remain open.
 The [MTU guide](MTU.md) records the selected profile and effective-MTU assumption.
+
+## Generated ICMP errors and quotation NAT
+
+`Netlib/Protocol/ChecksumRewrite.lean` proves modular incremental checksum updates with explicit UDP omission preservation.
+Universal inverse, identity, and composition results cover arbitrary changed-word totals.
+Aligned-byte and full UDP results prove checksum validity for both odd and even payloads.
+
+`Netlib/Protocol/IPv4Quote.lean` preserves original declared lengths while accepting a shorter quoted UDP prefix.
+Its generic round trips reconstruct accepted bytes, and source construction proves exact prefix selection.
+`Netlib/Protocol/ICMP.lean` supplies exact supported error-message codecs and whole-message checksum validity.
+
+`Netlib/Protocol/ICMPNAT.lean` changes the quoted tuple and adjusts the transport checksum without requiring missing payload bytes.
+It preserves quoted application bytes, declared length, metadata, and checksum omission.
+Round-trip translation restores the exact quoted packet, including the UDP checksum.
+Only the validated IPv4 checksum zero representation can differ.
+
+`Netlib/Protocol/ICMPForwarding.lean` derives TTL and DF errors from actual MTU forwarding.
+It checks eligibility, chooses a return path, and applies related output and late filters.
+The effective return MTU bounds the quote and outer packet independently of the reported forward MTU.
+
+`Netlib/Protocol/ICMPForwardingFacts.lean` proves necessary and sufficient generation guards.
+Actual accepted steps bind the error to the same prepared NAT attachment.
+The intermediate translated quote is a prefix of a complete accepted UDP datagram.
+The final quotation restores the input packet prefix through incremental inverse NAT.
+Fresh errors retain no confirmed candidate; cached records and earlier reply updates retain their established effects.
+
+`Netlib/Check/ICMPError.lean` packages raw decoding, reconstruction, and the conditional complete-UDP checksum guarantee.
+Partial quotations make no full transport-checksum claim.
+`Netlib/Check/ICMPForwarding.lean` reuses the MTU observations and shared replay certificate.
+`Report.observed_quote` connects each compliant observed error to its actual emission, source prefix, and generation facts.
+
+`Netlib/Examples/ICMPDeployment.lean` preserves current-session permission for UDP transit.
+Its Logoff theorem excludes UDP transit while allowing independently guarded control errors before forward filtering.
+Native evidence covers related hooks, tuple restoration, full and partial quotes, odd lengths, TOS, and omission.
+
+Identification allocation, return-routing metadata, successful allocation, current installation, capture attribution, and kernel refinement remain explicit boundaries.
+Received ICMP, rate-limit state, input fragments, options, extensions, PMTU discovery, and concurrency remain open.
+See the [ICMP guide](ICMP.md).
