@@ -31,6 +31,7 @@ import Netlib.Check.TCP
 import Netlib.Check.WireTCP
 import Netlib.Check.TCPReceive
 import Netlib.Check.TCPEndpoint
+import Netlib.Check.TCPHandshake
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -61,6 +62,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib tcp-sequence QUERY.json [--json]\n\
   netlib tcp-receive TRACE.json [--json]\n\
   netlib tcp-endpoint TRACE.json [--json]\n\
+  netlib tcp-handshake TRACE.json [--json]\n\
   netlib wire-forward TRACE.json [--json]\n\
   netlib wire-mtu TRACE.json [--json]\n\
   netlib wire-icmp TRACE.json [--json]\n\
@@ -249,6 +251,12 @@ private def tcpReceive (path : String) (json : Bool) : IO UInt32 := do
 
 private def tcpEndpoint (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.TCPEndpoint.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.supported then 0 else 2
+
+private def tcpHandshake (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.TCPHandshake.Input.parse (← IO.FS.readFile path))
   let report ← unwrap input.check
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.supported then 0 else 2
@@ -552,6 +560,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["tcp-receive", path, "--json"] => tcpReceive path true
   | ["tcp-endpoint", path] => tcpEndpoint path false
   | ["tcp-endpoint", path, "--json"] => tcpEndpoint path true
+  | ["tcp-handshake", path] => tcpHandshake path false
+  | ["tcp-handshake", path, "--json"] => tcpHandshake path true
   | ["wire-forward", path] => wireForward path false
   | ["wire-forward", path, "--json"] => wireForward path true
   | ["wire-mtu", path] => wireMTU path false

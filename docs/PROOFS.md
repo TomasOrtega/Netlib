@@ -108,6 +108,21 @@ The theorem requires delivery-history evidence and a finite epoch below half the
 Seed construction, native transmission, eventual delivery, and congestion control remain separate obligations.
 The [application guide](TCP_APPLICATION.md) states the proof contract and command limits.
 
+## Checked TCP startup
+
+`TCP.ControlOutput` proves exact empty SYN, SYN,ACK, and ACK packets without an established-state premise.
+`TCP.Handshake` separates pending SYN control positions from application byte buffers.
+Its successful operations derive application cursors, windows, empty storage, and the default MSS from checked startup messages.
+
+`TCP.HandshakeExchange.Complete` retains actual successful operation equations, exact selected byte paths, and strictly ordered event times.
+It derives complementary cursors and valid endpoint states without caller-supplied seed or cursor proofs.
+Its application theorem connects these states to the paired application prefix result.
+Supported continuation, future delivery history, bounded epochs, a quiet boundary, and current-instance conditions remain explicit assumptions.
+
+`Check.TCPHandshake.Report` retains the actual computed prefix, exact event indices, and the unprocessed suffix.
+A passive seed is absent before final ACK receipt.
+The [startup guide](TCP_HANDSHAKE.md) states the selected interpretation and remaining protocol obligations.
+
 ## Admission around reassembly
 
 `Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.
