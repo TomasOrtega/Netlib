@@ -1,0 +1,4 @@
+net.ipv4.icmp_errors_use_inbound_ifaddr = 0
+net.ipv4.icmp_ratelimit = 0
+net.ipv4.icmp_ratemask = 0
+net.ipv4.ip_default_ttl = 64

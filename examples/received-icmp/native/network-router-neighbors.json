@@ -1,0 +1,1 @@
+[{"dst":"198.51.100.2","dev":"srvlink","lladdr":"02:00:00:00:ec:02","state":["PERMANENT"]},{"dst":"198.51.101.1","dev":"router0","lladdr":"02:00:00:00:eb:01","state":["PERMANENT"]}]

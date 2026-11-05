@@ -387,7 +387,13 @@ private def packetObservation (json : Lean.Json) : Except String PacketObservati
 private def stateObservation (json : Lean.Json) : Except String (Option Import.ConntrackNetlink.Snapshot) :=
   optional Import.ConntrackNetlink.Snapshot.fromJson json
 
-def Input.fromJson (json : Lean.Json) : Except String Input := do
+structure Domain where
+  environment : Environment
+  configs : List Config
+  initial : Tracker
+  initialValid : initial.Valid
+
+def domainFromJson (json : Lean.Json) : Except String Domain := do
   Import.PacketFields.fields json ["schema", "routing", "mtus", "configs", "initial", "events"]
   require ((← (← json.getObjVal? "schema").getNat?) == 1) "Use wire forwarding schema 1."
   let routing ← Check.ConntrackLifecycle.routingFromJson (← json.getObjVal? "routing")
@@ -414,30 +420,35 @@ def Input.fromJson (json : Lean.Json) : Except String Input := do
   let initialSource ← stateObservation (← json.getObjVal? "initial")
   let initial := (initialSource.map Check.ConntrackLifecycle.snapshotState).getD Netlib.Protocol.ConntrackLifecycle.State.initial
   if valid : initial.check = true then
-    let values ← (← json.getObjVal? "events").getArr?
-    let mut observations := []
-    for index in [:values.size] do
-      let value := values[index]!
-      let kind ← (← value.getObjVal? "type").getStr?
-      let event ← match kind with
-        | "packet" => do
-          Import.PacketFields.fields value ["type", "config", "zone", "raw", "observed", "state"]
-          let id ← (← value.getObjVal? "config").getStr?
-          let some config := configs.find? (·.id == id) | throw s!"Unknown wire forwarding configuration: {id}."
-          let zone ← (← value.getObjVal? "zone").getNat?
-          require (zone < 65536) "A conntrack zone must fit in 16 bits."
-          pure (.packet config zone (← wirePacket (← value.getObjVal? "raw"))
-            (← packetObservation (← value.getObjVal? "observed")) (← stateObservation (← value.getObjVal? "state")))
-        | "erase" => do
-          Import.PacketFields.fields value ["type", "zone", "raw", "state"]
-          let zone ← (← value.getObjVal? "zone").getNat?
-          require (zone < 65536) "A conntrack zone must fit in 16 bits."
-          pure (.erase zone (← wirePacket (← value.getObjVal? "raw")) (← stateObservation (← value.getObjVal? "state")))
-        | _ => throw s!"Unsupported wire forwarding event: {kind}."
-      observations := observations ++ [⟨index, event, value⟩]
-    require (observations.any (·.event.isPacket)) "Supply at least one wire packet event."
-    return ⟨environment, configs, initial, (Netlib.Protocol.ConntrackLifecycle.State.check_correct _).mp valid, observations⟩
+    return ⟨environment, configs, initial, (Netlib.Protocol.ConntrackLifecycle.State.check_correct _).mp valid⟩
   else throw "The initial ordinary conntrack table is invalid."
+
+def Input.fromJson (json : Lean.Json) : Except String Input := do
+  let domain ← domainFromJson json
+  let configs := domain.configs
+  let values ← (← json.getObjVal? "events").getArr?
+  let mut observations := []
+  for index in [:values.size] do
+    let value := values[index]!
+    let kind ← (← value.getObjVal? "type").getStr?
+    let event ← match kind with
+      | "packet" => do
+        Import.PacketFields.fields value ["type", "config", "zone", "raw", "observed", "state"]
+        let id ← (← value.getObjVal? "config").getStr?
+        let some config := configs.find? (·.id == id) | throw s!"Unknown wire forwarding configuration: {id}."
+        let zone ← (← value.getObjVal? "zone").getNat?
+        require (zone < 65536) "A conntrack zone must fit in 16 bits."
+        pure (.packet config zone (← wirePacket (← value.getObjVal? "raw"))
+          (← packetObservation (← value.getObjVal? "observed")) (← stateObservation (← value.getObjVal? "state")))
+      | "erase" => do
+        Import.PacketFields.fields value ["type", "zone", "raw", "state"]
+        let zone ← (← value.getObjVal? "zone").getNat?
+        require (zone < 65536) "A conntrack zone must fit in 16 bits."
+        pure (.erase zone (← wirePacket (← value.getObjVal? "raw")) (← stateObservation (← value.getObjVal? "state")))
+      | _ => throw s!"Unsupported wire forwarding event: {kind}."
+    observations := observations ++ [⟨index, event, value⟩]
+  require (observations.any (·.event.isPacket)) "Supply at least one wire packet event."
+  return ⟨domain.environment, configs, domain.initial, domain.initialValid, observations⟩
 
 def Input.parse (text : String) : Except String Input := do
   Input.fromJson (← Import.Json.parse text)

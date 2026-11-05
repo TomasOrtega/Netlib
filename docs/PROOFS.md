@@ -1038,5 +1038,42 @@ Its Logoff theorem excludes UDP transit while allowing independently guarded con
 Native evidence covers related hooks, tuple restoration, full and partial quotes, odd lengths, TOS, and omission.
 
 Identification allocation, return-routing metadata, successful allocation, current installation, capture attribution, and kernel refinement remain explicit boundaries.
-Received ICMP, rate-limit state, input fragments, options, extensions, PMTU discovery, and concurrency remain open.
+This generation layer excludes received ICMP and host PMTU feedback; the next layer connects both.
+Rate-limit state, input fragments, options, extensions, and concurrency remain open.
 See the [ICMP guide](ICMP.md).
+
+## Received errors and host PMTU composition
+
+`Netlib/Protocol/IPv4QuotePrefix.lean` reconstructs untrusted IHL-five quotations without validating their embedded checksums or declarations.
+Its raw flags and accessible transport bytes remain exact data.
+`Netlib/Protocol/ChecksumRewriteRaw.lean` treats IPv4 checksum zero as arithmetic rather than UDP omission.
+`Netlib/Protocol/ICMPPrefixNAT.lean` preserves checksum validity or invalidity, raw metadata, application bytes, and checksum residue through inverse NAT.
+
+`Netlib/Protocol/RelatedICMP.lean` binds reversed quoted tuples and zones to unique confirmed records.
+Association also requires the native outer-destination guard.
+The error's outer source supplies no authentication premise.
+Received processing preserves the complete frozen ordinary table and its existing reply observations.
+
+Related destination translation precedes routing, TTL and DF checks, and forward policy.
+Related source translation and the late policy precede certified fragmentation.
+Theorems establish restored boundary tuples, unchanged quoted TTL, one outer TTL decrement, checksum conditions, and exact family reassembly.
+Inactive NAT stages preserve quoted bytes, including a raw checksum zero.
+
+`Netlib/Protocol/PMTU.lean` models connected-host feedback, floor locking, exception refresh and expiry, and local DF capacity.
+`Netlib/Protocol/PMTUFacts.lean` proves state bounds and all-prefix invariants.
+At one event time, updates cannot raise effective PMTU when the configured lifetime is positive.
+Expiry can restore the physical route MTU across times.
+Matching feedback from an arbitrary reporter can strictly reduce an unlocked cached estimate.
+
+`Netlib/Check/RelatedICMP.lean` compares mixed UDP, received-error, and erase events using the shared replay certificate.
+Its fragment-family comparison includes embedded IPv4 checksum residue, even when that checksum is invalid.
+`Netlib/Check/PMTU.lean` derives updates from received bytes and verifies queries and drained-error send capacity.
+`Report.observed_send` transfers matched send observations to the actual computed cache and capacity result.
+
+`Netlib/Examples/PMTUDeployment.lean` constructs the delivered decoder certificate from actual forwarded and reassembled bytes.
+Its update theorem connects the restored sender tuple to the host's actual PMTU operation while gateway conntrack remains frozen.
+The native four-namespace experiment observes 600-byte discovery, local oversized-send rejection, smaller-payload delivery, and forged-source reduction to 576.
+Post-episode snapshots remain unobserved at earlier intermediate prefixes rather than being attributed to unmeasured states.
+
+Physical timer correspondence, complete host error queues, source identity, broader protocol coverage, concurrency, and implementation refinement remain open.
+The [received-error guide](RECEIVED_ICMP.md) records the exact input and evidence boundaries.

@@ -463,8 +463,45 @@ Observed mismatches cannot replace computed state.
 
 The fresh capture retains twelve ICMP errors and checks related output hooks, NAT correction, quotation boundaries, TOS, and checksum omission.
 The selected profile requires disabled rate limiting and successful allocation and transmission.
-Received errors, PMTU-cache evolution, input fragments, extensions, concurrency, and kernel implementation refinement remain separate work.
+This generation profile excludes received errors and PMTU-cache evolution; the next profile connects both.
+Input fragments, extensions, concurrency, and kernel implementation refinement remain separate work.
 The [ICMP guide](ICMP.md) records the schema, proofs, native recipe, and environmental assumptions.
+
+## Received ICMP and connected-host PMTU
+
+The `wire-related` command processes received UDP-related ICMP errors through confirmed-table lookup, NAT, routing, policy, and output fragmentation.
+It validates outer IPv4 and ICMP checksums while retaining untrusted quoted fields.
+Quoted checksums and declared lengths are not repaired or accepted as original-datagram validity evidence.
+Raw flag bits are preserved; noninitial quoted fragments cannot associate in this selected path.
+
+Association reverses the quoted tuple and looks it up with its zone.
+The outer destination must match the found tuple's destination.
+A missing association creates no candidate.
+Every received-error result preserves the complete frozen connection table, including seen-reply and timeout fields.
+Timeout evolution and concurrent changes remain excluded.
+
+Related destination translation precedes routing and TTL/DF handling.
+Forward and late policies evaluate related state.
+Rejected error packets produce no further ICMP error.
+Permitted output decrements only the outer TTL and may form a certified fragment family.
+The quotation restores the sender-boundary tuple while preserving application bytes, declarations, flags, checksum omission, and checksum residue.
+
+The `host-pmtu` command derives connected UDP feedback from those forwarded error bytes.
+It checks the quoted socket tuple and Fragmentation Needed kind, then applies the configured Linux PMTU update.
+The model includes the minimum floor, locking, equal-update refresh threshold, exception lifetime, and expiration.
+Positive-lifetime updates cannot raise the effective PMTU at that observation time.
+Expired exceptions can restore the physical route MTU.
+
+After pending errors are drained, DF send capacity requires application length plus 28 bytes within the current estimate.
+The replay checks queries and send outcomes without using observations as state replacements.
+The host feedback guard ignores the reporter address; matching forged errors can lower PMTU.
+The selected model establishes association and state bounds, without establishing sender authenticity.
+
+The four-namespace capture preserves EAP application checkpoints and adds a separate fixed-policy control suffix.
+It records real downstream ICMP discovery, local oversized-send rejection, smaller UDP success, malformed quotations, and a forged-source reduction.
+Only the final event using each post-episode table receives that native snapshot.
+All computed prefixes retain their formal validity guarantee.
+The [received-error guide](RECEIVED_ICMP.md) describes both schemas, observation attribution, proofs, and remaining scope.
 
 ## Static stateful filter refinement
 
@@ -981,7 +1018,8 @@ Fixed-endpoint tuple translation and ordinary forwarded-packet replay also have 
 The selected byte-derived UDP model adds payload-preserving NAT, checksum regeneration, and TTL handling under its stated assumptions.
 The MTU extension adds output fragmentation and strict family reassembly.
 The ICMP extension adds selected local error generation and related quotation NAT.
-Received ICMP, input reassembly, full transport behavior, and kernel refinement remain separate work.
+The received-error extension adds confirmed association and connected UDP host PMTU feedback.
+Input reassembly, broader transport behavior, concurrency, and kernel refinement remain separate work.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.

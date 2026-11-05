@@ -84,6 +84,14 @@ import NetlibTest.ICMPForwarding
 import NetlibTest.ICMPError
 import NetlibTest.ICMPForwardingCheck
 import NetlibTest.ICMPDeployment
+import NetlibTest.IPv4QuotePrefix
+import NetlibTest.ChecksumRewriteRaw
+import NetlibTest.ICMPPrefixNAT
+import NetlibTest.RelatedICMP
+import NetlibTest.PMTU
+import NetlibTest.RelatedICMPCheck
+import NetlibTest.PMTUCheck
+import NetlibTest.PMTUDeployment
 import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
@@ -174,5 +182,13 @@ def main : IO Unit := do
   NetlibTest.ICMPError.run
   NetlibTest.ICMPForwardingCheck.run
   NetlibTest.ICMPDeployment.run
+  NetlibTest.IPv4QuotePrefix.run
+  NetlibTest.ChecksumRewriteRaw.run
+  NetlibTest.ICMPPrefixNAT.run
+  NetlibTest.RelatedICMP.tests
+  NetlibTest.PMTU.run
+  NetlibTest.RelatedICMPCheck.run
+  NetlibTest.PMTUCheck.run
+  NetlibTest.PMTUDeployment.run
   NetlibTest.WireNATDeployment.run
   IO.println "Netlib tests passed."

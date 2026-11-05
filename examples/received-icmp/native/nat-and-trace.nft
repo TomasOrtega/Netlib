@@ -1,0 +1,21 @@
+table ip netlib_nat {
+ chain destination { type nat hook prerouting priority -100; policy accept;
+  ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 comment "DNAT_SERVICE"
+ }
+ chain source { type nat hook postrouting priority 100; policy accept;
+  ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 snat to 203.0.113.1:40000 comment "SNAT_PEER"
+ }
+}
+table ip netlib_late {
+ chain late { type filter hook postrouting priority 200; policy accept; }
+}
+table ip netlib_trace {
+ chain before { type filter hook prerouting priority -301; policy accept; meta l4proto { udp, icmp } meta nftrace set 1; }
+ chain afterDestination { type filter hook prerouting priority -90; policy accept; }
+ chain beforeSource { type filter hook postrouting priority 90; policy accept; }
+ chain afterSource { type filter hook postrouting priority 110; policy accept; }
+}
+table ip netlib_received {
+ chain tracked { type filter hook prerouting priority -199; policy accept; meta l4proto icmp ct state related counter comment "RECEIVED_RELATED"; meta l4proto icmp ct state invalid counter comment "RECEIVED_INVALID"; }
+ chain input { type filter hook input priority 0; policy drop; }
+}
