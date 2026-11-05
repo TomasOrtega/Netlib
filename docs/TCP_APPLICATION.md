@@ -38,6 +38,7 @@ The caller supplies the startup and lower-layer size evidence.
 Without a startup MSS option, the caller must use an effective MSS of at most 536.
 The seed also assumes an established connection and its initial window history.
 The [startup extension](TCP_HANDSHAKE.md) constructs these states and their default MSS from actual checked handshake events.
+The [campus extension](CAMPUS_TCP.md) connects their delivery history to actual authenticated gateway service.
 
 Each event has one of these forms:
 

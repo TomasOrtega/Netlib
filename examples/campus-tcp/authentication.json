@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "context": {
+    "consumer": "alice@campus.example.test",
+    "producer": "campus-application",
+    "issuer": "campus-authority"
+  },
+  "link": {
+    "peer": "02:00:00:00:ea:02",
+    "authenticator": "02:00:00:00:ea:01"
+  },
+  "events": [
+    {
+      "type": "begin",
+      "authorized": false
+    },
+    {
+      "type": "frame",
+      "raw": "02000000ea0202000000ea01888e02000006010700060d20",
+      "authorized": false
+    },
+    {
+      "type": "frame",
+      "raw": "02000000ea0102000000ea02888e02000006020700060d00",
+      "authorized": false
+    },
+    {
+      "type": "frame",
+      "raw": "02000000ea0202000000ea01888e0200000403070004",
+      "authorized": false
+    },
+    {
+      "type": "method",
+      "round": 1,
+      "subject": "alice@campus.example.test",
+      "method": 13,
+      "accepted": true,
+      "source": "Constructed external method evidence.",
+      "authorized": true
+    },
+    {
+      "type": "install",
+      "credential": {
+        "issuer": "campus-authority",
+        "subject": "alice@campus.example.test",
+        "audience": "campus-application",
+        "scopes": [
+          {
+            "resource": "campus-application",
+            "operation": "use"
+          }
+        ],
+        "expiresAt": 100,
+        "integrity": true
+      },
+      "authorized": true
+    },
+    {
+      "type": "request",
+      "scope": {
+        "resource": "campus-application",
+        "operation": "use"
+      },
+      "accepted": true,
+      "authorized": true
+    },
+    {
+      "type": "frame",
+      "raw": "0180c200000302000000ea02888e02020000",
+      "authorized": false
+    }
+  ]
+}

@@ -415,6 +415,23 @@ Unsupported phases or omitted RFC actions stop replay.
 The command distinguishes supported partial histories from a completed model exchange.
 The [startup guide](TCP_HANDSHAKE.md) gives the event schema, byte-history conditions, and connection to the application theorem.
 
+## Authenticated campus TCP execution
+
+The `campus-tcp` command combines current EAP evidence, imported policy, ingress attachments, routing, tracked NAT, and checked endpoint operations.
+Assignment selects an earlier actual endpoint output and allocates immutable work.
+Service uses the current stored configuration, actual early guard, selected TCP admission history, and common lifecycle pipeline.
+Receipt bytes must equal an earlier actual gateway emission.
+The input cannot supply replacement established states, source packets, forwarding tuples, or delivery paths.
+
+Comparisons use the authentication prefix at service.
+They never replace the actual installed policy decision.
+Logoff followed by current denial prevents later gateway output, including with a cached binding.
+Previously received bytes remain available to the application.
+
+The selected path has one live modeled gateway and one bounded ordinary TCP connection.
+TCP replication and native tracker refinement remain separate obligations.
+The [campus TCP guide](CAMPUS_TCP.md) gives the timeline schema, assurance contract, and static evidence.
+
 ## Byte-derived NAT and TTL forwarding
 
 The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.

@@ -1,6 +1,7 @@
 import Netlib.Protocol.StatefulFailover
 import Netlib.Protocol.TrackedFlow
 import Netlib.Theory.Outstanding
+import Netlib.Protocol.WireSource
 
 /-!
 # Handoff with outstanding route assignments
@@ -19,10 +20,7 @@ namespace Work
 export Netlib.Theory.Outstanding (Item State Completed newItem enqueue complete)
 end Work
 
-structure Source where
-  bytes : List UInt8
-  packet : UDP.DecodedIPv4
-  decoded : UDP.decodeIPv4 bytes = .ok packet
+abbrev Source := WireSource UDP.DecodedIPv4 UDP.decodeIPv4
 
 theorem Source.encoded (source : Source) : UDP.encodeIPv4 source.packet = .ok source.bytes :=
   UDP.encodeIPv4_decodeIPv4 _ _ source.decoded

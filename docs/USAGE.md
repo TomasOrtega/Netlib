@@ -22,6 +22,15 @@ The [receive-state guide](TCP_RECEIVE.md) describes seeded replay, bounded ACK p
 The [application guide](TCP_APPLICATION.md) adds checked sends, application reads, and peer-window updates.
 The [startup guide](TCP_HANDSHAKE.md) constructs initial application states from checked handshake histories.
 
+## Authenticated campus TCP bytes
+
+```sh
+lake exe netlib campus-tcp examples/campus-tcp/trace.json --json
+```
+
+The [campus TCP guide](CAMPUS_TCP.md) joins endpoint outputs, immutable work, current authentication policy, gateway execution, and application reads.
+It distinguishes current denial from stale installed allow rules and preserves the actual computed outcome.
+
 ## Interface-bound campus admission
 
 ```sh

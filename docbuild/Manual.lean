@@ -1777,6 +1777,69 @@ It does not declare other valid TCP startup features invalid.
 Broader startup, resets, timers, retransmission, congestion control, native refinement, and full campus integration remain open.
 All seven research programs remain OPEN.
 
+# An authenticated campus TCP path
+%%%
+tag := "campus-tcp"
+file := "campus-tcp"
+%%%
+
+The campus TCP replay connects authentication, installed policy, NAT, routing, and application bytes.
+Local endpoint configuration supplies sockets and sequence choices.
+Actual gateway receipts supply the startup inputs and derived application states.
+The input cannot supply replacement established states or arbitrary delivery paths.
+
+Assignment stores an earlier endpoint output in an immutable ticket.
+Service consumes that ticket through the current stored ingress and forward policies.
+The comparison uses the consumed authentication prefix at service time.
+A stale allow configuration can still emit bytes and fail comparison.
+The model retains that actual result.
+
+Each operation has its actual position in the joint replay:
+
+```lean
+open Netlib.Check.CampusTCPModel in
+example (input : Input) (events : List Event)
+    (report : Report input events) :
+    report.steps.map (·.before.time) =
+      List.range' 0 report.steps.length :=
+  report.indices
+```
+
+One lifecycle preparation supplies the TCP gate and forwarding execution.
+The gate learns startup positions from the observed SYN and SYN,ACK.
+It retains a valid reply observation even when a later filter drops the packet.
+Successful forwarding supplies exact translated bytes, checksums, TTL, and route evidence.
+Application delivery must use those actual output bytes.
+
+The final history checker links each application receive to its earlier output, assignment, and service.
+The paired application theorem states that reads form a prefix of peer writes.
+The constructed example reads `abc` at the server and `xyz` at the client.
+It then queues another packet, consumes Logoff, and installs current denial.
+The cached NAT entry cannot bypass that denial.
+
+Early ingress denial preserves the gateway state:
+
+```lean
+open Netlib.Check.CampusTCPService in
+example
+    (value : Evidence context before source zone ingress)
+    (denied : value.checks.decision source = false) :
+    value.tracker = before.tracker ∧
+      value.admission = before.admission ∧
+      value.output = none :=
+  value.early_preserves denied
+```
+
+Denial prevents later gateway output; it does not erase earlier receive storage.
+Buffered bytes can remain readable after Logoff.
+Their permission evidence refers to the earlier gateway service.
+The CLI provides `campus-tcp` and reports actual bytes, decisions, service comparisons, and the unprocessed suffix.
+
+This profile has one modeled gateway and one bounded ordinary TCP connection.
+Native Linux TCP tracker refinement, physical delivery, interface interpretation, credential integrity, and cryptography require separate arguments.
+TCP replication, failure recovery, and the full campus demonstration remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"
