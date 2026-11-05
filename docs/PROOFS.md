@@ -76,6 +76,23 @@ Its pure `FlowNAT` helper connects derived wire headers to the existing bidirect
 Earlier fragment provenance remains a separate reassembly proof.
 The [TCP guide](TCP.md) distinguishes these results from connection semantics and native implementation refinement.
 
+## TCP receive projection
+
+`TCP.ReceiveWindow` proves the exact four sequence tests, translation invariance, and explicit edge laws.
+Its counterexample distinguishes first-or-last sequence acceptance from general interval overlap.
+The segment adapter counts SYN and FIN positions and derives the occupied-length bound from codec validity.
+
+`TCP.EstablishedReceive` proves the fixed ACK arc, bounded buffer changes, and exact payload append.
+ACK advancement removes the acknowledged prefix and preserves `SND.NXT`.
+An old ACK inside the permitted arc can accompany new data.
+The NAT result preserves the receive decision for matching valid endpoint contexts after certified rewriting.
+The checked replay retains source bytes and actual computed results through its processed prefix.
+It stops at the first `Unsupported` result.
+
+The caller supplies the pre-established seed and its assumed sent bytes.
+The proofs do not establish a handshake, actual transmission history, ACK emission, or Linux conntrack acceptance.
+The [receive-state guide](TCP_RECEIVE.md) states the bounds and remaining obligations.
+
 ## Admission around reassembly
 
 `Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.

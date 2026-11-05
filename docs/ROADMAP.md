@@ -105,6 +105,12 @@ Reserved fields and transport content survive rewriting; fresh endpoint generati
 Static independent fixtures include checksum arithmetic, option bounds, sequence wrap, and conditional order laws.
 Connection-state semantics, negotiated options, native TCP tracking, retransmission, and full stack correspondence remain open.
 
+The [TCP receive extension](TCP_RECEIVE.md) proves exact window tests and bounded ACK processing for a seeded endpoint.
+Its receive projection preserves buffer bounds and connects actual decoded bytes to payload append and acknowledged-prefix removal.
+Checked replay stops before omitted control or storage actions can affect later state.
+Seed transmission history remains assumed.
+Handshake provenance, send-window updates, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
 Status-aware rewrite algebra and original-flow policy audits have separate proofs.

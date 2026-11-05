@@ -361,6 +361,28 @@ Fragment provenance remains a separate arrival and output-validity obligation.
 These results establish no handshake, receive-window acceptance, acknowledgment validity, retransmission behavior, or native TCP classification.
 The [TCP guide](TCP.md) states the commands, proofs, static evidence, and remaining transport obligations.
 
+## TCP receive projection
+
+The `tcp-receive` command evaluates raw IPv4 packets against an explicit pre-established endpoint seed.
+The caller supplies the initial state and sent-byte buffer.
+The caller assumes that the endpoint transmitted these buffer bytes.
+The state contains a TCP tuple, receive capacity and bytes, and send cursors.
+It must satisfy buffer bounds, an unscaled capacity limit, and the stated short-arc conditions.
+The seed does not prove an earlier handshake or transmission.
+
+The profile uses the four sequence tests and the selected RFC 5961 DATA defense with fixed `MAX.SND.WND = 65535`.
+Supported data must start at `RCV.NXT`.
+Its byte count must not exceed the free receive window.
+An old ACK inside the permitted arc can accompany new data.
+Advancing ACKs remove the exact sent-byte prefix and preserve `SND.NXT`.
+ACK requests remain separate from emitted packets.
+
+Out-of-profile control fields and options require an unsupported continuation before ordinary sequence processing.
+This scope classification prevents zero-window RST and URG inputs from becoming false supported rejections.
+Partial overlap and out-of-order storage also remain unsupported.
+Replay retains the processed prefix and stops at its first unsupported result.
+The [receive-state guide](TCP_RECEIVE.md) defines the command, bounds, static evidence, and remaining endpoint obligations.
+
 ## Byte-derived NAT and TTL forwarding
 
 The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.

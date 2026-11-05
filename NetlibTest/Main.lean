@@ -121,6 +121,9 @@ import NetlibTest.TCPSequenceSpace
 import NetlibTest.TCPIPv4
 import NetlibTest.TCPRewrite
 import NetlibTest.TCPReassembly
+import NetlibTest.TCPReceiveWindow
+import NetlibTest.TCPEstablishedReceive
+import NetlibTest.TCPReceiveCheck
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -266,4 +269,7 @@ def main : IO Unit := do
   NetlibTest.TCPIPv4.run
   NetlibTest.TCPRewrite.run
   NetlibTest.TCPReassembly.run
+  NetlibTest.TCPReceiveWindow.run
+  NetlibTest.TCPEstablishedReceive.run
+  NetlibTest.TCPReceiveCheck.run
   IO.println "Netlib tests passed."

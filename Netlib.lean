@@ -175,5 +175,8 @@ import Netlib.Protocol.TCP.SequenceSpace
 import Netlib.Protocol.TCP.IPv4
 import Netlib.Protocol.TCP.Rewrite
 import Netlib.Protocol.TCP.Reassembly
+import Netlib.Protocol.TCP.ReceiveWindow
+import Netlib.Protocol.TCP.EstablishedReceive
 import Netlib.Check.TCP
 import Netlib.Check.WireTCP
+import Netlib.Check.TCPReceive
