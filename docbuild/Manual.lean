@@ -741,6 +741,80 @@ The frozen model does not evolve a clock or establish state completeness.
 Status checks reject the explicit-helper bit but do not identify every automatic helper attachment.
 Transport acceptance, hook ordering, checksums, payload effects, kernel refinement, and live delivery need further arguments.
 
+# Tracked forwarding and policy changes
+%%%
+tag := "lifecycle"
+file := "lifecycle"
+%%%
+
+The ordinary forwarding lifecycle attaches a tuple before the modeled hooks.
+It applies destination translation, destination routing, and the forward filter in that order.
+Source translation and a late postrouting filter follow.
+Only then can a fresh candidate become a confirmed record.
+Fresh route, forward, and late drops leave the ordinary confirmed table unchanged.
+
+Packet classification and attachment freshness are separate.
+An original packet remains new until the record has seen a reply.
+It can therefore be classified new while reusing a confirmed binding.
+Such a packet does not reread new NAT rules.
+A valid reply is classified established and sets seen-reply before later filters.
+That state update survives a later filter drop.
+It does not prove that the client received the reply.
+
+The source adapters preserve ordered stateful filter decisions for all supplied state labels and headers.
+The fixed NAT adapter preserves first-match endpoint rewrites at the two supported stages.
+The replay derives a fresh candidate from those imported NAT rules only on a lookup miss.
+It uses the stored binding for an existing attachment.
+Native allocation, transport validation, and the correctness of the parser remain separate obligations.
+
+Explicit deletion removes both direction keys of a record.
+It preserves ordinary-table validity:
+
+```lean
+open Netlib.Protocol.ConntrackLifecycle in
+example (state : State) (zone : Nat)
+    (packet : Netlib.Packet.Header) (valid : state.Valid) :
+    (state.erase zone packet).Valid :=
+  state.erase_valid zone packet valid
+```
+
+The operation trace binds each result to its exact step and incoming state.
+The audit report preserves every supplied event in order.
+A passing report means agreement with all packet observations and every supplied stable-state observation.
+Missing state observations remain distinct from declared empty states.
+Observed values do not replace the state computed by the model.
+
+```
+lake exe netlib lifecycle examples/lifecycle/replay.json --json
+lake exe netlib stateful-refines examples/lifecycle/native/forward-established-only.json examples/lifecycle/native/forward-initial.json --json
+```
+
+The native experiment records nine UDP packets, 30 chain visits, and eight table snapshots.
+It shows a dropped first reply setting seen-reply without application delivery.
+It also shows cached NAT bindings surviving rule changes, including packets still classified new.
+After deletion, the old original becomes fresh and is denied under the changed rules.
+
+The static filter comparison checks every modeled state label and packet header:
+
+```lean
+open Netlib.Check.StatefulRefinement Netlib.Import in
+example (stronger : NftablesStateful.Snapshot)
+    (weaker : NftablesStateful.Snapshot) :
+    check stronger weaker = true ↔
+      Meaning stronger weaker :=
+  check_correct stronger weaker
+```
+
+Native comparisons also require the same hook and priority.
+A failed comparison has a concrete state and header counterexample.
+The default budget covers 100,000 cells across all five state labels.
+Static inclusion does not prove a safe cutover, revoke an existing flow, or compare changing NAT and route contexts.
+
+The lifecycle assumes valid unfragmented packets whose tracker accepts the modeled attachment.
+TCP reopening, tracker replacement, expiry, concurrent changes, helper expectations, related traffic, and allocation races are outside the model.
+The native experiment supplies no TCP transport-state evidence.
+The proofs establish the modeled lifecycle and structural invariants, without kernel C refinement or a complete upgrade contract.
+
 # Documentation process
 %%%
 tag := "documentation"

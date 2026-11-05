@@ -9,6 +9,8 @@ import Netlib.Compile.Nftables
 import Netlib.Import.TransferConfig
 import Netlib.Check.NATTrace
 import Netlib.Check.Conntrack
+import Netlib.Check.ConntrackLifecycle
+import Netlib.Check.StatefulRefinement
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -27,6 +29,8 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib nat-trace TRACE.json [--budget N] [--json]\n\
   netlib conntrack SNAPSHOT INTENT.json [--budget N] [--json]\n\
   netlib conntrack-map RAW.json ZONE HEADER.json [--json]\n\
+  netlib lifecycle TRACE.json [--json]\n\
+  netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
   netlib wifi AP.conf [DEPLOYMENT.json] [--json]\n\
@@ -182,6 +186,36 @@ private def conntrackMap (path zoneText headerPath : String) (json : Bool) : IO 
     IO.println result.pretty
   return if associated then 0 else 1
 
+private def lifecycle (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.ConntrackLifecycle.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
+private def stateText : Packet.StatefulACL.CTState → String
+  | .new => "new" | .established => "established" | .related => "related"
+  | .invalid => "invalid" | .untracked => "untracked"
+
+private def statefulRefines (strongerPath weakerPath : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let stronger ← unwrap (Import.NftablesStateful.Snapshot.parse (← IO.FS.readFile strongerPath))
+  let weaker ← unwrap (Import.NftablesStateful.Snapshot.parse (← IO.FS.readFile weakerPath))
+  let passed ← unwrap (Check.StatefulRefinement.checkBudget stronger weaker budget)
+  let witness := if passed then none else Check.StatefulRefinement.counterexample stronger weaker
+  if !passed && witness.isNone then throw (IO.userError "Stateful refinement lost its counterexample.")
+  let counterexample := witness.map fun context => Lean.Json.mkObj [
+    ("state", Lean.toJson (stateText context.state)), ("packet", Import.PacketFields.headerJson context.header)]
+  let result := Lean.Json.mkObj [
+    ("refines", Lean.toJson passed), ("scope", Lean.toJson "all-state-header-filter-refinement"),
+    ("hook", Lean.toJson stronger.hook), ("priority", Lean.toJson stronger.priority),
+    ("partitionCells", Lean.toJson (Check.StatefulRefinement.cellCount stronger weaker)),
+    ("counterexample", counterexample.getD .null)]
+  if json then IO.println result.pretty
+  else
+    IO.println (if passed then "REFINES" else "DOES NOT REFINE")
+    IO.println "Scope: every modeled conntrack state and packet header at the same hook and priority."
+    IO.println result.pretty
+  return if passed then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -242,6 +276,14 @@ private def run (args : List String) : IO UInt32 := do
   | ["conntrack", path, policy, "--budget", budget, "--json"] => conntrack path policy (← budgetValue budget) true
   | ["conntrack-map", path, zone, header] => conntrackMap path zone header false
   | ["conntrack-map", path, zone, header, "--json"] => conntrackMap path zone header true
+  | ["lifecycle", path] => lifecycle path false
+  | ["lifecycle", path, "--json"] => lifecycle path true
+  | ["stateful-refines", stronger, weaker] => statefulRefines stronger weaker 100000 false
+  | ["stateful-refines", stronger, weaker, "--json"] => statefulRefines stronger weaker 100000 true
+  | ["stateful-refines", stronger, weaker, "--budget", budget] =>
+    statefulRefines stronger weaker (← budgetValue budget) false
+  | ["stateful-refines", stronger, weaker, "--budget", budget, "--json"] =>
+    statefulRefines stronger weaker (← budgetValue budget) true
   | ["fiveg", path] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) false
   | ["fiveg", path, "--json"] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) true
   | ["fiveg-coverage"] => standardsReport FiveG.coverage false

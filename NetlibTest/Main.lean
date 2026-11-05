@@ -41,6 +41,12 @@ import NetlibTest.NetfilterNAT
 import NetlibTest.ConntrackImport
 import NetlibTest.ConntrackNetlink
 import NetlibTest.ConntrackAudit
+import NetlibTest.StatefulACL
+import NetlibTest.ConntrackLifecycle
+import NetlibTest.NftablesStateful
+import NetlibTest.NftablesNAT
+import NetlibTest.StatefulRefinement
+import NetlibTest.ConntrackLifecycleAudit
 
 open Netlib
 
@@ -83,4 +89,10 @@ def main : IO Unit := do
   NetlibTest.ConntrackImport.run
   NetlibTest.ConntrackNetlink.run
   NetlibTest.ConntrackAudit.run
+  NetlibTest.StatefulACL.run
+  NetlibTest.ConntrackLifecycle.run
+  NetlibTest.NftablesStateful.run
+  NetlibTest.NftablesNAT.run
+  NetlibTest.StatefulRefinement.run
+  NetlibTest.ConntrackLifecycleAudit.run
   IO.println "Netlib tests passed."

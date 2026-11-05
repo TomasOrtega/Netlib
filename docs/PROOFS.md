@@ -514,6 +514,114 @@ Reply tuples in `packets.json` are derived by reversing the server wire tuple.
 They are not independent captures of reply IP headers before NAT.
 The collision and late-drop attempts are finite observations, not universal kernel guarantees.
 
+## Stateful filters and fixed NAT compilation
+
+`Netlib/Packet/StatefulACL.lean` adds an optional connection-state selection to each ordered header rule.
+`Rule.accepts_iff` connects Boolean evaluation to the independent `Rule.Matches` predicate.
+`Policy.lookup_eq_some_iff` and `default_deny_iff` retain first-match semantics.
+`lookup_specialize`, `evaluate_specialize`, and `allows_specialize` prove that fixing one state gives an equivalent ordinary ACL.
+`allows_ofACL` and `evaluate_eq_of_unguarded` recover the original stateless behavior.
+These results consume a supplied state label; they do not classify native packets.
+
+`Netlib/Import/NftablesSyntax.lean` shares the pinned envelope and header-match decoder.
+The original `Import.Nftables` adapter remains stateless and forward-only.
+It continues to reject connection-state predicates and NAT statements.
+The separate `Import.NftablesStateful` profile retains header and state expression indices, handles, and source IDs.
+`SourceRule.compile_accepts` preserves each structured source match.
+`Snapshot.compile_evaluate` and `compile_allows` preserve the entire ordered chain and explicit policy for every state and header.
+Parser tests check symbolic and numeric state forms, rejected expressions, and the unchanged stateless subset.
+They do not prove JSON decoding or native execution.
+
+`Netlib/Import/NftablesNAT.lean` represents fixed endpoint targets in separate destination and source chains.
+`SourceRule.compile_accepts`, `compile_translate`, and `compile_rules` connect compiled rules to independent structured source evaluation.
+`Snapshot.destination_correct` and `source_correct` preserve the first matching target at each stage.
+A matching identity target still stops the chain; a miss preserves the incoming header.
+`candidate_original`, `candidate_reply`, and `candidate_output` define the resulting tuple proposal.
+`candidate_compatible` proves compatibility under the stated protocol, zone, and direction-key conditions.
+The proposal does not establish allocation, port preservation by a native allocator, or successful confirmation.
+
+## Ordinary forwarded-packet lifecycle
+
+`Netlib/Protocol/ConntrackLifecycle.lean` attaches one tuple before the modeled hooks.
+It separates a fresh unconfirmed candidate from a confirmed record.
+Processing applies destination NAT, longest-prefix destination routing, the forward filter, source NAT, and the late filter.
+A fresh candidate reaches ordinary confirmation only after these stages permit it.
+Confirmation rejects combined-key collisions.
+Intermediate headers retain the original attachment; they do not trigger another lookup.
+
+| Declaration | Guarantee |
+| --- | --- |
+| `State.check_correct`, `State.markReply_valid` | Validation and seen-reply updates preserve compatible entries and unique combined tuple keys. |
+| `prepare_model` | Attachment and seen-reply updates preserve the stored tuple table. |
+| `stages_correct`, `step_output` | A forwarded exact input produces the stored flow's complete boundary output. |
+| `step_filters` | A forwarded result has a selected route and passes the forward filter after destination NAT and the late filter after source NAT. |
+| `step_forwarded_iff` | An output exists exactly for a forwarded disposition. |
+| `step_fresh_drop` | A fresh route, forward, or late drop leaves the confirmed state unchanged. |
+| `step_reply_state` | An existing reply is established and marks seen-reply even when a later stage drops it. |
+| `step_existing_original` | An existing original retains its stored binding and is new or established according to the prior seen-reply flag. |
+| `run_trace`, `run_valid` | Ordered calls agree with model transitions and preserve structural table validity. |
+
+An unreplied existing original remains `new` while its attachment has `fresh = false`.
+The model therefore reuses its binding after NAT rules change.
+`established_first_permits` proves the effect of a leading established permit.
+The lifecycle tests combine it with a dropped first reply to show later original traffic passing a policy that denies new traffic.
+Deleting the entry makes that original a fresh lookup and exposes it to the new-flow denial.
+Structural table validity does not establish policy authorization or transport handshakes.
+
+`Netlib/Protocol/ConntrackOperations.lean` adds explicit deletion and policy selection for each packet call.
+`State.erase_valid` preserves table validity; `erase_lookup` removes the selected association's lookup result.
+Both direction keys disappear together.
+`Operations.ExecutionTrace` binds every returned result to its exact operation and preceding state.
+`ExecutionTrace.toTransition` transfers this trace to the generic transition relation.
+`Operations.invariant` and `Execution.final_valid` preserve structural validity through packet calls and deletions.
+
+`Netlib/Check/ConntrackLifecycle.lean` derives fresh proposals from the selected parsed NAT table.
+`Event.existing_binding` excludes candidate regeneration on every lookup hit, including an unreplied `new` original.
+`Event.fresh_candidate` identifies the source of each proposal on a miss.
+Observations never advance the model.
+`Report.covered` preserves every supplied event and its order.
+`Report.compliant_iff` proves exact agreement with all supplied packet fields and table observations along the modeled operations.
+`ReplayTrace` binds each finding's actual result to its dynamic preceding state.
+`Report.prefixes_valid` covers the final table and every reported prefix.
+
+`sameRecords_correct` proves mutual record membership after timeout normalization.
+Comparison keeps both tuples, zones, NAT flags, and seen-reply.
+It ignores timeout seconds, native IDs, marks, use counts, record order, and other supported status metadata.
+Raw records and source metadata remain retained evidence.
+A null event state means no table observation; a null initial state declares an empty initial table.
+Mismatch produces a noncompliant report, while unsupported input or model errors produce no report.
+The audited proof dependencies use only standard Lean foundations.
+
+The retained lifecycle experiment contains nine UDP packets, 30 traced chain visits, and eight table snapshots.
+The replay matches all ten operations, including one explicit deletion.
+The independent evidence verifier checks the retained native traces, raw messages, and socket observations.
+The [lifecycle guide](LIFECYCLE.md) records the pinned producers and capture recipe.
+This is finite native evidence, not a formal refinement of kernel C or a full TCP lifecycle validation.
+
+The input domain requires valid unfragmented IPv4 TCP/UDP packets whose transport tracker accepts the modeled attachment.
+TCP reopen, replacement, and `NF_REPEAT` are excluded.
+So are expiry, concurrent changes, helpers, related traffic, offload, hidden clash objects, and race or allocator recovery.
+Routing and the exclusive NAT/filter hook sequence must match the supplied stable context.
+Selected traffic must have faithful observations and complete event coverage.
+The proofs do not establish those assumptions or physical delivery.
+
+## Static stateful filter refinement
+
+`Netlib/Check/StatefulRefinement.lean` compares all five labels: new, established, related, invalid, and untracked.
+For each label, `rules_allows` connects ACL specialization to the structured source chain.
+Exact header partitions then cover every modeled header.
+`check_correct` proves permission inclusion for every state/header context.
+`sameContext_iff` characterizes the equal-hook and equal-priority check used by the budgeted command.
+`checkBudget_correct` gives the same meaning to each completed result.
+The default budget is 100,000 cells, summed across all five states.
+Exhaustion or a context mismatch returns an error without a refinement answer.
+
+`counterexample_sound` proves that each returned state/header context is permitted by the proposed stronger filter and denied by the weaker filter.
+`counterexample_none_iff` connects absence of a counterexample to universal permission inclusion.
+These contexts need not be reachable in a native packet history.
+The comparison does not cover routes, NAT allocation, stored bindings, revocation, or a whole-network upgrade contract.
+In particular, static inclusion does not prove that a policy update removes old flows.
+
 ## Stateful composition and execution
 
 `Netlib/Packet/Processor.lean` returns an updated store and an optional packet.

@@ -4,6 +4,8 @@ The conntrack adapter checks reported IPv4 TCP and UDP flow tuples.
 It separates a frozen tuple association from policy permission and packet admission.
 It does not turn a kernel snapshot into grants in the local timed NAPT model.
 
+Use the [lifecycle guide](LIFECYCLE.md) for ordered tracked forwarding, native NAT snapshots, and stateful filter refinement.
+
 ## Commands
 
 ```sh

@@ -261,11 +261,69 @@ def conntrack_checks():
         invoke("conntrack-map", invalid, "0", header, code=2)
 
 
+def lifecycle_checks():
+    from build_lifecycle_example import build
+    from check_lifecycle_capture import selected_rule
+
+    directory = ROOT / "examples/lifecycle"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    for relative, digest in provenance["files"].items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, replay = build()
+    assert evidence == json.loads((directory / "checked-evidence.json").read_text())
+    assert replay == json.loads((directory / "replay.json").read_text())
+    result = json.loads(invoke("lifecycle", directory / "replay.json", "--json"))
+    assert result["compliant"] and result["eventCount"] == 10 and len(result["findings"]) == 10
+    assert result["scope"] == "ordinary-forwarded-packet-lifecycle" and result["final"] == []
+    assert all(finding["matched"] for finding in result["findings"])
+    assert sum(finding["stateObserved"] for finding in result["findings"]) == 8
+    cached = result["findings"][3]["expected"]
+    assert cached["classification"] == "new" and not cached["fresh"]
+    assert cached["afterDestination"]["destinationPort"] == 9000
+    assert cached["afterSource"]["sourcePort"] == 40000
+    seen = result["findings"][4]
+    assert seen["expected"]["output"] is None and seen["expectedState"][0]["seenReply"]
+    initial = directory / "native/forward-initial.json"
+    established = directory / "native/forward-established-only.json"
+    refined = json.loads(invoke("stateful-refines", established, initial, "--json"))
+    assert refined["refines"] and refined["scope"] == "all-state-header-filter-refinement"
+    cells = refined["partitionCells"]
+    invoke("stateful-refines", established, initial, "--budget", str(cells))
+    invoke("stateful-refines", established, initial, "--budget", str(cells - 1), code=2)
+    invoke("stateful-refines", established, initial, "--budget", "invalid", code=2)
+    witness = json.loads(invoke("stateful-refines", initial, established, "--json", code=1))[
+        "counterexample"
+    ]
+    for path, expected in [(initial, "accept"), (established, "drop")]:
+        document = json.loads(path.read_text())
+        assert selected_rule(
+            document, "netlib_filter", "forward", witness["state"], witness["packet"]
+        )[1] == {expected: None}
+    invoke("stateful-refines", directory / "native/late.json", initial, code=2)
+    with tempfile.TemporaryDirectory(prefix="netlib-lifecycle-") as folder:
+        path = Path(folder) / "changed.json"
+        altered = json.loads(json.dumps(replay))
+        altered["events"][3]["observed"]["fresh"] = True
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("lifecycle", path, "--json", code=1))
+        assert not failed["findings"][3]["matched"] and failed["findings"][4]["matched"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"][4]["state"]["entries"][0]["status"] &= ~2
+        path.write_text(json.dumps(altered))
+        failed = json.loads(invoke("lifecycle", path, "--json", code=1))
+        assert not failed["findings"][4]["stateMatched"] and failed["findings"][5]["matched"]
+        altered = json.loads(json.dumps(replay))
+        altered["configs"][0]["late"]["nftables"][2]["chain"]["prio"] = 100
+        path.write_text(json.dumps(altered))
+        invoke("lifecycle", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
     stateful_checks()
     conntrack_checks()
+    lifecycle_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -323,7 +381,7 @@ def main():
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
     print(
-        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, and conntrack commands."
+        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, and lifecycle commands."
     )
 
 

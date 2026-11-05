@@ -1,0 +1,161 @@
+[
+  {
+    "phase": "forward-drop",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31002,
+        "destinationPort": 8082
+      },
+      "payload": "forward-drop"
+    },
+    "server": null
+  },
+  {
+    "phase": "late-drop",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31003,
+        "destinationPort": 8081
+      },
+      "payload": "late-drop"
+    },
+    "server": null
+  },
+  {
+    "phase": "first-original",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "first-original"
+    },
+    "server": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "first-original"
+    }
+  },
+  {
+    "phase": "unreplied-after-nat-update",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "unreplied-after-nat-update"
+    },
+    "server": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "unreplied-after-nat-update"
+    }
+  },
+  {
+    "phase": "first-reply-dropped",
+    "sent": {
+      "packet": {
+        "source": "198.51.100.2",
+        "destination": "203.0.113.1",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 40000
+      },
+      "payload": "first-reply-dropped"
+    },
+    "client": null
+  },
+  {
+    "phase": "existing-after-update",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "existing-after-update"
+    },
+    "server": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "existing-after-update"
+    },
+    "reply": {
+      "packet": {
+        "source": "198.51.100.2",
+        "destination": "203.0.113.1",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 40000
+      },
+      "payload": "reply-after-update"
+    },
+    "client": {
+      "packet": {
+        "source": "203.0.113.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 8080,
+        "destinationPort": 31000
+      },
+      "payload": "reply-after-update"
+    }
+  },
+  {
+    "phase": "fresh-after-update",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 8080
+      },
+      "payload": "fresh-after-update"
+    },
+    "server": null
+  },
+  {
+    "phase": "old-after-delete",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "old-after-delete"
+    },
+    "server": null
+  }
+]

@@ -206,6 +206,18 @@ An effective conntrack zone together with the complete input five-tuple for one 
 **Tuple projection**:
 The frozen association between an entry's input header and its direction-specific output header.
 
+**Confirmed record**:
+An ordinary connection record installed after the modeled final confirmation step.
+
+**Fresh attachment**:
+A new packet association created after a tuple lookup miss, before confirmation.
+
+**Seen reply**:
+A tracking flag set after the tracker accepts a reply, before later filter decisions.
+
+**Context refinement**:
+Permission inclusion for every declared packet header and connection-state label at a fixed processing position.
+
 **Prefix**:
 An address block defined by a base address and the number of shared initial bits.
 

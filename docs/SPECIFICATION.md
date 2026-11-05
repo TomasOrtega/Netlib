@@ -234,6 +234,128 @@ These observations support the demonstrated cases, without proving kernel C refi
 Upstream Linux v6.8 supplies the source reference; distribution patches remain outside that correspondence.
 The [conntrack guide](CONNTRACK.md) defines the commands, supported records, and capture procedure.
 
+## Stateful filters and fixed NAT snapshots
+
+`Packet.StatefulACL` combines the existing header match with an optional connection-state selection.
+The first matching rule supplies the action, followed by the explicit fallback.
+The five labels are `new`, `established`, `related`, `invalid`, and `untracked`.
+The matcher has independent propositional semantics.
+Specialization at one fixed label gives an equivalent ordinary ACL for every header.
+Unguarded rules recover the original stateless behavior.
+The label is an input to this filter model; it does not establish transport state or authorization.
+
+The shared nftables syntax decoder preserves the original stateless adapter's forward-only subset.
+That adapter still rejects state predicates and NAT statements.
+`Import.NftablesStateful` separately accepts one IPv4 filter chain at forward or postrouting.
+It preserves ordered header/state matches, the chain policy, handles, and source expression indices.
+Its compiler agrees with structured source evaluation for every supplied label and header.
+
+`Import.NftablesNAT` accepts one IPv4 table with destination NAT at prerouting priority -100 and source NAT at postrouting priority 100.
+Both chains have NAT type and accept policy.
+Each rule has supported header matches and one fixed address target with an optional port.
+The first matching target stops its chain, including an identity target.
+A miss preserves the header, and an omitted target port preserves its incoming value in this model.
+Ranges, maps, dynamic targets, masquerade, extra chains, and side effects are unsupported.
+
+The structured NAT compiler preserves source-rule matching and endpoint translation.
+Its candidate records the original tuple and reversed translated tuple, with NAT flags derived from endpoint changes.
+Compatibility follows under explicit protocol, zone, and distinct-key conditions.
+This candidate is a proposal, not proof of native allocation or port preservation.
+The replay assumes that a confirmed fixed proposal is the applicable native allocation.
+It rejects confirmation collisions instead of simulating native remapping or race recovery.
+
+## Ordinary forwarded-packet lifecycle
+
+`Protocol.ConntrackLifecycle` gives ordinary forwarded packets an explicit hook sequence.
+A confirmed record contains a compatible tuple pair and a seen-reply flag.
+Lookup uses the complete input header and zone once, before the stages below.
+A miss requires a separate unconfirmed candidate whose original tuple and zone match the input.
+Intermediate packet rewrites retain that attachment.
+
+Processing follows this order:
+
+1. Classify the attached original or reply and mark seen-reply for an existing valid reply.
+2. Apply destination NAT, including inverse source NAT for replies.
+3. Select the longest matching destination route using that translated destination.
+4. Evaluate the stateful forward filter on the packet after destination NAT.
+5. Apply source NAT, including inverse destination NAT for replies.
+6. Evaluate the late filter on the packet after source NAT.
+7. Confirm a fresh candidate only if all prior stages permit it and its combined keys remain unique.
+
+A missing next hop, a forward denial, or a late denial produces no output.
+A fresh drop leaves the confirmed table unchanged.
+An existing reply can mark seen-reply even when one of those later stages drops it.
+The next original can therefore be established without an application receiving that first reply.
+These transitions do not infer a completed transport handshake.
+
+An existing original is `new` before seen-reply and `established` afterward.
+Both cases reuse the stored binding with `fresh = false`.
+Changing NAT rules does not recreate that binding merely because the current original is `new`.
+A leading established permit can also preserve old traffic after the filter starts denying new traffic.
+Structural validity proves compatible records and unique lookup keys, without establishing the current policy's authorization of every stored flow.
+
+`Protocol.ConntrackOperations` adds an explicit erase operation by either directional key.
+It removes both directions of the associated record and preserves structural validity.
+Its execution trace binds every returned result to the exact operation and preceding table.
+Packet calls can select different policy snapshots within that ordered trace.
+The model does not infer an erase from a later table observation.
+
+The `lifecycle` checker accepts schema 1 with routing, named configurations, an initial table, and ordered events.
+Routing imports the pinned iproute2 6.19.0 main-table slice and trusted device bindings.
+Each configuration contains separate forward, late, and fixed NAT snapshots.
+The forward chain must use the forward hook.
+The late chain must use postrouting with priority greater than 100 and less than 2147483647.
+This places it after source NAT and before modeled confirmation.
+
+The checker derives a candidate from the selected NAT table only on a lookup miss.
+The input cannot supply a candidate or an authorization Boolean.
+Observations do not update the modeled table.
+Every packet observation compares classification, freshness, both stage headers, next hop, disposition, and final output.
+Every supplied state observation compares both tuples, zones, NAT flags, and seen-reply after the operation.
+Timeout seconds, IDs, marks, use counts, other supported status metadata, and record order do not affect that comparison.
+Native records and metadata remain retained evidence.
+
+Root `initial: null` declares an empty initial table.
+Event `state: null` records no table observation; it does not assert an empty table.
+An initial native table normalizes timeout evidence to zero for replay without asserting expiration.
+`Report.covered` preserves all events in order.
+`Report.compliant_iff` states exact agreement with the complete supplied observation list.
+`Report.prefixes_valid` proves structural validity of every modeled prefix and the final table.
+Observation mismatch gives a noncompliant report.
+Malformed input, unsupported execution, or confirmation collision gives an error without a compliance answer.
+
+The native lifecycle evidence records nine UDP packets, 30 traced chain visits, and eight table observations.
+All ten replay operations, including one erase, match the model.
+The capture shows combined DNAT/SNAT stages, fresh drops before confirmation, cached unreplied bindings after a NAT change, and seen-reply after a dropped reply.
+The independent evidence verifier checks retained trace, socket, and raw snapshot records.
+These cases do not validate the complete TCP lifecycle or formally refine kernel C.
+
+The domain requires valid unfragmented IPv4 TCP/UDP packets whose transport tracker accepts the modeled attachment.
+The protocol-number check does not establish transport validity.
+TCP reopen, replacement, and `NF_REPEAT` are unsupported.
+Expiry, concurrent changes, helpers, related traffic, offload, hidden clashes, and allocator or race recovery are also excluded.
+The main-table route context and exclusive captured NAT/filter hook sequence must apply to the selected traffic.
+Faithful observations and complete selected-traffic coverage remain assumptions.
+The [lifecycle guide](LIFECYCLE.md) defines the schema, producer versions, and native evidence boundary.
+
+## Static stateful filter refinement
+
+The `stateful-refines` command checks permission inclusion between two stateful source chains.
+Every label and every modeled header is covered through ACL specialization and exact partitions.
+The contexts include related, invalid, and untracked, even though the ordinary lifecycle only produces new and established.
+A context in this comparison need not occur in a native history.
+
+Both chains must have the same hook and priority.
+The default budget is 100,000 header cells summed across all five labels.
+A context mismatch or exhausted budget gives an error without a refinement answer.
+A failed inclusion check returns a label and header permitted by the proposed stronger chain and denied by the weaker chain.
+Theorems connect both successful inclusion and returned counterexamples to the structured source-chain semantics.
+
+This is a static filter comparison.
+It does not compare routing, NAT tables, allocations, stored bindings, or execution histories.
+It does not prove revocation of old flows or a complete network upgrade contract.
+Those claims require the relevant state transitions and intermediate-state obligations.
+
 ## Stateful processing and shared execution
 
 `Netlib/Packet/Processor.lean` models ordered packet processing with a shared store.
@@ -270,7 +392,7 @@ A later denial can leave the new mapping and grant installed.
 A return-flow origin therefore identifies an earlier policy-permitted input, which may have dropped at a later stage.
 State refinement preserves the underlying NAT updates while filtered packet outputs can differ.
 Two successful translations restore their reverse reply in the opposite processing order.
-These results do not extend the native Linux adapter's supported scope.
+This local NAPT pipeline does not define native Linux lifecycle behavior.
 
 The campus NAPT example uses separate primary and standby stores on the duplex campus topology.
 It proves management isolation, gateway mediation, store invariants, and session-controlled forwarding.
@@ -511,7 +633,9 @@ The transfer checker separately certifies header-changing paths and cuts.
 The NAT auditor separately certifies agreement with supplied packet observations.
 Their current theorems do not connect those models to native NAT implementations.
 The conntrack adapter adds checked visible tuples and status-aware endpoint algebra.
-Its collector and native socket experiments supply evidence without proving kernel execution or historical admission.
+The separate lifecycle checker proves agreement with an explicit sequence of modeled route, filter, NAT, and deletion operations.
+Its structural invariant does not establish transport validity or an arbitrary security contract.
+Collectors and native experiments supply evidence without proving kernel C refinement, complete kernel state, or historical admission beyond the supplied observations.
 
 Lean verifies the theorem statements and proofs with the pinned toolchain.
 Each theorem establishes its conclusion under its explicit hypotheses.
@@ -578,6 +702,8 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 10. Transfer examples retain packet changes in witnesses and distinguish DNAT, bypasses, cycles, and exhausted state budgets.
 11. Flow-state tests distinguish collisions, exact replies, independent peer grants, expiration, closure, and public-alias reuse.
 12. The alias-reuse theorem identifies packet freshness that the current invariant cannot establish.
+13. Lifecycle tests distinguish fresh preconfirmation drops, cached unreplied bindings, dropped-reply state updates, explicit deletion, and observation mismatch.
+14. Static stateful refinement covers all five labels and every modeled header, with checked counterexamples and budget errors.
 
 ## Scope limits
 
@@ -595,6 +721,7 @@ Reference architectures show formal patterns within the stated model.
 The current models exclude dynamic routing protocols and cryptographic algorithm correctness.
 Full authentication protocols, transport handshakes, temporal liveness, and adversarial compromise remain outside their scope.
 Constant packet rewrites and one local timed source-NAPT model have the separate guarantees above.
+Fixed-endpoint tuple translation and ordinary forwarded-packet replay also have explicit domain and evidence limits.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.
