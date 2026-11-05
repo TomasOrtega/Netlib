@@ -104,6 +104,7 @@ These are constructed conformance cases, without native capture claims.
 
 The [source investigation](research/TCP_FOUNDATION.md) records the selected RFC clauses and checksum-zero arithmetic.
 The receive-state extension supplies selected window and ACK rules under explicit seed assumptions.
-Handshake provenance, send behavior, reordering, retransmission, timers, congestion control, and connection incarnation reuse remain open.
+The [application extension](TCP_APPLICATION.md) connects writes, checked sends, reads, and peer-window updates to finite trace proofs.
+Handshake provenance, reordering, retransmission, timers, congestion control, and connection incarnation reuse remain open.
 Negotiated option semantics, TCP-aware ordinary tracking, native classification, and full application-stack correspondence remain open.
 All seven [research programs](ROADMAP.md) and the full campus landmark remain OPEN.

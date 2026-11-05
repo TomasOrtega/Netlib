@@ -383,6 +383,21 @@ Partial overlap and out-of-order storage also remain unsupported.
 Replay retains the processed prefix and stops at its first unsupported result.
 The [receive-state guide](TCP_RECEIVE.md) defines the command, bounds, static evidence, and remaining endpoint obligations.
 
+## TCP application events
+
+The `tcp-endpoint` command extends the bounded receive model with writes, sends, reads, and peer-window history.
+Only successful sends produce output bytes and advance the send-buffer end.
+Reads return the exact receive-buffer prefix and increase local free space.
+Peer-window updates use the pre-ACK state and the selected freshness formula.
+Strictly old ACKs cannot update that window.
+Duplicate ACKs can update it when the freshness condition holds.
+
+Policy permission, effective MSS, IP size limits, and seed origin remain explicit inputs.
+The paired application-prefix proof also requires earlier successful peer outputs and a bounded finite epoch.
+The command does not establish those external delivery conditions from checksums alone.
+Replay stops at the first unsupported event and retains the unprocessed suffix.
+The [application guide](TCP_APPLICATION.md) gives the event schema, proof contract, and remaining obligations.
+
 ## Byte-derived NAT and TTL forwarding
 
 The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.

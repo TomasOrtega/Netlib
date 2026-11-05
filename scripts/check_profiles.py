@@ -14,6 +14,7 @@ from check_reassembly_native_examples import check as reassembly_native_checks
 from check_received_icmp_examples import check as received_icmp_checks
 from check_replication_examples import check as replication_checks
 from check_safe_handoff_examples import check as safe_handoff_checks
+from check_tcp_endpoint_examples import check as tcp_endpoint_checks
 from check_tcp_examples import check as tcp_checks
 from check_tcp_receive_examples import check as tcp_receive_checks
 
@@ -1144,6 +1145,7 @@ def main():
     attachment_checks()
     tcp_checks()
     tcp_receive_checks()
+    tcp_endpoint_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

@@ -93,6 +93,21 @@ The caller supplies the pre-established seed and its assumed sent bytes.
 The proofs do not establish a handshake, actual transmission history, ACK emission, or Linux conntrack acceptance.
 The [receive-state guide](TCP_RECEIVE.md) states the bounds and remaining obligations.
 
+## TCP application path
+
+`TCP.Output` constructs checked IPv4/TCP packets from current endpoint fields.
+It proves the reverse tuple, payload, cursors, advertised window, selected flags, and mandatory checksums.
+`TCP.Endpoint` preserves state validity across writes, sends, reads, and peer-window updates.
+A strictly old ACK cannot update the peer window.
+A duplicate ACK at `SND.UNA` can update it when the freshness condition holds.
+Window shrink preserves validity even when outstanding bytes exceed the new peer window.
+
+`TCP.ApplicationTrace.Chain` proves byte conservation for actual computed events.
+Its paired theorem connects earlier peer outputs, preserved sequence values, and bounded byte positions to the application prefix property.
+The theorem requires delivery-history evidence and a finite epoch below half the sequence space.
+Seed construction, native transmission, eventual delivery, and congestion control remain separate obligations.
+The [application guide](TCP_APPLICATION.md) states the proof contract and command limits.
+
 ## Admission around reassembly
 
 `Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.

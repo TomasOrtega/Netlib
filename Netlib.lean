@@ -180,3 +180,7 @@ import Netlib.Protocol.TCP.EstablishedReceive
 import Netlib.Check.TCP
 import Netlib.Check.WireTCP
 import Netlib.Check.TCPReceive
+import Netlib.Protocol.TCP.Output
+import Netlib.Protocol.TCP.Endpoint
+import Netlib.Protocol.TCP.ApplicationTrace
+import Netlib.Check.TCPEndpoint

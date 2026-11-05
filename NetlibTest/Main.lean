@@ -124,6 +124,10 @@ import NetlibTest.TCPReassembly
 import NetlibTest.TCPReceiveWindow
 import NetlibTest.TCPEstablishedReceive
 import NetlibTest.TCPReceiveCheck
+import NetlibTest.TCPOutput
+import NetlibTest.TCPEndpoint
+import NetlibTest.TCPEndpointCheck
+import NetlibTest.TCPApplicationTrace
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -272,4 +276,7 @@ def main : IO Unit := do
   NetlibTest.TCPReceiveWindow.run
   NetlibTest.TCPEstablishedReceive.run
   NetlibTest.TCPReceiveCheck.run
+  NetlibTest.TCPOutput.run
+  NetlibTest.TCPEndpoint.run
+  NetlibTest.TCPEndpointCheck.run
   IO.println "Netlib tests passed."
