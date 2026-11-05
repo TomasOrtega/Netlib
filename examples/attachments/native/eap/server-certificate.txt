@@ -1,0 +1,6 @@
+subject=CN=radius.campus.example.test
+issuer=CN=Netlib private EAP test CA
+serial=1000
+sha256 Fingerprint=DF:8B:7C:5A:BA:E2:7C:E3:AE:CC:10:32:8F:30:A4:FE:7B:9B:8C:6D:AD:87:F2:B0:F2:2E:12:1B:C6:8A:39:85
+notBefore=Nov  5 07:00:18 2026 GMT
+notAfter=Nov 12 07:00:18 2026 GMT

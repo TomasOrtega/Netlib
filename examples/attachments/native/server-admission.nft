@@ -1,0 +1,3 @@
+table ip handoff_admission {
+ chain admission { type filter hook postrouting priority 210; policy accept; meta l4proto udp counter log prefix "ROUTE_ADMIT" group 43 snaplen 65531 queue-threshold 1; }
+}

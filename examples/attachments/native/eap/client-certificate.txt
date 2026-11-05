@@ -1,0 +1,6 @@
+subject=CN=alice@campus.example.test
+issuer=CN=Netlib private EAP test CA
+serial=1001
+sha256 Fingerprint=C7:BC:15:DD:9A:AF:26:21:35:E3:98:4D:E6:B1:35:41:B7:C8:32:6C:DD:38:F5:CE:51:82:05:08:45:AD:93:3E
+notBefore=Nov  5 07:00:18 2026 GMT
+notAfter=Nov 12 07:00:18 2026 GMT

@@ -1,0 +1,1 @@
+{"namespace": "net:[4026532562]", "observedNs": 84207557446906, "pid": 672, "interfaces": [{"ifindex": 1, "name": "lo"}, {"ifindex": 4, "name": "cbr"}, {"ifindex": 8, "name": "sbr"}, {"ifindex": 10, "name": "syncr"}, {"ifindex": 14, "name": "abr"}]}

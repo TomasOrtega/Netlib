@@ -1463,6 +1463,49 @@ Actual EAP-TLS, policy installs, delayed traffic, standby continuity, physical w
 Method attribution, credential integrity, header ownership, faithful exports, physical scheduling, and implementation correspondence retain explicit assumptions.
 Wi-Fi enforcement, cryptographic refinement, unexpected failures, aging, and the complete campus landmark remain open.
 
+# Interface-bound current admission
+%%%
+tag := "ingress-attachments"
+file := "ingress-attachments"
+%%%
+
+The attachment replay binds the actual EAP prefix to declared namespace and interface lifetimes.
+An attachment records its historical source state, subject, round, authentication port, and application scope.
+Current permission additionally requires the same round and live interface instances.
+Historical flow ownership remains stable through checked replication and later session changes.
+
+The installed guard compares numeric input indices and pre-NAT headers.
+Complete finite partition checking compares it with the current desired attachment policy.
+Lifetime labels affect that desired policy, while the actual numeric rule keeps its installed meaning.
+A stale installed allow executes ordinary tracking before its mismatch is reported.
+
+The guard runs at raw prerouting priority `-300`.
+An early reject bypasses ordinary conntrack, NAT, and forwarding.
+Queued rejection retires the stored route ticket and preserves both modeled tables:
+
+```lean
+open Netlib.Protocol.GuardedHandoff in
+example (before : State) (id : Nat)
+    (dropped : Dropped before id) :
+    dropped.state.handoff.gateways.primary =
+      before.handoff.gateways.primary :=
+  dropped.tables_unchanged.1
+```
+
+The native experiment first records successful header-only impersonation from a separate input port.
+An explicit empty-table reset precedes its guarded suffix.
+Fresh requests, cached requests, and forged replies then encounter the early guard.
+Two queued packets also encounter attachment deny after Logoff while ordinary forward permit remains installed.
+
+```
+lake exe netlib attachment-campus examples/attachments/bundle.json --json
+```
+
+This finite experiment contains 41 native operations and 15 selected datagrams.
+The controller's EAP-to-data-port mapping and authentic lifetime observations remain assumptions.
+Same-port impersonation, cryptographic packet provenance, fragment isolation, and complete campus correspondence remain open.
+The full seven-program objective remains OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"

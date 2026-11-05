@@ -85,6 +85,14 @@ The saved example records 26 native operations, eight datagrams, and seven ticke
 Its joint replay has 45 operations: 21 authentication, 23 network, and one withdrawal.
 Cryptography, wireless deployment, principal anti-spoofing, physical correspondence, automatic failures, lifetimes, and the complete campus objective remain open.
 
+The [ingress attachment extension](INGRESS_ATTACHMENTS.md) binds the current EAP round to explicit namespace and input-interface lifetimes.
+Installed numeric-interface policies are checked across every header and numeric index.
+An early drop preserves ordinary tracking state and retires the actual outstanding identity.
+Historical ownership follows confirmed creation and checked replication while current permission can expire independently.
+The native experiment demonstrates header-only impersonation before a reset, then distinct-port rejection through handoff and Logoff.
+Trusted port mapping, authentic observations, same-port attacks, cryptographic data protection, and broader deployment correspondence remain open.
+This result leaves all seven programs and the complete campus landmark OPEN.
+
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
 Status-aware rewrite algebra and original-flow policy audits have separate proofs.

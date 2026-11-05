@@ -1,0 +1,14 @@
+[Thu Nov  5 07:00:24 2026] (pid=780) [warning] scheduler configuration failed: Function not implemented. Likely a bug in conntrackd, please report it. Continuing with system default scheduler.
+[Thu Nov  5 07:00:24 2026] (pid=780) [notice] using user-space event filtering
+[Thu Nov  5 07:00:24 2026] (pid=780) [notice] NetlinkBufferSize is either not set or is greater than NetlinkBufferSizeMaxGrowth. Using current system buffer size
+[Thu Nov  5 07:00:24 2026] (pid=780) [notice] netlink event socket buffer size has been set to 212992 bytes
+[Thu Nov  5 07:00:24 2026] (pid=780) [notice] initialization completed
+[Thu Nov  5 07:00:24 2026] (pid=781) [notice] -- starting in daemon mode --
+[Thu Nov  5 07:00:24 2026] (pid=781) [notice] resync requested by other node
+[Thu Nov  5 07:00:24 2026] (pid=781) [notice] sending bulk update
+[Thu Nov  5 07:00:24 2026] (pid=781) [notice] resync requested
+[Thu Nov  5 07:00:31 2026] (pid=781) [notice] committing all external caches
+[Thu Nov  5 07:00:31 2026] (pid=781) [notice] Committed 1 new entries
+[Thu Nov  5 07:00:31 2026] (pid=781) [notice] commit has taken 0.000027 seconds
+[Thu Nov  5 07:00:37 2026] (pid=781) [ERROR] no dedicated links available!
+[Thu Nov  5 07:00:44 2026] (pid=781) [notice] ---- shutdown received ----

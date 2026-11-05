@@ -1,0 +1,22 @@
+daemon uptime: 0 min
+
+netlink stats:
+	events received:	                   0
+	events filtered:	                   0
+	events unknown type:		           0
+	catch event failed:		           0
+	dump unknown type:		           0
+	netlink overrun:		           0
+	flush kernel table:		           0
+	resync with kernel table:	           0
+	current buffer size (in bytes):	      212992
+
+runtime stats:
+	child process failed:		           0
+		child process segfault:	           0
+		child process termsig:	           0
+	select failed:			           0
+	wait failed:			           0
+	local read failed:		           0
+	local unknown request:		           0
+

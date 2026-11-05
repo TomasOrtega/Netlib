@@ -58,6 +58,32 @@ Its synthetic integration test covers Logoff, queued denial, and a stale install
 The native example records 20 operations, seven datagrams, and six protected tickets; it establishes no native EAP enforcement claim.
 The [safe handoff guide](SAFE_HANDOFF.md) states the command, source pins, proof premises, and evidence limits.
 
+## Interface-bound current sessions
+
+`Packet.IngressPolicy.check_correct` proves complete equivalence across every numeric interface index and header.
+`Import.NftablesIngress.Snapshot.compile_evaluate` connects imported source-rule evaluation to that policy.
+Current name resolution preserves numeric `iif` semantics; namespace and interface births remain separate controller evidence.
+
+`Protocol.IngressAttachment` records actual session origins and current attachment validity.
+`Compile.IngressAttachment.actual_application_permission` derives current application validity, EAP readiness, exact ingress, and the configured principal.
+Its premises include live unique interfaces, namespace agreement, policy equivalence, and maintenance/application disjointness.
+The compiler also proves rejection at every unmentioned numeric index.
+
+`Protocol.GuardedHandoff.Dropped.tables_unchanged` proves exact modeled table preservation on early rejection.
+Retirement preserves immutable ticket provenance and exact outstanding counts.
+Its completeness theorem starts from a safe preceding state and a pending identity.
+`Protocol.IngressProbe` supplies actual ordinary processing outside the route-ticket stream.
+Protected completeness follows from the preceding ready binding and unfenced gateway.
+Probes preserve route work and archived primary state.
+
+`Check.AttachmentCampus.PacketCheck.application_origin` connects a permitted application execution to current permission and its actual historical EAP prefix.
+`wrong_ingress_rejected` excludes application packets whose live ingress differs from every staged attachment under the same checked policy premises.
+Replay provenance checks bind every stored source state to the authentication computation at that prefix.
+`Report.finding_prefix` identifies each finding's actual preceding replay state.
+Each historical owner must cite a staged origin and an actual table entry.
+Replication inherits that origin from the selected source record and checked installed table.
+The [ingress attachment guide](INGRESS_ATTACHMENTS.md) records observation scope and remaining trust assumptions.
+
 ## Joint campus session and withdrawal
 
 `Examples.CampusDuplex` adds request and reply continuity under endpoint-safe single internal-node faults.

@@ -1,0 +1,1 @@
+{"namespace": "net:[4026532503]", "observedNs": 84214283206372, "pid": 1608, "interfaces": [{"ifindex": 1, "name": "lo"}, {"ifindex": 2, "name": "car"}, {"ifindex": 6, "name": "sar"}, {"ifindex": 11, "name": "syncl"}, {"ifindex": 12, "name": "aar"}]}

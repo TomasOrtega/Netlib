@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "workingDirectory": "/Users/to1717/Documents/GitHub/Netlib",
+  "actualRecipeCommand": [
+    "sh",
+    "examples/attachments/recapture.sh",
+    "/private/tmp/netlib-attachments-candidate-3"
+  ],
+  "environment": {
+    "DOCKER_HOST": "unix:///Users/to1717/.colima/default/docker.sock",
+    "DOCKER_CONFIG": "/private/tmp/netlib-docker-config"
+  },
+  "captureContainer": "netlib-attachments-capture-99589",
+  "captureContainerID": "fdde4f6be5eab50f1dcaaf27304c8d1e00560c1cea178a2db2bf002ac2a8cbbb",
+  "captureImageID": "sha256:db2a4fe2e5101ec26d5c26c5c7554a3238184ffb23bdfa941985cc6138f665ae",
+  "captureStartedAt": "2026-11-05T07:00:18.403479216Z",
+  "captureCompletedAt": "2026-11-05T07:00:46.113604847Z",
+  "buildCommandTemplate": [
+    "docker",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-attachments-capture:1",
+    "<temporary build directory created by recapture.sh>"
+  ],
+  "actualCreateCommand": [
+    "docker",
+    "create",
+    "--name",
+    "netlib-attachments-capture-99589",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-attachments-capture:1"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "start",
+    "-a",
+    "netlib-attachments-capture-99589"
+  ],
+  "actualExportCommand": [
+    "docker",
+    "cp",
+    "netlib-attachments-capture-99589:/tmp/netlib-safe-handoff/.",
+    "/private/tmp/netlib-attachments-candidate-3/native/"
+  ],
+  "recipeNote": "Both retained and repeated runs used the packaged recipe. Its temporary build directory was removed by the recipe trap; the build command above is a template. The inherited runtime path remains /tmp/netlib-safe-handoff."
+}

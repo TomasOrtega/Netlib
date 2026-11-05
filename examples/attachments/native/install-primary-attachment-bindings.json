@@ -1,0 +1,57 @@
+{
+  "gateway": "a",
+  "namespace": "net:[4026532503]",
+  "scope": {
+    "resource": "campus-application",
+    "operation": "use"
+  },
+  "principal": "alice@campus.example.test",
+  "authenticationEvent": "authenticate",
+  "credentialEvent": "credential",
+  "authenticationPort": {
+    "namespace": "auth",
+    "interface": "auth0",
+    "source": {
+      "file": "birth-auth-identity.json",
+      "command": 160
+    }
+  },
+  "currentAuthenticationEvent": "credential",
+  "active": true,
+  "maintenanceSource": {
+    "gateway": "b",
+    "sourcePort": 39514,
+    "socketInode": 1725156,
+    "source": {
+      "file": "start-b-sockets-0.json",
+      "command": 732
+    }
+  },
+  "roles": [
+    {
+      "role": "original",
+      "interface": "car",
+      "ifindex": 2
+    },
+    {
+      "role": "reply",
+      "interface": "sar",
+      "ifindex": 6
+    },
+    {
+      "role": "maintenance",
+      "interface": "syncl",
+      "ifindex": 11
+    }
+  ],
+  "sources": {
+    "links": {
+      "file": "install-primary-attachment-links.json",
+      "command": 815
+    },
+    "identity": {
+      "file": "install-primary-attachment-identity.json",
+      "command": 816
+    }
+  }
+}
