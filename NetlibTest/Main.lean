@@ -31,6 +31,11 @@ import NetlibTest.NATReuse
 import NetlibTest.Transfer
 import NetlibTest.NATTrace
 import NetlibTest.PacketFields
+import NetlibTest.Processor
+import NetlibTest.Stateful
+import NetlibTest.StatefulTrace
+import NetlibTest.NATPipeline
+import NetlibTest.CampusNAT
 
 open Netlib
 
@@ -63,4 +68,9 @@ def main : IO Unit := do
   NetlibTest.Transfer.run
   NetlibTest.NATTrace.run
   NetlibTest.PacketFields.run
+  NetlibTest.Processor.run
+  NetlibTest.Stateful.run
+  NetlibTest.StatefulTrace.run
+  NetlibTest.NATPipeline.run
+  NetlibTest.CampusNAT.run
   IO.println "Netlib tests passed."

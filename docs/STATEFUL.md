@@ -141,3 +141,79 @@ Stronger freshness claims require additional observations or lifecycle assumptio
 The model excludes TCP flags, sequence windows, handshake state, checksums, fragmentation, and payload authentication.
 It does not prove an allocation pool, native Linux conntrack correspondence, or RFC timeout minima.
 The supplied public endpoints have no proved ownership or routability.
+
+## Composition with shared state
+
+`Packet.Processor` composes packet stages over an explicit store.
+Each call returns both the updated store and an optional packet.
+A drop skips later stages but retains every update from completed stages.
+Sequential composition is associative and has an identity.
+Product-store lifts let stages update separate stores while passing the current packet between them.
+
+This ordering matters for NAT and firewall policy.
+A denied prefilter can prevent any mapping or grant from being created.
+A postfilter can drop the translated packet after the NAT stage has installed its grant.
+The exact reverse reply can then pass the local NAT check.
+That fact alone does not establish that a server received the outbound packet.
+
+`Protocol.NATPipeline` proves both order effects.
+It also proves a roundtrip through two NAT stages with independent stores.
+Replies traverse those stages in reverse order.
+
+### Ordered packet executions
+
+`Packet.Processor.execute` processes an ordered list of packet inputs through a chosen family of processors.
+It records one output or drop for each input, in the same order.
+The next call uses the complete store left by the previous call.
+Its trace theorem covers drops that changed state.
+Its determinism theorem excludes a trace with forged outputs or independent per-packet stores.
+State invariants transfer through every completed call.
+
+The NAT pipeline has a state refinement to the existing NAT event model.
+This refinement preserves the NAT store, not the unfiltered NAT output.
+Postfilters can deliberately change an observed output into a drop.
+Every restored reply still has an earlier policy-permitted outbound input.
+That earlier input might itself have dropped at a later stage.
+
+### Successful forwarding paths
+
+`Packet.Stateful.network` retains the node, header, and complete store at every vertex.
+Each successful edge runs its declared processor and threads the resulting store to the next vertex.
+A path cannot invent a fresh store at an intermediate hop.
+Physical isolation and gateway mediation transfer through its projection.
+Store invariants transfer when every link processor preserves them.
+Stateless processors agree exactly with the existing transfer relation and preserve the store.
+`Packet.StatefulTrace` projects each successful forwarding walk to its ordered processor calls.
+Its replay theorem retains every hop and the exact final store and observations.
+The projected calls also preserve the physical adjacency of each original hop.
+
+This graph contains successful forwarding steps.
+A dropped call has no forwarding edge, even when it changed state.
+Ordered processor traces provide the separate history of such calls.
+These definitions do not supply a scheduler for concurrent packets or prove delivery under arbitrary interleaving.
+
+## Campus reply failover
+
+`Examples.CampusNAT` adds reverse links to the existing campus topology.
+Each gateway has its own NAT store.
+The session gate checks current application permission on both outbound and return processing.
+An application ACL restricts new outbound grants.
+Management isolation and gateway mediation hold for every modeled forwarding path.
+Safe initial stores remain safe along those paths.
+
+The primary roundtrip threads its updated store from the outbound path into the reply path.
+After primary gateway failure, a physical return path still exists through the standby.
+If that standby has no flow grants, every possible client output header and store remains unreachable.
+Physical redundancy therefore does not establish stateful reply availability.
+
+An exact replica of the accepted post-outbound state changes that result.
+The return path then survives every admitted single internal-node fault.
+The fault model excludes client and server failure and independent link failures.
+This is an existential path result for a fixed fault snapshot and a currently permitted session.
+The model does not advance time while that path executes.
+
+Replication copies both mappings and grants before the fault.
+Its clock-preservation theorem requires equal logical clocks.
+The model assumes the same public alias is usable at either gateway.
+It does not prove a replication protocol, ownership transfer, route selection, or routing convergence.
+Replication delay, stale snapshots, revocation propagation, packet freshness, and live delivery need separate arguments.

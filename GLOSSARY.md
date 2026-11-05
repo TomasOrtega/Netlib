@@ -188,6 +188,15 @@ A timed association between an inside endpoint/protocol pair and a public endpoi
 **Packet freshness**:
 Evidence that a received packet belongs to the intended current communication instance.
 
+**Processor**:
+A packet stage that returns an updated store and either an output header or a drop.
+
+**Store**:
+The complete explicit state shared by successive calls to a packet processor.
+
+**State replication**:
+Transfer of state between devices so that another device can continue the modeled behavior.
+
 **Prefix**:
 An address block defined by a base address and the number of shared initial bits.
 

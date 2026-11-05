@@ -175,9 +175,60 @@ That invariant therefore cannot establish rejection of retired replies.
 These models exclude checksums, fragmentation, TCP flags, sequence windows, and transport handshakes.
 They do not establish allocator correctness, public-address ownership, Linux conntrack correspondence, or complete RFC conformance.
 The native Linux adapter remains limited to its stateless subset.
-The transfer graph and NAT trace have separate semantics.
-A combined forwarding and cross-packet state proof remains future work.
 The [stateful guide](STATEFUL.md) defines the input formats and evidence limits.
+
+## Stateful processing and shared execution
+
+`Netlib/Packet/Processor.lean` models ordered packet processing with a shared store.
+These compositional interfaces are Lean library definitions.
+Each processor returns the next store and either an output packet or a drop.
+Composition passes both the store and the packet to the next stage.
+A drop skips later stages and retains earlier state updates.
+Processor invariants must cover those drop results too.
+
+`Netlib/Packet/Stateful.lean` gives forwarding vertices a node, header, and complete store.
+A successful edge must use the exact store produced by its processor.
+It cannot independently choose a store for the next hop.
+Physical adjacency limits these steps.
+Physical isolation, gateway mediation, and processor store invariants transfer to their paths.
+Stateless processors retain their store and agree with the existing packet-transfer semantics.
+
+This forwarding graph contains successful packet steps.
+It does not account for every call or state change between packets.
+`Netlib/Packet/ProcessorTrace.lean` supplies ordered executions for that purpose.
+Its observations include calls that drop packets after changing the shared store.
+An explicit ordered call list supplies the execution schedule.
+Each valid finite observation trace agrees with the computed execution.
+These are model executions. Actual event coverage and implementation correspondence still require evidence.
+
+`Netlib/Packet/StatefulTrace.lean` projects each successful graph walk to its ordered processor observations.
+The resulting execution retains the same initial and final stores and every hop's physical adjacency.
+This is a one-way bridge from a valid walk.
+It does not infer a walk from packet headers without the required intermediate stores.
+
+`Netlib/Protocol/NATPipeline.lean` connects the local NAPT model to these processors.
+ACLs can act before or after translation.
+An earlier denial prevents the translation and grant update.
+A later denial can leave the new mapping and grant installed.
+A return-flow origin therefore identifies an earlier policy-permitted input, which may have dropped at a later stage.
+State refinement preserves the underlying NAT updates while filtered packet outputs can differ.
+Two successful translations restore their reverse reply in the opposite processing order.
+These results do not extend the native Linux adapter's supported scope.
+
+The campus NAPT example uses separate primary and standby stores on the duplex campus topology.
+It proves management isolation, gateway mediation, store invariants, and session-controlled forwarding.
+An accepted primary outbound call establishes the store used by its restored reply path.
+After primary failure, physical connectivity alone cannot supply missing standby grants.
+With an empty standby grant list, every modeled return to the client fails.
+
+An exact copy of the accepted outbound state supplies a return path under each admissible single internal-node fault.
+The fault model excludes independent link failures and keeps client/server endpoints live.
+The copy is an explicit ideal operation before the fault.
+The clock-preservation result requires the original clocks to agree.
+Each path uses a static fault snapshot and fixed session and clock states.
+Shared-alias ownership and suitable return routing remain assumptions.
+The result establishes a permitted path, not physical delivery, temporal liveness, or routing convergence.
+Replication protocols, delayed or stale copies, revocation, and packet freshness remain outside this example's guarantees.
 
 ## Request model
 
@@ -485,7 +536,8 @@ Reference architectures show formal patterns within the stated model.
 The current models exclude dynamic routing protocols and cryptographic algorithm correctness.
 Full authentication protocols, transport handshakes, temporal liveness, and adversarial compromise remain outside their scope.
 Constant packet rewrites and one local timed source-NAPT model have the separate guarantees above.
-General stateful-middlebox composition and native implementation correspondence remain future work.
+Processors support ordered stateful composition with explicit stores.
+Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.
 
 The executable analysis has no fixed atom limit.

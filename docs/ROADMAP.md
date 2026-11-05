@@ -14,11 +14,11 @@ It does not establish completion of the goal.
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
-| Connected protocol stacks | Packet fields, ACLs, routes, session guards, trace refinement, header-changing forwarding, and timed local NAPT. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
+| Connected protocol stacks | Packet policies, routes, sessions, shared-state processors, header transformations, and local NAPT. Ordered traces compose stages and successive packets. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
-| Complete architectures | A campus foundation composes session enforcement, isolation, and single-fault availability. Linux snapshots supply checked main-table forwarding models. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
+| Complete architectures | Campus session enforcement, isolation, and single-fault paths. Stateful reply failover under exact grant replication. Separate Linux snapshots supply checked forwarding. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
-| Safe operation | Certified finite update plans cover every intermediate state. Trace refinement transfers safety between models. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
+| Safe operation | Certified finite update plans cover every intermediate state. Trace refinement and ordered packet executions preserve explicit state invariants. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
 ## Campus landmark
@@ -43,10 +43,18 @@ Its compiled graph matches the structured source semantics under explicit transi
 The [packet compiler](COMPILER.md) generates a native-format firewall from checked intent.
 The abstract campus theorem and these imported forwarding models still need a common protocol and failure interpretation.
 
+`Netlib.Examples.CampusNAT` connects the campus graph to session-gated packet processing and per-gateway NAT stores.
+It proves primary request/reply paths with the actual updated store.
+A surviving physical return path can still block every reply when the standby has no grants.
+Exact pre-fault replication permits a return path under each admitted single internal-node fault.
+The model assumes a currently permitted session, unchanged grant clocks, and a usable shared public alias.
+It does not implement replication, ownership transfer, route selection, or convergence.
+Native configuration bindings and the complete campus landmark remain open.
+
 ## Next implementation work
 
-1. Extend imported forwarding to interface-specific policies, stateful behavior, and additional routing scopes.
-2. Connect the stateful and rewriting foundations to native processing and model routing convergence.
+1. Extend Linux forwarding imports to interface-specific policies, stateful behavior, and additional routing scopes.
+2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
 4. Connect concrete upgrade commands to certified intermediate snapshots.
 5. Compose queue guarantees and add physical timing and reliability models.

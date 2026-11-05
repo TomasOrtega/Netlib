@@ -20,7 +20,7 @@ GROUPS = {
     "Core": "State requirements as logic formulas.",
     "Model": "Read a finite network model.",
     "Network": "Compose domains and prove path, failure, and update properties.",
-    "Packet": "Partition headers and compose policies and header transformations.",
+    "Packet": "Compose packet policies, transformations, stores, and ordered executions.",
     "Routing": "Select the route with the longest address prefix.",
     "Security": "Check requests at policy gateways.",
     "Policy": "Parse requirements and find missing goals.",
