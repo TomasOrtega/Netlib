@@ -16,11 +16,11 @@ from package_api import package_api
 from site_common import ARCHIVE, MANIFEST, ROOT, digest, input_hashes, tree_hash
 
 GROUPS = {
-    "Theory": "Prove FIFO conservation, backlog bounds, and finite draining.",
+    "Theory": "Prove queue laws and limits of header-only NAT decisions.",
     "Core": "State requirements as logic formulas.",
     "Model": "Read a finite network model.",
     "Network": "Compose domains and prove path, failure, and update properties.",
-    "Packet": "Partition headers and check ordered rules for complete traffic classes.",
+    "Packet": "Partition headers and compose policies and header transformations.",
     "Routing": "Select the route with the longest address prefix.",
     "Security": "Check requests at policy gateways.",
     "Policy": "Parse requirements and find missing goals.",
@@ -28,8 +28,8 @@ GROUPS = {
     "Compile": "Compile packet intent to certified ACLs and structured nftables policies.",
     "Examples": "Read complete architecture proofs.",
     "Standards": "Compose formal profiles and check selected Wi-Fi and 5G requirements.",
-    "Import": "Read strict hostapd, Linux route, and nftables snapshots.",
-    "Protocol": "Compose transition traces and prove session and admission properties.",
+    "Import": "Read strict native snapshots, transfer graphs, and packet fields.",
+    "Protocol": "Prove session, timed flow-grant, and NAT transition properties.",
 }
 
 

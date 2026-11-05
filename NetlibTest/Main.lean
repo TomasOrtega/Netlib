@@ -24,6 +24,13 @@ import NetlibTest.LinuxRoute
 import NetlibTest.LinuxDeployment
 import NetlibTest.ACLCompiler
 import NetlibTest.NftablesCompiler
+import NetlibTest.Rewrite
+import NetlibTest.Conntrack
+import NetlibTest.NAT
+import NetlibTest.NATReuse
+import NetlibTest.Transfer
+import NetlibTest.NATTrace
+import NetlibTest.PacketFields
 
 open Netlib
 
@@ -49,4 +56,11 @@ def main : IO Unit := do
   NetlibTest.LinuxDeployment.run
   NetlibTest.ACLCompiler.run
   NetlibTest.NftablesCompiler.run
+  NetlibTest.Rewrite.run
+  NetlibTest.Conntrack.run
+  NetlibTest.NAT.run
+  NetlibTest.NATReuse.run
+  NetlibTest.Transfer.run
+  NetlibTest.NATTrace.run
+  NetlibTest.PacketFields.run
   IO.println "Netlib tests passed."

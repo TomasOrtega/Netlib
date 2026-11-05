@@ -167,6 +167,27 @@ The division between formal guarantees and facts that need tests or review.
 **Header**:
 The source address, destination address, protocol number, and port numbers that identify a modeled packet.
 
+**Five-tuple**:
+The source address, destination address, protocol number, source port, and destination port considered together.
+
+**Header rewrite**:
+An explicit overwrite of selected modeled packet fields.
+
+**Transfer state**:
+A device location together with the complete current modeled header.
+
+**NAPT**:
+Network address and port translation between inside and public endpoints.
+
+**Flow grant**:
+A timed authorization record for one outbound five-tuple and its exact reverse reply.
+
+**Mapping**:
+A timed association between an inside endpoint/protocol pair and a public endpoint/protocol pair.
+
+**Packet freshness**:
+Evidence that a received packet belongs to the intended current communication instance.
+
 **Prefix**:
 An address block defined by a base address and the number of shared initial bits.
 

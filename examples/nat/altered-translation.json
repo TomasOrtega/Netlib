@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "policy": {
+    "schema": 1,
+    "requirements": [
+      {
+        "id": "HTTPS",
+        "action": "permit",
+        "match": {
+          "source": null,
+          "destination": null,
+          "protocol": 6,
+          "sourcePorts": null,
+          "destinationPorts": {
+            "first": 443,
+            "last": 443
+          }
+        }
+      },
+      {
+        "id": "NO_SSH",
+        "action": "deny",
+        "match": {
+          "source": null,
+          "destination": null,
+          "protocol": 6,
+          "sourcePorts": null,
+          "destinationPorts": {
+            "first": 22,
+            "last": 22
+          }
+        }
+      }
+    ]
+  },
+  "events": [
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.10",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    },
+    {
+      "type": "outbound",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.10",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 443
+      },
+      "allocation": {
+        "address": "203.0.113.1",
+        "port": 50000
+      },
+      "expiresAt": 20,
+      "observed": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.10",
+        "protocol": 6,
+        "sourcePort": 50001,
+        "destinationPort": 443
+      }
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.10",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": {
+        "source": "198.51.100.10",
+        "destination": "10.0.0.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 40000
+      }
+    },
+    {
+      "type": "outbound",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.20",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 443
+      },
+      "allocation": {
+        "address": "203.0.113.1",
+        "port": 50000
+      },
+      "expiresAt": 30,
+      "observed": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.20",
+        "protocol": 6,
+        "sourcePort": 50000,
+        "destinationPort": 443
+      }
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.20",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": {
+        "source": "198.51.100.20",
+        "destination": "10.0.0.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 40000
+      }
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.30",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    },
+    {
+      "type": "outbound",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.10",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 22
+      },
+      "allocation": {
+        "address": "203.0.113.1",
+        "port": 50000
+      },
+      "expiresAt": 30,
+      "observed": null
+    },
+    {
+      "type": "advance",
+      "now": 20
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.10",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.20",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": {
+        "source": "198.51.100.20",
+        "destination": "10.0.0.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 40000
+      }
+    },
+    {
+      "type": "close",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.20",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 443
+      }
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.20",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    },
+    {
+      "type": "outbound",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.20",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 443
+      },
+      "allocation": {
+        "address": "203.0.113.1",
+        "port": 50000
+      },
+      "expiresAt": 40,
+      "observed": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.20",
+        "protocol": 6,
+        "sourcePort": 50000,
+        "destinationPort": 443
+      }
+    },
+    {
+      "type": "flush"
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.20",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    },
+    {
+      "type": "outbound",
+      "packet": {
+        "source": "10.0.0.1",
+        "destination": "198.51.100.10",
+        "protocol": 6,
+        "sourcePort": 40000,
+        "destinationPort": 443
+      },
+      "allocation": {
+        "address": "203.0.113.1",
+        "port": 50000
+      },
+      "expiresAt": 50,
+      "observed": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.10",
+        "protocol": 6,
+        "sourcePort": 50000,
+        "destinationPort": 443
+      }
+    },
+    {
+      "type": "advance",
+      "now": 50
+    },
+    {
+      "type": "inbound",
+      "packet": {
+        "source": "198.51.100.10",
+        "destination": "203.0.113.1",
+        "protocol": 6,
+        "sourcePort": 443,
+        "destinationPort": 50000
+      },
+      "observed": null
+    }
+  ]
+}
