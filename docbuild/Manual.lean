@@ -1213,7 +1213,7 @@ Compliant observed quotations inherit the source-prefix and generation proofs.
 Observed identification supplies an explicit allocator choice; the remaining semantic fields are computed.
 
 A fresh capture retains twelve errors across full and truncated quotations, odd lengths, TOS changes, and checksum omission.
-Native LOCAL_OUT and postrouting traces expose related filtering and NAT correction.
+Native `LOCAL_OUT` and postrouting traces expose related filtering and NAT correction.
 The selected profile disables rate limiting and assumes successful allocation and transmission.
 Received ICMP, input fragments, PMTU discovery, concurrency, and kernel refinement remain open.
 
