@@ -131,6 +131,10 @@ import NetlibTest.TCPApplicationTrace
 import NetlibTest.TCPHandshake
 import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
+import NetlibTest.TCPWireForwarding
+import NetlibTest.TCPAdmission
+import NetlibTest.CampusTCPService
+import NetlibTest.CampusTCP
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -284,4 +288,8 @@ def main : IO Unit := do
   NetlibTest.TCPEndpointCheck.run
   NetlibTest.TCPHandshake.run
   NetlibTest.TCPHandshakeCheck.run
+  NetlibTest.TCPWireForwarding.run
+  NetlibTest.TCPAdmission.run
+  NetlibTest.CampusTCPService.run
+  NetlibTest.CampusTCP.run
   IO.println "Netlib tests passed."

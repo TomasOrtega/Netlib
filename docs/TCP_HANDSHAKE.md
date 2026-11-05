@@ -111,6 +111,7 @@ The [source investigation](research/TCP_HANDSHAKE.md) records the selected RFC c
 `HandshakeExchange.Complete` stores actual successful transition equations and the three checked delivery paths.
 It derives valid endpoint states, empty buffers, complementary cursors, peer-window sources, and default MSS.
 Its application theorem uses these states in the existing [application prefix proof](TCP_APPLICATION.md).
+The [campus extension](CAMPUS_TCP.md) derives the byte paths from current authenticated gateway execution.
 The caller supplies supported application traces, future delivery history, and finite sequence epochs.
 The composed theorem also states a quiet boundary after final ACK receipt and explicit current-instance assumptions.
 It does not infer those environment conditions from wire bytes.

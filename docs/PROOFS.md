@@ -123,6 +123,29 @@ Supported continuation, future delivery history, bounded epochs, a quiet boundar
 A passive seed is absent before final ACK receipt.
 The [startup guide](TCP_HANDSHAKE.md) states the selected interpretation and remaining protocol obligations.
 
+## Authenticated campus TCP path
+
+`Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.
+The existing UDP handoff remains a specialization with its original replication restriction.
+`TCP.WireForwarding` uses the common lifecycle pipeline and constructs output from the actual selected tuple and decremented TTL.
+Its proofs retain NAT, route, forward-filter, late-filter, payload, and mandatory checksum facts.
+
+`TCP.Admission` derives a bounded ordinary TCP history from checked segments and the actual lifecycle attachment.
+It proves control positions, data and ACK bounds, and window-history comparison ages.
+Commit retains observed progress against the actual confirmed table.
+A dropped existing reply can retain progress; an unconfirmed fresh drop leaves no confirmed history.
+
+`Check.CampusTCPService` compares actual stored ingress and forward policy with the current consumed authentication prefix.
+For compliant services, its output facts derive credential validity, method readiness, and the current ingress attachment.
+Denial prevents new output without deleting the cached NAT entry or earlier receive storage.
+Stale allow rules retain their actual computation and fail comparison.
+
+`CampusTCPModel` records actual endpoint, assignment, service, and receipt operations.
+`CampusTCPOrigins` and `CampusTCPFacts` derive the causal references and delivery history used by the application theorem.
+Their service facts connect compliant output to the declared primary campus path and modeled management isolation.
+The concrete trace has nonempty application reads through the same gateway as startup.
+The [campus TCP guide](CAMPUS_TCP.md) states the selected model and remaining deployment assumptions.
+
 ## Admission around reassembly
 
 `Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.

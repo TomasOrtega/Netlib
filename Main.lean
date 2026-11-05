@@ -32,6 +32,7 @@ import Netlib.Check.WireTCP
 import Netlib.Check.TCPReceive
 import Netlib.Check.TCPEndpoint
 import Netlib.Check.TCPHandshake
+import Netlib.Check.CampusTCP
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -63,6 +64,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib tcp-receive TRACE.json [--json]\n\
   netlib tcp-endpoint TRACE.json [--json]\n\
   netlib tcp-handshake TRACE.json [--json]\n\
+  netlib campus-tcp TRACE.json [--json]\n\
   netlib wire-forward TRACE.json [--json]\n\
   netlib wire-mtu TRACE.json [--json]\n\
   netlib wire-icmp TRACE.json [--json]\n\
@@ -260,6 +262,13 @@ private def tcpHandshake (path : String) (json : Bool) : IO UInt32 := do
   let report ← unwrap input.check
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.supported then 0 else 2
+
+private def campusTCP (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.CampusTCP.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap (input.check.mapError (·.message))
+  let application := Check.CampusTCP.applicationStatus report
+  IO.println (if json then (Check.CampusTCP.renderJson report application).pretty else Check.CampusTCP.render report application)
+  return if !report.supported then 2 else if report.compliant && application.passed then 0 else 1
 
 private def wireForward (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.WireForwarding.Input.parse (← IO.FS.readFile path))
@@ -562,6 +571,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["tcp-endpoint", path, "--json"] => tcpEndpoint path true
   | ["tcp-handshake", path] => tcpHandshake path false
   | ["tcp-handshake", path, "--json"] => tcpHandshake path true
+  | ["campus-tcp", path] => campusTCP path false
+  | ["campus-tcp", path, "--json"] => campusTCP path true
   | ["wire-forward", path] => wireForward path false
   | ["wire-forward", path, "--json"] => wireForward path true
   | ["wire-mtu", path] => wireMTU path false

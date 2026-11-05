@@ -1,0 +1,1427 @@
+{
+  "schema": 1,
+  "authentication": {
+    "schema": 1,
+    "context": {
+      "consumer": "alice@campus.example.test",
+      "producer": "campus-application",
+      "issuer": "campus-authority"
+    },
+    "link": {
+      "peer": "02:00:00:00:ea:02",
+      "authenticator": "02:00:00:00:ea:01"
+    },
+    "events": [
+      {
+        "type": "begin",
+        "authorized": false
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e02000006010700060d20",
+        "authorized": false
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0102000000ea02888e02000006020700060d00",
+        "authorized": false
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e0200000403070004",
+        "authorized": false
+      },
+      {
+        "type": "method",
+        "round": 1,
+        "subject": "alice@campus.example.test",
+        "method": 13,
+        "accepted": true,
+        "source": "Constructed external method evidence.",
+        "authorized": true
+      },
+      {
+        "type": "install",
+        "credential": {
+          "issuer": "campus-authority",
+          "subject": "alice@campus.example.test",
+          "audience": "campus-application",
+          "scopes": [
+            {
+              "resource": "campus-application",
+              "operation": "use"
+            }
+          ],
+          "expiresAt": 100,
+          "integrity": true
+        },
+        "authorized": true
+      },
+      {
+        "type": "request",
+        "scope": {
+          "resource": "campus-application",
+          "operation": "use"
+        },
+        "accepted": true,
+        "authorized": true
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02020000",
+        "authorized": false
+      }
+    ]
+  },
+  "application": {
+    "resource": "campus-application",
+    "operation": "use"
+  },
+  "intent": {
+    "schema": 1,
+    "requirements": [
+      {
+        "id": "REQUEST",
+        "scope": {
+          "resource": "campus-application",
+          "operation": "use"
+        },
+        "match": {
+          "source": {
+            "address": 3221225986,
+            "length": 32
+          },
+          "destination": {
+            "address": 3325256706,
+            "length": 32
+          },
+          "protocol": 6,
+          "sourcePorts": {
+            "first": 41000,
+            "last": 41000
+          },
+          "destinationPorts": {
+            "first": 9000,
+            "last": 9000
+          }
+        }
+      },
+      {
+        "id": "REPLY",
+        "scope": {
+          "resource": "campus-application",
+          "operation": "use"
+        },
+        "match": {
+          "source": {
+            "address": 3325256706,
+            "length": 32
+          },
+          "destination": {
+            "address": 3221225986,
+            "length": 32
+          },
+          "protocol": 6,
+          "sourcePorts": {
+            "first": 9000,
+            "last": 9000
+          },
+          "destinationPorts": {
+            "first": 41000,
+            "last": 41000
+          }
+        }
+      }
+    ]
+  },
+  "routing": {
+    "version": "6.19.0",
+    "bindings": [
+      {
+        "device": "client0",
+        "nextNode": "client",
+        "gateway": null
+      },
+      {
+        "device": "server0",
+        "nextNode": "server",
+        "gateway": null
+      }
+    ],
+    "routes": [
+      {
+        "dst": "192.0.2.0/24",
+        "dev": "client0",
+        "protocol": "static",
+        "scope": "link",
+        "flags": []
+      },
+      {
+        "dst": "198.51.100.0/24",
+        "dev": "server0",
+        "protocol": "static",
+        "scope": "link",
+        "flags": []
+      },
+      {
+        "dst": "203.0.113.0/24",
+        "type": "blackhole",
+        "flags": []
+      }
+    ]
+  },
+  "configs": [
+    {
+      "id": "deny",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "name": "netlib",
+              "handle": 1,
+              "family": "ip"
+            }
+          },
+          {
+            "chain": {
+              "type": "filter",
+              "table": "netlib",
+              "prio": 0,
+              "policy": "drop",
+              "name": "forward",
+              "hook": "forward",
+              "handle": 2,
+              "family": "ip"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "permit",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "name": "netlib",
+              "handle": 1,
+              "family": "ip"
+            }
+          },
+          {
+            "chain": {
+              "type": "filter",
+              "table": "netlib",
+              "prio": 0,
+              "policy": "drop",
+              "name": "forward",
+              "hook": "forward",
+              "handle": 2,
+              "family": "ip"
+            }
+          },
+          {
+            "rule": {
+              "table": "netlib",
+              "handle": 3,
+              "family": "ip",
+              "expr": [
+                {
+                  "match": {
+                    "right": {
+                      "prefix": {
+                        "len": 32,
+                        "addr": "192.0.2.2"
+                      }
+                    },
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": {
+                      "prefix": {
+                        "len": 32,
+                        "addr": "198.51.100.2"
+                      }
+                    },
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 6,
+                    "op": "==",
+                    "left": {
+                      "meta": {
+                        "key": "l4proto"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 41000,
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "sport"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 9000,
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    }
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ],
+              "comment": "REQUEST",
+              "chain": "forward"
+            }
+          },
+          {
+            "rule": {
+              "table": "netlib",
+              "handle": 4,
+              "family": "ip",
+              "expr": [
+                {
+                  "match": {
+                    "right": {
+                      "prefix": {
+                        "len": 32,
+                        "addr": "198.51.100.2"
+                      }
+                    },
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": {
+                      "prefix": {
+                        "len": 32,
+                        "addr": "192.0.2.2"
+                      }
+                    },
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 6,
+                    "op": "==",
+                    "left": {
+                      "meta": {
+                        "key": "l4proto"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 9000,
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "sport"
+                      }
+                    }
+                  }
+                },
+                {
+                  "match": {
+                    "right": 41000,
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    }
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ],
+              "comment": "REPLY",
+              "chain": "forward"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Constructed Netlib input",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "tcp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "initialConfig": "deny",
+  "namespace": {
+    "id": 1,
+    "birth": 1
+  },
+  "authenticationPort": {
+    "namespace": {
+      "id": 2,
+      "birth": 1
+    },
+    "ifindex": 1,
+    "birth": 1
+  },
+  "live": [
+    {
+      "namespace": {
+        "id": 1,
+        "birth": 1
+      },
+      "ifindex": 1,
+      "birth": 1
+    },
+    {
+      "namespace": {
+        "id": 1,
+        "birth": 1
+      },
+      "ifindex": 2,
+      "birth": 1
+    },
+    {
+      "namespace": {
+        "id": 2,
+        "birth": 1
+      },
+      "ifindex": 1,
+      "birth": 1
+    }
+  ],
+  "specifications": [
+    {
+      "id": "client",
+      "direction": "original",
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      },
+      "match": {
+        "source": {
+          "address": 3221225986,
+          "length": 32
+        },
+        "destination": {
+          "address": 3405803778,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": {
+          "first": 41000,
+          "last": 41000
+        },
+        "destinationPorts": {
+          "first": 8080,
+          "last": 8080
+        }
+      }
+    },
+    {
+      "id": "server",
+      "direction": "reply",
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 2,
+        "birth": 1
+      },
+      "match": {
+        "source": {
+          "address": 3325256706,
+          "length": 32
+        },
+        "destination": {
+          "address": 3405803777,
+          "length": 32
+        },
+        "protocol": 6,
+        "sourcePorts": {
+          "first": 9000,
+          "last": 9000
+        },
+        "destinationPorts": {
+          "first": 40000,
+          "last": 40000
+        }
+      }
+    }
+  ],
+  "guards": [
+    {
+      "id": "deny",
+      "source": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "bindings": [
+          {
+            "name": "client0",
+            "reference": {
+              "namespace": {
+                "id": 1,
+                "birth": 1
+              },
+              "ifindex": 1,
+              "birth": 1
+            }
+          },
+          {
+            "name": "server0",
+            "reference": {
+              "namespace": {
+                "id": 1,
+                "birth": 1
+              },
+              "ifindex": 2,
+              "birth": 1
+            }
+          }
+        ],
+        "ruleset": {
+          "nftables": [
+            {
+              "metainfo": {
+                "version": "1.1.3",
+                "release_name": "Constructed Netlib input",
+                "json_schema_version": 1
+              }
+            },
+            {
+              "table": {
+                "family": "ip",
+                "name": "campus_ingress",
+                "handle": 1
+              }
+            },
+            {
+              "chain": {
+                "family": "ip",
+                "table": "campus_ingress",
+                "name": "ingress",
+                "type": "filter",
+                "hook": "prerouting",
+                "prio": -300,
+                "policy": "drop",
+                "handle": 2
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "permit",
+      "source": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "bindings": [
+          {
+            "name": "client0",
+            "reference": {
+              "namespace": {
+                "id": 1,
+                "birth": 1
+              },
+              "ifindex": 1,
+              "birth": 1
+            }
+          },
+          {
+            "name": "server0",
+            "reference": {
+              "namespace": {
+                "id": 1,
+                "birth": 1
+              },
+              "ifindex": 2,
+              "birth": 1
+            }
+          }
+        ],
+        "ruleset": {
+          "nftables": [
+            {
+              "metainfo": {
+                "version": "1.1.3",
+                "release_name": "Constructed Netlib input",
+                "json_schema_version": 1
+              }
+            },
+            {
+              "table": {
+                "family": "ip",
+                "name": "campus_ingress",
+                "handle": 1
+              }
+            },
+            {
+              "chain": {
+                "family": "ip",
+                "table": "campus_ingress",
+                "name": "ingress",
+                "type": "filter",
+                "hook": "prerouting",
+                "prio": -300,
+                "policy": "drop",
+                "handle": 2
+              }
+            },
+            {
+              "rule": {
+                "family": "ip",
+                "table": "campus_ingress",
+                "chain": "ingress",
+                "comment": "ORIGINAL",
+                "expr": [
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "meta": {
+                          "key": "iif"
+                        }
+                      },
+                      "right": "client0"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "ip",
+                          "field": "saddr"
+                        }
+                      },
+                      "right": "192.0.2.2"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "ip",
+                          "field": "daddr"
+                        }
+                      },
+                      "right": "203.0.113.2"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "tcp",
+                          "field": "sport"
+                        }
+                      },
+                      "right": 41000
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "tcp",
+                          "field": "dport"
+                        }
+                      },
+                      "right": 8080
+                    }
+                  },
+                  {
+                    "accept": null
+                  }
+                ],
+                "handle": 3
+              }
+            },
+            {
+              "rule": {
+                "family": "ip",
+                "table": "campus_ingress",
+                "chain": "ingress",
+                "comment": "REPLY",
+                "expr": [
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "meta": {
+                          "key": "iif"
+                        }
+                      },
+                      "right": "server0"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "ip",
+                          "field": "saddr"
+                        }
+                      },
+                      "right": "198.51.100.2"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "ip",
+                          "field": "daddr"
+                        }
+                      },
+                      "right": "203.0.113.1"
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "tcp",
+                          "field": "sport"
+                        }
+                      },
+                      "right": 9000
+                    }
+                  },
+                  {
+                    "match": {
+                      "op": "==",
+                      "left": {
+                        "payload": {
+                          "protocol": "tcp",
+                          "field": "dport"
+                        }
+                      },
+                      "right": 40000
+                    }
+                  },
+                  {
+                    "accept": null
+                  }
+                ],
+                "handle": 4
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "initialGuard": "deny",
+  "active": {
+    "socket": {
+      "address": "192.0.2.2",
+      "port": 41000
+    },
+    "iss": 1000,
+    "capacity": 8,
+    "pendingLimit": 16,
+    "ipSendLimit": 576
+  },
+  "passive": {
+    "socket": {
+      "address": "198.51.100.2",
+      "port": 9000
+    },
+    "iss": 5000,
+    "capacity": 8,
+    "pendingLimit": 16,
+    "ipSendLimit": 576
+  },
+  "zone": 0,
+  "events": [
+    {
+      "kind": "authentication",
+      "index": 0
+    },
+    {
+      "kind": "authentication",
+      "index": 1
+    },
+    {
+      "kind": "authentication",
+      "index": 2
+    },
+    {
+      "kind": "authentication",
+      "index": 3
+    },
+    {
+      "kind": "authentication",
+      "index": 4
+    },
+    {
+      "kind": "authentication",
+      "index": 5
+    },
+    {
+      "kind": "authentication",
+      "index": 6
+    },
+    {
+      "kind": "install",
+      "configuration": "permit"
+    },
+    {
+      "kind": "stage",
+      "specification": "client"
+    },
+    {
+      "kind": "stage",
+      "specification": "server"
+    },
+    {
+      "kind": "installGuard",
+      "guard": "permit"
+    },
+    {
+      "kind": "open",
+      "remote": {
+        "address": "203.0.113.2",
+        "port": 8080
+      },
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 0,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 0,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 0,
+      "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000",
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 1,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 2,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 1,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 1,
+      "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000",
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 2,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 2,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 2,
+      "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000",
+      "policyPermitted": true
+    },
+    {
+      "kind": "write",
+      "actor": "client",
+      "payloadHex": "616263"
+    },
+    {
+      "kind": "send",
+      "actor": "client",
+      "count": 3,
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 3,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 3,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 3,
+      "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263",
+      "policyPermitted": true
+    },
+    {
+      "kind": "read",
+      "actor": "server",
+      "count": 3
+    },
+    {
+      "kind": "write",
+      "actor": "server",
+      "payloadHex": "78797a"
+    },
+    {
+      "kind": "send",
+      "actor": "server",
+      "count": 3,
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 4,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 2,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 4,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 4,
+      "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a",
+      "policyPermitted": true
+    },
+    {
+      "kind": "read",
+      "actor": "client",
+      "count": 3
+    },
+    {
+      "kind": "emitAck",
+      "actor": "client",
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 5,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "serve",
+      "ticket": 5,
+      "observed": null
+    },
+    {
+      "kind": "deliver",
+      "service": 5,
+      "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000",
+      "policyPermitted": true
+    },
+    {
+      "kind": "write",
+      "actor": "client",
+      "payloadHex": "646566"
+    },
+    {
+      "kind": "send",
+      "actor": "client",
+      "count": 3,
+      "policyPermitted": true
+    },
+    {
+      "kind": "assign",
+      "output": 6,
+      "ingress": {
+        "namespace": {
+          "id": 1,
+          "birth": 1
+        },
+        "ifindex": 1,
+        "birth": 1
+      }
+    },
+    {
+      "kind": "authentication",
+      "index": 7
+    },
+    {
+      "kind": "install",
+      "configuration": "deny"
+    },
+    {
+      "kind": "installGuard",
+      "guard": "deny"
+    },
+    {
+      "kind": "serve",
+      "ticket": 6,
+      "observed": null
+    }
+  ]
+}
