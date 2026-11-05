@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "lean_version": "4.35.0",
-  "source_revision": "982614681e88bb7110887705387f26e4d88899b0",
-  "source_tree": "011b2ec3bb60cb1af0837073b5746bd0d9af4e55a6a3bf1b21ea99a820da50ef",
+  "source_revision": "5ca554245e89a7b207fdd476b3b01a95f60d9f70",
+  "source_tree": "83db88e59490e905ab3b91b10a9313f0eabfe89b422a8c645a8dd5b981667fd3",
   "inputs": {
     ".python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
     "GLOSSARY.md": "accdb6ebef405f4a3b2aa72e7176494bca734eac4e88e3b1f0f1c87aa56b03f9",
@@ -881,7 +881,6 @@
     "examples/nat/wrong-peer-admitted.json": "d4dd8699ed7b0cac97aff404566a09eeacb17a2974f69189c38eaadaf45a772f",
     "examples/received-icmp/Dockerfile": "65ee37358df9fb3f80c2863abeb0dcbe68d9ef66a38b8130c3d558041469084a",
     "examples/received-icmp/README.md": "1a2e6b2ee90171fe84841932ffd12e61e79454c754b0b7f75527a475e7aa5740",
-    "examples/received-icmp/__pycache__/exercise.cpython-315.pyc": "1714a6f9cad00fccc54e7e8f79e3adacd08b256baa7705666e23e430b1c366c4",
     "examples/received-icmp/authentication.json": "338a4af0c177fecbd5efca449327e04be8edee9adb03ca9f01040bce8dcce0a9",
     "examples/received-icmp/build-stderr.txt": "d86cb49dd44ce17a9da506b4e732433d5755f98bac9a709da0462523638defc5",
     "examples/received-icmp/build-stdout.txt": "0f50389d16960a6f3d3b41ef34d7c036da4e7dbe136da077cd8231c8d1d5e630",
@@ -1412,7 +1411,7 @@
     "scripts/check_profiles.py": "e7c20317f55265e98de44247e2c227464d7ef2947537d56154cbd3a79dc6a60d",
     "scripts/check_site.py": "fab59e0f9b6dcce1eeea77d7ae703bbc7a930a1f1b69e4c42015b3f438c00c23",
     "scripts/package_api.py": "d75bb6d42ec9920d10c02e78b9537bfe3e9d3e6f62562513c3cf3900bcbbabb2",
-    "scripts/site_common.py": "86dff735662ec1622413ae3de0c6d110018e825a0150bdc94358a51a0b8a0428",
+    "scripts/site_common.py": "4a2d0591a65e5923c3637ce15455050561a7cb56a6490883b5bcfe96d0487608",
     "uv.lock": "e287c02358211710535e5f463f6c9b25d7d98fe901e6dfbc91a4b3f0084ec1eb"
   },
   "tools": {
@@ -1426,5 +1425,5 @@
     "files": 146
   },
   "html_pages": 156,
-  "archive_sha256": "8905db264130db75352199fe22da199cdccdd498db19236c49854b821b956b86"
+  "archive_sha256": "ed880578e1ef5b24a4625c253ca15822c68c493636e0a08476c258f413465ee2"
 }
