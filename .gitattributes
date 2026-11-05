@@ -9,3 +9,6 @@ examples/wire/build-stderr.txt -whitespace
 examples/wire-nat/build-stdout.txt -whitespace
 examples/wire-nat/build-stderr.txt -whitespace
 examples/wire-nat/native/trace.txt -whitespace
+examples/mtu/build-stdout.txt -whitespace
+examples/mtu/build-stderr.txt -whitespace
+examples/mtu/native/trace.txt -whitespace

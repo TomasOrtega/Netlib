@@ -1,0 +1,10 @@
+OpenSSL 3.5.9 29 Sep 2026 (Library: OpenSSL 3.5.9 29 Sep 2026)
+built on: Wed Sep 30 07:15:39 2026 UTC
+platform: linux-aarch64
+options:  bn(64,64)
+compiler: cc -fPIC -pthread -Wa,--noexecstack -Os -fstack-clash-protection -Wformat -Werror=format-security -g -Os -fstack-clash-protection -Wformat -Werror=format-security -g -Wa,--noexecstack -DOPENSSL_USE_NODELETE -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+OPENSSLDIR: "/etc/ssl"
+ENGINESDIR: "/usr/lib/engines-3"
+MODULESDIR: "/usr/lib/ossl-modules"
+Seeding source: os-specific
+CPUINFO: OPENSSL_armcap=0x8fd

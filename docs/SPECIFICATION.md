@@ -398,6 +398,40 @@ ICMP observations remain evidence; the model does not generate those packets.
 MTU handling, fragmentation, full transport behavior, expiry, concurrency, and kernel C refinement remain outside this profile.
 The [wire forwarding guide](WIRE_FORWARDING.md) defines the schema, native cases, and assumptions.
 
+## Effective MTU and fragment families
+
+The `wire-mtu` command extends the whole-input UDP profile with effective-MTU decisions and output fragmentation.
+It retains the earlier route, filter, NAT, and ordinary-table importers.
+Each bound route next node requires a unique effective MTU between 68 and 65,535 bytes.
+Device MTU alone need not establish that effective value.
+
+Route selection precedes TTL expiry.
+Oversized DF rejection follows TTL handling and precedes filtering, source NAT, and confirmation.
+Both early rejections retain prepared tracking state without confirming fresh candidates.
+A cached reply may retain its earlier seen-reply update.
+
+Successful lifecycle output is split after translation and confirmation.
+Nonfinal payload lengths are positive multiples of eight bytes.
+Offsets describe a contiguous complete IP payload, including the UDP header.
+Every fragment fits the selected effective MTU and has a valid IPv4 checksum.
+The translated UDP checksum and payload remain exact across reconstruction.
+
+Observed output is a complete Ethernet fragment array, or an empty array for no selected UDP output.
+Strict reassembly accepts capture reordering and rejects gaps, overlaps, duplicates, mixed metadata, and incomplete families.
+UDP validation follows complete reassembly.
+Comparison checks normalized fragment packets and the entire recovered datagram.
+Compliant replay transfers payload, TTL, and MTU bounds to the observed family.
+
+The shared replay certificate preserves computed state across mismatching observations.
+The deployment theorem connects fragmented output to current EAP readiness and valid scope credentials.
+Current Logoff policy denies complete output families even through cached mappings.
+
+The native evidence includes a 1,200-byte socket payload split into three parts and reassembled by a normal UDP receiver.
+Separate cases record DF rejection, TTL priority, exact-MTU DF output, cached state retention, and omitted UDP checksums.
+ICMP packets are retained as native evidence, while their generation remains outside the Lean model.
+Input fragmentation, gateway reassembly, options, PMTU discovery, offloads, resource failures, and kernel refinement remain separate work.
+The [MTU guide](MTU.md) defines the schema, proofs, and complete assumptions.
+
 ## Static stateful filter refinement
 
 The `stateful-refines` command checks permission inclusion between two stateful source chains.
@@ -889,6 +923,8 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
     Fresh native socket packets carry complete checksums; separate malformed probes distinguish forwarding from transport reception.
 20. Wire forwarding tests cover exact NAT payloads, checksum regeneration, omission, maximum lengths, TTL boundaries, cached reply updates, and fresh confirmation.
     Compliant observed outputs retain payload and TTL guarantees; current Logoff filters deny cached traffic without deleting its binding.
+21. MTU tests cover fragment codecs, aligned layouts, arbitrary capture order, strict rejection, DF and TTL ordering, NAT, and current session enforcement.
+    Native families recover full socket payloads; mismatching observations preserve computed replay state.
 
 ## Scope limits
 
@@ -909,7 +945,8 @@ Full authentication protocols, transport handshakes, temporal liveness, and adve
 Constant packet rewrites and one local timed source-NAPT model have the separate guarantees above.
 Fixed-endpoint tuple translation and ordinary forwarded-packet replay also have explicit domain and evidence limits.
 The selected byte-derived UDP model adds payload-preserving NAT, checksum regeneration, and TTL handling under its stated assumptions.
-MTU, ICMP generation, fragmentation, full transport behavior, and kernel refinement remain separate work.
+The MTU extension adds output fragmentation and strict family reassembly.
+ICMP generation, input reassembly, full transport behavior, and kernel refinement remain separate work.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.

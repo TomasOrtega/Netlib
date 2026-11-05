@@ -1114,6 +1114,60 @@ The deployment theorem combines exact emitted packet facts with current scope cr
 MTU, fragmentation, ICMP generation, concurrency, and kernel C refinement remain outside this model.
 Identity bindings, capture location, current installation, and cryptographic method fidelity remain assumptions.
 
+# MTU and IPv4 fragment families
+%%%
+tag := "mtu"
+file := "mtu"
+%%%
+
+The MTU extension accepts whole IPv4 UDP inputs and returns complete output fragment families.
+Each route next hop has an explicit effective MTU between 68 and 65,535 bytes.
+Route and path constraints can lower this value below the device MTU.
+
+Routing precedes TTL expiry, which precedes oversized-DF rejection.
+Early rejection retains prepared tracking state and never confirms a fresh candidate.
+Other packets execute the existing filters, NAT, and confirmation exactly once.
+Fragmentation follows successful translated output.
+
+Every nonfinal payload has an eight-byte-aligned length.
+The offsets cover the complete IP payload without gaps or overlap.
+Every output header has a valid checksum and fits the selected effective MTU.
+The UDP header and application payload are recovered together:
+
+```lean
+open Netlib.Protocol in
+example {packet : IPv4.Packet}
+    {mtu : IPv4Fragmentation.MTU}
+    (result : IPv4Fragmentation.Certified packet mtu) :
+    IPv4Fragmentation.reassemble result.fragments =
+      .ok packet := result.reassembled
+```
+
+The recovery theorem also holds for every permutation of the generated family.
+Strict reassembly rejects gaps, overlaps, duplicates, inconsistent metadata, and incomplete families.
+UDP validation follows complete recovery.
+
+```
+lake exe netlib wire-mtu examples/mtu/replay.json --json
+lake exe netlib session-firewall examples/mtu/session.json --json
+```
+
+The checker compares normalized fragment fields and the complete recovered datagram.
+An empty output array asserts no selected UDP egress.
+Null intermediate metadata remains unobserved.
+Matched observed families preserve the exact input payload, decrement TTL, and fit their actual emission MTU.
+Both forwarding checkers reuse the shared observed-execution certificate.
+Observed disagreement cannot replace computed state.
+
+The native capture forwards a 1,200-byte socket payload through NAT as three fragments on an MTU-600 path.
+The server's UDP socket receives the exact original payload.
+Additional cases cover DF rejection, TTL priority, exact-MTU DF forwarding, and checksum omission.
+Those packet-mechanics probes use a separate fixed permit suffix.
+Current EAP permission authorizes modeled families, while Logoff denies cached traffic.
+
+ICMP generation, input reassembly, options, resource failures, concurrency, and native implementation refinement remain open.
+Capture attribution, effective MTU, principal binding, and current installation retain explicit assumptions.
+
 # Documentation process
 %%%
 tag := "documentation"

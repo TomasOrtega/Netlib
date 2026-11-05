@@ -118,6 +118,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Packet, route, and request checks](DATAPLANE.md).
 - [IPv4 and UDP wire bytes and checksums](WIRE.md).
 - [Payload, TTL, and NAT wire forwarding](WIRE_FORWARDING.md).
+- [MTU decisions, fragmentation, and strict reassembly](MTU.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).

@@ -1,0 +1,6 @@
+subject=CN=Netlib private EAP test CA
+issuer=CN=Netlib private EAP test CA
+serial=523B3F625231E3B90A2ACBDC3E8F31831BBC33E7
+sha256 Fingerprint=DA:B6:A3:22:4E:B4:BB:23:DE:B5:16:90:33:2C:D0:82:D6:13:81:2F:D7:69:55:82:3C:7E:73:DD:4E:2A:6B:E7
+notBefore=Nov  5 00:30:50 2026 GMT
+notAfter=Nov 12 00:30:50 2026 GMT

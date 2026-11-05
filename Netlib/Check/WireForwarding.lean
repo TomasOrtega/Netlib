@@ -1,5 +1,6 @@
 import Netlib.Check.ConntrackLifecycle
 import Netlib.Check.Wire
+import Netlib.Check.Replay
 import Netlib.Protocol.WireForwarding
 
 /-!
@@ -140,40 +141,33 @@ theorem packetMatches_correct (event : Event) (result : Result) :
 def Matches (observation : Observation) (result : Result) : Prop :=
   PacketMatches observation.event result ∧ StateMatches observation.event result.state
 
-structure Finding where
-  observation : Observation
-  result : Result
-  passed : Bool
+abbrev Finding := Replay.Finding Observation Result
+
+abbrev Finding.mk (observation : Observation) (result : Result) (passed : Bool) : Finding :=
+  Replay.Finding.mk observation result passed
+
+abbrev Finding.observation (finding : Finding) : Observation := Replay.Finding.observation finding
+abbrev Finding.result (finding : Finding) : Result := Replay.Finding.result finding
+abbrev Finding.passed (finding : Finding) : Bool := Replay.Finding.passed finding
 
 def finding (observation : Observation) (result : Result) : Finding :=
   ⟨observation, result, packetMatches observation.event result && stateMatches observation.event result.state⟩
 
 theorem finding_correct (observation : Observation) (result : Result) :
     (finding observation result).passed = true ↔ Matches observation result := by
-  simp [finding, Matches, packetMatches_correct, stateMatches_correct]
+  simp [finding, Finding.passed, Matches, packetMatches_correct, stateMatches_correct]
 
-def Agreement (routing : Import.LinuxRoute.Snapshot) : Tracker → List Observation → Prop
-  | _, [] => True
-  | before, observation :: observations =>
-    ∃ result, step routing before observation.event = .ok result ∧ Matches observation result ∧
-      Agreement routing result.state observations
+def replay (routing : Import.LinuxRoute.Snapshot) : Replay.System Tracker Observation Result where
+  step before observation := step routing before observation.event
+  state := Result.state
+  passed observation result := packetMatches observation.event result && stateMatches observation.event result.state
+  Matches := Matches
+  correct := finding_correct
 
-inductive Trace (routing : Import.LinuxRoute.Snapshot) : Tracker → List Finding → Tracker → Prop
-  | nil (state : Tracker) : Trace routing state [] state
-  | cons {before final : Tracker} {head : Finding} {tail : List Finding}
-      (computed : step routing before head.observation.event = .ok head.result)
-      (rest : Trace routing head.result.state tail final) : Trace routing before (head :: tail) final
-
-theorem Trace.valid (trace : Trace routing initial findings final) (valid : initial.Valid) :
-    final.Valid ∧ ∀ finding ∈ findings, finding.result.state.Valid := by
-  induction trace with
-  | nil => exact ⟨valid, by simp⟩
-  | @cons before final head tail computed rest ih =>
-    obtain ⟨last, each⟩ := ih head.result.valid
-    exact ⟨last, fun finding member => by
-      rcases List.mem_cons.mp member with rfl | member
-      · exact finding.result.valid
-      · exact each finding member⟩
+abbrev Agreement (routing : Import.LinuxRoute.Snapshot) := Replay.Agreement (replay routing)
+structure Trace (routing : Import.LinuxRoute.Snapshot) (initial : Tracker) (findings : List Finding)
+    (final : Tracker) : Prop where
+  execution : Replay.Trace (replay routing) initial findings final
 
 structure Report (routing : Import.LinuxRoute.Snapshot) (initial : Tracker) (observations : List Observation) where
   final : Tracker
@@ -182,24 +176,15 @@ structure Report (routing : Import.LinuxRoute.Snapshot) (initial : Tracker) (obs
   trace : Trace routing initial findings final
   correct : findings.all Finding.passed = true ↔ Agreement routing initial observations
 
-def audit (routing : Import.LinuxRoute.Snapshot) (initial : Tracker) :
-    (observations : List Observation) → Except String (Report routing initial observations)
-  | [] => .ok ⟨initial, [], rfl, .nil initial, by simp [Agreement]⟩
-  | observation :: observations => do
-    match computed : step routing initial observation.event with
-    | .error error => throw error
-    | .ok result =>
-      let tail ← audit routing result.state observations
-      return ⟨tail.final, finding observation result :: tail.findings,
-        by simp only [List.map_cons, finding, tail.covered], .cons computed tail.trace, by
-          simp only [List.all_cons, Bool.and_eq_true, finding_correct, tail.correct, Agreement]
-          constructor
-          · intro pair
-            exact ⟨result, computed, pair.1, pair.2⟩
-          · rintro ⟨actual, same, matched, rest⟩
-            have equal : actual = result := Except.ok.inj (same.symm.trans computed)
-            subst actual
-            exact ⟨matched, rest⟩⟩
+theorem Trace.valid (trace : Trace routing initial findings final) (valid : initial.Valid) :
+    final.Valid ∧ ∀ finding ∈ findings, finding.result.state.Valid :=
+  Replay.Trace.invariant trace.execution Netlib.Protocol.ConntrackLifecycle.State.Valid
+    (fun _ _ result _ _ => result.valid) valid
+
+def audit (routing : Import.LinuxRoute.Snapshot) (initial : Tracker) (observations : List Observation) :
+    Except String (Report routing initial observations) := do
+  let report ← Replay.audit (replay routing) initial observations
+  return ⟨report.final, report.findings, report.covered, ⟨report.trace⟩, report.correct⟩
 
 def Report.compliant (report : Report routing initial observations) : Bool := report.findings.all Finding.passed
 
@@ -207,34 +192,19 @@ theorem Report.compliant_iff (report : Report routing initial observations) :
     report.compliant = true ↔ Agreement routing initial observations := report.correct
 
 theorem Trace.steps (trace : Trace routing initial findings final) :
-    ∀ finding ∈ findings, ∃ before, step routing before finding.observation.event = .ok finding.result := by
-  induction trace with
-  | nil => simp
-  | @cons before final head tail computed rest ih =>
-    intro finding member
-    rcases List.mem_cons.mp member with rfl | member
-    · exact ⟨before, computed⟩
-    · exact ih finding member
+    ∀ finding ∈ findings, ∃ before, step routing before finding.observation.event = .ok finding.result :=
+  Replay.Trace.steps trace.execution
 
 theorem Trace.matches (trace : Trace routing initial findings final)
     (agreement : Agreement routing initial (findings.map Finding.observation)) :
-    ∀ finding ∈ findings, Matches finding.observation finding.result := by
-  induction trace with
-  | nil => simp
-  | @cons before final head tail computed rest ih =>
-    obtain ⟨actual, accepted, matched, next⟩ := agreement
-    have equal : actual = head.result := Except.ok.inj (accepted.symm.trans computed)
-    subst actual
-    intro finding member
-    rcases List.mem_cons.mp member with rfl | member
-    · exact matched
-    · exact ih next finding member
+    ∀ finding ∈ findings, Matches finding.observation finding.result :=
+  Replay.Trace.matches trace.execution agreement
 
 theorem Report.finding_matches (report : Report routing initial observations) (compliant : report.compliant = true)
     (finding : Finding) (member : finding ∈ report.findings) : Matches finding.observation finding.result := by
   have agreement := report.compliant_iff.mp compliant
   rw [← report.covered] at agreement
-  exact report.trace.matches agreement finding member
+  exact Trace.matches report.trace agreement finding member
 
 theorem step_packet (routing : Import.LinuxRoute.Snapshot) (before : Tracker) (config : Config)
     (zone : Nat) (packet : WirePacket) (observed : PacketObservation)
@@ -259,7 +229,7 @@ theorem Report.observed_output_payload (report : Report routing initial observat
     (output : WirePacket) (seen : observed.output = some output) :
     output.checked.packet.datagram.payload = packet.checked.packet.datagram.payload ∧
       output.checked.packet.ip.packet.ttl.toNat = packet.checked.packet.ip.packet.ttl.toNat - 1 := by
-  obtain ⟨before, computed⟩ := report.trace.steps finding member
+  obtain ⟨before, computed⟩ := Trace.steps report.trace finding member
   rw [event] at computed
   obtain ⟨outcome, stepped, stored⟩ := step_packet routing before config zone packet observed state finding.result computed
   have matched := (report.finding_matches compliant finding member).1

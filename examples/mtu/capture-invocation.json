@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "captureContainer": "netlib-mtu-final",
+  "captureImageID": "sha256:5339283b9b4b22088fccf90e4730e7d841b0f2ab2e42901fa539c6ba99c63b59",
+  "captureStartedAt": "2026-11-05T00:30:50.67796259Z",
+  "captureCompletedAt": "2026-11-05T00:30:57.712739579Z",
+  "actualBuildCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-mtu-capture:1",
+    "/private/tmp/netlib-mtu-build"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "run",
+    "--name",
+    "netlib-mtu-final",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-mtu-capture:1"
+  ],
+  "recipeNote": "The retained capture used Docker run directly. The packaged recipe uses create/start with the same source inputs and runtime options. Build and runtime logs belong to the final retained capture."
+}

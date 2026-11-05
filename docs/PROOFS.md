@@ -967,3 +967,38 @@ Packet transformations and flow state have the separate model scopes above.
 Their native implementation correspondence remains unproved.
 Cryptographic correctness and operational performance targets also remain unproved.
 See the [specification](SPECIFICATION.md) for the complete scope.
+
+## Effective MTU and output fragments
+
+`Netlib/Protocol/IPv4Fragment.lean` proves both codec round trips for arbitrary accepted IHL-five fragment bytes.
+It validates reserved flags, DF consistency, MF alignment, bounds, and header checksums.
+Received checksum representation and trailing padding are preserved.
+
+`Netlib/Protocol/IPv4Fragmentation.lean` proves contiguous aligned layouts and exact whole-IP-payload recovery.
+Every generated fragment fits the validated effective MTU.
+The total certificate prevents encoding failure after confirmation.
+Strict reassembly rejects inconsistent metadata, gaps, overlaps, duplicates, and incomplete families.
+`Certified.reassembled_perm` proves exact packet recovery for every permutation of the generated family.
+
+`Netlib/Protocol/MTUForwarding.lean` reuses one conntrack preparation and one lifecycle execution.
+Route failure precedes TTL expiry, which precedes oversized-DF rejection.
+DF rejection preserves prepared state and prevents fresh confirmation.
+Permitted translated packets are fragmented after successful confirmation.
+Emission facts preserve the full UDP datagram, translated tuple, metadata, and decremented TTL.
+
+`Netlib/Check/IPv4Fragments.lean` checks Ethernet fragments, strict reassembly, and subsequent UDP decoding.
+`Netlib/Check/MTUForwarding.lean` compares complete normalized families and their recovered datagrams.
+`Report.observed_output_payload` connects observed recovery to the exact input payload and TTL decrement.
+`Report.observed_fragments_fit` bounds every observed part by its actual emission's selected MTU.
+
+`Netlib/Check/Replay.lean` supplies the shared execution certificate for both forwarding checkers.
+`Report.compliant_iff` characterizes ordered agreement.
+`Trace.invariant` preserves any supplied state invariant at every prefix.
+Mismatching observations never overwrite computed state.
+
+`Netlib/Examples/MTUDeployment.lean` composes fragment facts with current scope permission and EAP readiness.
+Its Logoff theorem excludes output families through arbitrary cached records under the current policy.
+The native capture supplies independent socket reassembly, fragment bytes, MTU readbacks, hook observations, and table dumps.
+
+ICMP generation, input reassembly, resource failures, concurrency, kernel refinement, and physical deployment correspondence remain open.
+The [MTU guide](MTU.md) records the selected profile and effective-MTU assumption.
