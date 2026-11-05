@@ -237,6 +237,10 @@ private def packetMatch (json : Lean.Json) : Except String Match := do
     ← optional portRange (← json.getObjVal? "sourcePorts"),
     ← optional portRange (← json.getObjVal? "destinationPorts")⟩
 
+/-- Traffic selections use the same strict packet-match format as ACL rules. -/
+def parseTrafficSelection (text : String) : Except String Match := do
+  packetMatch (← Lean.Json.parse text)
+
 private def rule (json : Lean.Json) : Except String Rule := do
   fields json ["match", "action"]
   let action ← match ← str json "action" with

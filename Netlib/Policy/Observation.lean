@@ -67,14 +67,14 @@ termination_by atoms.length
 decreasing_by exact Nat.lt_succ_of_le (List.length_filter_le _ _)
 
 /-- Every generated propositional law is valid for any faithful network interpretation. -/
-theorem laws_sound (observations : List Observation) (observe : Observation → Bool)
+theorem localLaws_sound (observations : List Observation) (observe : Observation → Bool)
     (faithful : Faithful observe select network)
     (nonempty : ∀ observation ∈ observations, ∀ selector ∈ observation.selectors,
       ∃ node, select selector node)
     (nodeUnique : ∀ name a b, select (.node name) a → select (.node name) b → a = b) :
-    ∀ law ∈ Language.laws observations, law.Holds observe := by
+    ∀ law ∈ Language.localLaws observations, law.Holds observe := by
   intro law member
-  unfold Language.laws at member
+  unfold Language.localLaws at member
   have member := mem_of_mem_eraseDups _ member
   simp only [List.mem_flatMap] at member
   obtain ⟨observation, observed, member⟩ := member
@@ -109,6 +109,130 @@ theorem laws_sound (observations : List Observation) (observe : Observation → 
     apply mediated_of_not_some
     intro some
     exact notSome ((faithful _).mpr some)
+
+theorem reflexiveLaw_sound (observation : Observation) (observe : Observation → Bool)
+    (faithful : Faithful observe select network)
+    (nonempty : ∀ selector ∈ observation.selectors, ∃ node, select selector node) :
+    ∀ law ∈ Language.reflexiveLaw observation, law.Holds observe := by
+  cases observation with
+  | mediated => simp [Language.reflexiveLaw]
+  | reach source target service universal =>
+    intro law member
+    simp only [Language.reflexiveLaw] at member
+    split at member
+    next same =>
+      simp only [List.mem_singleton] at member
+      subst law
+      obtain ⟨node, selected⟩ := nonempty source (by simp [selectors])
+      exact (faithful _).mpr ⟨node, node, selected, selected, .refl node⟩
+    next different => simp at member
+
+theorem transitiveLaw_sound (left right : Observation) (observe : Observation → Bool)
+    (faithful : Faithful observe select network)
+    (nonempty : ∀ selector ∈ left.selectors, ∃ node, select selector node) :
+    ∀ law ∈ Language.transitiveLaw left right, law.Holds observe := by
+  cases left with
+  | mediated => simp [Language.transitiveLaw]
+  | reach source middle service universal =>
+    cases right with
+    | mediated => simp [Language.transitiveLaw]
+    | reach next target traffic all =>
+      intro law member
+      simp only [Language.transitiveLaw] at member
+      split at member
+      next same =>
+        obtain ⟨rfl, rfl⟩ := same
+        simp only [List.mem_singleton] at member
+        subst law
+        intro paths
+        have first := (faithful _).mp paths.1
+        have second := (faithful _).mp paths.2
+        apply (faithful _).mpr
+        intro a b sourceSelected targetSelected
+        obtain ⟨relay, relaySelected⟩ := nonempty middle (by simp [selectors])
+        exact (first a relay sourceSelected relaySelected).trans
+          (second relay b relaySelected targetSelected)
+      next different => simp at member
+
+theorem reachPairs_nonempty (observations : List Observation)
+    (nonempty : ∀ observation ∈ observations, ∀ selector ∈ observation.selectors,
+      ∃ node, select selector node)
+    (pair : Language.ReachPair) (member : pair ∈ Language.reachPairs observations) :
+    (∃ node, select pair.source node) ∧ (∃ node, select pair.target node) := by
+  have member := mem_of_mem_eraseDups _ member
+  obtain ⟨observation, observed, member⟩ := List.mem_flatMap.mp member
+  cases observation with
+  | mediated => simp at member
+  | reach source target service universal =>
+    simp only [List.mem_singleton] at member
+    subst pair
+    exact ⟨nonempty _ observed source (by simp [selectors]),
+      nonempty _ observed target (by simp [selectors])⟩
+
+theorem reachJoins_members (vertex : Selector × String) (pairs : List Language.ReachPair)
+    (joined : Language.ReachPair × Language.ReachPair) (member : joined ∈ Language.reachJoins vertex pairs) :
+    joined.1 ∈ pairs ∧ joined.2 ∈ pairs := by
+  obtain ⟨left, leftMember, member⟩ := List.mem_flatMap.mp member
+  obtain ⟨right, rightMember, rfl⟩ := List.mem_map.mp member
+  exact ⟨(List.mem_filter.mp leftMember).1, (List.mem_filter.mp rightMember).1⟩
+
+theorem extendReachPairs_nonempty (vertex : Selector × String) (pairs : List Language.ReachPair)
+    (nonempty : ∀ pair ∈ pairs,
+      (∃ node, select pair.source node) ∧ (∃ node, select pair.target node)) :
+    ∀ pair ∈ Language.extendReachPairs vertex pairs,
+      (∃ node, select pair.source node) ∧ (∃ node, select pair.target node) := by
+  intro pair member
+  have member := mem_of_mem_eraseDups _ member
+  rcases List.mem_append.mp member with original | composed
+  · exact nonempty pair original
+  · obtain ⟨joined, joinedMember, rfl⟩ := List.mem_map.mp composed
+    have members := reachJoins_members vertex pairs joined joinedMember
+    exact ⟨(nonempty joined.1 members.1).1, (nonempty joined.2 members.2).2⟩
+
+theorem closeReachLaws_sound (vertices : List (Selector × String)) (pairs : List Language.ReachPair)
+    (observe : Observation → Bool) (faithful : Faithful observe select network)
+    (nonempty : ∀ pair ∈ pairs,
+      (∃ node, select pair.source node) ∧ (∃ node, select pair.target node)) :
+    ∀ law ∈ Language.closeReachLaws vertices pairs, law.Holds observe := by
+  induction vertices generalizing pairs with
+  | nil => simp [Language.closeReachLaws]
+  | cons vertex vertices ih =>
+    intro law member
+    rcases List.mem_append.mp member with immediate | later
+    · obtain ⟨joined, joinedMember, member⟩ := List.mem_flatMap.mp immediate
+      apply transitiveLaw_sound _ _ observe faithful ?_ law member
+      intro selector selected
+      have pairsMember := reachJoins_members vertex pairs joined joinedMember
+      have selectedPair := nonempty joined.1 pairsMember.1
+      simp only [Language.ReachPair.observation, selectors,
+        List.mem_cons, List.not_mem_nil, or_false] at selected
+      rcases selected with rfl | rfl
+      · exact selectedPair.1
+      · exact selectedPair.2
+    · exact ih _ (extendReachPairs_nonempty vertex pairs nonempty) law later
+
+theorem transitiveLaws_sound (observations : List Observation) (observe : Observation → Bool)
+    (faithful : Faithful observe select network)
+    (nonempty : ∀ observation ∈ observations, ∀ selector ∈ observation.selectors,
+      ∃ node, select selector node) :
+    ∀ law ∈ Language.transitiveLaws observations, law.Holds observe := by
+  exact closeReachLaws_sound _ _ observe faithful (reachPairs_nonempty observations nonempty)
+
+/-- Each background law holds under the same selection assumptions as the policy. -/
+theorem laws_sound (observations : List Observation) (observe : Observation → Bool)
+    (faithful : Faithful observe select network)
+    (nonempty : ∀ observation ∈ observations, ∀ selector ∈ observation.selectors,
+      ∃ node, select selector node)
+    (nodeUnique : ∀ name a b, select (.node name) a → select (.node name) b → a = b) :
+    ∀ law ∈ Language.laws observations, law.Holds observe := by
+  intro law member
+  have member := mem_of_mem_eraseDups _ member
+  rcases List.mem_append.mp member with member | member
+  · rcases List.mem_append.mp member with immediate | reflexive
+    · exact localLaws_sound observations observe faithful nonempty nodeUnique law immediate
+    · obtain ⟨observation, observed, member⟩ := List.mem_flatMap.mp reflexive
+      exact reflexiveLaw_sound observation observe faithful (nonempty observation observed) law member
+  · exact transitiveLaws_sound observations observe faithful nonempty law member
 
 /-- An abstract entailment holds in each faithful network interpretation. -/
 theorem entails_sound (observations : List Observation) (observe : Observation → Bool)

@@ -3,6 +3,7 @@
 The data-plane command combines the packet, route, and identity models.
 It reads a versioned JSON model and checks every selected endpoint pair.
 Each successful report carries proofs for its results and final status.
+Use [whole traffic classes](TRAFFIC.md) to check all headers selected by a packet match.
 
 ## Run the examples
 

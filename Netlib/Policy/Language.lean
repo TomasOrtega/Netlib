@@ -83,7 +83,7 @@ def parse (text : String) : Except String (List Requirement) := do
   return result
 
 /-- These laws assume every selector denotes at least one device. -/
-def laws (observations : List Observation) : List (Formula Observation) :=
+def localLaws (observations : List Observation) : List (Formula Observation) :=
   (observations.flatMap fun observation => match observation with
     | .reach s t service _ =>
       let all := Formula.atom (Observation.reach s t service true)
@@ -94,6 +94,71 @@ def laws (observations : List Observation) : List (Formula Observation) :=
       | _, _ => [forward]
     | .mediated s t g service =>
       [.impl (.neg (.atom (.reach s t service false))) (.atom (.mediated s t g service))]).eraseDups
+
+/-- A nonempty selection has at least one zero-step path to itself. -/
+def reflexiveLaw : Observation → List (Formula Observation)
+  | .reach source target service _ =>
+    if source = target then [.atom (.reach source source service false)] else []
+  | .mediated .. => []
+
+/-- Universal paths compose through a nonempty shared selection for one service. -/
+def transitiveLaw : Observation → Observation → List (Formula Observation)
+  | .reach source middle service _, .reach next target traffic _ =>
+    if middle = next ∧ service = traffic then
+      [.impl (.conj (.atom (.reach source middle service true))
+        (.atom (.reach next target traffic true))) (.atom (.reach source target service true))]
+    else []
+  | _, _ => []
+
+/-- A relevant relation can be an observed pair or a composed pair. -/
+structure ReachPair where
+  source : Selector
+  target : Selector
+  service : String
+  deriving BEq, DecidableEq
+
+namespace ReachPair
+
+def observation (pair : ReachPair) : Observation :=
+  .reach pair.source pair.target pair.service true
+
+def vertices (pair : ReachPair) : List (Selector × String) :=
+  [(pair.source, pair.service), (pair.target, pair.service)]
+
+def compose (left right : ReachPair) : ReachPair :=
+  ⟨left.source, right.target, left.service⟩
+
+end ReachPair
+
+def reachPairs (observations : List Observation) : List ReachPair :=
+  (observations.flatMap fun observation => match observation with
+    | .reach source target service _ => [⟨source, target, service⟩]
+    | .mediated .. => []).eraseDups
+
+/-- Join only existing incoming and outgoing relations for this selector and service. -/
+def reachJoins (vertex : Selector × String) (pairs : List ReachPair) : List (ReachPair × ReachPair) :=
+  (pairs.filter (fun pair => pair.target == vertex.1 && pair.service == vertex.2)).flatMap fun left =>
+    (pairs.filter (fun pair => pair.source == vertex.1 && pair.service == vertex.2)).map fun right =>
+      (left, right)
+
+def extendReachPairs (vertex : Selector × String) (pairs : List ReachPair) : List ReachPair :=
+  (pairs ++ (reachJoins vertex pairs).map (fun pair => pair.1.compose pair.2)).eraseDups
+
+/-- A sparse Warshall pass records the laws that justify each composition. -/
+def closeReachLaws : List (Selector × String) → List ReachPair → List (Formula Observation)
+  | [], _ => []
+  | vertex :: vertices, pairs =>
+    (reachJoins vertex pairs).flatMap (fun pair =>
+      transitiveLaw pair.1.observation pair.2.observation) ++
+    closeReachLaws vertices (extendReachPairs vertex pairs)
+
+def transitiveLaws (observations : List Observation) : List (Formula Observation) :=
+  let pairs := reachPairs observations
+  closeReachLaws (pairs.flatMap ReachPair.vertices).eraseDups pairs
+
+def laws (observations : List Observation) : List (Formula Observation) :=
+  (localLaws observations ++ observations.flatMap reflexiveLaw ++
+    transitiveLaws observations).eraseDups
 
 end Language
 end Netlib

@@ -9,6 +9,14 @@ import NetlibTest.FiveG
 import NetlibTest.FiveGAudit
 import NetlibTest.Solver
 import NetlibTest.LargePolicy
+import NetlibTest.NetworkLaws
+import NetlibTest.PacketPartition
+import NetlibTest.Contracts
+import NetlibTest.Transition
+import NetlibTest.Campus
+import NetlibTest.Traffic
+import NetlibTest.StandardsComposition
+import NetlibTest.Queue
 
 open Netlib
 
@@ -20,4 +28,11 @@ def main : IO Unit := do
   NetlibTest.Solver.run
   NetlibTest.Analysis.run
   NetlibTest.LargePolicy.run
+  NetlibTest.NetworkLaws.run
+  NetlibTest.PacketPartition.run
+  NetlibTest.Transition.run
+  NetlibTest.Campus.run
+  NetlibTest.Traffic.run
+  NetlibTest.StandardsComposition.run
+  NetlibTest.Queue.run
   IO.println "Netlib tests passed."

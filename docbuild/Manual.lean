@@ -53,6 +53,7 @@ A logical countermodel is not a proposed network deployment.
 The source tree separates the library into these parts:
 
  * `Netlib.Core` defines formulas and finite logical analysis.
+ * `Netlib.Theory` proves queue conservation, backlog bounds, and finite draining.
  * `Netlib.Network` defines paths, cuts, gateways, and refinements.
  * `Netlib.Packet` defines packet fields, matches, and access control lists.
  * `Netlib.Routing` selects destination routes.
@@ -390,6 +391,84 @@ Optional claim forms and indirect communication remain outside the selected prof
 6. Inspect source-linked evidence and any violating path or event.
 
 A passing selected profile does not establish complete standards compliance.
+
+# Composition foundations
+%%%
+tag := "composition"
+file := "composition"
+%%%
+
+The library connects packet classes, protocol traces, domains, faults, and operational updates.
+Each connection has explicit assumptions and a proof.
+
+## Queue conservation and service
+
+The discrete FIFO model appends arrivals before each service step.
+The service capacity limits the number of packets served in that step.
+Sequence conservation connects the delivered and pending packets to every supplied arrival.
+The theorem preserves packet order without loss or duplication in the model.
+Backlog bounds require explicit arrival and service assumptions.
+A finite queue drains after enough service steps when no new packets arrive.
+The current queue model has no storage limit or physical clock.
+
+## Whole traffic classes
+
+The `traffic` command checks every header selected by a packet match.
+The partition collects ACL, route, and selection boundaries.
+Every header has a represented cell.
+ACL and routing decisions remain equal within that cell.
+The data-plane checker transfers this equality through physical links and request enforcement.
+An exhausted cell budget returns an error without a compliance result.
+
+Universal ACL refinement has an executable decision and a semantic theorem:
+
+```lean
+open Netlib.Packet in
+example (stronger weaker : ACL) :
+    Partition.checkACLRefines stronger weaker = true ↔
+      stronger.Refines weaker :=
+  Partition.checkACLRefines_iff stronger weaker
+```
+
+## Traces and update plans
+
+A labeled transition relation defines permitted state changes.
+Independent events interleave.
+Synchronized events change both modeled states.
+Trace refinement maps a concrete event to a finite abstract trace.
+Invariants transfer through these refinements and their composition.
+
+An update plan includes the initial state, final state, and every intermediate snapshot.
+An accepted check carries a proof that each snapshot satisfies the contract.
+The migration tests distinguish safe gateway replacement from an outage or a temporary bypass.
+Both unsafe examples have passing endpoints.
+
+## Domains, failures, and the campus example
+
+Domains expose abstract forwarding contracts and keep their node identities separate.
+Local refinement proofs compose when border transitions satisfy the same contract.
+A common closed region also supports isolation proofs across a graph union.
+Isolation of each graph separately does not establish isolation of their union.
+
+The fault model states which nodes and links can fail.
+Two internally disjoint paths preserve service under one internal-node failure.
+That theorem excludes client and server failures and independent link faults.
+
+The campus example connects these results to session-controlled application access.
+It proves management isolation, gateway mediation, and the declared fault availability.
+Session traces connect recorded admission to the credential conditions and an available application path.
+This example still assumes observed identity and integrity results.
+Real device configuration and authentication protocol refinement remain open work.
+
+## Formal standards composition
+
+Formal clauses separate applicability, optional feature selection, and the obligation.
+Profiles compose by conjunction and retain each original source record.
+Compatibility checks return a model or a proof of contradiction under supplied facts.
+Version refinement checks implication and returns a countermodel when implication fails.
+Unsupported clauses and exhausted budgets return errors.
+Compatibility and refinement reject unsupported clauses even when a guard could make them inactive.
+An implication proof does not establish that the stronger profile is satisfiable.
 
 # Documentation process
 %%%

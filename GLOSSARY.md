@@ -56,6 +56,12 @@ A change from a primary device to a standby device after a fault.
 **Availability**:
 Reachability that an explicit requirement requires. Mediation alone does not establish availability.
 
+**Fault model**:
+The admitted combinations of failed nodes and links for a stated guarantee.
+
+**Domain contract**:
+An abstract forwarding relation that a domain and its border transitions must preserve.
+
 
 ## Requirements and logic
 
@@ -143,6 +149,15 @@ Data that a validator can use to establish a proposition.
 **Certified value**:
 A Boolean value with a Lean proof that connects the value to its proposition.
 
+**Transition trace**:
+A finite sequence of labeled state changes permitted by a transition relation.
+
+**Trace refinement**:
+A projection that represents each concrete transition by a finite abstract trace.
+
+**Update plan**:
+A command sequence with a proof that every intermediate snapshot satisfies its contract.
+
 **Trust boundary**:
 The division between formal guarantees and facts that need tests or review.
 
@@ -157,6 +172,21 @@ An address block defined by a base address and the number of shared initial bits
 
 **Packet match**:
 A set of field conditions that select packet headers.
+
+**Packet cell**:
+A set of headers with the same decisions for every selected ACL and route predicate.
+
+**Packet representative**:
+One header used to check a complete packet cell under proved decision equality.
+
+**FIFO queue**:
+A queue that serves packets in their arrival order. FIFO means first in, first out.
+
+**Backlog**:
+The number of packets pending in the modeled queue.
+
+**Service capacity**:
+The maximum number of packets that a modeled queue tick can serve.
 
 **Access control list**:
 An ordered list of packet matches and permit or deny actions. The first matching rule supplies the action.

@@ -22,7 +22,55 @@ def catalogue(report):
         }
 
 
+def traffic_checks():
+    config = ROOT / "examples/dataplane/secure.json"
+    selection = ROOT / "examples/traffic/https.json"
+    for query in ["AVAILABLE", "IDENTITY", "GATEWAY"]:
+        report = json.loads(invoke("traffic", config, query, selection, "--json"))
+        assert report["compliant"] and report["scope"] == "all-selected-packets"
+        assert report["partitionCells"] > 0 and report["evidence"]
+    report = json.loads(
+        invoke("traffic", config, "AVAILABLE", ROOT / "examples/traffic/all.json", "--json", code=1)
+    )
+    assert not report["compliant"]
+    for query in ["IDENTITY", "GATEWAY"]:
+        report = json.loads(
+            invoke(
+                "traffic",
+                ROOT / "examples/dataplane/bypass.json",
+                query,
+                selection,
+                "--json",
+                code=1,
+            )
+        )
+        assert not report["compliant"]
+    invoke("traffic", config, "AVAILABLE", selection, "--budget", "0", code=2)
+    invoke("traffic", config, "AVAILABLE", selection, "--budget", "invalid", code=2)
+    invoke("traffic", config, "UNKNOWN", selection, code=2)
+    with tempfile.TemporaryDirectory(prefix="netlib-traffic-") as directory:
+        path = Path(directory) / "model.json"
+        model = json.loads(config.read_text())
+        deny = {
+            "match": {
+                **json.loads(selection.read_text()),
+                "sourcePorts": {"first": 50001, "last": 50001},
+            },
+            "action": "deny",
+        }
+        model["links"][1]["acl"].insert(0, deny)
+        path.write_text(json.dumps(model))
+        assert json.loads(invoke("dataplane", path, "--json"))["compliant"]
+        report = json.loads(invoke("traffic", path, "AVAILABLE", selection, "--json", code=1))
+        assert not report["compliant"]
+        assert any("50001" in line for line in report["evidence"])
+        invalid = Path(directory) / "invalid.json"
+        invalid.write_text(json.dumps({**json.loads(selection.read_text()), "ignored": True}))
+        invoke("traffic", config, "AVAILABLE", invalid, code=2)
+
+
 def main():
+    traffic_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
