@@ -45,16 +45,16 @@ theorem Result.established_mss (result : Result before input lifecycle prepared)
     exact ⟨_, rfl, rfl, rfl⟩
 
 theorem nextPhase_data_mss (session : Session) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
-    (allowed : Allowed (.data session) attachment segment) :
+    {observations : List Seen} (allowed : Allowed (.data session) attachment segment observations) :
     ∃ after, nextPhase (.data session) attachment segment allowed = .data after ∧
       after.clientMSS = session.clientMSS ∧ after.serverMSS = session.serverMSS := by
   rw [nextPhase.eq_4]
-  split <;> exact ⟨_, rfl, rfl, rfl⟩
+  split <;> split <;> exact ⟨_, rfl, rfl, rfl⟩
 
 theorem Result.preserves_mss (result : Result before input lifecycle prepared) (phase : before.phase = .data session) :
     ∃ after, result.state.phase = .data after ∧
       after.clientMSS = session.clientMSS ∧ after.serverMSS = session.serverMSS := by
-  have allowed : Allowed (.data session) prepared.attachment input.packet.segment := phase ▸ result.admitted
+  have allowed : Allowed (.data session) prepared.attachment input.packet.segment before.observations := phase ▸ result.admitted
   obtain ⟨after, computed, client, server⟩ := nextPhase_data_mss session prepared.attachment input.packet.segment allowed
   refine ⟨after, ?_, client, server⟩
   rw [result.phase]
@@ -62,23 +62,25 @@ theorem Result.preserves_mss (result : Result before input lifecycle prepared) (
 
 theorem Result.data_payload_bound (result : Result before input lifecycle prepared) (phase : before.phase = .data session) :
     input.packet.segment.payload.length ≤ (session.peerMSS prepared.attachment.direction).limit := by
-  have allowed : Allowed (.data session) prepared.attachment input.packet.segment := phase ▸ result.admitted
+  have allowed : Allowed (.data session) prepared.attachment input.packet.segment before.observations := phase ▸ result.admitted
   cases direction : prepared.attachment.direction with
   | original =>
-    have selected : DataAllowed session.original session.reply input.packet.segment session.serverMSS := by
+    have selected : DataAllowed session.original session.reply input.packet.segment session.serverMSS ∨
+        RepeatedAllowed session.original session.reply session.entry .original input.packet.segment session.serverMSS before.observations := by
       simpa only [Allowed, direction] using allowed.2.2
-    exact selected.2.2.1
+    exact selected.elim (fun fresh => fresh.2.2.1) (fun repeated => repeated.2.2.2.2.1)
   | reply =>
-    have selected : DataAllowed session.reply session.original input.packet.segment session.clientMSS := by
+    have selected : DataAllowed session.reply session.original input.packet.segment session.clientMSS ∨
+        RepeatedAllowed session.reply session.original session.entry .reply input.packet.segment session.clientMSS before.observations := by
       simpa only [Allowed, direction] using allowed.2.2
-    exact selected.2.2.1
+    exact selected.elim (fun fresh => fresh.2.2.1) (fun repeated => repeated.2.2.2.2.1)
 
 theorem Result.committed_mss (result : Result before input lifecycle prepared) (phase : before.phase = .data session)
     (accepted : commit result tracker = .ok after) :
     after = result.state ∧
       (∃ next, after.phase = .data next ∧ next.clientMSS = session.clientMSS ∧ next.serverMSS = session.serverMSS) ∧
       input.packet.segment.payload.length ≤ (session.peerMSS prepared.attachment.direction).limit := by
-  have allowed : Allowed (.data session) prepared.attachment input.packet.segment := phase ▸ result.admitted
+  have allowed : Allowed (.data session) prepared.attachment input.packet.segment before.observations := phase ▸ result.admitted
   have fresh : prepared.attachment.fresh = false := allowed.2.1
   obtain ⟨same, _, _⟩ := result.existing_committed tracker fresh after accepted
   exact ⟨same, same ▸ result.preserves_mss phase, result.data_payload_bound phase⟩

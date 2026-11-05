@@ -21,6 +21,9 @@ end T
 inductive Event where
   | write (payload : List UInt8)
   | send (count : Nat) (policyPermitted : Bool)
+  | enableRecovery
+  | advanceClock (millis : Nat)
+  | timeout (policyPermitted : Bool)
   | read (count : Nat)
   | emitAck (policyPermitted : Bool)
   | receive (bytes : List UInt8)
@@ -33,6 +36,9 @@ def Raw.json (raw : Raw) : Lean.Json := match raw.event with
       ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex payload))]
   | .send count policy => Lean.Json.mkObj [("kind", Lean.toJson "send"),
       ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
+  | .enableRecovery => Lean.Json.mkObj [("kind", Lean.toJson "enableRecovery")]
+  | .advanceClock millis => Lean.Json.mkObj [("kind", Lean.toJson "advanceClock"), ("millis", Lean.toJson millis)]
+  | .timeout policy => Lean.Json.mkObj [("kind", Lean.toJson "timeout"), ("policyPermitted", Lean.toJson policy)]
   | .read count => Lean.Json.mkObj [("kind", Lean.toJson "read"), ("count", Lean.toJson count)]
   | .emitAck policy => Lean.Json.mkObj [("kind", Lean.toJson "emitAck"), ("policyPermitted", Lean.toJson policy)]
   | .receive bytes => Lean.Json.mkObj [("kind", Lean.toJson "receive"),
@@ -81,6 +87,15 @@ private def eventValueFromJson (json : Lean.Json) : Except String Event := do
     | "send" => do
       Import.PacketFields.fields json ["kind", "count", "policyPermitted"]
       return Event.send (← (← json.getObjVal? "count").getNat?) (← (← json.getObjVal? "policyPermitted").getBool?)
+    | "enableRecovery" => do
+      Import.PacketFields.fields json ["kind"]
+      return .enableRecovery
+    | "advanceClock" => do
+      Import.PacketFields.fields json ["kind", "millis"]
+      return .advanceClock (← (← json.getObjVal? "millis").getNat?)
+    | "timeout" => do
+      Import.PacketFields.fields json ["kind", "policyPermitted"]
+      return .timeout (← (← json.getObjVal? "policyPermitted").getBool?)
     | "read" => do
       Import.PacketFields.fields json ["kind", "count"]
       return Event.read (← (← json.getObjVal? "count").getNat?)
@@ -90,7 +105,7 @@ private def eventValueFromJson (json : Lean.Json) : Except String Event := do
     | "receive" => do
       Import.PacketFields.fields json ["kind", "rawIPv4Hex"]
       return Event.receive (← Import.EAPOL.bytesFromHex (← (← json.getObjVal? "rawIPv4Hex").getStr?))
-    | _ => throw "Use write, send, read, emitAck, or receive as the event kind."
+    | _ => throw "The TCP application event kind is unknown."
 
 private def eventFromJson (json : Lean.Json) : Except String Raw := do
   return ⟨← eventValueFromJson json⟩
@@ -106,6 +121,9 @@ def Input.parse (text : String) : Except String Input := do Input.fromJson (← 
 inductive Matches : Event → T.Event → Prop where
   | write (payload) : Matches (.write payload) (.write payload)
   | send (count policy) : Matches (.send count policy) (.send count policy)
+  | enableRecovery : Matches .enableRecovery .enableRecovery
+  | advanceClock (millis) : Matches (.advanceClock millis) (.advanceClock millis)
+  | timeout (policy) : Matches (.timeout policy) (.timeout policy)
   | read (count) : Matches (.read count) (.read count)
   | emitAck (policy) : Matches (.emitAck policy) (.emitAck policy)
   | receive (value : Protocol.TCP.EstablishedReceive.Input) : Matches (.receive value.bytes) (.receive value)
@@ -118,6 +136,9 @@ private def convert (raw : Raw) : Except String (Converted raw) :=
   match selected : raw.event with
   | .write payload => .ok ⟨.write payload, selected ▸ .write payload⟩
   | .send count policy => .ok ⟨.send count policy, selected ▸ .send count policy⟩
+  | .enableRecovery => .ok ⟨.enableRecovery, selected ▸ .enableRecovery⟩
+  | .advanceClock millis => .ok ⟨.advanceClock millis, selected ▸ .advanceClock millis⟩
+  | .timeout policy => .ok ⟨.timeout policy, selected ▸ .timeout policy⟩
   | .read count => .ok ⟨.read count, selected ▸ .read count⟩
   | .emitAck policy => .ok ⟨.emitAck policy, selected ▸ .emitAck policy⟩
   | .receive bytes => do
@@ -243,32 +264,56 @@ theorem Report.supported_covered (report : Report input) (supported : report.sup
 
 theorem Trace.unsupported_stop (trace : Trace initial events steps final remaining)
     (unsupported : steps.all Step.supported = false) :
-    ∃ prior step reason, steps = prior ++ [step] ∧ step.typed.result.decision = .unsupported reason := by
+    ∃ prior step, steps = prior ++ [step] ∧ step.supported = false := by
   induction trace with
   | done state => simp at unsupported
   | stop head blocked tail =>
-    refine ⟨[], head, ?_⟩
-    cases selected : head.typed.result.decision with
-    | accepted action => simp [Step.supported, Protocol.TCP.ApplicationTrace.Step.supported, selected] at blocked
-    | reject reason => simp [Step.supported, Protocol.TCP.ApplicationTrace.Step.supported, selected] at blocked
-    | unsupported reason => exact ⟨reason, rfl, rfl⟩
+    exact ⟨[], head, rfl, blocked⟩
   | next head supported rest ih =>
-    obtain ⟨prior, step, reason, same, blocked⟩ := ih (by simpa [supported] using unsupported)
-    exact ⟨head :: prior, step, reason, by simp [same], blocked⟩
+    obtain ⟨prior, step, same, blocked⟩ := ih (by simpa [supported] using unsupported)
+    exact ⟨head :: prior, step, by simp [same], blocked⟩
 
 theorem Report.unsupported_stop (report : Report input) (unsupported : report.supported = false) :
-    ∃ prior step reason, report.steps = prior ++ [step] ∧ step.typed.result.decision = .unsupported reason :=
+    ∃ prior step, report.steps = prior ++ [step] ∧ step.supported = false :=
   report.trace.unsupported_stop unsupported
 
-def stateJson (state : E.State) : Lean.Json := Lean.Json.mkObj [
+def rationalJson (value : Rat) : Lean.Json := Lean.Json.mkObj [
+  ("num", Lean.toJson value.num), ("den", Lean.toJson value.den)]
+
+def recoveryJson (state : Protocol.TCP.Recovery.State) : Lean.Json := Lean.Json.mkObj [
+  ("now", Lean.toJson state.now), ("smss", Lean.toJson state.smss),
+  ("outstanding", Lean.toJson (state.outstanding.map fun entry => Lean.Json.mkObj [
+    ("id", Lean.toJson entry.id), ("start", Lean.toJson entry.start), ("count", Lean.toJson entry.count),
+    ("sentAt", Lean.toJson entry.sentAt), ("lastAt", Lean.toJson entry.lastAt), ("retried", Lean.toJson entry.retried)])),
+  ("nextId", Lean.toJson state.nextId), ("frontier", Lean.toJson state.frontier),
+  ("estimator", (state.estimator.map fun value => Lean.Json.mkObj [
+    ("srtt", rationalJson value.srtt), ("variance", rationalJson value.variance)]).getD .null),
+  ("lastSample", (state.lastSample.map fun value => Lean.Json.mkObj [
+    ("id", Lean.toJson value.id), ("sentAt", Lean.toJson value.sentAt),
+    ("acknowledgedAt", Lean.toJson value.acknowledgedAt)]).getD .null),
+  ("rto", Lean.toJson state.rto), ("deadline", Lean.toJson state.deadline),
+  ("cwnd", Lean.toJson state.cwnd), ("ssthresh", Lean.toJson state.ssthresh),
+  ("lastTimedOut", Lean.toJson state.lastTimedOut), ("timeoutCount", Lean.toJson state.timeoutCount),
+  ("duplicateAcks", Lean.toJson state.duplicateAcks), ("flight", Lean.toJson (Protocol.TCP.Recovery.flight state))]
+
+def stateJson (state : E.State) : Lean.Json := Lean.Json.mkObj ([
   ("core", TCPReceive.stateJson state.core), ("pendingHex", Lean.toJson (Import.EAPOL.bytesToHex state.pending)),
   ("pendingLimit", Lean.toJson state.pendingLimit), ("sendWindow", Lean.toJson state.sendWindow),
   ("sendWL1", Lean.toJson state.sendWL1.val), ("sendWL2", Lean.toJson state.sendWL2.val),
-  ("effectiveMSS", Lean.toJson state.effectiveMSS), ("ipSendLimit", Lean.toJson state.ipSendLimit)]
+  ("effectiveMSS", Lean.toJson state.effectiveMSS), ("ipSendLimit", Lean.toJson state.ipSendLimit)] ++
+  match state.recovery with
+  | none => []
+  | some value => [("recovery", recoveryJson value), ("lastAckWindow", Lean.toJson state.lastAckWindow)])
+
+def recoveryStopName : Protocol.TCP.Recovery.Stop → String
+  | .backwardClock => "backwardClock" | .early => "early" | .idle => "idle" | .ledger => "ledger"
+  | .fastRecovery => "fastRecovery" | .failureHandling => "failureHandling"
+  | .persist => "persist"
 
 private def rejectName : E.Reject → String
   | .invalidSeed => "invalidSeed" | .pendingCapacity => "pendingCapacity" | .readBounds => "readBounds"
   | .sendBounds => "sendBounds" | .policy => "policy" | .encoding => "encoding"
+  | .recovery reason => "recovery." ++ recoveryStopName reason
   | .input reason => "input." ++ match reason with
     | .invalidSeed => "invalidSeed" | .tuple => "tuple" | .sequence => "sequence"
     | .missingAck => "missingAck" | .acknowledgment => "acknowledgment"
@@ -276,6 +321,9 @@ private def rejectName : E.Reject → String
 private def acceptedJson : E.Accepted → List (String × Lean.Json)
   | .write count => [("operation", Lean.toJson "write"), ("count", Lean.toJson count)]
   | .send count => [("operation", Lean.toJson "send"), ("count", Lean.toJson count)]
+  | .enableRecovery => [("operation", Lean.toJson "enableRecovery")]
+  | .advanceClock => [("operation", Lean.toJson "advanceClock")]
+  | .retry count => [("operation", Lean.toJson "retry"), ("count", Lean.toJson count)]
   | .read count => [("operation", Lean.toJson "read"), ("count", Lean.toJson count)]
   | .emitAck => [("operation", Lean.toJson "emitAck")]
   | .receive acknowledged received => [("operation", Lean.toJson "receive"),
@@ -285,6 +333,8 @@ def decisionJson : E.Decision → Lean.Json
   | .accepted value => Lean.Json.mkObj (("kind", Lean.toJson "accepted") :: acceptedJson value)
   | .reject reason => Lean.Json.mkObj [("kind", Lean.toJson "reject"), ("reason", Lean.toJson (rejectName reason))]
   | .unsupported reason => TCPReceive.decisionJson (.blocked (.unsupported reason))
+  | .recoveryUnsupported reason => Lean.Json.mkObj [
+      ("kind", Lean.toJson "unsupported"), ("reason", Lean.toJson ("recovery." ++ recoveryStopName reason))]
 
 def outputJson : Option Protocol.TCP.EstablishedReceive.Input → Lean.Json
   | none => .null
@@ -305,10 +355,14 @@ def assumptions : List String := [
   "The serial window-history comparisons require an age below half the sequence space.",
   "The policy input permits the selected output. It does not prove congestion control or ACK scheduling.",
   "The paired application theorem requires earlier peer sends, certified byte transformations, and a bounded finite epoch.",
+  "Recovery initialization requires empty outstanding storage. Its clocks, one-MSS flight bound, and retry limits are explicit.",
+  "Fast recovery, persist, control retries, native clocks, and general reliable delivery remain outside this profile.",
   "The output bytes do not prove native transmission, peer delivery, or eventual application delivery.",
   "An unsupported event stops the replay. Later receive byte strings retain only their hex syntax checks."]
 
 def sources : List Standards.Source := TCPReceive.sources ++ [
+  ⟨"Computing TCP's Retransmission Timer", "RFC 6298", "2, 3, and 5",
+    "https://www.rfc-editor.org/rfc/rfc6298.html#section-5"⟩,
   ⟨"Transmission Control Protocol", "RFC 9293", "3.10.2 and 3.10.3",
     "https://www.rfc-editor.org/rfc/rfc9293.html#section-3.10.2"⟩,
   ⟨"Transmission Control Protocol", "RFC 9293", "3.7.1 and 3.8.6",

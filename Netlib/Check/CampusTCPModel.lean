@@ -310,6 +310,9 @@ inductive Event where
   | open (remote : TCP.Handshake.Socket) (policy : Bool)
   | write (actor : Actor) (bytes : List UInt8)
   | send (actor : Actor) (count : Nat) (policy : Bool)
+  | enableRecovery (actor : Actor)
+  | advanceClock (actor : Actor) (millis : Nat)
+  | timeout (actor : Actor) (policy : Bool)
   | read (actor : Actor) (count : Nat)
   | emitAck (actor : Actor) (policy : Bool)
   | assign (output : Nat) (ingress : I.InterfaceRef)
@@ -511,6 +514,9 @@ def process (input : Input) (before : State input) (event : Event) : Except Erro
   | .open remote policy => startup input before (.activeOpen remote policy)
   | .write actor bytes => applyApplication input before actor (.write bytes)
   | .send actor count policy => applyApplication input before actor (.send count policy)
+  | .enableRecovery actor => applyApplication input before actor .enableRecovery
+  | .advanceClock actor millis => applyApplication input before actor (.advanceClock millis)
+  | .timeout actor policy => applyApplication input before actor (.timeout policy)
   | .read actor count => applyApplication input before actor (.read count)
   | .emitAck actor policy => applyApplication input before actor (.emitAck policy)
   | .assign index ingress =>

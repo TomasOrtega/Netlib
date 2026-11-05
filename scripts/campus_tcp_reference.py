@@ -517,21 +517,43 @@ def startup_failure(segment, flags):
     return None
 
 
-def data_admission(sender, peer, segment):
+def known_range(sender, segment, history):
+    start = (segment.sequence - sender.base) % wire.MODULUS
+    end = start + len(segment.payload)
+    if not segment.payload or end > sender.observed:
+        return False
+    for earlier in history:
+        left = (earlier.sequence - sender.base) % wire.MODULUS
+        right = left + len(earlier.payload)
+        if (
+            earlier.flags in (16, 24)
+            and not earlier.options
+            and earlier.payload
+            and left <= start < end <= right <= sender.observed
+            and earlier.payload[start - left : end - left] == segment.payload
+        ):
+            return True
+    return False
+
+
+def data_admission(sender, peer, segment, history=()):
     if segment.options:
         return None, "options"
     if segment.flags not in (16, 24):
         return None, "flags"
-    if segment.sequence != sender.next:
+    fresh = segment.sequence == sender.next
+    if not fresh and not known_range(sender, segment, history):
         return None, "sequence"
     if len(segment.payload) > sender.data_limit:
-        return None, "data"
+        return None, "data" if fresh else "sequence"
     offset = endpoint.signed_offset(peer.base, segment.acknowledgment)
     if not 0 <= offset <= peer.observed or peer.acknowledged - offset > 65535:
-        return None, "acknowledgment"
-    if segment.payload and sender.outstanding + len(segment.payload) > sender.peer_window:
+        return None, "acknowledgment" if fresh else "sequence"
+    if fresh and segment.payload and sender.outstanding + len(segment.payload) > sender.peer_window:
         return None, "window"
-    after_sender = replace(sender, observed=sender.observed + len(segment.payload))
+    after_sender = replace(
+        sender, observed=sender.observed + (len(segment.payload) if fresh else 0)
+    )
     after_peer = replace(peer, acknowledged=max(peer.acknowledged, offset))
     sequence_age = endpoint.signed_offset(peer.window_sequence, segment.sequence)
     ack_age = endpoint.signed_offset(peer.window_acknowledgment, segment.acknowledgment)
@@ -543,7 +565,7 @@ def data_admission(sender, peer, segment):
             window_acknowledgment=segment.acknowledgment,
         )
     if not after_sender.valid or not after_peer.valid:
-        return None, "epoch"
+        return None, "epoch" if fresh else "sequence"
     return (after_sender, after_peer), None
 
 
@@ -613,7 +635,8 @@ def admit(before, record, direction, fresh, raw):
                 if direction == "original"
                 else (before.reply, before.original)
             )
-            lanes, reason = data_admission(sender, peer, segment)
+            history = tuple(row[3] for row in before.observations if row[4] == direction)
+            lanes, reason = data_admission(sender, peer, segment, history)
             if reason:
                 return None, reason
             after = (
@@ -805,7 +828,7 @@ def canonical_event(event):
     return event
 
 
-def replay(value):
+def replay(value, driver=None):
     authentication = value["authentication"]
     context, link = authentication["context"], authentication["link"]
     active, passive = (
@@ -817,7 +840,10 @@ def replay(value):
     configurations = {row["id"]: row for row in value["configs"]}
     guards = {row["id"]: row["source"] for row in value["guards"]}
     specifications = {row["id"]: row for row in value["specifications"]}
-    events = [canonical_event(event) for event in value["events"]]
+    canonical = canonical_event if driver is None else driver.canonical_event
+    evaluate = endpoint.evaluate if driver is None else driver.evaluate
+    wrap = (lambda state: state) if driver is None else driver.wrap
+    events = [canonical(event) for event in value["events"]]
     auth = Authentication()
     after = 0
     configuration, guard = value["initialConfig"], value["initialGuard"]
@@ -888,6 +914,7 @@ def replay(value):
     initial = snapshot()
     for index, event in enumerate(events):
         kind, before = event["kind"], snapshot()
+        before_endpoint = None
         decision = {"kind": "accepted", "operation": kind}
         passed = True
         output = decoded = service = None
@@ -942,11 +969,14 @@ def replay(value):
                 startup, decision, output = result.state, result.decision, result.output
             actor = "client"
             startup_operation = "activeOpen"
-        elif kind in ("write", "send", "read", "emitAck"):
+        elif kind in ("write", "send", "read", "emitAck") or (
+            driver is not None and kind in driver.EVENTS
+        ):
             if endpoints[actor] is None or startup.passive_phase != "ESTABLISHED":
                 decision = {"kind": "unsupported", "reason": "phase"}
             else:
-                result = endpoint.evaluate(
+                before_endpoint = endpoints[actor]
+                result = evaluate(
                     endpoints[actor], {key: item for key, item in event.items() if key != "actor"}
                 )
                 endpoints[actor], decision, output, read = (
@@ -1075,26 +1105,36 @@ def replay(value):
                     )
                     startup_operation = operation
                     if startup.active_seed is not None and endpoints["client"] is None:
-                        endpoints["client"], established["client"] = startup.active_seed, index
+                        endpoints["client"], established["client"] = (
+                            wrap(startup.active_seed),
+                            index,
+                        )
                     if startup.passive_seed is not None and endpoints["server"] is None:
-                        endpoints["server"], established["server"] = startup.passive_seed, index
-            elif service["sourceKind"] not in ("send", "emitAck"):
+                        endpoints["server"], established["server"] = (
+                            wrap(startup.passive_seed),
+                            index,
+                        )
+            elif service["sourceKind"] not in ("send", "emitAck", "retry"):
                 decision = {"kind": "unsupported", "reason": "startupCopy"}
             else:
-                result = endpoint.evaluate(
+                result = evaluate(
                     endpoints[actor], {"kind": "receive", "rawIPv4Hex": event["rawIPv4Hex"]}
                 )
                 endpoints[actor], decision = result.state, result.decision
         else:
             raise ValueError("The campus event kind is unknown.")
         if output is not None:
+            attempt = None if driver is None else driver.attempt(before_endpoint, event)
             outputs.append(
                 {
                     "id": len(outputs),
                     "index": index,
                     "actor": actor,
-                    "kind": kind if kind != "deliver" else "startup",
+                    "kind": (kind if kind != "deliver" else "startup")
+                    if driver is None
+                    else driver.output_kind(event),
                     "startupOperation": startup_operation,
+                    **({} if attempt is None else {"attempt": attempt}),
                     **output,
                 }
             )

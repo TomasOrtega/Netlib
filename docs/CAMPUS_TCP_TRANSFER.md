@@ -123,7 +123,8 @@ No new native capture or traffic experiment supplies this evidence.
 An empty pending set is tested against actual stored work.
 This does not prove that every TCP queue has a supported drain order.
 The example exhibits one successful drain.
-General scheduling, loss recovery, retransmission, timers, congestion control, other options, close processing, and long sequence reuse remain open.
+The [bounded recovery extension](TCP_RECOVERY.md) retains host timers and exact retry ranges through this gateway transfer.
+General scheduling, broader loss recovery, congestion control, other options, close processing, and long sequence reuse remain open.
 
 The model has fixed declared gateway lifetimes.
 It does not establish dynamic namespace replacement or native tracker reconstruction.

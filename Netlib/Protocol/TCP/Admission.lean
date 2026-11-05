@@ -201,7 +201,72 @@ instance (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer) : Decida
   unfold DataAllowed
   infer_instance
 
-def Allowed (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment) : Prop :=
+def RangeFrom (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (seen : Seen) : Prop :=
+  let start := Seq.distance sender.base segment.sequence
+  let earlier := Seq.distance sender.base seen.segment.sequence
+  seen.attachment.entry = entry ∧ seen.attachment.direction = direction ∧
+    DataProfile seen.segment ∧ seen.segment.payload ≠ [] ∧ earlier ≤ start ∧
+    start + segment.payload.length ≤ earlier + seen.segment.payload.length ∧
+    earlier + seen.segment.payload.length ≤ sender.observed ∧
+    segment.payload = (seen.segment.payload.drop (start - earlier)).take segment.payload.length
+
+instance (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (seen : Seen) :
+    Decidable (RangeFrom sender entry direction segment seen) := by
+  unfold RangeFrom
+  infer_instance
+
+def KnownRange (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment)
+    (observations : List Seen) : Prop :=
+  observations.any (fun seen => decide (RangeFrom sender entry direction segment seen)) = true
+
+instance (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (observations : List Seen) :
+    Decidable (KnownRange sender entry direction segment observations) := by
+  unfold KnownRange
+  infer_instance
+
+theorem KnownRange.source (known : KnownRange sender entry direction segment observations) :
+    ∃ seen ∈ observations, RangeFrom sender entry direction segment seen := by
+  simpa only [KnownRange, List.any_eq_true, decide_eq_true_eq] using known
+
+def RepeatedAllowed (sender peer : Lane) (entry : Entry) (direction : Direction) (segment : Segment)
+    (peerMSS : MSS.Offer) (observations : List Seen) : Prop :=
+  DataProfile segment ∧ segment.payload ≠ [] ∧
+    Seq.distance sender.controlOrigin segment.sequence ≤ sender.observed + 1 ∧
+    KnownRange sender entry direction segment observations ∧ segment.payload.length ≤ peerMSS.limit ∧
+    ackOffset peer segment ≤ peer.observed ∧ peer.acknowledged ≤ ackOffset peer segment + 65535 ∧
+    (acknowledgedLane peer segment).Valid
+
+instance (sender peer : Lane) (entry : Entry) (direction : Direction) (segment : Segment)
+    (peerMSS : MSS.Offer) (observations : List Seen) :
+    Decidable (RepeatedAllowed sender peer entry direction segment peerMSS observations) := by
+  unfold RepeatedAllowed
+  infer_instance
+
+theorem repeated_sent_history (sender peer : Lane) (segment : Segment) (history : WindowHistory sender peer) :
+    WindowHistory sender (acknowledgedLane peer segment) := by
+  simpa only [WindowHistory, Lane.controlOrigin, acknowledgedLane_base, acknowledgedLane_observed] using history
+
+theorem repeated_acknowledged_history (sender peer : Lane) (segment : Segment)
+    (history : WindowHistory peer sender)
+    (sequence : Seq.distance sender.controlOrigin segment.sequence ≤ sender.observed + 1)
+    (acknowledgment : ackOffset peer segment ≤ peer.observed) :
+    WindowHistory (acknowledgedLane peer segment) sender := by
+  unfold acknowledgedLane
+  split
+  · exact ⟨sequence, acknowledgment⟩
+  · exact history
+
+theorem RepeatedAllowed.source
+    (allowed : RepeatedAllowed sender peer entry direction segment peerMSS observations) :
+    ∃ seen ∈ observations, seen.attachment.entry = entry ∧ seen.attachment.direction = direction ∧
+      segment.payload = (seen.segment.payload.drop
+        (Seq.distance sender.base segment.sequence - Seq.distance sender.base seen.segment.sequence)).take
+          segment.payload.length := by
+  obtain ⟨seen, member, range⟩ := allowed.2.2.2.1.source
+  exact ⟨seen, member, range.1, range.2.1, range.2.2.2.2.2.2.2⟩
+
+def Allowed (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
+    (observations : List Seen := []) : Prop :=
   match phase with
   | .empty => attachment.fresh = true ∧ attachment.direction = .original ∧ Startup segment 2
   | .syn entry clientISS _ _ =>
@@ -213,15 +278,17 @@ def Allowed (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segmen
   | .data session =>
     attachment.entry = session.entry ∧ attachment.fresh = false ∧
       match attachment.direction with
-      | .original => DataAllowed session.original session.reply segment session.serverMSS
-      | .reply => DataAllowed session.reply session.original segment session.clientMSS
+      | .original => DataAllowed session.original session.reply segment session.serverMSS ∨
+          RepeatedAllowed session.original session.reply session.entry .original segment session.serverMSS observations
+      | .reply => DataAllowed session.reply session.original segment session.clientMSS ∨
+          RepeatedAllowed session.reply session.original session.entry .reply segment session.clientMSS observations
 
-instance (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment) :
-    Decidable (Allowed phase attachment segment) := by
+instance (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment) (observations : List Seen) :
+    Decidable (Allowed phase attachment segment observations) := by
   cases phase <;> cases selected : attachment.direction <;> simp only [Allowed, selected] <;> infer_instance
 
 def nextPhase (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
-    (allowed : Allowed phase attachment segment) : Phase :=
+    {observations : List Seen} (allowed : Allowed phase attachment segment observations) : Phase :=
   match phase with
   | .empty => .syn attachment.entry segment.sequence segment.window
       (MSS.selectStartup segment.options (by simpa [Startup] using allowed.2.2.2.1)).val
@@ -243,20 +310,37 @@ def nextPhase (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segm
   | .data session =>
     match direction : attachment.direction with
     | .original =>
-      have selected : DataAllowed session.original session.reply segment session.serverMSS := by
+      have selected : DataAllowed session.original session.reply segment session.serverMSS ∨
+          RepeatedAllowed session.original session.reply session.entry .original segment session.serverMSS observations := by
         simpa only [Allowed, direction] using allowed.2.2
-      .data ⟨session.entry, sentLane session.original segment, acknowledgedLane session.reply segment,
-        selected.2.2.2.2.2.2.1, selected.2.2.2.2.2.2.2,
-        sent_history _ _ _ session.originalHistory,
-        acknowledged_history _ _ _ session.originalValid session.replyHistory selected.2.1 selected.2.2.2.1,
-        session.clientMSS, session.serverMSS⟩
+      if fresh : DataAllowed session.original session.reply segment session.serverMSS then
+        .data ⟨session.entry, sentLane session.original segment, acknowledgedLane session.reply segment,
+          fresh.2.2.2.2.2.2.1, fresh.2.2.2.2.2.2.2,
+          sent_history _ _ _ session.originalHistory,
+          acknowledged_history _ _ _ session.originalValid session.replyHistory fresh.2.1 fresh.2.2.2.1,
+          session.clientMSS, session.serverMSS⟩
+      else
+        have repeated := selected.resolve_left fresh
+        .data ⟨session.entry, session.original, acknowledgedLane session.reply segment,
+          session.originalValid, repeated.2.2.2.2.2.2.2,
+          repeated_sent_history _ _ _ session.originalHistory,
+          repeated_acknowledged_history _ _ _ session.replyHistory repeated.2.2.1 repeated.2.2.2.2.2.1,
+          session.clientMSS, session.serverMSS⟩
     | .reply =>
-      have selected : DataAllowed session.reply session.original segment session.clientMSS := by
+      have selected : DataAllowed session.reply session.original segment session.clientMSS ∨
+          RepeatedAllowed session.reply session.original session.entry .reply segment session.clientMSS observations := by
         simpa only [Allowed, direction] using allowed.2.2
-      .data ⟨session.entry, acknowledgedLane session.original segment, sentLane session.reply segment,
-        selected.2.2.2.2.2.2.2, selected.2.2.2.2.2.2.1,
-        acknowledged_history _ _ _ session.replyValid session.originalHistory selected.2.1 selected.2.2.2.1,
-        sent_history _ _ _ session.replyHistory, session.clientMSS, session.serverMSS⟩
+      if fresh : DataAllowed session.reply session.original segment session.clientMSS then
+        .data ⟨session.entry, acknowledgedLane session.original segment, sentLane session.reply segment,
+          fresh.2.2.2.2.2.2.2, fresh.2.2.2.2.2.2.1,
+          acknowledged_history _ _ _ session.replyValid session.originalHistory fresh.2.1 fresh.2.2.2.1,
+          sent_history _ _ _ session.replyHistory, session.clientMSS, session.serverMSS⟩
+      else
+        have repeated := selected.resolve_left fresh
+        .data ⟨session.entry, acknowledgedLane session.original segment, session.reply,
+          repeated.2.2.2.2.2.2.2, session.replyValid,
+          repeated_acknowledged_history _ _ _ session.originalHistory repeated.2.2.1 repeated.2.2.2.2.2.1,
+          repeated_sent_history _ _ _ session.replyHistory, session.clientMSS, session.serverMSS⟩
 
 inductive Unsupported where
   | missingHistory | replacement | direction | flags | options | data | sequence | acknowledgment
@@ -286,16 +370,19 @@ private def startupReason (segment : Segment) (flags : UInt8) : Unsupported :=
   else if segment.payload ≠ [] then .data
   else .acknowledgment
 
-private def dataReason (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer) : Unsupported :=
+private def dataReason (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer)
+    (entry : Entry) (direction : Direction) (observations : List Seen) : Unsupported :=
   if segment.options ≠ [] then .options
   else if ¬(segment.flags = 16 ∨ segment.flags = 24) then .flags
-  else if segment.sequence ≠ sender.next then .sequence
+  else if segment.sequence ≠ sender.next ∧
+      (segment.payload = [] ∨ ¬KnownRange sender entry direction segment observations) then .sequence
   else if segment.payload.length > peerMSS.limit then .data
   else if ackOffset peer segment > peer.observed ∨ peer.acknowledged > ackOffset peer segment + 65535 then .acknowledgment
   else if segment.payload ≠ [] ∧ sender.outstanding + segment.payload.length > sender.peerWindow.val then .window
   else .epoch
 
-def reason (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment) : Unsupported :=
+def reason (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
+    (observations : List Seen := []) : Unsupported :=
   match phase with
   | .empty =>
     if attachment.fresh ≠ true ∨ attachment.direction ≠ .original then .missingHistory
@@ -316,13 +403,13 @@ def reason (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment
   | .data session =>
     if attachment.entry ≠ session.entry ∨ attachment.fresh ≠ false then .replacement
     else match attachment.direction with
-      | .original => dataReason session.original session.reply segment session.serverMSS
-      | .reply => dataReason session.reply session.original segment session.clientMSS
+      | .original => dataReason session.original session.reply segment session.serverMSS session.entry .original observations
+      | .reply => dataReason session.reply session.original segment session.clientMSS session.entry .reply observations
 
 structure Result (before : State) (input : Input) (lifecycle : ConntrackLifecycle.Input)
     (prepared : ConntrackLifecycle.Prepared lifecycle) where
   state : State
-  admitted : Allowed before.phase prepared.attachment input.packet.segment
+  admitted : Allowed before.phase prepared.attachment input.packet.segment before.observations
   phase : state.phase = nextPhase before.phase prepared.attachment input.packet.segment admitted
   ledger : state.observations = before.observations ++ [observe input lifecycle prepared]
   selectedKey : prepared.attachment.entry.flow.key prepared.attachment.direction = (lifecycle.zone, input.packet.header)
@@ -330,11 +417,11 @@ structure Result (before : State) (input : Input) (lifecycle : ConntrackLifecycl
 def step (before : State) (input : Input) (lifecycle : ConntrackLifecycle.Input)
     (prepared : ConntrackLifecycle.Prepared lifecycle) (same : lifecycle.packet = input.packet.header) :
     Except Error (Result before input lifecycle prepared) :=
-  if allowed : Allowed before.phase prepared.attachment input.packet.segment then
+  if allowed : Allowed before.phase prepared.attachment input.packet.segment before.observations then
     .ok ⟨⟨nextPhase before.phase prepared.attachment input.packet.segment allowed,
         before.observations ++ [observe input lifecycle prepared]⟩, allowed, rfl, rfl,
       by simpa only [same] using prepared.attached⟩
-  else .error (.unsupported (reason before.phase prepared.attachment input.packet.segment))
+  else .error (.unsupported (reason before.phase prepared.attachment input.packet.segment before.observations))
 
 def confirmed (entry : Entry) (tracker : ConntrackLifecycle.State) : Bool :=
   tracker.records.any (fun record => decide (record.entry = entry))
@@ -345,7 +432,7 @@ def commit (result : Result before input lifecycle prepared) (tracker : Conntrac
   else .error (.unsupported .historyLost)
 
 theorem nextPhase_entry (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
-    (allowed : Allowed phase attachment segment) :
+    {observations : List Seen} (allowed : Allowed phase attachment segment observations) :
     (nextPhase phase attachment segment allowed).entry = some attachment.entry := by
   cases phase with
   | empty => rfl
@@ -354,7 +441,7 @@ theorem nextPhase_entry (phase : Phase) (attachment : ConntrackLifecycle.Attachm
   | data session =>
     cases attachment with
     | mk entry direction classification fresh =>
-      cases direction <;> exact congrArg some allowed.1.symm
+      cases direction <;> simp only [nextPhase] <;> split <;> exact congrArg some allowed.1.symm
 
 theorem Result.selected_entry (result : Result before input lifecycle prepared) :
     result.state.phase.entry = some prepared.attachment.entry := by
@@ -374,7 +461,7 @@ theorem Result.fresh_phase (result : Result before input lifecycle prepared)
 
 theorem step_exists (before : State) (input : Input) (lifecycle : ConntrackLifecycle.Input)
     (prepared : ConntrackLifecycle.Prepared lifecycle) (same : lifecycle.packet = input.packet.header)
-    (allowed : Allowed before.phase prepared.attachment input.packet.segment) :
+    (allowed : Allowed before.phase prepared.attachment input.packet.segment before.observations) :
     ∃ result, step before input lifecycle prepared same = .ok result := by
   simp only [step, allowed, dite_true]
   exact ⟨_, rfl⟩

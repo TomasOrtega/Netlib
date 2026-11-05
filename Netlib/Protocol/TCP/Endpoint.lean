@@ -1,4 +1,5 @@
 import Netlib.Protocol.TCP.Output
+import Netlib.Protocol.TCP.Recovery
 
 /-!
 # Bounded application operations for a TCP endpoint
@@ -8,7 +9,8 @@ The effective MSS and IP size limit are explicit configuration inputs.
 The policy input permits one selected output. It does not prove congestion control.
 Serial window comparisons need a separate bound on the age of window history.
 The state validity predicate does not supply that bound.
-This profile has no retransmission, window probe, timer, or connection-control operation.
+Optional recovery adds bounded established-data timer retries.
+Window probing, fast recovery, and connection-control processing remain outside this profile.
 -/
 
 namespace Netlib.Protocol.TCP.Endpoint
@@ -25,6 +27,8 @@ structure State where
   sendWL2 : Seq
   effectiveMSS : Nat
   ipSendLimit : Nat
+  recovery : Option Recovery.State := none
+  lastAckWindow : Option Nat := none
   deriving Repr, BEq, DecidableEq
 
 def State.Valid (state : State) : Prop :=
@@ -36,23 +40,53 @@ instance (state : State) : Decidable state.Valid := by
   unfold State.Valid
   infer_instance
 
+def State.now (state : State) : Nat := (state.recovery.map (·.now)).getD 0
+
+def AckWindowKnown (state : State) : Prop :=
+  match state.lastAckWindow with | none => False | some window => window ≤ 65535
+
+instance (state : State) : Decidable (AckWindowKnown state) := by
+  unfold AckWindowKnown
+  split <;> infer_instance
+
+def RecoveryCoherent (state : State) : Prop :=
+  match state.recovery with
+  | none => True
+  | some recovery => recovery.Valid ∧ recovery.smss = state.effectiveMSS ∧ Recovery.flight recovery = state.core.sent.length ∧ AckWindowKnown state
+
+instance (state : State) : Decidable (RecoveryCoherent state) := by
+  unfold RecoveryCoherent
+  split <;> infer_instance
+
+def recoveryReady (state : State) (count : Nat) : Prop :=
+  match state.recovery with
+  | none => True
+  | some recovery => RecoveryCoherent state ∧ Recovery.SendReady recovery count
+
+instance (state : State) (count : Nat) : Decidable (recoveryReady state count) := by
+  unfold recoveryReady
+  split <;> infer_instance
+
 inductive Accepted where
   | write (count : Nat)
   | send (count : Nat)
   | read (count : Nat)
   | emitAck
+  | enableRecovery | advanceClock | retry (count : Nat)
   | receive (acknowledged received : Nat)
   deriving Repr, BEq, DecidableEq
 
 inductive Reject where
   | invalidSeed | pendingCapacity | readBounds | sendBounds | policy | encoding
   | input (reason : EstablishedReceive.Reject)
+  | recovery (reason : Recovery.Stop)
   deriving Repr, BEq, DecidableEq
 
 inductive Decision where
   | accepted (action : Accepted)
   | reject (reason : Reject)
   | unsupported (reason : EstablishedReceive.Unsupported)
+  | recoveryUnsupported (reason : Recovery.Stop)
   deriving Repr, BEq, DecidableEq
 
 structure Result where
@@ -63,6 +97,40 @@ structure Result where
   ack : Option EstablishedReceive.AckRequest := none
 
 def rejected (state : State) (reason : Reject) : Result := ⟨state, .reject reason, none, [], none⟩
+
+def recoveryBlocked (state : State) (reason : Recovery.Stop) : Result :=
+  if reason.unsupported then ⟨state, .recoveryUnsupported reason, none, [], none⟩
+  else rejected state (.recovery reason)
+
+def enableRecovery (state : State) : Result :=
+  if ¬state.Valid then rejected state .invalidSeed
+  else if state.recovery.isSome || !state.core.sent.isEmpty then recoveryBlocked state .ledger
+  else ⟨{ state with recovery := some (Recovery.initial state.effectiveMSS), lastAckWindow := some state.sendWindow }, .accepted .enableRecovery, none, [], none⟩
+
+def advanceClock (state : State) (millis : Nat) : Result :=
+  if ¬state.Valid then rejected state .invalidSeed
+  else if ¬RecoveryCoherent state then recoveryBlocked state .ledger
+  else match state.recovery with
+    | none => recoveryBlocked state .idle
+    | some recovery => match Recovery.advance recovery millis with
+      | .error reason => recoveryBlocked state reason
+      | .ok after => ⟨{ state with recovery := some after }, .accepted .advanceClock, none, [], none⟩
+
+def timeout (state : State) (policy : Bool) : Result :=
+  if ¬state.Valid then rejected state .invalidSeed
+  else if ¬RecoveryCoherent state then recoveryBlocked state .ledger
+  else match state.recovery with
+    | none => recoveryBlocked state .idle
+    | some recovery => match Recovery.timeout recovery with
+      | .error reason => recoveryBlocked state reason
+      | .ok (count, after) =>
+        if !policy then rejected state .policy
+        else if count > state.sendWindow then recoveryBlocked state .persist
+        else if count > state.core.sent.length ∨ count > state.effectiveMSS ∨ 40 + count > state.ipSendLimit then
+          recoveryBlocked state .ledger
+        else match Output.emitAt state.core state.core.sendUna (state.core.sent.take count) with
+          | .error _ => rejected state .encoding
+          | .ok output => ⟨{ state with recovery := some after }, .accepted (.retry count), some output, [], none⟩
 
 def writeState (state : State) (bytes : List UInt8) : State :=
   { state with pending := state.pending ++ bytes }
@@ -75,7 +143,8 @@ def sendState (state : State) (count : Nat) : State :=
     pending := state.pending.drop count
     core := { state.core with
       sent := state.core.sent ++ state.pending.take count
-      sendNext := state.core.sendNext.add count } }
+      sendNext := state.core.sendNext.add count }
+    recovery := state.recovery.map (fun value => Recovery.sent value count) }
 
 def write (state : State) (bytes : List UInt8) : Result :=
   if ¬state.Valid then rejected state .invalidSeed
@@ -91,7 +160,7 @@ def SendReady (state : State) (count : Nat) : Prop :=
   0 < count ∧ count ≤ state.pending.length ∧
     state.core.sent.length + count ≤ state.sendWindow ∧
     state.core.sent.length + count ≤ EstablishedReceive.maxSendWindow ∧
-    count ≤ state.effectiveMSS ∧ 40 + count ≤ state.ipSendLimit
+    count ≤ state.effectiveMSS ∧ 40 + count ≤ state.ipSendLimit ∧ recoveryReady state count
 
 instance (state : State) (count : Nat) : Decidable (SendReady state count) := by
   unfold SendReady
@@ -100,7 +169,9 @@ instance (state : State) (count : Nat) : Decidable (SendReady state count) := by
 def send (state : State) (count : Nat) (policyPermitted : Bool) : Result :=
   if ¬state.Valid then rejected state .invalidSeed
   else if !policyPermitted then rejected state .policy
-  else if ¬SendReady state count then rejected state .sendBounds
+  else if ¬SendReady state count then
+    if state.recovery.isSome && decide (state.sendWindow = 0) then recoveryBlocked state .persist
+    else rejected state .sendBounds
   else match Output.emit state.core (state.pending.take count) with
     | .error _ => rejected state .encoding
     | .ok output => ⟨sendState state count, .accepted (.send count), some output, [], none⟩
@@ -127,17 +198,60 @@ def windowState (before after : State) (segment : Segment) : State :=
   else after
 
 def receiveState (state : State) (value : Input) (after : ERState) : State :=
-  windowState state { state with core := after } value.packet.segment
+  windowState state
+    { state with
+      core := after
+      lastAckWindow := if state.recovery.isSome then some value.packet.segment.window.val else state.lastAckWindow }
+    value.packet.segment
+
+def qualifyingDuplicate (state : State) (segment : Segment) (count : Nat) : Bool :=
+  decide (count = 0 ∧ state.core.sent ≠ [] ∧ segment.payload = [] ∧
+    segment.acknowledgment = state.core.sendUna ∧ segment.window.val = state.lastAckWindow.getD state.sendWindow)
+
+def receiveRecovery (state : State) (segment : Segment) (count : Nat) : Except Recovery.Stop (Option Recovery.State) :=
+  match state.recovery with
+  | none => .ok none
+  | some recovery => do
+    let after ← Recovery.acknowledge recovery count
+    if qualifyingDuplicate state segment count then some <$> Recovery.duplicate after
+    else return some { after with duplicateAcks := 0 }
 
 def receive (state : State) (value : Input) : Result :=
   if ¬state.Valid then rejected state .invalidSeed
+  else if ¬RecoveryCoherent state then recoveryBlocked state .ledger
   else
     let result := EstablishedReceive.receive state.core value
     match result.decision with
     | .blocked (.reject reason) => ⟨state, .reject (.input reason), none, [], result.ack⟩
     | .blocked (.unsupported reason) => ⟨state, .unsupported reason, none, [], result.ack⟩
     | .accepted count size =>
-      ⟨receiveState state value result.state, .accepted (.receive count size), none, [], result.ack⟩
+      match receiveRecovery state value.packet.segment count with
+      | .error reason => recoveryBlocked state reason
+      | .ok recovery =>
+        ⟨{ receiveState state value result.state with recovery }, .accepted (.receive count size), none, [], result.ack⟩
+
+theorem receiveState_recovery (state : State) (value : Input) (after : ERState) :
+    (receiveState state value after).recovery = state.recovery := by
+  unfold receiveState windowState
+  split <;> rfl
+
+theorem receive_without_recovery (state : State) (value : Input) (valid : state.Valid)
+    (disabled : state.recovery = none) :
+    receive state value =
+      let result := EstablishedReceive.receive state.core value
+      match result.decision with
+      | .blocked (.reject reason) => ⟨state, .reject (.input reason), none, [], result.ack⟩
+      | .blocked (.unsupported reason) => ⟨state, .unsupported reason, none, [], result.ack⟩
+      | .accepted count size =>
+        ⟨receiveState state value result.state, .accepted (.receive count size), none, [], result.ack⟩ := by
+  have coherent : RecoveryCoherent state := by simp only [RecoveryCoherent, disabled]
+  simp only [receive, valid, coherent, not_true_eq_false, ite_false]
+  cases selected : (EstablishedReceive.receive state.core value).decision with
+  | blocked reason => cases reason <;> rfl
+  | accepted count size =>
+    simp only [receiveRecovery, disabled]
+    unfold receiveState windowState
+    split <;> simp only [disabled] <;> rfl
 
 theorem writeState_valid (state : State) (bytes : List UInt8) (valid : state.Valid)
     (fits : state.pending.length + bytes.length ≤ state.pendingLimit) :
@@ -211,7 +325,7 @@ theorem send_success (state : State) (count : Nat) (valid : state.Valid)
     simp only [List.length_take, Nat.min_eq_left ready.2.1]
   have bounded : 40 + (state.pending.take count).length ≤ 65535 := by
     rw [length]
-    have packetBound := ready.2.2.2.2.2
+    have packetBound := ready.2.2.2.2.2.1
     have ipBound := valid.2.2.2.2.2.2
     omega
   obtain ⟨output, encoded⟩ := Output.emit_exists state.core (state.pending.take count) valid.1 bounded
@@ -257,7 +371,9 @@ theorem send_valid (state : State) (count : Nat) (policy : Bool) (valid : state.
   · split
     · exact valid
     · split
-      · exact valid
+      · split
+        · unfold recoveryBlocked; split <;> exact valid
+        · exact valid
       · rename_i ready
         cases Output.emit state.core (state.pending.take count) with
         | error reason => exact valid
@@ -272,13 +388,53 @@ theorem emitAck_valid (state : State) (policy : Bool) (valid : state.Valid) :
     · exact valid
     · cases Output.emit state.core [] <;> exact valid
 
+theorem recoveryBlocked_state (state : State) (reason : Recovery.Stop) : (recoveryBlocked state reason).state = state := by
+  unfold recoveryBlocked
+  split <;> rfl
+
+theorem enableRecovery_valid (state : State) (valid : state.Valid) : (enableRecovery state).state.Valid := by
+  unfold enableRecovery
+  repeat' first
+    | (solve | exact valid)
+    | (solve | rw [recoveryBlocked_state]; exact valid)
+    | (split)
+    | (simp only [State.Valid] at *)
+
+theorem advanceClock_valid (state : State) (millis : Nat) (valid : state.Valid) : (advanceClock state millis).state.Valid := by
+  unfold advanceClock
+  repeat' first
+    | (solve | exact valid)
+    | (solve | rw [recoveryBlocked_state]; exact valid)
+    | (split)
+    | (simp only [State.Valid] at *)
+
+theorem timeout_valid (state : State) (policy : Bool) (valid : state.Valid) : (timeout state policy).state.Valid := by
+  unfold timeout
+  repeat' first
+    | (solve | exact valid)
+    | (solve | rw [recoveryBlocked_state]; exact valid)
+    | (split)
+    | (simp only [State.Valid] at *)
+
+theorem withRecovery_valid (state : State) (recovery : Option Recovery.State) (valid : state.Valid) :
+    ({ state with recovery } : State).Valid := by
+  exact valid
+
 theorem receive_valid (state : State) (value : Input) (valid : state.Valid) :
     (receive state value).state.Valid := by
   simp only [receive, valid, not_true_eq_false, ite_false]
-  cases selected : (EstablishedReceive.receive state.core value).decision with
-  | blocked reason => cases reason <;> exact valid
-  | accepted count size =>
-    exact receiveState_valid state value _ valid (EstablishedReceive.receive_valid state.core value valid.1)
+  split
+  · rw [recoveryBlocked_state]
+    exact valid
+  · cases selected : (EstablishedReceive.receive state.core value).decision with
+    | blocked reason => cases reason <;> exact valid
+    | accepted count size =>
+      cases chosen : receiveRecovery state value.packet.segment count with
+      | error reason => simpa only [selected, chosen, recoveryBlocked_state] using valid
+      | ok recovery =>
+        simpa only [selected, chosen] using withRecovery_valid
+          (receiveState state value (EstablishedReceive.receive state.core value).state) recovery
+          (receiveState_valid state value _ valid (EstablishedReceive.receive_valid state.core value valid.1))
 
 theorem windowEligible_forward (state : State) (segment : Segment)
     (eligible : windowEligible state segment = true) :
@@ -333,26 +489,37 @@ theorem send_accepted (state : State) (count : Nat) (policy : Bool)
           cases selected
         | ok output => exact ⟨valid, rfl, ready, output, rfl, send_of_ready state count valid ready output encoded⟩
       · simp only [send, valid, not_true_eq_false, ite_false, Bool.not_true, Bool.false_eq_true,
-          ready, not_false_eq_true, ite_true, rejected] at selected
-        cases selected
+          ready, not_false_eq_true, ite_true] at selected
+        split at selected
+        · simp [recoveryBlocked, Recovery.Stop.unsupported] at selected
+        · cases selected
   · simp only [send, valid, not_false_eq_true, ite_true, rejected] at selected
     cases selected
 
 theorem receive_accepted (state : State) (value : Input) (count size : Nat)
     (selected : (receive state value).decision = .accepted (.receive count size)) :
     state.Valid ∧ (EstablishedReceive.receive state.core value).decision = .accepted count size ∧
+      ∃ recovery, receiveRecovery state value.packet.segment count = .ok recovery ∧
       receive state value =
-        ⟨receiveState state value (EstablishedReceive.receive state.core value).state,
+        ⟨{ receiveState state value (EstablishedReceive.receive state.core value).state with recovery },
           .accepted (.receive count size), none, [], (EstablishedReceive.receive state.core value).ack⟩ := by
   by_cases valid : state.Valid
-  · simp only [receive, valid, not_true_eq_false, ite_false] at selected
-    cases chosen : (EstablishedReceive.receive state.core value).decision with
-    | blocked reason =>
-      cases reason <;> simp only [chosen] at selected <;> cases selected
-    | accepted amount length =>
-      simp only [chosen, Decision.accepted.injEq, Accepted.receive.injEq] at selected
-      obtain ⟨rfl, rfl⟩ := selected
-      exact ⟨valid, rfl, by simp only [receive, valid, not_true_eq_false, ite_false, chosen]⟩
+  · by_cases coherent : RecoveryCoherent state
+    · simp only [receive, valid, not_true_eq_false, ite_false, coherent] at selected
+      cases chosen : (EstablishedReceive.receive state.core value).decision with
+      | blocked reason =>
+        cases reason <;> simp only [chosen] at selected <;> cases selected
+      | accepted amount length =>
+        cases updated : receiveRecovery state value.packet.segment amount with
+        | error reason =>
+          simp only [chosen, updated, recoveryBlocked] at selected
+          split at selected <;> cases selected
+        | ok recovery =>
+          simp only [chosen, updated, Decision.accepted.injEq, Accepted.receive.injEq] at selected
+          obtain ⟨rfl, rfl⟩ := selected
+          exact ⟨valid, rfl, recovery, updated,
+            by simp only [receive, valid, not_true_eq_false, ite_false, coherent, chosen, updated]⟩
+    · simp [receive, valid, coherent, recoveryBlocked, rejected, Recovery.Stop.unsupported] at selected
   · simp only [receive, valid, not_false_eq_true, ite_true, rejected] at selected
     cases selected
 
@@ -506,11 +673,80 @@ theorem receiveState_rewrite (state : State) (value : Input) (after : ERState)
     (target : Packet.Header) (ttl : UInt8) (transport : target.protocol = Packet.Protocol.tcp) :
     receiveState (state.rebind target) (value.rewrite target ttl transport) (after.rebind target) =
       (receiveState state value after).rebind target := by
-  change windowState (state.rebind target) { state.rebind target with core := after.rebind target }
-      (TCPRewrite.segment value.packet target) = _
-  unfold receiveState windowState
-  rw [windowEligible_rewrite]
+  have eligible : windowEligible (state.rebind target)
+      (value.rewrite target ttl transport).packet.segment = windowEligible state value.packet.segment := rfl
+  simp only [receiveState, windowState, eligible]
   split <;> rfl
+
+theorem recoveryCoherent_rebind (state : State) (header : Packet.Header) :
+    RecoveryCoherent (state.rebind header) = RecoveryCoherent state := rfl
+
+theorem receiveRecovery_rewrite (state : State) (header : Packet.Header) (value : DecodedIPv4)
+    (target : Packet.Header) (count : Nat) :
+    receiveRecovery (state.rebind header) (TCPRewrite.segment value target) count = receiveRecovery state value.segment count := rfl
+
+theorem receiveRecovery_input_rewrite (state : State) (value : Input) (target : Packet.Header) (ttl : UInt8)
+    (transport : target.protocol = Packet.Protocol.tcp) (count : Nat) :
+    receiveRecovery (state.rebind target) (value.rewrite target ttl transport).packet.segment count =
+      receiveRecovery state value.packet.segment count := rfl
+
+
+theorem timeout_accepted (state : State) (policy : Bool) (count : Nat)
+    (selected : (timeout state policy).decision = .accepted (.retry count)) :
+    state.Valid ∧ policy = true ∧
+      ∃ recovery after output, state.recovery = some recovery ∧ Recovery.timeout recovery = .ok (count, after) ∧
+        0 < count ∧ count ≤ state.core.sent.length ∧ count ≤ state.effectiveMSS ∧
+        40 + count ≤ state.ipSendLimit ∧ count ≤ state.sendWindow ∧
+        Output.emitAt state.core state.core.sendUna (state.core.sent.take count) = .ok output ∧
+        timeout state policy = ⟨{ state with recovery := some after }, .accepted (.retry count), some output, [], none⟩ := by
+  by_cases valid : state.Valid
+  · by_cases coherent : RecoveryCoherent state
+    · cases stored : state.recovery with
+      | none => simp [timeout, valid, coherent, stored, recoveryBlocked, Recovery.Stop.unsupported, rejected] at selected
+      | some recovery =>
+        cases timed : Recovery.timeout recovery with
+        | error reason =>
+          simp only [timeout, valid, not_true_eq_false, ite_false, coherent, stored, timed, recoveryBlocked] at selected
+          split at selected <;> cases selected
+        | ok pair =>
+          obtain ⟨amount, after⟩ := pair
+          cases policy with
+          | false => simp [timeout, valid, coherent, stored, timed, rejected] at selected
+          | true =>
+            by_cases window : amount ≤ state.sendWindow
+            · by_cases bounded : amount ≤ state.core.sent.length ∧ amount ≤ state.effectiveMSS ∧ 40 + amount ≤ state.ipSendLimit
+              · have noBounds : ¬(amount > state.core.sent.length ∨ amount > state.effectiveMSS ∨ 40 + amount > state.ipSendLimit) := by omega
+                cases encoded : Output.emitAt state.core state.core.sendUna (state.core.sent.take amount) with
+                | error reason =>
+                  simp [timeout, valid, coherent, stored, timed, Nat.not_lt.mpr window, noBounds, encoded, rejected] at selected
+                | ok output =>
+                  simp only [timeout, valid, not_true_eq_false, ite_false, coherent, stored, timed,
+                    Bool.not_true, Bool.false_eq_true, Nat.not_lt.mpr window, noBounds, encoded,
+                    Decision.accepted.injEq, Accepted.retry.injEq] at selected
+                  subst amount
+                  exact ⟨valid, rfl, recovery, after, output, rfl, timed,
+                    (Recovery.timeout_bounds recovery count after timed).1, bounded.1, bounded.2.1, bounded.2.2, window,
+                    encoded, by simp only [timeout, valid, not_true_eq_false, ite_false, coherent, stored, timed,
+                      Bool.not_true, Bool.false_eq_true, Nat.not_lt.mpr window, noBounds, encoded]⟩
+              · have outside : amount > state.core.sent.length ∨ amount > state.effectiveMSS ∨ 40 + amount > state.ipSendLimit := by omega
+                simp [timeout, valid, coherent, stored, timed, Nat.not_lt.mpr window, outside, recoveryBlocked, Recovery.Stop.unsupported, rejected] at selected
+            · have outside : amount > state.sendWindow := by omega
+              simp [timeout, valid, coherent, stored, timed, outside, recoveryBlocked, Recovery.Stop.unsupported] at selected
+    · simp [timeout, valid, coherent, recoveryBlocked, Recovery.Stop.unsupported, rejected] at selected
+  · simp [timeout, valid, rejected] at selected
+
+theorem timeout_output (state : State) (policy : Bool) (count : Nat)
+    (selected : (timeout state policy).decision = .accepted (.retry count)) :
+    ∃ recovery after output, state.recovery = some recovery ∧ Recovery.timeout recovery = .ok (count, after) ∧
+      (timeout state policy).state = { state with recovery := some after } ∧
+      (timeout state policy).output = some output ∧
+      Output.emitAt state.core state.core.sendUna (state.core.sent.take count) = .ok output ∧
+      output.packet.segment.payload = state.core.sent.take count ∧
+      output.packet.segment.sequence = state.core.sendUna ∧ count ≤ state.core.sent.length := by
+  obtain ⟨_, _, recovery, after, output, stored, timed, _, bound, _, _, _, encoded, actual⟩ :=
+    timeout_accepted state policy count selected
+  exact ⟨recovery, after, output, stored, timed, by rw [actual], by rw [actual], encoded,
+    Output.emitAt_payload _ _ _ _ encoded, (Output.emitAt_transport _ _ _ _ encoded).2.1, bound⟩
 
 theorem receive_rewrite (state : State) (value : Input) (target : Packet.Header) (ttl : UInt8)
     (valid : state.Valid) (tuple : value.packet.header = state.core.inbound)
@@ -520,18 +756,31 @@ theorem receive_rewrite (state : State) (value : Input) (target : Packet.Header)
   have core : EstablishedReceive.receive (state.rebind target).core (value.rewrite target ttl transport) =
       (EstablishedReceive.receive state.core value).rebind target :=
     EstablishedReceive.receive_rewrite state.core value target ttl valid.1 tuple transport
-  unfold receive
-  rw [ite_eq_right (not_not_intro rebound), ite_eq_right (not_not_intro valid)]
-  dsimp only
-  rw [core]
-  dsimp only [EstablishedReceive.Result.rebind]
-  cases selected : (EstablishedReceive.receive state.core value).decision with
-  | blocked reason => cases reason <;> rfl
-  | accepted count size =>
-    change (⟨receiveState (state.rebind target) (value.rewrite target ttl transport)
-      ((EstablishedReceive.receive state.core value).state.rebind target),
-      .accepted (.receive count size), none, [], (EstablishedReceive.receive state.core value).ack⟩ : Result) = _
-    rw [receiveState_rewrite]
+  by_cases coherent : RecoveryCoherent state
+  · have reboundCoherent : RecoveryCoherent (state.rebind target) := coherent
+    cases original : EstablishedReceive.receive state.core value with
+    | mk after decision ack =>
+      have reboundCore : EstablishedReceive.receive (state.rebind target).core (value.rewrite target ttl transport) =
+          (⟨after, decision, ack⟩ : EstablishedReceive.Result).rebind target := by rw [core, original]
+      cases decision with
+      | blocked reason =>
+        cases reason <;>
+          simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+            reboundCore, original, EstablishedReceive.Result.rebind] <;> rfl
+      | accepted count size =>
+        simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+          reboundCore, original, EstablishedReceive.Result.rebind]
+        rw [receiveRecovery_input_rewrite]
+        cases updated : receiveRecovery state value.packet.segment count with
+        | error reason => simp only [recoveryBlocked]; split <;> rfl
+        | ok recovery =>
+          have eligible : windowEligible (state.rebind target)
+              (value.rewrite target ttl transport).packet.segment = windowEligible state value.packet.segment := rfl
+          simp only [receiveState, windowState, eligible]
+          split <;> rfl
+  · have reboundCoherent : ¬RecoveryCoherent (state.rebind target) := coherent
+    simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+      not_false_eq_true, ite_true]
     rfl
 
 end Netlib.Protocol.TCP.Endpoint

@@ -168,10 +168,35 @@ private def windowBounds : IO Unit := do
   ensure (bounded.original.observed == 536 && bounded.original.outstanding == 536)
     "The no-option profile must accept its exact default MSS."
 
+private def repeatedData : IO Unit := do
+  let ready ← startup 1000 5000
+  let sent ← serve permit ready.gate ready.tracker (← packet original 1001 5001 16 [1, 2, 3])
+  let repeated ← serve permit sent.gate sent.tracker (← packet original 1001 5001 16 [1, 2, 3])
+  let retained ← session repeated.gate
+  ensure (repeated.emitted && retained.original.observed == 3 && retained.original.outstanding == 3 &&
+    repeated.gate.observations.length == 5)
+    "A repeated observed range must retain its unique frontier and record the new packet attempt."
+  let acknowledged ← serve permit repeated.gate repeated.tracker (← packet translated.reverse 5001 1004 16)
+  let lostAck ← serve permit acknowledged.gate acknowledged.tracker (← packet original 1002 5001 16 [2, 3])
+  let final ← session lostAck.gate
+  ensure (lostAck.emitted && final.original.observed == 3 && final.original.acknowledged == 3)
+    "A repeated slice remains valid after the gateway observes an ACK that the sender can lose."
+  rejected lostAck.gate lostAck.tracker (← packet original 1001 5001 16 [1, 9, 3]) .sequence
+  rejected lostAck.gate lostAck.tracker (← packet original 1002 5001 16 [2, 3, 4]) .sequence
+  rejected lostAck.gate lostAck.tracker (← packet original 1000 5001 16 [1]) .sequence
+  rejected lostAck.gate lostAck.tracker (← packet original 1001 5002 16 [1, 2, 3]) .acknowledgment
+  let wrap ← startup 4294967294 5000
+  let cross ← serve permit wrap.gate wrap.tracker (← packet original 4294967295 5001 16 [1, 2, 3])
+  let slice ← serve permit cross.gate cross.tracker (← packet original 0 5001 16 [2, 3])
+  let wrapped ← session slice.gate
+  ensure (slice.emitted && wrapped.original.observed == 3 && wrapped.original.next.val == 2)
+    "An exact repeated slice must retain its stream position across sequence wrap."
+
 def run : IO Unit := do
   ordinaryData
   droppedObservations
   windowBounds
+  repeatedData
   for (clientISS, serverISS) in [(0, 0), (4294967295, 5000), (1000, 4294967295), (4294967295, 4294967295)] do
     let ready ← startup clientISS serverISS
     let client := (Seq.ofNat clientISS).add 1

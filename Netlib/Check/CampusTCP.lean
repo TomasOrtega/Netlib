@@ -167,6 +167,15 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
     Import.PacketFields.fields json ["kind", "actor", "count", "policyPermitted"]
     return .send (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "count").getNat?)
       (← (← json.getObjVal? "policyPermitted").getBool?)
+  | "enableRecovery" =>
+    Import.PacketFields.fields json ["kind", "actor"]
+    return .enableRecovery (← actorFromJson (← json.getObjVal? "actor"))
+  | "advanceClock" =>
+    Import.PacketFields.fields json ["kind", "actor", "millis"]
+    return .advanceClock (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "millis").getNat?)
+  | "timeout" =>
+    Import.PacketFields.fields json ["kind", "actor", "policyPermitted"]
+    return .timeout (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "policyPermitted").getBool?)
   | "read" =>
     Import.PacketFields.fields json ["kind", "actor", "count"]
     return .read (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "count").getNat?)
@@ -313,6 +322,7 @@ def eventKind : Event → String
   | .pause => "pause" | .stageCheckpoint => "stageCheckpoint" | .installCheckpoint _ => "installCheckpoint"
   | .switchRoute .. => "switchRoute" | .fencePrimary => "fencePrimary" | .resume => "resume"
   | .open .. => "open" | .write .. => "write" | .send .. => "send" | .read .. => "read" | .emitAck .. => "emitAck"
+  | .enableRecovery .. => "enableRecovery" | .advanceClock .. => "advanceClock" | .timeout .. => "timeout"
   | .assign .. => "assign" | .serve .. => "serve" | .deliver .. => "deliver"
 
 def eventJson (event : Event) : Lean.Json :=
@@ -330,6 +340,9 @@ def eventJson (event : Event) : Lean.Json :=
     | .open remote policy => [("remote", TCPHandshake.socketJson remote), ("policyPermitted", Lean.toJson policy)]
     | .write actor bytes => [("actor", Lean.toJson (actorName actor)), ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex bytes))]
     | .send actor count policy => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
+    | .enableRecovery actor => [("actor", Lean.toJson (actorName actor))]
+    | .advanceClock actor millis => [("actor", Lean.toJson (actorName actor)), ("millis", Lean.toJson millis)]
+    | .timeout actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .read actor count => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count)]
     | .emitAck actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .assign output ingress => [("output", Lean.toJson output), ("ingress", interfaceJson ingress)]
@@ -446,16 +459,30 @@ def stateJson (state : State input) : Lean.Json :=
 
 def producedKind : Produced active passive → String
   | .startup step _ _ => match step.event with | .activeOpen .. => "open" | _ => "startup"
-  | .application _ step _ _ => match step.event with | .send .. => "send" | .emitAck .. => "emitAck" | _ => "invalid"
+  | .application _ step _ _ => match step.event with
+    | .send .. => "send" | .emitAck .. => "emitAck" | .timeout .. => "retry" | _ => "invalid"
 
 def producedStartupOperation : Produced active passive → Option String
   | .startup step _ _ => some step.event.kind
   | .application .. => none
 
-def producedJson (value : Produced active passive) (id : Nat) : Lean.Json := Lean.Json.mkObj [
+def attemptJson (step : TCP.ApplicationTrace.Step) : Option Lean.Json := do
+  let recovery ← step.before.recovery
+  let (kind, original, start, count) ← match step.event with
+    | .send count _ => some ("original", some recovery.nextId, recovery.frontier, count)
+    | .timeout _ => recovery.outstanding.head?.map (fun entry => ("retry", some entry.id, entry.start, entry.count))
+    | .emitAck _ => some ("ack", none, recovery.frontier, 0)
+    | _ => none
+  return Lean.Json.mkObj [("kind", Lean.toJson kind), ("clockMillis", Lean.toJson recovery.now),
+    ("originalID", Lean.toJson original), ("start", Lean.toJson start), ("count", Lean.toJson count)]
+
+def producedJson (value : Produced active passive) (id : Nat) : Lean.Json := Lean.Json.mkObj ([
   ("id", Lean.toJson id), ("index", Lean.toJson value.time), ("actor", Lean.toJson (actorName value.actor)),
   ("kind", Lean.toJson (producedKind value)), ("startupOperation", Lean.toJson (producedStartupOperation value)),
-  ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex value.output.bytes)), ("decoded", TCPReceive.decodedJson value.output.packet)]
+  ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex value.output.bytes)), ("decoded", TCPReceive.decodedJson value.output.packet)] ++
+  match value with
+  | .startup .. => []
+  | .application _ step _ _ => match attemptJson step with | none => [] | some attempt => [("attempt", attempt)])
 
 def disposition : TCP.WireForwarding.Disposition → String
   | .forwarded => "forwarded" | .routeDrop => "routeDrop" | .ttlExpired => "ttlExpired"
@@ -500,13 +527,17 @@ def assumptions : List String := [
   "Imported policy, NAT, and routing snapshots describe the exclusive selected hook sequence.",
   "The endpoint output policy is local permission. Current gateway permission comes from actual installed policy checks.",
   "The selected TCP history accepts MSS, NOP, and EOL at startup; application data uses no options.",
-  "Retransmission, replacement, close processing, other options, and unbounded sequence reuse remain outside the selected history.",
+  "Optional data recovery uses explicit local clocks, one-MSS unique flight, and at most two retries per outstanding original segment.",
+  "Fast recovery, persist, replacement, close processing, other options, and unbounded sequence reuse remain outside the selected history.",
+  "Local millisecond readings do not prove native time or coherence with credential expiry.",
   "Actual gateway output supplies receiver bytes in the modeled timeline. Physical delivery and connection-instance identity remain external.",
   "Logoff and checked denial prevent later gateway output. They do not erase bytes already received or buffered.",
   "Native TCP migration, automatic failure recovery, native Wi-Fi enforcement, and the full campus demonstration remain open."]
 
 def sources : List Standards.Source := [
   ⟨"Transmission Control Protocol", "RFC 9293", "3.4 and 3.10.7", "https://www.rfc-editor.org/rfc/rfc9293.html#section-3.10.7"⟩,
+  ⟨"Computing TCP's Retransmission Timer", "RFC 6298", "2, 3, and 5", "https://www.rfc-editor.org/rfc/rfc6298.html#section-5"⟩,
+  ⟨"TCP Congestion Control", "RFC 5681", "3", "https://www.rfc-editor.org/rfc/rfc5681.html#section-3"⟩,
   ⟨"Extensible Authentication Protocol (EAP)", "RFC 3748", "4", "https://www.rfc-editor.org/rfc/rfc3748.html#section-4"⟩,
   ⟨"Linux netfilter NAT", "v6.8", "nf_nat_packet", Protocol.NetfilterNAT.sourceURL⟩,
   ⟨"Linux connection tracking", "v6.8", "ordinary attachment and confirmation", Protocol.ConntrackLifecycle.sourceURL⟩]

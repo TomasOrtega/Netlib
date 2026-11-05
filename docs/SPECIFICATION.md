@@ -386,7 +386,8 @@ The [receive-state guide](TCP_RECEIVE.md) defines the command, bounds, static ev
 ## TCP application events
 
 The `tcp-endpoint` command extends the bounded receive model with writes, sends, reads, and peer-window history.
-Only successful sends produce output bytes and advance the send-buffer end.
+Only successful new-data sends advance the send-buffer end.
+Selected timer retries produce checked output for an earlier outstanding range without adding stream bytes.
 Reads return the exact receive-buffer prefix and increase local free space.
 Peer-window updates use the pre-ACK state and the selected freshness formula.
 Strictly old ACKs cannot update that window.
@@ -417,6 +418,7 @@ Unsupported phases or omitted RFC actions stop replay.
 The command distinguishes supported partial histories from a completed model exchange.
 The [startup guide](TCP_HANDSHAKE.md) gives the event schema, byte-history conditions, and connection to the application theorem.
 The [MSS guide](TCP_MSS.md) states receive-capability evidence, automatic peer selection, and exact gateway/checkpoint preservation.
+The [recovery guide](TCP_RECOVERY.md) adds explicit local clocks, bounded timer retries, exact range admission, and Karn checks.
 
 ## Authenticated campus TCP execution
 

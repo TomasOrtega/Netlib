@@ -274,9 +274,9 @@ CONTROLS = {
 }
 
 
-def replay(value):
+def replay(value, driver=None):
     if "standby" not in value:
-        return base.replay(value)
+        return base.replay(value, driver=driver)
     authentication = value["authentication"]
     context, link = authentication["context"], authentication["link"]
     active = base.handshake.Local.from_dict(value["active"])
@@ -287,7 +287,10 @@ def replay(value):
         name: Gateway(deployment, deployment["initialConfig"], deployment["initialGuard"])
         for name, deployment in (("primary", value), ("standby", value["standby"]))
     }
-    events = [base.canonical_event(event) for event in value["events"]]
+    canonical = base.canonical_event if driver is None else driver.canonical_event
+    evaluate = base.endpoint.evaluate if driver is None else driver.evaluate
+    wrap = (lambda state: state) if driver is None else driver.wrap
+    events = [canonical(event) for event in value["events"]]
     transfer = Transfer()
     auth, after = base.Authentication(), 0
     startup = base.handshake.State()
@@ -376,6 +379,7 @@ def replay(value):
         kind, before = event["kind"], snapshot()
         decision, passed = {"kind": "accepted", "operation": kind}, True
         output = decoded = service = startup_operation = None
+        before_endpoint = None
         read = b""
         actor = event.get("actor")
         if kind in CONTROLS:
@@ -447,11 +451,14 @@ def replay(value):
                 )
                 startup, decision, output = result.state, result.decision, result.output
             actor, startup_operation = "client", "activeOpen"
-        elif kind in ("write", "send", "read", "emitAck"):
+        elif kind in ("write", "send", "read", "emitAck") or (
+            driver is not None and kind in driver.EVENTS
+        ):
             if endpoints[actor] is None or startup.passive_phase != "ESTABLISHED":
                 decision = {"kind": "unsupported", "reason": "phase"}
             else:
-                result = base.endpoint.evaluate(
+                before_endpoint = endpoints[actor]
+                result = evaluate(
                     endpoints[actor], {key: item for key, item in event.items() if key != "actor"}
                 )
                 endpoints[actor], decision, output, read = (
@@ -610,26 +617,30 @@ def replay(value):
                 startup, decision, output = result.state, result.decision, result.output
                 startup_operation = operation
                 if startup.active_seed is not None and endpoints["client"] is None:
-                    endpoints["client"], established["client"] = startup.active_seed, index
+                    endpoints["client"], established["client"] = wrap(startup.active_seed), index
                 if startup.passive_seed is not None and endpoints["server"] is None:
-                    endpoints["server"], established["server"] = startup.passive_seed, index
-            elif delivered["sourceKind"] not in ("send", "emitAck"):
+                    endpoints["server"], established["server"] = wrap(startup.passive_seed), index
+            elif delivered["sourceKind"] not in ("send", "emitAck", "retry"):
                 decision = {"kind": "unsupported", "reason": "startupCopy"}
             else:
-                result = base.endpoint.evaluate(
+                result = evaluate(
                     endpoints[actor], {"kind": "receive", "rawIPv4Hex": event["rawIPv4Hex"]}
                 )
                 endpoints[actor], decision = result.state, result.decision
         else:
             raise ValueError("The campus transfer event kind is unknown.")
         if output is not None:
+            attempt = None if driver is None else driver.attempt(before_endpoint, event)
             outputs.append(
                 {
                     "id": len(outputs),
                     "index": index,
                     "actor": actor,
-                    "kind": kind if kind != "deliver" else "startup",
+                    "kind": (kind if kind != "deliver" else "startup")
+                    if driver is None
+                    else driver.output_kind(event),
                     "startupOperation": startup_operation,
+                    **({} if attempt is None else {"attempt": attempt}),
                     **output,
                 }
             )

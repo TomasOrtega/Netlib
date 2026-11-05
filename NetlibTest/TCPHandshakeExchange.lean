@@ -119,6 +119,12 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
   have activeSent : activeSeed.core.sent = [] := startup.value.empty.2.1
   have passiveReceived : passiveSeed.core.received = [] := startup.value.empty.2.2.2.2.2
   have passiveSent : passiveSeed.core.sent = [] := startup.value.empty.2.2.2.2.1
+  have activeRecovery : activeSeed.recovery = none := by
+    simp only [activeSeed, HandshakeExchange.Complete.activeSeed, startup.value.active.derived,
+      Handshake.activeSeed]
+  have passiveRecovery : passiveSeed.recovery = none := by
+    simp only [passiveSeed, HandshakeExchange.Complete.passiveSeed, startup.value.passive.derived,
+      Handshake.passiveSeed]
   have pendingLimit : activeSeed.pendingLimit = 4 := by
     rw [startup.value.configuration.2.1, startup.activeConfig]
     rfl
@@ -147,7 +153,7 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
     ⟨writtenState, .accepted (.write 1), none, [], none⟩, 4, activeValid, writeResult.symm⟩
   have pendingBytes : writtenState.pending = [42] := by rw [writtenEq]; simp [Endpoint.writeState, activeEmpty]
   have sendReady : Endpoint.SendReady writtenState 1 := by
-    refine ⟨by decide, ?_, ?_, ?_, ?_, ?_⟩
+    refine ⟨by decide, ?_, ?_, ?_, ?_, ?_, ?_⟩
     · rw [pendingBytes]
       decide
     · rw [writtenEq]
@@ -163,6 +169,8 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
       change 40 + 1 ≤ activeSeed.ipSendLimit
       rw [ipLimit]
       decide
+    · rw [writtenEq]
+      simp only [Endpoint.recoveryReady, Endpoint.writeState, activeRecovery]
   obtain ⟨output, encoded⟩ := Output.emit_exists writtenState.core (writtenState.pending.take 1)
     writtenValid.1 (by rw [pendingBytes]; decide)
   obtain ⟨sentState, sentEq⟩ : ∃ state, state = Endpoint.sendState writtenState 1 := ⟨_, rfl⟩
@@ -212,7 +220,8 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit passiveSeed.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    simp only [Endpoint.receive, passiveValid, not_true_eq_false, ite_false, coreReceived, payload]
+    rw [Endpoint.receive_without_recovery passiveSeed input passiveValid passiveRecovery, coreReceived]
+    simp only [payload]
     rfl
   have receivedValid : receivedState.Valid := by
     have valid := Endpoint.receive_valid passiveSeed input passiveValid

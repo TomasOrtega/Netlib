@@ -76,6 +76,8 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
   | «open» remote policy => exact keeps_changes (startup_keeps _ _ _ _ accepted)
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
+  | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
+    exact keeps_changes (application_keeps _ _ _ _ _ accepted)
   | authentication index =>
     simp only [Check.CampusTCPModel.process] at accepted
     repeat' first

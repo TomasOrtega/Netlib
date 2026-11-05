@@ -132,6 +132,7 @@ See [RFC 9293, sections 3.2 and 3.7.1](https://www.rfc-editor.org/rfc/rfc9293.ht
 The SYN-only MSS rule constrains sending.
 It does not by itself prescribe drop or reset behavior for received non-SYN MSS.
 The remaining non-SYN option stop is selected unsupported scope.
-Native TCP correspondence, timers, congestion control, retransmission, reordering, other options, and full connection processing remain open.
+The [bounded recovery extension](TCP_RECOVERY.md) adds local timers and exact retries through the same gateway transfer.
+Native TCP correspondence, general congestion control, broader recovery, reordering, other options, and full connection processing remain open.
 Physical receive capability, installation, delivery, credential integrity, and cryptographic refinement require separate evidence.
 All seven research programs and the full campus demonstration remain OPEN.

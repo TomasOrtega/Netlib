@@ -40,6 +40,7 @@ The seed also assumes an established connection and its initial window history.
 The [startup extension](TCP_HANDSHAKE.md) constructs these states and their directional MSS from actual checked handshake events.
 The [MSS guide](TCP_MSS.md) distinguishes absent options, actual peer offers, and separate local IP size limits.
 The [campus extension](CAMPUS_TCP.md) connects their delivery history to actual authenticated gateway service.
+The [recovery extension](TCP_RECOVERY.md) adds explicit clocks and timer retries without counting repeated bytes as new sends.
 
 Each event has one of these forms:
 
@@ -105,9 +106,10 @@ Acknowledged bytes are removed outstanding bytes.
 They do not establish a remote application read.
 Nonempty seed buffers retain separate origin assumptions.
 
-The paired theorem uses empty pending and receive seed buffers and matching initial cursors.
+The paired theorem uses empty pending, outstanding, and receive seed buffers and matching initial cursors.
 Each receive event must refer to an earlier successful peer output, including rejected inputs and pure ACKs.
-Each accepted nonempty payload has an earlier successful send and an earlier application write.
+Each accepted nonempty payload has an earlier unique send and an earlier application write.
+Its actual delivered output can be the original packet attempt or a later checked retry.
 The delivery evidence preserves the emitted payload and sequence value through the selected byte transformation.
 Certified TCP tuple rewriting supplies one such transformation.
 Valid checksums and matching tuples alone do not establish this delivery history.
@@ -135,6 +137,7 @@ These cases use constructed bytes and do not send packets.
 
 Policy inputs permit individual sends and ACK outputs.
 They do not prove congestion control, ACK scheduling, or rate control.
-Broader startup features, connection close, retransmission, timers, window probes, and long sequence-reuse periods remain open.
+The [bounded recovery profile](TCP_RECOVERY.md) adds explicit timers and exact retries.
+Broader startup features, connection close, general recovery, window probes, and long sequence-reuse periods remain open.
 The proof does not establish native transmission, eventual delivery, conntrack acceptance, or failover continuity.
 The full campus demonstration and all seven [research programs](ROADMAP.md) remain OPEN.
