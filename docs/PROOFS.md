@@ -353,6 +353,41 @@ Sparse transitivity laws compose relevant relation pairs through each endpoint s
 Independent reach requirements generate two local laws each and no transitivity laws.
 Dense connected policies can still generate many laws before solver search starts.
 
+## Native snapshots and intent compilation
+
+`Import.LinuxRoute` preserves native route records and resolves explicit device/gateway bindings.
+`Snapshot.nextHop_correct` proves compiled routing decisions equal the structured snapshot lookup for every destination.
+Equal canonical prefixes cause errors before metric or multipath ambiguity can enter the model.
+
+`Import.Nftables` preserves source-chain predicates, verdicts, policies, handles, and expression locations.
+Its compilation theorems connect ACL evaluation to the independent structured source-chain meaning.
+Transport port matches retain their protocol guard.
+The parser rejects every unsupported expression, including expressions after a verdict.
+
+`Import.LinuxDeployment` generates physical links, ACLs, and routes from the snapshots and bindings.
+The parser checks node coverage and constructs a proof of unique router identities.
+Lookup lemmas connect the generated configuration to the source router records.
+`model_correct` proves equality with the structured native graph and declared external request enforcement.
+Its scope is [main-table IPv4 transit](LINUX.md#guarantees-and-assumptions).
+
+`Compile.ACL` checks permit/prohibition overlap over the complete packet partition.
+A conflict includes a concrete header and both original source requirements.
+`Conflict.unsatisfiable` rules out every ACL satisfying that conflicting demand pair.
+Successful compilation preserves source IDs and proves all-header intent equivalence.
+Input and budget errors cannot produce a successful certificate.
+
+`Compile.Nftables.Emitted.correct` transfers that certificate to a structured native-format snapshot.
+Capability checks reject port predicates without the required TCP/UDP protocol and native comment limits.
+The separate JSON serializer has exact-partition roundtrip tests.
+Pinned native nftables accepted and loaded generated JSON in a disposable Linux container.
+Its re-export remains equivalent under bidirectional all-header refinement checks.
+These tests supply interoperability evidence rather than parser or kernel proofs.
+
+`Import.Json.parse` rejects duplicate decoded object keys throughout nested input.
+The regression first failed with the original parser and now covers existing JSON commands.
+A separate differential check matched Python key detection on 2,500 generated nested cases.
+Parsing remains part of the reviewed implementation.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,

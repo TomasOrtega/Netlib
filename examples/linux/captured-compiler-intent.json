@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "requirements": [
+    {
+      "id": "WEB",
+      "action": "permit",
+      "match": {
+        "source": {
+          "address": 167772161,
+          "length": 24
+        },
+        "destination": null,
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 443,
+          "last": 444
+        }
+      }
+    },
+    {
+      "id": "DNS",
+      "action": "permit",
+      "match": {
+        "source": null,
+        "destination": null,
+        "protocol": 17,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 53,
+          "last": 53
+        }
+      }
+    },
+    {
+      "id": "ICMP",
+      "action": "permit",
+      "match": {
+        "source": null,
+        "destination": null,
+        "protocol": 1,
+        "sourcePorts": null,
+        "destinationPorts": null
+      }
+    }
+  ]
+}

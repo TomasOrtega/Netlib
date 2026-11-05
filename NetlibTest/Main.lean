@@ -17,6 +17,13 @@ import NetlibTest.Campus
 import NetlibTest.Traffic
 import NetlibTest.StandardsComposition
 import NetlibTest.Queue
+import NetlibTest.ImportJson
+import NetlibTest.ImportIPv4
+import NetlibTest.Nftables
+import NetlibTest.LinuxRoute
+import NetlibTest.LinuxDeployment
+import NetlibTest.ACLCompiler
+import NetlibTest.NftablesCompiler
 
 open Netlib
 
@@ -35,4 +42,11 @@ def main : IO Unit := do
   NetlibTest.Traffic.run
   NetlibTest.StandardsComposition.run
   NetlibTest.Queue.run
+  NetlibTest.ImportJson.run
+  NetlibTest.ImportIPv4.run
+  NetlibTest.Nftables.run
+  NetlibTest.LinuxRoute.run
+  NetlibTest.LinuxDeployment.run
+  NetlibTest.ACLCompiler.run
+  NetlibTest.NftablesCompiler.run
   IO.println "Netlib tests passed."

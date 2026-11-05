@@ -32,6 +32,8 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Check a Wi-Fi deployment | [Wi-Fi](docs/WIFI.md) |
 | Check packets, routes, and identity policies | [Data plane](docs/DATAPLANE.md) |
 | Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
+| Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |
+| Compile packet requirements to a firewall | [Compiler](docs/COMPILER.md) |
 | Check 5G admission traces | [5G](docs/FIVEG.md) |
 | Analyze policies and set search budgets | [Solver](docs/SOLVER.md) |
 | Inspect formal guarantees | [Proof inventory](docs/PROOFS.md) |

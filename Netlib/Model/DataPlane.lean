@@ -1,3 +1,4 @@
+import Netlib.Import.Json
 import Lean
 import Netlib.Model.Config
 import Netlib.Routing.Basic
@@ -239,7 +240,7 @@ private def packetMatch (json : Lean.Json) : Except String Match := do
 
 /-- Traffic selections use the same strict packet-match format as ACL rules. -/
 def parseTrafficSelection (text : String) : Except String Match := do
-  packetMatch (← Lean.Json.parse text)
+  packetMatch (← Netlib.Import.Json.parse text)
 
 private def rule (json : Lean.Json) : Except String Rule := do
   fields json ["match", "action"]
@@ -314,7 +315,7 @@ def fromJson (json : Lean.Json) : Except String Config := do
   config.validate
   return config
 
-def parse (text : String) : Except String Config := Lean.Json.parse text >>= fromJson
+def parse (text : String) : Except String Config := Netlib.Import.Json.parse text >>= fromJson
 
 end Config
 end Netlib.DataPlane

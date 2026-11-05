@@ -69,8 +69,82 @@ def traffic_checks():
         invoke("traffic", config, "AVAILABLE", invalid, code=2)
 
 
+def linux_checks():
+    directory = ROOT / "examples/linux"
+    for name in ["deployment", "deny-first", "route-drop", "bypass", "management-leak"]:
+        passed = name == "deployment"
+        result = json.loads(
+            invoke("linux", directory / f"{name}.json", "--json", code=0 if passed else 1)
+        )
+        assert result["report"]["compliant"] == passed
+        assert result["scope"] == "main-table-ipv4-transit" and result["assumptions"]
+        assert len(result["routers"]) == 4
+        gateway = next(r for r in result["routers"] if r["node"] == "gateway")
+        assert gateway["routes"] and gateway["firewallRules"]
+        assert gateway["routes"][0]["source"] == "/routers/1/routes/0"
+        assert gateway["firewallRules"][0]["source"].startswith("/routers/1/nftables/nftables/")
+        assert gateway["firewallRules"][0]["expressionIndices"]
+    for name, query, code in [
+        ("deployment", "AVAILABLE", 0),
+        ("deployment", "IDENTITY", 0),
+        ("deployment", "GATEWAY", 0),
+        ("bypass", "IDENTITY", 1),
+        ("bypass", "GATEWAY", 1),
+        ("route-drop", "AVAILABLE", 1),
+    ]:
+        result = json.loads(
+            invoke(
+                "linux-traffic",
+                directory / f"{name}.json",
+                query,
+                directory / "https-class.json",
+                "--json",
+                code=code,
+            )
+        )
+        assert result["report"]["compliant"] == (code == 0)
+        assert result["report"]["scope"] == "all-selected-packets"
+    invoke(
+        "linux-traffic",
+        directory / "deployment.json",
+        "AVAILABLE",
+        directory / "https-class.json",
+        "--budget",
+        "0",
+        code=2,
+    )
+    invoke("compile-acl", directory / "conflicting-intent.json", code=1)
+    invoke("compile-acl", directory / "intent.json", "--budget", "0", code=2)
+    invoke("compile-acl", directory / "intent.json", "--budget", "invalid", code=2)
+    generated = json.loads(invoke("compile-acl", directory / "intent.json"))
+    assert generated["nftables"][0]["metainfo"]["version"] == "1.1.3"
+    assert generated["nftables"][3]["rule"]["comment"] == "HTTPS"
+    captured = json.loads(invoke("compile-acl", directory / "captured-compiler-intent.json"))
+    assert captured == json.loads((directory / "captured-compiler-input.json").read_text())
+    with tempfile.TemporaryDirectory(prefix="netlib-linux-") as temporary:
+        path = Path(temporary) / "deployment.json"
+        bundle = json.loads((directory / "deployment.json").read_text())
+        bundle["routers"][1]["nftables"] = generated
+        path.write_text(json.dumps(bundle))
+        assert json.loads(invoke("linux", path, "--json"))["report"]["compliant"]
+        assert json.loads(
+            invoke("linux-traffic", path, "AVAILABLE", directory / "https-class.json", "--json")
+        )["report"]["compliant"]
+        bundle["intent"]["links"] = []
+        path.write_text(json.dumps(bundle))
+        invoke("linux", path, code=2)
+        invalid = Path(temporary) / "intent.json"
+        policy = json.loads((directory / "intent.json").read_text())
+        policy["requirements"][0]["match"]["protocol"] = None
+        invalid.write_text(json.dumps(policy))
+        invoke("compile-acl", invalid, code=2)
+        invalid.write_text('{"schema":0,"schema":1,"requirements":[]}')
+        invoke("compile-acl", invalid, code=2)
+
+
 def main():
     traffic_checks()
+    linux_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -127,7 +201,9 @@ def main():
         invoke("analyze", policy, "--budget", "0", code=2)
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
-    print(f"Profile CLI checks passed for {count} fixtures and both coverage reports.")
+    print(
+        f"Profile CLI checks passed for {count} fixtures, coverage, traffic, Linux, and compilation."
+    )
 
 
 if __name__ == "__main__":

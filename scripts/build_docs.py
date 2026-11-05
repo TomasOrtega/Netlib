@@ -25,9 +25,10 @@ GROUPS = {
     "Security": "Check requests at policy gateways.",
     "Policy": "Parse requirements and find missing goals.",
     "Check": "Check claims with proof-backed results.",
+    "Compile": "Compile packet intent to certified ACLs and structured nftables policies.",
     "Examples": "Read complete architecture proofs.",
     "Standards": "Compose formal profiles and check selected Wi-Fi and 5G requirements.",
-    "Import": "Read supported device configuration formats.",
+    "Import": "Read strict hostapd, Linux route, and nftables snapshots.",
     "Protocol": "Compose transition traces and prove session and admission properties.",
 }
 

@@ -60,7 +60,8 @@ The source tree separates the library into these parts:
  * `Netlib.Security` defines request policy and gateway enforcement.
  * `Netlib.Protocol` defines session states and admission invariants.
  * `Netlib.Standards` records sources and selected standards profiles.
- * `Netlib.Import` reads the supported hostapd configuration fragment.
+ * `Netlib.Import` reads strict hostapd, Linux route, and nftables inputs.
+ * `Netlib.Compile` translates packet intent to certified firewall policies.
  * `Netlib.Model` defines configuration data.
  * `Netlib.Policy` connects requirement text and network observations.
  * `Netlib.Check` checks configurations and constructs certified results.
@@ -469,6 +470,43 @@ Version refinement checks implication and returns a countermodel when implicatio
 Unsupported clauses and exhausted budgets return errors.
 Compatibility and refinement reject unsupported clauses even when a guard could make them inactive.
 An implication proof does not establish that the stronger profile is satisfiable.
+
+## Native input and configuration compilation
+
+The Linux adapter binds iproute2 route exports and nftables forward-chain exports to declared device identities.
+It generates the physical links, packet rules, and route tables.
+Unknown syntax and unsupported native behavior cause input errors.
+Reports preserve source locations, original route records, and firewall rule provenance.
+Every JSON text input rejects duplicate decoded object keys.
+
+The route translation has an all-address theorem:
+
+```lean
+open Netlib.Import.LinuxRoute in
+example (snapshot : Snapshot)
+    (address : Netlib.Packet.Address) :
+    Netlib.Routing.nextHop snapshot.compile address =
+      snapshot.nextNode address :=
+  snapshot.nextHop_correct address
+```
+
+The composed graph also preserves the source-chain decisions and declared request enforcement.
+The scope assumes valid unfragmented IPv4 transit after main-table selection.
+Interface bindings and external identity controls need separate review.
+Other hooks and packet transformations must preserve the modeled decisions.
+
+Packet intent supplies unordered permit and hard-deny requirements.
+The exact partition checks every overlap.
+A conflict returns original requirement IDs and a concrete packet.
+Successful compilation carries a proof for every modeled header.
+Native-format emission preserves that certificate in a structured nftables snapshot.
+
+The serializer has roundtrip tests over exact packet partitions.
+Native nftables 1.1.3 accepted and loaded generated JSON in an isolated Linux container.
+The imported re-export preserves the generated policy under all-header equivalence checks.
+These tests establish interoperability evidence, separate from the structured translation theorems.
+The generated additions require a fresh table and exclusive modeled forwarding behavior.
+The compiler does not apply a deployment operation.
 
 # Documentation process
 %%%

@@ -3,6 +3,9 @@ import Netlib.Policy.Analysis
 import Netlib.Check.VerifiedCompliance
 import Netlib.Check.DataPlane
 import Netlib.Check.Traffic
+import Netlib.Import.LinuxDeployment
+import Netlib.Compile.Policy
+import Netlib.Compile.Nftables
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -14,6 +17,9 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib formalize REQUIREMENTS.netlib\n\
   netlib dataplane CONFIG.json [--json]\n\
   netlib traffic CONFIG.json QUERY MATCH.json [--budget N] [--json]\n\
+  netlib linux BUNDLE.json [--json]\n\
+  netlib linux-traffic BUNDLE.json QUERY MATCH.json [--budget N] [--json]\n\
+  netlib compile-acl INTENT.json [--budget N]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
   netlib wifi AP.conf [DEPLOYMENT.json] [--json]\n\
@@ -65,6 +71,77 @@ private def traffic (path queryId selectionPath : String) (budget : Nat) (json :
     for line in checked.evidence do IO.println line
   return if checked.value then 0 else 1
 
+private def linuxAssumptions : List String := [
+  "Headers describe valid unfragmented IPv4 transit packets after main-table selection.",
+  "Interface and gateway bindings describe the intended physical adjacency.",
+  "No additional hooks or packet transformations alter the modeled decisions.",
+  "Declared identity facts and request enforcement describe the actual external controls.",
+  "Snapshots describe the same stable deployment state."]
+
+private def linuxEnvelope (snapshot : Import.LinuxDeployment.Snapshot) (report : Lean.Json) : Lean.Json :=
+  Lean.Json.mkObj [
+    ("scope", Lean.toJson "main-table-ipv4-transit"),
+    ("assumptions", Lean.toJson linuxAssumptions),
+    ("routers", Lean.toJson (snapshot.routers.map fun router => Lean.Json.mkObj [
+      ("node", Lean.toJson router.node), ("source", Lean.toJson router.sourceID),
+      ("routeVersion", Lean.toJson router.routeVersion),
+      ("routes", Lean.toJson (router.routes.routes.map fun route => Lean.Json.mkObj [
+        ("source", Lean.toJson s!"{router.sourceID}/routes{route.location}"), ("record", route.original)])),
+      ("firewallVersion", Lean.toJson router.nftables.version),
+      ("firewallPolicySource", Lean.toJson
+        s!"{router.sourceID}/nftables/nftables/{router.nftables.chainIndex}/chain/policy"),
+      ("firewallRules", Lean.toJson (router.nftables.rules.map fun rule => Lean.Json.mkObj [
+        ("source", Lean.toJson s!"{router.sourceID}/nftables/nftables/{rule.objectIndex}/rule"),
+        ("nativeSource", Lean.toJson rule.sourceID), ("handle", Lean.toJson rule.handle),
+        ("objectIndex", Lean.toJson rule.objectIndex),
+        ("expressionIndices", Lean.toJson rule.expressionIndices),
+        ("comment", Lean.toJson rule.comment)]))])),
+    ("report", report)]
+
+private def linuxScope : IO Unit := do
+  IO.println "Scope: main-table IPv4 transit under these supplied assumptions."
+  for assumption in linuxAssumptions do IO.println assumption
+
+private def linux (path : String) (json : Bool) : IO UInt32 := do
+  let snapshot ← unwrap (Import.LinuxDeployment.Snapshot.parse (← IO.FS.readFile path))
+  let report ← unwrap (DataPlane.Check.check snapshot.compile)
+  if json then IO.println (linuxEnvelope snapshot (DataPlane.Check.renderJson report)).pretty
+  else
+    linuxScope
+    IO.println (DataPlane.Check.render report)
+  return if report.compliant then 0 else 1
+
+private def linuxTraffic (path queryId selectionPath : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let snapshot ← unwrap (Import.LinuxDeployment.Snapshot.parse (← IO.FS.readFile path))
+  let config := snapshot.compile
+  let query ← match config.requirements.find? (·.id == queryId) with
+    | none => throw (IO.userError s!"Unknown traffic query: {queryId}.")
+    | some query => pure query
+  let selection ← unwrap (DataPlane.Config.parseTrafficSelection (← IO.FS.readFile selectionPath))
+  let checked ← unwrap (DataPlane.Check.checkTraffic config query selection budget)
+  if json then
+    let report := Lean.Json.mkObj [
+      ("compliant", Lean.toJson checked.value), ("requirement", Lean.toJson query.id),
+      ("scope", Lean.toJson "all-selected-packets"),
+      ("partitionCells", Lean.toJson (config.trafficPartition selection).cellCount),
+      ("evidence", Lean.toJson checked.evidence)]
+    IO.println (linuxEnvelope snapshot report).pretty
+  else
+    linuxScope
+    IO.println (if checked.value then "COMPLIANT" else "NONCOMPLIANT")
+    IO.println s!"Requirement {query.id}: all selected packets and endpoint pairs."
+    for line in checked.evidence do IO.println line
+  return if checked.value then 0 else 1
+
+private def compileACL (path : String) (budget : Nat) : IO UInt32 := do
+  let intents ← unwrap (Compile.Policy.parse (← IO.FS.readFile path))
+  match Compile.Nftables.compile intents budget with
+  | .ok emitted => IO.println emitted.toJson.pretty; return 0
+  | .error error@(.intent (.conflict _)) =>
+    (← IO.getStderr).putStrLn error.describe
+    return 1
+  | .error error => throw (IO.userError error.describe)
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -101,6 +178,16 @@ private def run (args : List String) : IO UInt32 := do
     traffic path query selection (← budgetValue budget) false
   | ["traffic", path, query, selection, "--budget", budget, "--json"] =>
     traffic path query selection (← budgetValue budget) true
+  | ["linux", path] => linux path false
+  | ["linux", path, "--json"] => linux path true
+  | ["linux-traffic", path, query, selection] => linuxTraffic path query selection 100000 false
+  | ["linux-traffic", path, query, selection, "--json"] => linuxTraffic path query selection 100000 true
+  | ["linux-traffic", path, query, selection, "--budget", budget] =>
+    linuxTraffic path query selection (← budgetValue budget) false
+  | ["linux-traffic", path, query, selection, "--budget", budget, "--json"] =>
+    linuxTraffic path query selection (← budgetValue budget) true
+  | ["compile-acl", path] => compileACL path 100000
+  | ["compile-acl", path, "--budget", budget] => compileACL path (← budgetValue budget)
   | ["fiveg", path] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) false
   | ["fiveg", path, "--json"] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) true
   | ["fiveg-coverage"] => standardsReport FiveG.coverage false

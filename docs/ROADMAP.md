@@ -16,8 +16,8 @@ It does not establish completion of the goal.
 | Mathematical foundations | Paths, cuts, refinement, transition traces, domain composition, and fault models. FIFO conservation, backlog bounds, and finite draining. | Information flow, network calculus, probability, physical timing, adversaries, congestion, reliability bounds, and foundational literature. |
 | Connected protocol stacks | Packet fields, ordered ACLs, destination routing, session guards, and generic trace refinement. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
-| Complete architectures | A campus foundation composes domains, session enforcement, management isolation, and availability under one internal-node fault. | Real configuration adapters, complete protocol bindings, quantitative guarantees, and campus, cloud, cellular, data-center, and federation deployments. |
-| Verified implementations and compilers | Executable checkers connect results to graph and logical semantics. ACL refinement checks cover every header. | Protocol implementations, verified configuration compilation, certified synthesis, and optimization. |
+| Complete architectures | A campus foundation composes session enforcement, isolation, and single-fault availability. Linux snapshots supply checked main-table forwarding models. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
+| Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
 | Safe operation | Certified finite update plans cover every intermediate state. Trace refinement transfers safety between models. | Real deployment commands, verified update adapters, routing transients, runtime evidence, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
@@ -38,9 +38,14 @@ It does not import physical APs, routing tables, firewall rules, or upgrade comm
 Identity and token integrity remain supplied observations.
 The complete campus landmark requires those additional connections and their evidence.
 
+The separate [Linux adapter](LINUX.md) now reads native route and firewall snapshots.
+Its compiled graph matches the structured source semantics under explicit transit assumptions.
+The [packet compiler](COMPILER.md) generates a native-format firewall from checked intent.
+The abstract campus theorem and these imported forwarding models still need a common protocol and failure interpretation.
+
 ## Next implementation work
 
-1. Connect strict router and firewall adapters to the quantified packet checker.
+1. Extend imported forwarding to interface-specific policies, stateful behavior, and additional routing scopes.
 2. Model stateful forwarding, packet rewriting, and routing convergence.
 3. Connect authentication protocol traces to session evidence.
 4. Connect concrete upgrade commands to certified intermediate snapshots.

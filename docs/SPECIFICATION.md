@@ -52,6 +52,7 @@ The JSON input must contain these arrays and fields:
 
 The importer rejects unknown fields, missing fields, duplicate IDs, invalid links,
 and empty groups. A link service of `*` permits every named service.
+JSON input also rejects duplicate decoded object keys at every nesting level.
 A requirement must name one service and cannot use `*`.
 
 ## Packet models
@@ -314,6 +315,13 @@ The [roadmap](ROADMAP.md) separates this foundation from the complete deployment
 
 ## Trust boundary
 
+Linux snapshot import and packet-intent compilation have structured translation proofs.
+The native forwarding graph preserves source route lookup and source firewall evaluation under the documented transit assumptions.
+The intent compiler rejects incompatible permits and prohibitions before it emits a certified ACL.
+The native-format emitter preserves that ACL for every header.
+JSON parsing, serialization, kernel execution, and deployment operations need separate evidence.
+The [Linux](LINUX.md) and [compiler](COMPILER.md) guides distinguish these guarantees.
+
 Lean verifies the theorem statements and proofs with the pinned toolchain.
 Each theorem establishes its conclusion under its explicit hypotheses.
 Review must establish the accuracy of source translation and the relation between
@@ -383,7 +391,9 @@ Netlib does not translate arbitrary PDFs or recursively resolve external
 requirements. It does not infer mission intent, device roles, or natural-language
 meaning. Reviewers must supply and assess those inputs.
 
-The implementation imports only its declared hostapd fragment and versioned model formats.
+The implementation imports its declared hostapd fragment, selected Linux forwarding snapshots, and versioned model formats.
+The [Linux guide](LINUX.md) defines the native input subset and its transit assumptions.
+The [compiler guide](COMPILER.md) defines the proved intent-to-firewall translation and remaining correspondence work.
 It does not inspect live networks or deploy network changes.
 It does not certify complete CSfC, NIST, or 5G compliance.
 Reference architectures show formal patterns within the stated model.

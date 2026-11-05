@@ -1,0 +1,16 @@
+{
+  "source": {
+    "address": 3221225984,
+    "length": 24
+  },
+  "destination": {
+    "address": 3325256704,
+    "length": 24
+  },
+  "protocol": 6,
+  "sourcePorts": null,
+  "destinationPorts": {
+    "first": 443,
+    "last": 443
+  }
+}
