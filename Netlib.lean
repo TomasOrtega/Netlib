@@ -81,6 +81,9 @@ import Netlib.Protocol.EAPSession
 import Netlib.Check.EAP
 import Netlib.Examples.CampusEAP
 import Netlib.Examples.EAPDeployment
+import Netlib.Compile.SessionFirewall
+import Netlib.Check.SessionFirewall
+import Netlib.Examples.SessionFirewallDeployment
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

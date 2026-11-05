@@ -1,0 +1,65 @@
+{"nftables":
+ [{"metainfo":
+   {"version": "1.1.3",
+    "release_name": "Netlib compiler",
+    "json_schema_version": 1}},
+  {"table": {"name": "netlib", "handle": 1, "family": "ip"}},
+  {"chain":
+   {"type": "filter",
+    "table": "netlib",
+    "prio": 0,
+    "policy": "drop",
+    "name": "forward",
+    "hook": "forward",
+    "handle": 2,
+    "family": "ip"}},
+  {"rule":
+   {"table": "netlib",
+    "handle": 3,
+    "family": "ip",
+    "expr":
+    [{"match":
+      {"right": {"prefix": {"len": 32, "addr": "192.0.2.2"}},
+       "op": "==",
+       "left": {"payload": {"protocol": "ip", "field": "saddr"}}}},
+     {"match":
+      {"right": {"prefix": {"len": 32, "addr": "198.51.100.2"}},
+       "op": "==",
+       "left": {"payload": {"protocol": "ip", "field": "daddr"}}}},
+     {"match": {"right": 17, "op": "==", "left": {"meta": {"key": "l4proto"}}}},
+     {"match":
+      {"right": 41000,
+       "op": "==",
+       "left": {"payload": {"protocol": "udp", "field": "sport"}}}},
+     {"match":
+      {"right": 9000,
+       "op": "==",
+       "left": {"payload": {"protocol": "udp", "field": "dport"}}}},
+     {"accept": null}],
+    "comment": "REQUEST",
+    "chain": "forward"}},
+  {"rule":
+   {"table": "netlib",
+    "handle": 4,
+    "family": "ip",
+    "expr":
+    [{"match":
+      {"right": {"prefix": {"len": 32, "addr": "198.51.100.2"}},
+       "op": "==",
+       "left": {"payload": {"protocol": "ip", "field": "saddr"}}}},
+     {"match":
+      {"right": {"prefix": {"len": 32, "addr": "192.0.2.2"}},
+       "op": "==",
+       "left": {"payload": {"protocol": "ip", "field": "daddr"}}}},
+     {"match": {"right": 17, "op": "==", "left": {"meta": {"key": "l4proto"}}}},
+     {"match":
+      {"right": 9000,
+       "op": "==",
+       "left": {"payload": {"protocol": "udp", "field": "sport"}}}},
+     {"match":
+      {"right": 41000,
+       "op": "==",
+       "left": {"payload": {"protocol": "udp", "field": "dport"}}}},
+     {"accept": null}],
+    "comment": "REPLY",
+    "chain": "forward"}}]}

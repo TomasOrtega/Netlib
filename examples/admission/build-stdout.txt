@@ -1,0 +1,17 @@
+Sending build context to Docker daemon  53.76kB
+Step 1/5 : FROM netlib-eap-capture:2.12
+ ---> 1e4be80167e3
+Step 2/5 : COPY exercise.py capture.sh /task/admission/
+ ---> Using cache
+ ---> f8dd3637965d
+Step 3/5 : COPY eap_exercise.py capture_conntrack.py /task/
+ ---> Using cache
+ ---> b737267636b6
+Step 4/5 : COPY requirements.json deny.json permit.json demo-credential.json /task/admission/input/
+ ---> Using cache
+ ---> 62d8f1678248
+Step 5/5 : CMD ["sh", "/task/admission/capture.sh"]
+ ---> Using cache
+ ---> 3b60a5fc0f75
+Successfully built 3b60a5fc0f75
+Successfully tagged netlib-admission-capture:1

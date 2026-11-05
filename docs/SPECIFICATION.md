@@ -822,6 +822,8 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 15. Output exclusion covers cached bindings, rule order, deletion, suffix state retention, unsafe unobserved contexts, and observation mismatch.
 16. Buffered cutovers preserve FIFO order and multiplicity, separate old deliveries from later exclusion, reject premature drain boundaries, and handle growing clean backlogs.
 17. EAP tests cover framing reconstruction, padding, identifier and method correlation, stale evidence, anonymous Identity, failclosed resets, session coupling, and configured-principal campus admission.
+18. Session firewall tests cover scoped credentials, conflicting mappings, exact native equivalence, stale established-flow exceptions, and cached-flow denial after reset.
+    Earlier queued packets can still be delivered.
 
 ## Scope limits
 
@@ -832,6 +834,7 @@ meaning. Reviewers must supply and assess those inputs.
 The implementation imports its declared hostapd fragment, selected Linux forwarding snapshots, and versioned model formats.
 The [Linux guide](LINUX.md) defines the native input subset and its transit assumptions.
 The [compiler guide](COMPILER.md) defines the proved intent-to-firewall translation and remaining correspondence work.
+The [session firewall guide](SESSION_FIREWALL.md) connects current EAP-derived credentials to emitted policies and native snapshot checks.
 It does not inspect live networks or deploy network changes.
 It does not certify complete CSfC, NIST, or 5G compliance.
 Reference architectures show formal patterns within the stated model.

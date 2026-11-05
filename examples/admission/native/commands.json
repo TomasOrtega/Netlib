@@ -1,0 +1,1120 @@
+[
+  {
+    "command": [
+      "ip",
+      "netns",
+      "add",
+      "peer"
+    ],
+    "startNs": 56546702512271,
+    "endNs": 56546703089021,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "sh",
+      "-c",
+      "echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/all/disable_ipv6; echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/default/disable_ipv6"
+    ],
+    "startNs": 56546703090521,
+    "endNs": 56546703666062,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "link",
+      "set",
+      "lo",
+      "up"
+    ],
+    "startNs": 56546703667020,
+    "endNs": 56546704143478,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "add",
+      "auth"
+    ],
+    "startNs": 56546704144311,
+    "endNs": 56546704618519,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "sh",
+      "-c",
+      "echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/all/disable_ipv6; echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/default/disable_ipv6"
+    ],
+    "startNs": 56546704619144,
+    "endNs": 56546705653851,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "link",
+      "set",
+      "lo",
+      "up"
+    ],
+    "startNs": 56546705654601,
+    "endNs": 56546706033684,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "add",
+      "server"
+    ],
+    "startNs": 56546706034309,
+    "endNs": 56546706402851,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "server",
+      "sh",
+      "-c",
+      "echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/all/disable_ipv6; echo 1 > /tmp/netlib-proc/sys/net/ipv6/conf/default/disable_ipv6"
+    ],
+    "startNs": 56546706403392,
+    "endNs": 56546706816558,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "link",
+      "set",
+      "lo",
+      "up"
+    ],
+    "startNs": 56546706816975,
+    "endNs": 56546707158475,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "add",
+      "auth0",
+      "address",
+      "02:00:00:00:ea:01",
+      "type",
+      "veth",
+      "peer",
+      "name",
+      "peer0",
+      "address",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 56546707159225,
+    "endNs": 56546707531641,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "add",
+      "service0",
+      "address",
+      "02:00:00:00:eb:01",
+      "type",
+      "veth",
+      "peer",
+      "name",
+      "server0",
+      "address",
+      "02:00:00:00:eb:02"
+    ],
+    "startNs": 56546707532224,
+    "endNs": 56546707919432,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "peer0",
+      "netns",
+      "peer"
+    ],
+    "startNs": 56546707920432,
+    "endNs": 56546711098887,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "address",
+      "add",
+      "192.0.2.2/24",
+      "dev",
+      "peer0"
+    ],
+    "startNs": 56546711099429,
+    "endNs": 56546711418678,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "link",
+      "set",
+      "peer0",
+      "up"
+    ],
+    "startNs": 56546711419137,
+    "endNs": 56546711743386,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "auth0",
+      "netns",
+      "auth"
+    ],
+    "startNs": 56546711744053,
+    "endNs": 56546716567381,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "address",
+      "add",
+      "192.0.2.1/24",
+      "dev",
+      "auth0"
+    ],
+    "startNs": 56546716568006,
+    "endNs": 56546717665130,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "link",
+      "set",
+      "auth0",
+      "up"
+    ],
+    "startNs": 56546717665755,
+    "endNs": 56546718010588,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "service0",
+      "netns",
+      "auth"
+    ],
+    "startNs": 56546718011421,
+    "endNs": 56546724485373,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "address",
+      "add",
+      "198.51.100.1/24",
+      "dev",
+      "service0"
+    ],
+    "startNs": 56546724485956,
+    "endNs": 56546724799497,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "link",
+      "set",
+      "service0",
+      "up"
+    ],
+    "startNs": 56546724800039,
+    "endNs": 56546726059413,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "server0",
+      "netns",
+      "server"
+    ],
+    "startNs": 56546726059996,
+    "endNs": 56546734534820,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "address",
+      "add",
+      "198.51.100.2/24",
+      "dev",
+      "server0"
+    ],
+    "startNs": 56546734535320,
+    "endNs": 56546735205778,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "link",
+      "set",
+      "server0",
+      "up"
+    ],
+    "startNs": 56546735206236,
+    "endNs": 56546735545902,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "route",
+      "add",
+      "default",
+      "via",
+      "192.0.2.1"
+    ],
+    "startNs": 56546735546694,
+    "endNs": 56546735869985,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "route",
+      "add",
+      "192.0.2.0/24",
+      "via",
+      "198.51.100.1"
+    ],
+    "startNs": 56546735870569,
+    "endNs": 56546736203652,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "neigh",
+      "add",
+      "192.0.2.1",
+      "lladdr",
+      "02:00:00:00:ea:01",
+      "nud",
+      "permanent",
+      "dev",
+      "peer0"
+    ],
+    "startNs": 56546736204985,
+    "endNs": 56546737344609,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "neigh",
+      "add",
+      "192.0.2.2",
+      "lladdr",
+      "02:00:00:00:ea:02",
+      "nud",
+      "permanent",
+      "dev",
+      "auth0"
+    ],
+    "startNs": 56546737346025,
+    "endNs": 56546738103441,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "neigh",
+      "add",
+      "198.51.100.2",
+      "lladdr",
+      "02:00:00:00:eb:02",
+      "nud",
+      "permanent",
+      "dev",
+      "service0"
+    ],
+    "startNs": 56546738104400,
+    "endNs": 56546738804232,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "neigh",
+      "add",
+      "198.51.100.1",
+      "lladdr",
+      "02:00:00:00:eb:01",
+      "nud",
+      "permanent",
+      "dev",
+      "server0"
+    ],
+    "startNs": 56546738804941,
+    "endNs": 56546739165523,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "sh",
+      "-c",
+      "echo 1 > /tmp/netlib-proc/sys/net/ipv4/ip_forward"
+    ],
+    "startNs": 56546739166982,
+    "endNs": 56546739622606,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "-j",
+      "link",
+      "show"
+    ],
+    "startNs": 56546739623731,
+    "endNs": 56546739950731,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "-j",
+      "address",
+      "show"
+    ],
+    "startNs": 56546739992648,
+    "endNs": 56546740389730,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1,\"addr_info\":[{\"family\":\"inet\",\"local\":\"192.0.2.2\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"peer0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "-j",
+      "-4",
+      "route",
+      "show"
+    ],
+    "startNs": 56546740421147,
+    "endNs": 56546740737147,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"default\",\"gateway\":\"192.0.2.1\",\"dev\":\"peer0\",\"flags\":[]},{\"dst\":\"192.0.2.0/24\",\"dev\":\"peer0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"192.0.2.2\",\"flags\":[]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "-j",
+      "neigh",
+      "show"
+    ],
+    "startNs": 56546740765438,
+    "endNs": 56546741090480,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"192.0.2.1\",\"dev\":\"peer0\",\"lladdr\":\"02:00:00:00:ea:01\",\"state\":[\"PERMANENT\"]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "sysctl",
+      "net.ipv4.ip_forward",
+      "net.ipv6.conf.all.disable_ipv6",
+      "net.ipv6.conf.default.disable_ipv6"
+    ],
+    "startNs": 56546741116313,
+    "endNs": 56546741527729,
+    "returncode": 0,
+    "stdout": "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "-j",
+      "link",
+      "show"
+    ],
+    "startNs": 56546741552938,
+    "endNs": 56546741888146,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "-j",
+      "address",
+      "show"
+    ],
+    "startNs": 56546741912104,
+    "endNs": 56546742375395,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"192.0.2.1\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"auth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2,\"addr_info\":[{\"family\":\"inet\",\"local\":\"198.51.100.1\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"service0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "-j",
+      "-4",
+      "route",
+      "show"
+    ],
+    "startNs": 56546742400437,
+    "endNs": 56546742726686,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"192.0.2.0/24\",\"dev\":\"auth0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"192.0.2.1\",\"flags\":[]},{\"dst\":\"198.51.100.0/24\",\"dev\":\"service0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"198.51.100.1\",\"flags\":[]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "-j",
+      "neigh",
+      "show"
+    ],
+    "startNs": 56546742750270,
+    "endNs": 56546743106269,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"198.51.100.2\",\"dev\":\"service0\",\"lladdr\":\"02:00:00:00:eb:02\",\"state\":[\"PERMANENT\"]},{\"dst\":\"192.0.2.2\",\"dev\":\"auth0\",\"lladdr\":\"02:00:00:00:ea:02\",\"state\":[\"PERMANENT\"]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "sysctl",
+      "net.ipv4.ip_forward",
+      "net.ipv6.conf.all.disable_ipv6",
+      "net.ipv6.conf.default.disable_ipv6"
+    ],
+    "startNs": 56546743138061,
+    "endNs": 56546743564269,
+    "returncode": 0,
+    "stdout": "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "-j",
+      "link",
+      "show"
+    ],
+    "startNs": 56546743592727,
+    "endNs": 56546743930435,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "-j",
+      "address",
+      "show"
+    ],
+    "startNs": 56546743956227,
+    "endNs": 56546744344226,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"198.51.100.2\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"server0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "-j",
+      "-4",
+      "route",
+      "show"
+    ],
+    "startNs": 56546744369310,
+    "endNs": 56546744679143,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"192.0.2.0/24\",\"gateway\":\"198.51.100.1\",\"dev\":\"server0\",\"flags\":[]},{\"dst\":\"198.51.100.0/24\",\"dev\":\"server0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"198.51.100.2\",\"flags\":[]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "server",
+      "-j",
+      "neigh",
+      "show"
+    ],
+    "startNs": 56546744703017,
+    "endNs": 56546745021934,
+    "returncode": 0,
+    "stdout": "[{\"dst\":\"198.51.100.1\",\"dev\":\"server0\",\"lladdr\":\"02:00:00:00:eb:01\",\"state\":[\"PERMANENT\"]}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "server",
+      "sysctl",
+      "net.ipv4.ip_forward",
+      "net.ipv6.conf.all.disable_ipv6",
+      "net.ipv6.conf.default.disable_ipv6"
+    ],
+    "startNs": 56546745045642,
+    "endNs": 56546745457683,
+    "returncode": 0,
+    "stdout": "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-f",
+      "/tmp/netlib-admission/tracking.nft"
+    ],
+    "startNs": 56546745582975,
+    "endNs": 56546746519057,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-f",
+      "/tmp/netlib-admission/unauthenticated-load.json"
+    ],
+    "startNs": 56546991417876,
+    "endNs": 56546998448076,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "table",
+      "ip",
+      "netlib"
+    ],
+    "startNs": 56547521535387,
+    "endNs": 56547529713420,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "ruleset"
+    ],
+    "startNs": 56547530100127,
+    "endNs": 56547533580124,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 1, \"bytes\": 61}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "python3",
+      "/task/capture_conntrack.py",
+      "--output",
+      "/tmp/netlib-admission/unauthenticated-conntrack.json"
+    ],
+    "startNs": 56547533809248,
+    "endNs": 56547589799438,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd_cli",
+      "-p",
+      "/run/netlib-eap/hostapd",
+      "-i",
+      "auth0",
+      "sta",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 56549680369229,
+    "endNs": 56549685945306,
+    "returncode": 0,
+    "stdout": "02:00:00:00:ea:02\nflags=[AUTHORIZED]\naid=0\ncapability=0x0\nlisten_interval=0\nsupported_rates=\ntimeout_next=NULLFUNC POLL\ndot1xPaePortNumber=0\ndot1xPaePortProtocolVersion=2\ndot1xPaePortCapabilities=1\ndot1xPaePortInitialize=0\ndot1xPaePortReauthenticate=FALSE\ndot1xAuthPaeState=5\ndot1xAuthBackendAuthState=6\ndot1xAuthAdminControlledDirections=0\ndot1xAuthOperControlledDirections=0\ndot1xAuthAuthControlledPortStatus=1\ndot1xAuthAuthControlledPortControl=2\ndot1xAuthQuietPeriod=60\ndot1xAuthServerTimeout=30\ndot1xAuthReAuthPeriod=3600\ndot1xAuthReAuthEnabled=TRUE\ndot1xAuthKeyTxEnabled=FALSE\ndot1xAuthEapolFramesRx=8\ndot1xAuthEapolFramesTx=8\ndot1xAuthEapolStartFramesRx=1\ndot1xAuthEapolLogoffFramesRx=0\ndot1xAuthEapolRespIdFramesRx=0\ndot1xAuthEapolRespFramesRx=7\ndot1xAuthEapolReqIdFramesTx=1\ndot1xAuthEapolReqFramesTx=7\ndot1xAuthInvalidEapolFramesRx=0\ndot1xAuthEapLengthErrorFramesRx=0\ndot1xAuthLastEapolFrameVersion=2\ndot1xAuthLastEapolFrameSource=02:00:00:00:ea:02\ndot1xAuthEntersConnecting=1\ndot1xAuthEapLogoffsWhileConnecting=0\ndot1xAuthEntersAuthenticating=0\ndot1xAuthAuthSuccessesWhileAuthenticating=1\ndot1xAuthAuthTimeoutsWhileAuthenticating=0\ndot1xAuthAuthFailWhileAuthenticating=0\ndot1xAuthAuthEapStartsWhileAuthenticating=0\ndot1xAuthAuthEapLogoffWhileAuthenticating=0\ndot1xAuthAuthReauthsWhileAuthenticated=0\ndot1xAuthAuthEapStartsWhileAuthenticated=0\ndot1xAuthAuthEapLogoffWhileAuthenticated=0\ndot1xAuthBackendResponses=7\ndot1xAuthBackendAccessChallenges=6\ndot1xAuthBackendOtherRequestsToSupplicant=7\ndot1xAuthBackendAuthSuccesses=1\ndot1xAuthBackendAuthFails=0\ndot1xAuthSessionId=8AA50C5DB1BAA914\ndot1xAuthSessionAuthenticMethod=1\ndot1xAuthSessionTime=0\ndot1xAuthSessionTerminateCause=999\ndot1xAuthSessionUserName=anonymous@campus.example.test\nauthMultiSessionId=717985D39FC11531\nlast_eap_type_as=0 (unknown)\nlast_eap_type_sta=13 (TLS)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "status"
+    ],
+    "startNs": 56549686458056,
+    "endNs": 56549691363592,
+    "returncode": 0,
+    "stdout": "bssid=01:80:c2:00:00:03\nfreq=0\nssid=\nid=0\nmode=station\npairwise_cipher=NONE\ngroup_cipher=NONE\nkey_mgmt=IEEE 802.1X (no WPA)\nwpa_state=COMPLETED\nip_address=192.0.2.2\naddress=02:00:00:00:ea:02\nSupplicant PAE state=AUTHENTICATED\nsuppPortStatus=Authorized\nEAP state=SUCCESS\nselectedMethod=13 (EAP-TLS)\neap_tls_version=TLSv1.3\nEAP TLS cipher=TLS_AES_256_GCM_SHA384\ntls_session_reused=0\neap_session_id=0d4b72106726bb82782c97741944e15816c860d6dec5ade962b3dbbd7d0f1e732c06711c73ea99296dca173d411cf7e166b69af7d1edee23375395783fbe7ef6da\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "table",
+      "ip",
+      "netlib"
+    ],
+    "startNs": 56550204951790,
+    "endNs": 56550212782699,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "ruleset"
+    ],
+    "startNs": 56550213228657,
+    "endNs": 56550218068068,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 2, \"bytes\": 125}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "python3",
+      "/task/capture_conntrack.py",
+      "--output",
+      "/tmp/netlib-admission/authenticated-only-conntrack.json"
+    ],
+    "startNs": 56550218339068,
+    "endNs": 56550273687383,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "install",
+      "-m",
+      "0644",
+      "/task/admission/input/demo-credential.json",
+      "/run/netlib-admission/demo-credential.json"
+    ],
+    "startNs": 56550273724300,
+    "endNs": 56550274131508,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-f",
+      "/tmp/netlib-admission/credential-permitted-load.json"
+    ],
+    "startNs": 56550274447841,
+    "endNs": 56550283367206,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "table",
+      "ip",
+      "netlib"
+    ],
+    "startNs": 56550283861789,
+    "endNs": 56550285182413,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "ruleset"
+    ],
+    "startNs": 56550285237954,
+    "endNs": 56550286446161,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 4, \"bytes\": 255}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "python3",
+      "/task/capture_conntrack.py",
+      "--output",
+      "/tmp/netlib-admission/credential-permitted-conntrack.json"
+    ],
+    "startNs": 56550286502828,
+    "endNs": 56550314770673,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "logoff"
+    ],
+    "startNs": 56550314772881,
+    "endNs": 56550315520172,
+    "returncode": 0,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd_cli",
+      "-p",
+      "/run/netlib-eap/hostapd",
+      "-i",
+      "auth0",
+      "sta",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 56550315557880,
+    "endNs": 56550316058796,
+    "returncode": 0,
+    "stdout": "02:00:00:00:ea:02\nflags=\naid=0\ncapability=0x0\nlisten_interval=0\nsupported_rates=\ntimeout_next=REMOVE\ndot1xPaePortNumber=0\ndot1xPaePortProtocolVersion=2\ndot1xPaePortCapabilities=1\ndot1xPaePortInitialize=0\ndot1xPaePortReauthenticate=FALSE\ndot1xAuthPaeState=1\ndot1xAuthBackendAuthState=1\ndot1xAuthAdminControlledDirections=0\ndot1xAuthOperControlledDirections=0\ndot1xAuthAuthControlledPortStatus=2\ndot1xAuthAuthControlledPortControl=2\ndot1xAuthQuietPeriod=60\ndot1xAuthServerTimeout=30\ndot1xAuthReAuthPeriod=3600\ndot1xAuthReAuthEnabled=TRUE\ndot1xAuthKeyTxEnabled=FALSE\ndot1xAuthEapolFramesRx=9\ndot1xAuthEapolFramesTx=9\ndot1xAuthEapolStartFramesRx=1\ndot1xAuthEapolLogoffFramesRx=1\ndot1xAuthEapolRespIdFramesRx=0\ndot1xAuthEapolRespFramesRx=7\ndot1xAuthEapolReqIdFramesTx=2\ndot1xAuthEapolReqFramesTx=7\ndot1xAuthInvalidEapolFramesRx=0\ndot1xAuthEapLengthErrorFramesRx=0\ndot1xAuthLastEapolFrameVersion=2\ndot1xAuthLastEapolFrameSource=02:00:00:00:ea:02\ndot1xAuthEntersConnecting=2\ndot1xAuthEapLogoffsWhileConnecting=0\ndot1xAuthEntersAuthenticating=0\ndot1xAuthAuthSuccessesWhileAuthenticating=1\ndot1xAuthAuthTimeoutsWhileAuthenticating=0\ndot1xAuthAuthFailWhileAuthenticating=0\ndot1xAuthAuthEapStartsWhileAuthenticating=0\ndot1xAuthAuthEapLogoffWhileAuthenticating=0\ndot1xAuthAuthReauthsWhileAuthenticated=0\ndot1xAuthAuthEapStartsWhileAuthenticated=0\ndot1xAuthAuthEapLogoffWhileAuthenticated=1\ndot1xAuthBackendResponses=7\ndot1xAuthBackendAccessChallenges=6\ndot1xAuthBackendOtherRequestsToSupplicant=8\ndot1xAuthBackendAuthSuccesses=1\ndot1xAuthBackendAuthFails=0\ndot1xAuthSessionId=8AA50C5DB1BAA914\ndot1xAuthSessionAuthenticMethod=1\ndot1xAuthSessionTime=0\ndot1xAuthSessionTerminateCause=999\ndot1xAuthSessionUserName=N/A\nauthMultiSessionId=717985D39FC11531\nlast_eap_type_as=0 (unknown)\nlast_eap_type_sta=13 (TLS)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-f",
+      "/tmp/netlib-admission/logged-off-cached-load.json"
+    ],
+    "startNs": 56550316168671,
+    "endNs": 56550320621708,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "table",
+      "ip",
+      "netlib"
+    ],
+    "startNs": 56550832363326,
+    "endNs": 56550837826570,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-nn",
+      "list",
+      "ruleset"
+    ],
+    "startNs": 56550838196945,
+    "endNs": 56550840994442,
+    "returncode": 0,
+    "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 5, \"bytes\": 318}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "python3",
+      "/task/capture_conntrack.py",
+      "--output",
+      "/tmp/netlib-admission/logged-off-cached-conntrack.json"
+    ],
+    "startNs": 56550841211733,
+    "endNs": 56550881171399,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

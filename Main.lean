@@ -14,6 +14,7 @@ import Netlib.Check.StatefulRefinement
 import Netlib.Check.ConntrackRevocation
 import Netlib.Check.BufferedDrain
 import Netlib.Check.EAP
+import Netlib.Check.SessionFirewall
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -36,6 +37,8 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib lifecycle-blocks TRACE.json MATCH.json [--from N] [--budget N] [--json]\n\
   netlib buffered-lifecycle TRACE.json MATCH.json --from N --drained-at M [--budget N] [--json]\n\
   netlib eap TRACE.json [--json]\n\
+  netlib compile-session TRACE.json INTENT.json [--after N] [--budget N]\n\
+  netlib session-firewall BUNDLE.json [--budget N] [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -158,6 +161,29 @@ private def compileACL (path : String) (budget : Nat) : IO UInt32 := do
     (← IO.getStderr).putStrLn error.describe
     return 1
   | .error error => throw (IO.userError error.describe)
+
+private def compileSession (tracePath intentPath : String) (after : Option Nat) (budget : Nat) : IO UInt32 := do
+  let authentication ← unwrap (Check.EAP.Input.parse (← IO.FS.readFile tracePath))
+  let requirements ← unwrap (Check.SessionFirewall.parseRequirements (← IO.FS.readFile intentPath))
+  let after := after.getD authentication.observations.length
+  if after > authentication.observations.length then
+    throw (IO.userError "The session prefix exceeds the event count.")
+  if !authentication.check.compliant then
+    (← IO.getStderr).putStrLn "EAP session observations mismatch; no policy emitted."
+    return 1
+  match Compile.SessionFirewall.compile authentication.context (Check.SessionFirewall.stateAt authentication after)
+      requirements budget with
+  | .ok compiled => IO.println compiled.toJson.pretty; return 0
+  | .error error@(.intent (.conflict _)) =>
+    (← IO.getStderr).putStrLn error.describe
+    return 1
+  | .error error => throw (IO.userError error.describe)
+
+private def sessionFirewall (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.SessionFirewall.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap (input.check budget)
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
 
 private def transfer (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Import.TransferConfig.Input.parse (← IO.FS.readFile path))
@@ -367,6 +393,18 @@ private def run (args : List String) : IO UInt32 := do
     linuxTraffic path query selection (← budgetValue budget) true
   | ["compile-acl", path] => compileACL path 100000
   | ["compile-acl", path, "--budget", budget] => compileACL path (← budgetValue budget)
+  | ["compile-session", trace, intent] => compileSession trace intent none 100000
+  | ["compile-session", trace, intent, "--after", after] =>
+    compileSession trace intent (some (← cutoverValue after)) 100000
+  | ["compile-session", trace, intent, "--budget", budget] =>
+    compileSession trace intent none (← budgetValue budget)
+  | ["compile-session", trace, intent, "--after", after, "--budget", budget] =>
+    compileSession trace intent (some (← cutoverValue after)) (← budgetValue budget)
+  | ["session-firewall", path] => sessionFirewall path 100000 false
+  | ["session-firewall", path, "--json"] => sessionFirewall path 100000 true
+  | ["session-firewall", path, "--budget", budget] => sessionFirewall path (← budgetValue budget) false
+  | ["session-firewall", path, "--budget", budget, "--json"] =>
+    sessionFirewall path (← budgetValue budget) true
   | ["transfer", path] => transfer path 4096 false
   | ["transfer", path, "--json"] => transfer path 4096 true
   | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false

@@ -17,7 +17,7 @@ It does not establish completion of the goal.
 | Connected protocol stacks | Packet policies, routes, sessions, stores, tuple translation, and hook lifecycles. Binary EAP/EAPOL framing and guarded method results connect to session admission and campus paths. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
-| Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
+| Verified implementations and compilers | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
 | Safe operation | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
@@ -81,6 +81,12 @@ Its codecs reconstruct arbitrary accepted bytes, including preserved padding.
 Native wired EAP-TLS success, Logoff, and server-name rejection supply finite authentication evidence.
 The configured-principal theorem uses the checked report's consumer, rather than assuming the outer Identity is authenticated.
 Native campus enforcement, wireless key installation, RADIUS paths, trusted method-to-round attribution, and cryptographic refinement remain open.
+
+The [session firewall compiler](SESSION_FIREWALL.md) now binds current EAP-derived credentials to native packet classes.
+Lifecycle output requires a matching valid scope and current method readiness.
+Current Logoff and revocation policies exclude cached flows without deleting their conntrack records.
+The wired native capture measures selected routed application packets and checks exported policies at declared event prefixes.
+Identity-to-header binding, credential signatures, native installation correctness, update latency, and complete campus topology correspondence remain open.
 
 ## Next implementation work
 

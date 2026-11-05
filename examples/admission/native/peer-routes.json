@@ -1,0 +1,1 @@
+[{"dst":"default","gateway":"192.0.2.1","dev":"peer0","flags":[]},{"dst":"192.0.2.0/24","dev":"peer0","protocol":"kernel","scope":"link","prefsrc":"192.0.2.2","flags":[]}]

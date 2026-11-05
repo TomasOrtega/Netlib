@@ -967,6 +967,51 @@ Trusted cryptographic results and method-to-round attribution remain explicit as
 Local rounds are not wire nonces or native producer-window identifiers.
 Physical controlled-port enforcement, wireless keys, RADIUS paths, and complete campus deployment bindings need further evidence.
 
+# Session firewall enforcement
+%%%
+tag := "session-firewall"
+file := "session-firewall"
+%%%
+
+The session compiler binds application scopes to packet classes.
+A class is permitted exactly when its current scope guard permits access.
+Overlapping permit and deny requirements cause a compilation error with a packet witness.
+Unspecified traffic is denied.
+
+The generated policy has the same meaning for every conntrack state:
+
+```lean
+open Netlib Netlib.Protocol Netlib.Packet in
+open Netlib.Compile.SessionFirewall in
+example {context : Context} {state : EAPSession.State}
+    {requirements : List Intent}
+    (compiled : Certified context state requirements)
+    (ct : StatefulACL.CTState) (header : Header) :
+    compiled.statefulSnapshot.permits ct header =
+      compiled.snapshot.permits header :=
+  compiled.statefulSnapshot_permits ct header
+```
+
+The native snapshot checker recomputes the session from each selected event prefix.
+It checks both permission directions for all five states and all modeled headers.
+An extra established-flow exception and a missing required permit each produce a counterexample.
+Its budget covers compilation and all comparisons across the supplied snapshots.
+
+```
+lake exe netlib session-firewall examples/admission/bundle.json --json
+```
+
+Lifecycle output theorems connect the active forward filter to current EAP readiness and valid credentials.
+Updated Logoff, close, and revocation policies block arbitrary cached flows.
+The theorem requires the current filter to be installed and the reviewed principal-to-packet binding to hold.
+It does not bound update latency or remove packets admitted to queues earlier.
+
+The native capture measures a private routed UDP service before and after wired EAP-TLS authorization.
+A declared local demonstration credential enables the selected request and reply.
+Actual EAPOL Logoff and replacement policy stop the same flow while its conntrack row remains present.
+Raw packet observations and socket results supply finite deployment evidence.
+Cryptographic refinement, spoof resistance, distributed propagation, and physical wireless enforcement remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

@@ -2,3 +2,5 @@
 examples/lifecycle/native/trace.txt -whitespace
 examples/revocation/native/trace.txt -whitespace
 examples/drain/native/trace.txt -whitespace
+examples/admission/build-stdout.txt -whitespace
+examples/admission/build-stderr.txt -whitespace
