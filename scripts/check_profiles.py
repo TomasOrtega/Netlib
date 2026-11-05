@@ -716,6 +716,84 @@ def admission_checks():
         invoke("compile-session", trace, path, "--after", "19", code=1)
 
 
+def wire_checks():
+    from build_wire_examples import build
+
+    directory = ROOT / "examples/wire"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    assert set(provenance["artifactSHA256"]) == {
+        path.relative_to(directory).as_posix()
+        for path in (directory / "native").rglob("*")
+        if path.is_file()
+    }
+    for relative, digest in provenance["artifactSHA256"].items():
+        assert hashlib.sha256((directory / relative).read_bytes()).hexdigest() == digest, relative
+    for group in ["verifierSHA256", "projectionSHA256"]:
+        for relative, digest in provenance[group].items():
+            assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, authentication, bundle, frame = build()
+    for name, value in [
+        ("checked-evidence", evidence),
+        ("authentication", authentication),
+        ("bundle", bundle),
+        ("frame", frame),
+    ]:
+        assert value == json.loads((directory / f"{name}.json").read_text())
+    assert evidence["frameCount"] == 7 and evidence["probeFrameCount"] == 9
+    assert evidence["eapFrameCount"] == 18
+    assert [probe["forwarded"] for probe in evidence["probes"]] == [True, True, True, True, False]
+    assert [probe["received"] for probe in evidence["probes"]] == [True, True, False, False, False]
+    assert json.loads(invoke("session-firewall", directory / "bundle.json", "--json"))["compliant"]
+    assert json.loads(
+        invoke(
+            "compile-session",
+            directory / "authentication.json",
+            directory / "requirements.json",
+            "--after",
+            "19",
+        )
+    ) == json.loads((directory / "permit.json").read_text())
+    fixture = json.loads(invoke("wire", directory / "frame.json", "--json"))
+    assert fixture["valid"] and fixture["scope"] == "untagged-ipv4-udp-wire-profile-1"
+    assert fixture["sources"] and fixture["assumptions"] and fixture["udpChecksumVerified"]
+    with tempfile.TemporaryDirectory(prefix="netlib-wire-") as folder:
+        path = Path(folder) / "frame.json"
+        for decoded in evidence["frames"]:
+            path.write_text(json.dumps({"schema": 1, "raw": decoded["raw"]}))
+            result = json.loads(invoke("wire", path, "--json"))
+            assert result["header"] == decoded["header"] and result["ttl"] == decoded["ttl"]
+            assert result["identification"] == decoded["ipId"]
+            assert result["payloadHex"] == decoded["payloadHex"]
+            assert result["ethernetPaddingHex"] == decoded["paddingHex"]
+            assert result["ipv4Checksum"] == decoded["ipChecksum"]["value"]
+            assert result["udpChecksum"] == decoded["udpChecksum"]["value"]
+            assert result["udpChecksumVerified"]
+        for probe in evidence["probes"]:
+            for decoded in [probe["ingress"], *([probe["egress"]] if probe["egress"] else [])]:
+                path.write_text(json.dumps({"schema": 1, "raw": decoded["raw"]}))
+                output = invoke("wire", path, "--json", code=0 if decoded["valid"] else 2)
+                if decoded["valid"]:
+                    result = json.loads(output)
+                    assert result["udpChecksumVerified"] == (
+                        decoded["udpChecksum"]["status"] == "valid"
+                    )
+                    assert result["header"] == decoded["header"]
+        # Earlier bytes retain their original offload boundary and observations.
+        for line in (ROOT / "examples/admission/native/data-frames.jsonl").read_text().splitlines():
+            path.write_text(json.dumps({"schema": 1, "raw": json.loads(line)["hex"]}))
+            invoke("wire", path, "--json", code=2)
+        path.write_text(json.dumps({**frame, "header": fixture["header"]}))
+        invoke("wire", path, code=2)
+        for text in [
+            '{"schema":1,"schema":1,"raw":""}',
+            '{"schema":2,"raw":""}',
+            '{"schema":1,"raw":"0"}',
+            '{"schema":1,"raw":"gg"}',
+        ]:
+            path.write_text(text)
+            invoke("wire", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -726,6 +804,7 @@ def main():
     buffered_checks()
     eap_checks()
     admission_checks()
+    wire_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

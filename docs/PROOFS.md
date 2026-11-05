@@ -863,6 +863,38 @@ Buffered results cover new admissions and retain the distinction from earlier qu
 
 The [session firewall guide](SESSION_FIREWALL.md) defines the native evidence and trusted installation, identity-binding, and cryptographic assumptions.
 
+## IPv4 and UDP wire semantics
+
+`Netlib/Protocol/InternetChecksum.lean` defines network-order word pairing, odd padding, and one's-complement normalization.
+`fold_endAround` connects normalization to end-around carry.
+`synthesize_valid` proves checksum insertion after every aligned prefix and arbitrary payload.
+`synthesize_nonzero_valid` proves UDP's computed-zero remapping.
+The arithmetic retains both zero representations.
+
+`Netlib/Protocol/IPv4.lean` validates the selected header, total length, flags, and checksum.
+`decode_encode` verifies canonical packet encodings.
+`decode_encodeDecoded` verifies preserved checksum and padding encodings.
+`encode_decode` reconstructs every accepted byte sequence exactly.
+`decode_valid` supplies bounded packet and checksum conditions.
+
+`Netlib/Protocol/UDP.lean` checks the pseudoheader against actual decoded addresses, protocol, ports, length, and payload.
+`computed_valid` and `computed_nonzero` establish checksum synthesis.
+`decode_checksum` separates omission from validation; `decode_verified` requires a present checksum.
+The standalone and composed IPv4 codecs have both roundtrip directions.
+
+`Netlib/Import/EthernetIPv4.lean` preserves untagged capture headers and all payload bytes.
+`Netlib/Check/Wire.lean` packages decode equations, exact reconstruction, header projections, and present-checksum verification.
+JSON cannot substitute a supplied packet header for the decoded bytes.
+
+`Netlib/Examples/WireSessionDeployment.lean` connects decoded bytes and transport payload to checked native session policy and lifecycle output.
+`checked_output_current_permission` supplies a matching valid scope and current method readiness at the declared forward stage.
+`checked_matching_scope_valid` applies to each matching requirement.
+These proofs retain the current-installation and identity-binding assumptions.
+They do not prove native NAT checksum rewriting or cryptographic integrity.
+Lifecycle headers do not model forwarded payload preservation or TTL updates.
+
+The [wire guide](WIRE.md) defines the profile and native capture limits.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,

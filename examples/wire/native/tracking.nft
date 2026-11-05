@@ -1,0 +1,5 @@
+table ip netlib_tracking {
+ chain prerouting { type filter hook prerouting priority -199; policy accept;
+  ct state { new, established } counter
+ }
+}

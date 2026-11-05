@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "load": {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-f",
+      "/tmp/netlib-admission/wire-probes-load.json"
+    ],
+    "startNs": 57921181361773,
+    "endNs": 57921191602801,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "input": "input/permit.json",
+    "batch": "wire-probes-load.json"
+  },
+  "exports": {
+    "firewall": {
+      "file": "wire-probes-firewall.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "table",
+          "ip",
+          "netlib"
+        ],
+        "startNs": 57921191627676,
+        "endNs": 57921196530920,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+        "stderr": ""
+      }
+    },
+    "ruleset": {
+      "file": "wire-probes-ruleset.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "ruleset"
+        ],
+        "startNs": 57921196746003,
+        "endNs": 57921200713664,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 5, \"bytes\": 318}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+        "stderr": ""
+      }
+    }
+  },
+  "probes": [
+    {
+      "name": "raw-valid",
+      "startNs": 57921433170528,
+      "endNs": 57921545748381,
+      "input": "probe-raw-valid-input.json",
+      "sender": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/probe-raw-valid-input.json"
+        ],
+        "startNs": 57921434559901,
+        "endNs": 57921506291141,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 57921494389448, \"endNs\": 57921494466198, \"raw\": \"02000000ea0102000000ea02080045000030f000400040115e84c0000202c6336402a0282328001ccfe8776972652d70726f62653a7261772d76616c6964\", \"bytesSent\": 62}\n",
+        "stderr": ""
+      },
+      "receiver": {
+        "startNs": 57921506409308,
+        "endNs": 57921506434349,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "wire-probe:raw-valid"
+        }
+      }
+    },
+    {
+      "name": "udp-zero-omitted",
+      "startNs": 57921545770006,
+      "endNs": 57921642463380,
+      "input": "probe-udp-zero-omitted-input.json",
+      "sender": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/probe-udp-zero-omitted-input.json"
+        ],
+        "startNs": 57921546266797,
+        "endNs": 57921602858640,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 57921591366405, \"endNs\": 57921591540238, \"raw\": \"02000000ea0102000000ea02080045000037f001400040115e7cc0000202c6336402a028232800230000776972652d70726f62653a7564702d7a65726f2d6f6d6974746564\", \"bytesSent\": 69}\n",
+        "stderr": ""
+      },
+      "receiver": {
+        "startNs": 57921602930599,
+        "endNs": 57921602946182,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "wire-probe:udp-zero-omitted"
+        }
+      }
+    },
+    {
+      "name": "udp-bad-checksum",
+      "startNs": 57921642469505,
+      "endNs": 57921984429018,
+      "input": "probe-udp-bad-checksum-input.json",
+      "sender": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/probe-udp-bad-checksum-input.json"
+        ],
+        "startNs": 57921642664922,
+        "endNs": 57921695780728,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 57921684399159, \"endNs\": 57921684425784, \"raw\": \"02000000ea0102000000ea02080045000037f002400040115e7bc0000202c6336402a028232800235cb4776972652d70726f62653a7564702d6261642d636865636b73756d\", \"bytesSent\": 69}\n",
+        "stderr": ""
+      },
+      "receiver": {
+        "startNs": 57921695836728,
+        "endNs": 57921947123609,
+        "result": null
+      }
+    },
+    {
+      "name": "udp-short-length",
+      "startNs": 57921984452602,
+      "endNs": 57922350055793,
+      "input": "probe-udp-short-length-input.json",
+      "sender": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/probe-udp-short-length-input.json"
+        ],
+        "startNs": 57921985355726,
+        "endNs": 57922059279254,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 57922047388395, \"endNs\": 57922047459436, \"raw\": \"02000000ea0102000000ea02080045000037f003400040115e7ac0000202c6336402a028232800075a9b776972652d70726f62653a7564702d73686f72742d6c656e677468\", \"bytesSent\": 69}\n",
+        "stderr": ""
+      },
+      "receiver": {
+        "startNs": 57922059402796,
+        "endNs": 57922316185795,
+        "result": null
+      }
+    },
+    {
+      "name": "ipv4-bad-checksum",
+      "startNs": 57922350079542,
+      "endNs": 57922712984904,
+      "input": "probe-ipv4-bad-checksum-input.json",
+      "sender": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/probe-ipv4-bad-checksum-input.json"
+        ],
+        "startNs": 57922351086583,
+        "endNs": 57922423247489,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 57922411397546, \"endNs\": 57922411536254, \"raw\": \"02000000ea0102000000ea02080045000038f004400040115e79c0000202c6336402a0282328002414c1776972652d70726f62653a697076342d6261642d636865636b73756d\", \"bytesSent\": 70}\n",
+        "stderr": ""
+      },
+      "receiver": {
+        "startNs": 57922423358156,
+        "endNs": 57922674366704,
+        "result": null
+      }
+    }
+  ]
+}

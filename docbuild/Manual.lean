@@ -1012,6 +1012,59 @@ Actual EAPOL Logoff and replacement policy stop the same flow while its conntrac
 Raw packet observations and socket results supply finite deployment evidence.
 Cryptographic refinement, spoof resistance, distributed propagation, and physical wireless enforcement remain open.
 
+# IPv4 and UDP wire bytes
+%%%
+tag := "wire"
+file := "wire"
+%%%
+
+The wire layer derives packet-policy fields from captured bytes.
+Its selected profile covers untagged Ethernet, IPv4 IHL five without fragmentation, and UDP with an exact payload length.
+It preserves outer padding and validates the IPv4 header checksum and each present UDP pseudoheader checksum.
+Zero UDP checksum means omission and remains distinct from verification.
+
+Checksum synthesis works for arbitrary aligned fields and payloads:
+
+```lean
+open Netlib.Protocol.InternetChecksum in
+example (first rest : List UInt8)
+    (aligned : first.length % 2 = 0) :
+    valid (first ++ wordBytes
+      (checksum (first ++ [0, 0] ++ rest)) ++ rest) =
+        true :=
+  synthesize_valid first rest aligned
+```
+
+The codecs also reconstruct every accepted byte sequence:
+
+```lean
+open Netlib.Protocol.IPv4 in
+example (bytes : List UInt8) (value : Decoded)
+    (accepted : decode bytes = .ok value) :
+    encodeDecoded value = .ok bytes :=
+  encode_decode bytes value accepted
+```
+
+UDP reconstruction uses the actual IPv4 addresses in its pseudoheader.
+The checked Ethernet value carries decode equations for the original input bytes.
+Its exact reconstruction proof preserves MAC fields, checksums, payload, and outer padding.
+The deployment theorem connects the decoded forward-stage header to current session credentials and EAP method readiness.
+Stage attribution, installed policy, and principal-to-header binding remain assumptions.
+
+```
+lake exe netlib wire examples/wire/frame.json --json
+lake exe netlib session-firewall examples/wire/bundle.json --json
+```
+
+The native capture disables checksum offload on its private veth interfaces and retains complete UDP checksums.
+Separate raw probes show that gateway forwarding and destination UDP reception are different observations.
+Invalid UDP checksums and lengths can pass the forward filter before the destination drops them.
+An omitted checksum can reach the socket while supplying no UDP checksum verification.
+The earlier admission capture retains offload intermediates and makes its original tuple-level claims.
+The new wire checker rejects those partial checksums as completed wire bytes.
+
+Options, fragments, IPv6, full TCP, native NAT checksum updates, and cryptographic implementation refinement remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

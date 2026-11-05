@@ -116,6 +116,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [EAP frames, guarded authentication, and session admission](EAP.md).
 - [Session-derived firewall compilation and native snapshot checks](SESSION_FIREWALL.md).
 - [Packet, route, and request checks](DATAPLANE.md).
+- [IPv4 and UDP wire bytes and checksums](WIRE.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).

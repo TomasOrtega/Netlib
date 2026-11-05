@@ -84,6 +84,12 @@ import Netlib.Examples.EAPDeployment
 import Netlib.Compile.SessionFirewall
 import Netlib.Check.SessionFirewall
 import Netlib.Examples.SessionFirewallDeployment
+import Netlib.Protocol.InternetChecksum
+import Netlib.Protocol.IPv4
+import Netlib.Protocol.UDP
+import Netlib.Import.EthernetIPv4
+import Netlib.Check.Wire
+import Netlib.Examples.WireSessionDeployment
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

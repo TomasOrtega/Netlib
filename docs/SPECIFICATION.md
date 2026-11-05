@@ -824,6 +824,8 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 17. EAP tests cover framing reconstruction, padding, identifier and method correlation, stale evidence, anonymous Identity, failclosed resets, session coupling, and configured-principal campus admission.
 18. Session firewall tests cover scoped credentials, conflicting mappings, exact native equivalence, stale established-flow exceptions, and cached-flow denial after reset.
     Earlier queued packets can still be delivered.
+19. Wire tests cover checksum synthesis, odd padding, zero representations, exact byte reconstruction, IPv4 profile errors, UDP pseudoheaders, and checksum omission.
+    Fresh native socket packets carry complete checksums; separate malformed probes distinguish forwarding from transport reception.
 
 ## Scope limits
 

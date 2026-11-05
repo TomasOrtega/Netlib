@@ -1,0 +1,223 @@
+[
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-x509",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "ca.key",
+      "-out",
+      "ca.pem",
+      "-days",
+      "7",
+      "-subj",
+      "/CN=Netlib private EAP test CA",
+      "-addext",
+      "basicConstraints=critical,CA:TRUE,pathlen:0",
+      "-addext",
+      "keyUsage=critical,keyCertSign,cRLSign"
+    ],
+    "startNs": 57916595904815,
+    "endNs": 57916598614395,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "server.key",
+      "-out",
+      "server.csr",
+      "-subj",
+      "/CN=radius.campus.example.test"
+    ],
+    "startNs": 57916598641020,
+    "endNs": 57916600963100,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-batch",
+      "-config",
+      "ca.conf",
+      "-extfile",
+      "server.ext",
+      "-in",
+      "server.csr",
+      "-out",
+      "server.pem",
+      "-notext"
+    ],
+    "startNs": 57916600964225,
+    "endNs": 57916603612555,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\nCheck that the request matches the signature\nSignature ok\nThe Subject's Distinguished Name is as follows\ncommonName            :ASN.1 12:'radius.campus.example.test'\nCertificate is to be certified until Nov 11 23:42:13 2026 GMT (7 days)\n\nWrite out database with 1 new entries\nDatabase updated\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "client.key",
+      "-out",
+      "client.csr",
+      "-subj",
+      "/CN=alice@campus.example.test"
+    ],
+    "startNs": 57916603636847,
+    "endNs": 57916605930802,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-batch",
+      "-config",
+      "ca.conf",
+      "-extfile",
+      "client.ext",
+      "-in",
+      "client.csr",
+      "-out",
+      "client.pem",
+      "-notext"
+    ],
+    "startNs": 57916605931635,
+    "endNs": 57916608584632,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\nCheck that the request matches the signature\nSignature ok\nThe Subject's Distinguished Name is as follows\ncommonName            :ASN.1 12:'alice@campus.example.test'\nCertificate is to be certified until Nov 11 23:42:13 2026 GMT (7 days)\n\nWrite out database with 1 new entries\nDatabase updated\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-config",
+      "ca.conf",
+      "-gencrl",
+      "-out",
+      "ca.crl.pem"
+    ],
+    "startNs": 57916608585548,
+    "endNs": 57916610649546,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ocsp",
+      "-index",
+      "index.txt",
+      "-rsigner",
+      "ca.pem",
+      "-rkey",
+      "ca.key",
+      "-CA",
+      "ca.pem",
+      "-issuer",
+      "ca.pem",
+      "-cert",
+      "server.pem",
+      "-respout",
+      "server.ocsp.der",
+      "-ndays",
+      "1"
+    ],
+    "startNs": 57916610689837,
+    "endNs": 57916612887168,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "ca.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 57916613076584,
+    "endNs": 57916617872911,
+    "returncode": 0,
+    "stdout": "subject=CN=Netlib private EAP test CA\nissuer=CN=Netlib private EAP test CA\nserial=533547AA07BBF4B515CAC909A76A7EB4DF8F848A\nsha256 Fingerprint=AD:54:42:40:E8:6C:C7:73:69:89:04:C8:CE:13:0C:2C:8C:64:7D:45:E8:8B:28:F7:C4:6A:1F:2F:AF:52:4C:1F\nnotBefore=Nov  4 23:42:13 2026 GMT\nnotAfter=Nov 11 23:42:13 2026 GMT\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "server.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 57916617897453,
+    "endNs": 57916622660988,
+    "returncode": 0,
+    "stdout": "subject=CN=radius.campus.example.test\nissuer=CN=Netlib private EAP test CA\nserial=1000\nsha256 Fingerprint=64:13:31:00:86:33:8E:3F:CC:45:FC:10:58:AA:4C:D4:00:B4:0C:A4:0F:EC:DF:1E:74:98:6F:5C:42:F7:23:38\nnotBefore=Nov  4 23:42:13 2026 GMT\nnotAfter=Nov 11 23:42:13 2026 GMT\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "client.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 57916622705363,
+    "endNs": 57916627504899,
+    "returncode": 0,
+    "stdout": "subject=CN=alice@campus.example.test\nissuer=CN=Netlib private EAP test CA\nserial=1001\nsha256 Fingerprint=98:65:DE:E0:BD:A3:3E:91:52:47:2A:34:38:FB:E8:4A:2D:BD:01:87:0D:8E:C1:C8:1E:60:70:3A:CE:6B:96:B0\nnotBefore=Nov  4 23:42:13 2026 GMT\nnotAfter=Nov 11 23:42:13 2026 GMT\n",
+    "stderr": ""
+  }
+]

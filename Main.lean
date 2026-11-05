@@ -15,6 +15,7 @@ import Netlib.Check.ConntrackRevocation
 import Netlib.Check.BufferedDrain
 import Netlib.Check.EAP
 import Netlib.Check.SessionFirewall
+import Netlib.Check.Wire
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -39,6 +40,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib eap TRACE.json [--json]\n\
   netlib compile-session TRACE.json INTENT.json [--after N] [--budget N]\n\
   netlib session-firewall BUNDLE.json [--budget N] [--json]\n\
+  netlib wire FRAME.json [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -184,6 +186,12 @@ private def sessionFirewall (path : String) (budget : Nat) (json : Bool) : IO UI
   let report ← unwrap (input.check budget)
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.compliant then 0 else 1
+
+private def wire (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.Wire.Input.parse (← IO.FS.readFile path))
+  let checked ← unwrap input.check
+  IO.println (if json then checked.renderJson.pretty else checked.render)
+  return 0
 
 private def transfer (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Import.TransferConfig.Input.parse (← IO.FS.readFile path))
@@ -405,6 +413,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["session-firewall", path, "--budget", budget] => sessionFirewall path (← budgetValue budget) false
   | ["session-firewall", path, "--budget", budget, "--json"] =>
     sessionFirewall path (← budgetValue budget) true
+  | ["wire", path] => wire path false
+  | ["wire", path, "--json"] => wire path true
   | ["transfer", path] => transfer path 4096 false
   | ["transfer", path, "--json"] => transfer path 4096 true
   | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false
