@@ -53,6 +53,13 @@ import NetlibTest.ConntrackRevocation
 import NetlibTest.QueueDrain
 import NetlibTest.BufferedLifecycle
 import NetlibTest.BufferedReplay
+import NetlibTest.EAP
+import NetlibTest.EAPOL
+import NetlibTest.EAPAuth
+import NetlibTest.EAPSession
+import NetlibTest.EAPCheck
+import NetlibTest.CampusEAP
+import NetlibTest.EAPDeployment
 
 open Netlib
 
@@ -107,4 +114,11 @@ def main : IO Unit := do
   NetlibTest.QueueDrain.run
   NetlibTest.BufferedLifecycle.run
   NetlibTest.BufferedReplay.run
+  NetlibTest.EAP.run
+  NetlibTest.EAPOL.run
+  NetlibTest.EAPAuth.run
+  NetlibTest.EAPSession.run
+  NetlibTest.EAPCheck.run
+  NetlibTest.CampusEAP.run
+  NetlibTest.EAPDeployment.run
   IO.println "Netlib tests passed."

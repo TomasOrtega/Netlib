@@ -794,6 +794,52 @@ Distinct inside endpoints can produce identical wire replies when their remote e
 Mapping consistency and authorized-flow provenance cannot establish packet freshness.
 The result concerns the five-tuple abstraction, not full TCP packets or native kernels.
 
+## EAP framing, authentication, and campus admission
+
+`Netlib/Protocol/EAP.lean` defines the RFC 3748 base packet header and opaque method payloads.
+`decode_encode` and `decode_encodeDecoded` preserve encoded packets and padding.
+`encode_decode` reconstructs arbitrary accepted packet bytes exactly.
+Declared terminal data and truncated lengths are rejected.
+Bytes beyond the declared length remain preserved padding.
+
+`Netlib/Import/EAPOL.lean` adds the selected EAPOL and untagged Ethernet formats.
+`decode_encodeDecoded` and `decodeEthernet_encodeEthernet` preserve structured encodings.
+`encode_decode` and `encodeEthernet_decodeEthernet` reconstruct every accepted binary frame.
+The text hex and MAC parsers have tests without general parser proofs.
+Unsupported versions, packet types, and encapsulations produce errors.
+
+`Netlib/Protocol/EAPAuth.lean` keeps method evidence separate from packet Success.
+`step_safe`, `run_safe`, and `trace_safe` preserve authorization's current evidence and message-correlation requirements.
+`authorized_evidence` provides an accepted result for the current round, expected subject, and selected method.
+`authorized_response` provides the matching Request, Response, and terminal identifier.
+`authorized_not_identity` excludes a control Identity exchange as the selected authentication method.
+Wrong responses and terminal identifiers remain ignored.
+Duplicate requests and responses preserve state.
+Reset and stale-evidence theorems cover the local failclosed policy.
+
+`Netlib/Protocol/EAPSession.lean` derives session authentication from that guarded state.
+Its application event type has no direct authenticate operation.
+`step_safe` and `run_safe` preserve the session guard and its coupling to current EAP authorization.
+`synchronize_resets` clears credentials and admissions after round or authorization changes.
+`admitted_valid` combines the full credential guard with current method readiness.
+`run_session_trace` supplies a corresponding session execution, including internal authentication updates.
+
+`Netlib/Check/EAP.lean` maps decoded Ethernet roles to protocol events.
+`Report.compliant_iff` covers every supplied authorization and request observation in order.
+`observed_authorization_ready` transfers observed authorization to current method readiness.
+`observed_admission_valid` adds the complete current credential guard for observed application admission.
+Observations never replace the computed state.
+
+`Netlib/Examples/CampusEAP.lean` composes the bridge with the original campus context and upgrade contract.
+`Netlib/Examples/EAPDeployment.lean` uses a configurable principal and the actual report context.
+`observed_admission_available` connects a compliant recorded application admission to current method readiness, a valid credential, and campus availability under each admitted internal-node fault.
+`without_credential_isolated` retains application isolation at an authenticated native checkpoint that lacks an application credential.
+Management isolation and gateway mediation reuse the campus topology guarantees.
+
+Native EAP-TLS observations and producer logs supply finite evidence rather than TLS cryptographic proofs.
+Certificate policy, method freshness, round attribution, clock meaning, physical enforcement, and complete wireless behavior remain assumptions.
+The [EAP guide](EAP.md) records the source clauses, selected profile, native evidence, and input schema.
+
 ## Scope of the proofs
 
 The proofs apply to the mathematical model. Reviewers must compare the model,

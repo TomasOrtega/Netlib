@@ -1,0 +1,473 @@
+[
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-x509",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "ca.key",
+      "-out",
+      "ca.pem",
+      "-days",
+      "7",
+      "-subj",
+      "/CN=Netlib private EAP test CA",
+      "-addext",
+      "basicConstraints=critical,CA:TRUE,pathlen:0",
+      "-addext",
+      "keyUsage=critical,keyCertSign,cRLSign"
+    ],
+    "startNs": 54417872619345,
+    "endNs": 54417875236888,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "server.key",
+      "-out",
+      "server.csr",
+      "-subj",
+      "/CN=radius.campus.example.test"
+    ],
+    "startNs": 54417875262305,
+    "endNs": 54417877550806,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-batch",
+      "-config",
+      "ca.conf",
+      "-extfile",
+      "server.ext",
+      "-in",
+      "server.csr",
+      "-out",
+      "server.pem",
+      "-notext"
+    ],
+    "startNs": 54417877551889,
+    "endNs": 54417880172265,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\nCheck that the request matches the signature\nSignature ok\nThe Subject's Distinguished Name is as follows\ncommonName            :ASN.1 12:'radius.campus.example.test'\nCertificate is to be certified until Nov 11 22:43:54 2026 GMT (7 days)\n\nWrite out database with 1 new entries\nDatabase updated\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "req",
+      "-new",
+      "-newkey",
+      "ec",
+      "-pkeyopt",
+      "ec_paramgen_curve:P-256",
+      "-noenc",
+      "-keyout",
+      "client.key",
+      "-out",
+      "client.csr",
+      "-subj",
+      "/CN=alice@campus.example.test"
+    ],
+    "startNs": 54417880196515,
+    "endNs": 54417882473891,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "-----\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-batch",
+      "-config",
+      "ca.conf",
+      "-extfile",
+      "client.ext",
+      "-in",
+      "client.csr",
+      "-out",
+      "client.pem",
+      "-notext"
+    ],
+    "startNs": 54417882474724,
+    "endNs": 54417885154642,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\nCheck that the request matches the signature\nSignature ok\nThe Subject's Distinguished Name is as follows\ncommonName            :ASN.1 12:'alice@campus.example.test'\nCertificate is to be certified until Nov 11 22:43:54 2026 GMT (7 days)\n\nWrite out database with 1 new entries\nDatabase updated\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ca",
+      "-config",
+      "ca.conf",
+      "-gencrl",
+      "-out",
+      "ca.crl.pem"
+    ],
+    "startNs": 54417885155392,
+    "endNs": 54417887161726,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "Using configuration from ca.conf\n"
+  },
+  {
+    "command": [
+      "openssl",
+      "ocsp",
+      "-index",
+      "index.txt",
+      "-rsigner",
+      "ca.pem",
+      "-rkey",
+      "ca.key",
+      "-CA",
+      "ca.pem",
+      "-issuer",
+      "ca.pem",
+      "-cert",
+      "server.pem",
+      "-respout",
+      "server.ocsp.der",
+      "-ndays",
+      "1"
+    ],
+    "startNs": 54417887201934,
+    "endNs": 54417889463727,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "ca.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 54417889679018,
+    "endNs": 54417894501312,
+    "returncode": 0,
+    "stdout": "subject=CN=Netlib private EAP test CA\nissuer=CN=Netlib private EAP test CA\nserial=62B9D4F3905A3E785C3665B4AC5D5CAF851B4315\nsha256 Fingerprint=93:FC:7E:5D:82:AC:73:D6:40:57:D0:D4:7B:4C:56:C5:E3:CE:93:A4:5E:BD:73:0B:74:1C:6C:94:8E:CC:7C:94\nnotBefore=Nov  4 22:43:54 2026 GMT\nnotAfter=Nov 11 22:43:54 2026 GMT\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "server.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 54417894531187,
+    "endNs": 54417899215522,
+    "returncode": 0,
+    "stdout": "subject=CN=radius.campus.example.test\nissuer=CN=Netlib private EAP test CA\nserial=1000\nsha256 Fingerprint=65:F5:66:BB:FD:05:1F:AF:CD:04:79:D0:BC:6B:DA:1D:2C:C7:7C:D6:22:13:F1:06:76:10:D9:08:F1:75:8F:B3\nnotBefore=Nov  4 22:43:54 2026 GMT\nnotAfter=Nov 11 22:43:54 2026 GMT\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "openssl",
+      "x509",
+      "-in",
+      "client.pem",
+      "-noout",
+      "-subject",
+      "-issuer",
+      "-serial",
+      "-fingerprint",
+      "-sha256",
+      "-dates"
+    ],
+    "startNs": 54417899242147,
+    "endNs": 54417904011232,
+    "returncode": 0,
+    "stdout": "subject=CN=alice@campus.example.test\nissuer=CN=Netlib private EAP test CA\nserial=1001\nsha256 Fingerprint=32:27:0B:83:C7:2A:06:DA:2B:54:8A:48:89:6B:C1:2E:AE:24:83:D7:EF:A8:A7:D1:F2:0E:1D:7A:01:F5:D0:0C\nnotBefore=Nov  4 22:43:54 2026 GMT\nnotAfter=Nov 11 22:43:54 2026 GMT\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "add",
+      "auth"
+    ],
+    "startNs": 54417904150857,
+    "endNs": 54417905363732,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "link",
+      "set",
+      "lo",
+      "up"
+    ],
+    "startNs": 54417905364816,
+    "endNs": 54417906162233,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "add",
+      "peer"
+    ],
+    "startNs": 54417906163649,
+    "endNs": 54417906871649,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "link",
+      "set",
+      "lo",
+      "up"
+    ],
+    "startNs": 54417906872649,
+    "endNs": 54417907237275,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "add",
+      "auth0",
+      "address",
+      "02:00:00:00:ea:01",
+      "type",
+      "veth",
+      "peer",
+      "name",
+      "peer0",
+      "address",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 54417907238150,
+    "endNs": 54417907626150,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "auth0",
+      "netns",
+      "auth"
+    ],
+    "startNs": 54417907627233,
+    "endNs": 54417910311401,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "link",
+      "set",
+      "auth0",
+      "up"
+    ],
+    "startNs": 54417910312026,
+    "endNs": 54417911433151,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "auth",
+      "-j",
+      "link",
+      "show"
+    ],
+    "startNs": 54417911438568,
+    "endNs": 54417912212110,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"NO-CARRIER\",\"BROADCAST\",\"MULTICAST\",\"UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"LOWERLAYERDOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "link",
+      "set",
+      "peer0",
+      "netns",
+      "peer"
+    ],
+    "startNs": 54417912250318,
+    "endNs": 54417915399653,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "link",
+      "set",
+      "peer0",
+      "up"
+    ],
+    "startNs": 54417915400444,
+    "endNs": 54417916512778,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "-n",
+      "peer",
+      "-j",
+      "link",
+      "show"
+    ],
+    "startNs": 54417916516486,
+    "endNs": 54417916846653,
+    "returncode": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd_cli",
+      "-p",
+      "/run/netlib-eap/hostapd",
+      "-i",
+      "auth0",
+      "sta",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 54420135724953,
+    "endNs": 54420140140371,
+    "returncode": 0,
+    "stdout": "02:00:00:00:ea:02\nflags=[AUTHORIZED]\naid=0\ncapability=0x0\nlisten_interval=0\nsupported_rates=\ntimeout_next=NULLFUNC POLL\ndot1xPaePortNumber=0\ndot1xPaePortProtocolVersion=2\ndot1xPaePortCapabilities=1\ndot1xPaePortInitialize=0\ndot1xPaePortReauthenticate=FALSE\ndot1xAuthPaeState=5\ndot1xAuthBackendAuthState=6\ndot1xAuthAdminControlledDirections=0\ndot1xAuthOperControlledDirections=0\ndot1xAuthAuthControlledPortStatus=1\ndot1xAuthAuthControlledPortControl=2\ndot1xAuthQuietPeriod=60\ndot1xAuthServerTimeout=30\ndot1xAuthReAuthPeriod=3600\ndot1xAuthReAuthEnabled=TRUE\ndot1xAuthKeyTxEnabled=FALSE\ndot1xAuthEapolFramesRx=8\ndot1xAuthEapolFramesTx=8\ndot1xAuthEapolStartFramesRx=1\ndot1xAuthEapolLogoffFramesRx=0\ndot1xAuthEapolRespIdFramesRx=0\ndot1xAuthEapolRespFramesRx=7\ndot1xAuthEapolReqIdFramesTx=1\ndot1xAuthEapolReqFramesTx=7\ndot1xAuthInvalidEapolFramesRx=0\ndot1xAuthEapLengthErrorFramesRx=0\ndot1xAuthLastEapolFrameVersion=2\ndot1xAuthLastEapolFrameSource=02:00:00:00:ea:02\ndot1xAuthEntersConnecting=1\ndot1xAuthEapLogoffsWhileConnecting=0\ndot1xAuthEntersAuthenticating=0\ndot1xAuthAuthSuccessesWhileAuthenticating=1\ndot1xAuthAuthTimeoutsWhileAuthenticating=0\ndot1xAuthAuthFailWhileAuthenticating=0\ndot1xAuthAuthEapStartsWhileAuthenticating=0\ndot1xAuthAuthEapLogoffWhileAuthenticating=0\ndot1xAuthAuthReauthsWhileAuthenticated=0\ndot1xAuthAuthEapStartsWhileAuthenticated=0\ndot1xAuthAuthEapLogoffWhileAuthenticated=0\ndot1xAuthBackendResponses=7\ndot1xAuthBackendAccessChallenges=6\ndot1xAuthBackendOtherRequestsToSupplicant=7\ndot1xAuthBackendAuthSuccesses=1\ndot1xAuthBackendAuthFails=0\ndot1xAuthSessionId=48E8E27D70ADA403\ndot1xAuthSessionAuthenticMethod=1\ndot1xAuthSessionTime=0\ndot1xAuthSessionTerminateCause=999\ndot1xAuthSessionUserName=anonymous@campus.example.test\nauthMultiSessionId=10FCDA3D9D075850\nlast_eap_type_as=0 (unknown)\nlast_eap_type_sta=13 (TLS)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "status"
+    ],
+    "startNs": 54420140399829,
+    "endNs": 54420144130789,
+    "returncode": 0,
+    "stdout": "bssid=01:80:c2:00:00:03\nfreq=0\nssid=\nid=0\nmode=station\npairwise_cipher=NONE\ngroup_cipher=NONE\nkey_mgmt=IEEE 802.1X (no WPA)\nwpa_state=COMPLETED\naddress=02:00:00:00:ea:02\nSupplicant PAE state=AUTHENTICATED\nsuppPortStatus=Authorized\nEAP state=SUCCESS\nselectedMethod=13 (EAP-TLS)\neap_tls_version=TLSv1.3\nEAP TLS cipher=TLS_AES_256_GCM_SHA384\ntls_session_reused=0\neap_session_id=0ddcebd0f36d6165e6ee221eabe62805f2033f489b1a1e7b9c3f9aa47065735d945d8e8ec6d66f844def6e5d6d5fd79cf34b5f84c21d94662b6c88970a6810eafc\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "logoff"
+    ],
+    "startNs": 54420144258831,
+    "endNs": 54420148221999,
+    "returncode": 0,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd_cli",
+      "-p",
+      "/run/netlib-eap/hostapd",
+      "-i",
+      "auth0",
+      "sta",
+      "02:00:00:00:ea:02"
+    ],
+    "startNs": 54420148317832,
+    "endNs": 54420150105083,
+    "returncode": 0,
+    "stdout": "02:00:00:00:ea:02\nflags=\naid=0\ncapability=0x0\nlisten_interval=0\nsupported_rates=\ntimeout_next=REMOVE\ndot1xPaePortNumber=0\ndot1xPaePortProtocolVersion=2\ndot1xPaePortCapabilities=1\ndot1xPaePortInitialize=0\ndot1xPaePortReauthenticate=FALSE\ndot1xAuthPaeState=1\ndot1xAuthBackendAuthState=1\ndot1xAuthAdminControlledDirections=0\ndot1xAuthOperControlledDirections=0\ndot1xAuthAuthControlledPortStatus=2\ndot1xAuthAuthControlledPortControl=2\ndot1xAuthQuietPeriod=60\ndot1xAuthServerTimeout=30\ndot1xAuthReAuthPeriod=3600\ndot1xAuthReAuthEnabled=TRUE\ndot1xAuthKeyTxEnabled=FALSE\ndot1xAuthEapolFramesRx=9\ndot1xAuthEapolFramesTx=9\ndot1xAuthEapolStartFramesRx=1\ndot1xAuthEapolLogoffFramesRx=1\ndot1xAuthEapolRespIdFramesRx=0\ndot1xAuthEapolRespFramesRx=7\ndot1xAuthEapolReqIdFramesTx=2\ndot1xAuthEapolReqFramesTx=7\ndot1xAuthInvalidEapolFramesRx=0\ndot1xAuthEapLengthErrorFramesRx=0\ndot1xAuthLastEapolFrameVersion=2\ndot1xAuthLastEapolFrameSource=02:00:00:00:ea:02\ndot1xAuthEntersConnecting=2\ndot1xAuthEapLogoffsWhileConnecting=0\ndot1xAuthEntersAuthenticating=0\ndot1xAuthAuthSuccessesWhileAuthenticating=1\ndot1xAuthAuthTimeoutsWhileAuthenticating=0\ndot1xAuthAuthFailWhileAuthenticating=0\ndot1xAuthAuthEapStartsWhileAuthenticating=0\ndot1xAuthAuthEapLogoffWhileAuthenticating=0\ndot1xAuthAuthReauthsWhileAuthenticated=0\ndot1xAuthAuthEapStartsWhileAuthenticated=0\ndot1xAuthAuthEapLogoffWhileAuthenticated=1\ndot1xAuthBackendResponses=7\ndot1xAuthBackendAccessChallenges=6\ndot1xAuthBackendOtherRequestsToSupplicant=8\ndot1xAuthBackendAuthSuccesses=1\ndot1xAuthBackendAuthFails=0\ndot1xAuthSessionId=48E8E27D70ADA403\ndot1xAuthSessionAuthenticMethod=1\ndot1xAuthSessionTime=0\ndot1xAuthSessionTerminateCause=999\ndot1xAuthSessionUserName=N/A\nauthMultiSessionId=10FCDA3D9D075850\nlast_eap_type_as=0 (unknown)\nlast_eap_type_sta=13 (TLS)\n",
+    "stderr": ""
+  }
+]

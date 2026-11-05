@@ -381,3 +381,18 @@ The packets pending at the admission boundary, before all later arrivals.
 
 **Service capacity**:
 The number of FIFO service opportunities declared for a modeled event. Physical elapsed time requires a separate service bound.
+
+**EAP**:
+The Extensible Authentication Protocol. Its base messages carry opaque method data and terminal results.
+
+**EAPOL**:
+EAP encapsulation over a local-area network. The selected codec supports untagged Ethernet EAP, Start, and Logoff frames.
+
+**Outer Identity**:
+The untrusted identity bytes sent by an EAP peer before method authentication. They can differ from the verified certificate principal.
+
+**Method evidence**:
+A supplied verification result bound to an authentication round, expected subject, and method.
+
+**Local authentication round**:
+A model generation changed by reset events. It is separate from the eight-bit wire identifier and native producer-window labels.

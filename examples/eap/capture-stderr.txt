@@ -1,0 +1,2 @@
+WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.23/main/aarch64/APKINDEX.tar.gz: No such file or directory
+WARNING: opening from cache https://dl-cdn.alpinelinux.org/alpine/v3.23/community/aarch64/APKINDEX.tar.gz: No such file or directory

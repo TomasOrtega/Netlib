@@ -6,7 +6,7 @@
 [![Ruff](https://img.shields.io/badge/code%20style-Ruff-D7FF64)](https://docs.astral.sh/ruff/)
 
 Netlib is a Lean library and CLI for network requirements and compliance checks.
-It provides architecture proofs, packet and routing models, and selected Wi-Fi and 5G security profiles.
+It provides architecture proofs, packet and protocol models, and selected Wi-Fi and 5G security profiles.
 Reports preserve source clauses, assumptions, and evidence.
 
 ## Quick start
@@ -29,7 +29,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Task | Guide |
 | --- | --- |
 | Use the CLI and input formats | [Usage](docs/USAGE.md) |
-| Check a Wi-Fi deployment | [Wi-Fi](docs/WIFI.md) |
+| Check Wi-Fi settings and EAP session traces | [Wi-Fi](docs/WIFI.md), [EAP](docs/EAP.md) |
 | Check packets, routes, and identity policies | [Data plane](docs/DATAPLANE.md) |
 | Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
 | Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |

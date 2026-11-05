@@ -1,0 +1,2 @@
+ec722ba382a44f795db94ea2f511668d9d8753c3d102535a949a090ebbeb0f1d  /usr/local/bin/hostapd
+67333c3172f2a421c0ded107a315c1c11b06150e0907edb1ab8b5ae5b4c85737  /usr/local/bin/wpa_supplicant

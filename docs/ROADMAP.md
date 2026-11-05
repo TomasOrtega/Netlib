@@ -14,9 +14,9 @@ It does not establish completion of the goal.
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
-| Connected protocol stacks | Packet policies, routes, sessions, shared stores, tuple translation, and ordinary hook lifecycles. Ordered traces compose stages and successive packets. | Connected Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
-| Machine-checkable standards | Selected Wi-Fi and 5G profiles. Formal clause guards, profile composition, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between formal profiles and existing importers. |
-| Complete architectures | Campus session enforcement, isolation, and single-fault paths. Stateful reply failover under exact grant replication. Separate Linux snapshots supply checked forwarding. | Connections between those imports and the campus theorem, complete protocol bindings, quantitative guarantees, and broader architecture deployments. |
+| Connected protocol stacks | Packet policies, routes, sessions, stores, tuple translation, and hook lifecycles. Binary EAP/EAPOL framing and guarded method results connect to session admission and campus paths. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
+| Machine-checkable standards | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
+| Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent compilation and structured nftables emission preserve every header. Native loading and re-export have fixture evidence. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
 | Safe operation | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
@@ -76,11 +76,17 @@ Ready certificates establish a clean pending queue and clean subsequent modeled 
 A native delayed UDP capture demonstrates delivery after barrier installation.
 Physical service bounds, complete queue correspondence, native install proofs, and the campus integration remain open.
 
+The [EAP session layer](EAP.md) now connects raw framed messages to guarded method evidence, session authentication, credential checks, and campus paths.
+Its codecs reconstruct arbitrary accepted bytes, including preserved padding.
+Native wired EAP-TLS success, Logoff, and server-name rejection supply finite authentication evidence.
+The configured-principal theorem uses the checked report's consumer, rather than assuming the outer Identity is authenticated.
+Native campus enforcement, wireless key installation, RADIUS paths, trusted method-to-round attribution, and cryptographic refinement remain open.
+
 ## Next implementation work
 
 1. Extend ordinary packet lifecycles through transport validation, expiry, concurrency, and additional hooks and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
-3. Connect authentication protocol traces to session evidence.
+3. Refine EAP method evidence with cryptographic semantics, wireless key installation, and trusted link/session attribution.
 4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.
 5. Connect physical service lower bounds and concurrent queue models to the FIFO drain proof, then add timing and reliability guarantees.
 6. Extend the campus proof through those models and real configuration inputs.

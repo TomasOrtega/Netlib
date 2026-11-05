@@ -74,6 +74,13 @@ import Netlib.Theory.QueueDrain
 import Netlib.Protocol.BufferedLifecycle
 import Netlib.Check.BufferedReplay
 import Netlib.Check.BufferedDrain
+import Netlib.Protocol.EAP
+import Netlib.Import.EAPOL
+import Netlib.Protocol.EAPAuth
+import Netlib.Protocol.EAPSession
+import Netlib.Check.EAP
+import Netlib.Examples.CampusEAP
+import Netlib.Examples.EAPDeployment
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

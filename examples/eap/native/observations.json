@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "capture": "wired-eap-tls-private-veth",
+  "authenticator": "02:00:00:00:ea:01",
+  "peer": "02:00:00:00:ea:02",
+  "outerIdentity": "anonymous@campus.example.test",
+  "subject": "alice@campus.example.test",
+  "method": 13,
+  "phases": [
+    {
+      "name": "success",
+      "phaseId": 1,
+      "startNs": 54417916889070,
+      "endNs": 54420538176015,
+      "authenticatorCommand": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "hostapd",
+        "-dd",
+        "/tmp/netlib-eap/hostapd.conf"
+      ],
+      "supplicantCommand": [
+        "ip",
+        "netns",
+        "exec",
+        "peer",
+        "wpa_supplicant",
+        "-dd",
+        "-D",
+        "wired",
+        "-i",
+        "peer0",
+        "-c",
+        "/tmp/netlib-eap/success-supplicant.conf"
+      ]
+    },
+    {
+      "name": "bad-server",
+      "phaseId": 2,
+      "startNs": 54420538859849,
+      "endNs": 54423163726553,
+      "authenticatorCommand": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "hostapd",
+        "-dd",
+        "/tmp/netlib-eap/hostapd.conf"
+      ],
+      "supplicantCommand": [
+        "ip",
+        "netns",
+        "exec",
+        "peer",
+        "wpa_supplicant",
+        "-dd",
+        "-D",
+        "wired",
+        "-i",
+        "peer0",
+        "-c",
+        "/tmp/netlib-eap/bad-server-supplicant.conf"
+      ]
+    }
+  ]
+}
