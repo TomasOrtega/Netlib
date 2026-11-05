@@ -21,6 +21,9 @@ inductive Event where
   | read (count : Nat)
   | emitAck (policyPermitted : Bool)
   | receive (input : Input)
+  | enableRecovery
+  | advanceClock (millis : Nat)
+  | timeout (policyPermitted : Bool)
 
 def evaluate (before : Model) : Event → Endpoint.Result
   | .write bytes => Endpoint.write before bytes
@@ -28,6 +31,9 @@ def evaluate (before : Model) : Event → Endpoint.Result
   | .read count => Endpoint.read before count
   | .emitAck policy => Endpoint.emitAck before policy
   | .receive input => Endpoint.receive before input
+  | .enableRecovery => Endpoint.enableRecovery before
+  | .advanceClock millis => Endpoint.advanceClock before millis
+  | .timeout policy => Endpoint.timeout before policy
 
 theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
     (evaluate before event).state.Valid := by
@@ -37,6 +43,9 @@ theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
   | read count => exact Endpoint.read_valid before count valid
   | emitAck policy => exact Endpoint.emitAck_valid before policy valid
   | receive input => exact Endpoint.receive_valid before input valid
+  | enableRecovery => exact Endpoint.enableRecovery_valid before valid
+  | advanceClock millis => exact Endpoint.advanceClock_valid before millis valid
+  | timeout policy => exact Endpoint.timeout_valid before policy valid
 
 structure Step where
   before : Model
@@ -51,7 +60,7 @@ def Step.make (before : Model) (valid : before.Valid) (event : Event) (stamp : N
 
 def Step.supported (step : Step) : Bool :=
   match step.result.decision with
-  | .unsupported _ => false
+  | .unsupported _ | .recoveryUnsupported _ => false
   | _ => true
 
 theorem Step.valid (step : Step) : step.result.state.Valid := by
@@ -93,11 +102,23 @@ def Balanced (before : Model) (event : Event) (result : Endpoint.Result) : Prop 
   before.core.sent ++ emitted before event result = acknowledged before event result ++ result.state.core.sent ∧
   before.core.received ++ acceptedPayload event result = result.read ++ result.state.core.received ∧
   result.state.core.sendNext = before.core.sendNext.add (emitted before event result).length ∧
-  result.state.core.receiveNext = before.core.receiveNext.add (acceptedPayload event result).length
+  result.state.core.receiveNext = before.core.receiveNext.add (acceptedPayload event result).length ∧
+  result.state.core.sendUna = before.core.sendUna.add (acknowledged before event result).length
 
 private theorem rejected_balanced (before : Model) (event : Event) (reason : Endpoint.Reject) :
     Balanced before event (Endpoint.rejected before reason) := by
   cases event <;> simp [Balanced, Endpoint.rejected, written, emitted, acknowledged, acceptedPayload]
+
+private theorem recoveryBlocked_balanced (before : Model) (event : Event) (reason : Recovery.Stop) :
+    Balanced before event (Endpoint.recoveryBlocked before reason) := by
+  unfold Endpoint.recoveryBlocked
+  split
+  · cases event <;> simp [Balanced, written, emitted, acknowledged, acceptedPayload]
+  · exact rejected_balanced _ _ _
+
+private theorem balanced_withRecovery (before : Model) (event : Event) (result : Endpoint.Result)
+    (recovery : Option Recovery.State) :
+    Balanced before event { result with state := { result.state with recovery } } ↔ Balanced before event result := Iff.rfl
 
 private theorem evaluate_balanced (before : Model) (event : Event) :
     Balanced before event (evaluate before event) := by
@@ -126,7 +147,9 @@ private theorem evaluate_balanced (before : Model) (event : Event) :
     · split
       · exact rejected_balanced _ _ _
       · split
-        · exact rejected_balanced _ _ _
+        · split
+          · exact recoveryBlocked_balanced _ _ _
+          · exact rejected_balanced _ _ _
         · rename_i ready
           cases encoded : Output.emit before.core (before.pending.take count) with
           | error reason => exact rejected_balanced _ _ _
@@ -148,15 +171,48 @@ private theorem evaluate_balanced (before : Model) (event : Event) :
     unfold Endpoint.receive
     split
     · exact rejected_balanced _ _ _
-    · cases selected : (EstablishedReceive.receive before.core input).decision with
-      | blocked reason =>
-        cases reason <;> simp [selected, Balanced, written, emitted, acknowledged, acceptedPayload]
-      | accepted count size =>
-        have changed := EstablishedReceive.receive_accepted before.core input count size selected
-        obtain ⟨_, bound, _, fits, after⟩ := changed
-        simp only [selected, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.receiveState, Endpoint.windowState, after]
-        split <;>
-          simp [EstablishedReceive.commit]
+    · split
+      · exact recoveryBlocked_balanced _ _ _
+      · cases selected : (EstablishedReceive.receive before.core input).decision with
+        | blocked reason =>
+          cases reason <;> simp [selected, Balanced, written, emitted, acknowledged, acceptedPayload]
+        | accepted count size =>
+          have changed := EstablishedReceive.receive_accepted before.core input count size selected
+          obtain ⟨_, bound, _, fits, after⟩ := changed
+          simp only [selected]
+          cases updated : Endpoint.receiveRecovery before input.packet.segment count with
+          | error reason => exact recoveryBlocked_balanced _ _ _
+          | ok recovery =>
+            apply (balanced_withRecovery before (.receive input)
+              ⟨Endpoint.receiveState before input (EstablishedReceive.receive before.core input).state,
+                .accepted (.receive count size), none, [], (EstablishedReceive.receive before.core input).ack⟩ recovery).mpr
+            simp only [Balanced, written, emitted, acknowledged, acceptedPayload,
+              Endpoint.receiveState, Endpoint.windowState, after]
+            split <;> simp [EstablishedReceive.commit, Nat.min_eq_left bound]
+  | enableRecovery =>
+    change Balanced before .enableRecovery (Endpoint.enableRecovery before)
+    unfold Endpoint.enableRecovery
+    split
+    · exact rejected_balanced _ _ _
+    · split
+      · exact recoveryBlocked_balanced _ _ _
+      · simp [Balanced, written, emitted, acknowledged, acceptedPayload]
+  | advanceClock millis =>
+    change Balanced before (.advanceClock millis) (Endpoint.advanceClock before millis)
+    unfold Endpoint.advanceClock
+    repeat' first
+      | (solve | exact rejected_balanced _ _ _)
+      | (solve | exact recoveryBlocked_balanced _ _ _)
+      | (solve | simp [Balanced, written, emitted, acknowledged, acceptedPayload])
+      | split
+  | timeout policy =>
+    change Balanced before (.timeout policy) (Endpoint.timeout before policy)
+    unfold Endpoint.timeout
+    repeat' first
+      | (solve | exact rejected_balanced _ _ _)
+      | (solve | exact recoveryBlocked_balanced _ _ _)
+      | (solve | simp [Balanced, written, emitted, acknowledged, acceptedPayload])
+      | split
 
 theorem Step.balance (step : Step) : Balanced step.before step.event step.result := by
   rw [step.computed]
@@ -176,7 +232,10 @@ theorem Step.sendNext_balance (step : Step) :
     step.result.state.core.sendNext = step.before.core.sendNext.add step.emitted.length := step.balance.2.2.2.1
 
 theorem Step.receiveNext_balance (step : Step) :
-    step.result.state.core.receiveNext = step.before.core.receiveNext.add step.acceptedPayload.length := step.balance.2.2.2.2
+    step.result.state.core.receiveNext = step.before.core.receiveNext.add step.acceptedPayload.length := step.balance.2.2.2.2.1
+
+theorem Step.sendUna_balance (step : Step) :
+    step.result.state.core.sendUna = step.before.core.sendUna.add step.acknowledged.length := step.balance.2.2.2.2.2
 
 
 inductive Chain : Model → List Step → Model → Prop where
@@ -234,6 +293,14 @@ theorem sendNext (chain : Chain initial steps final) :
   | nil state => simp
   | cons head tail ih =>
     rw [ih, head.sendNext_balance, Seq.add_add]
+    simp
+
+theorem sendUna (chain : Chain initial steps final) :
+    final.core.sendUna = initial.core.sendUna.add (steps.flatMap Step.acknowledged).length := by
+  induction chain with
+  | nil state => simp
+  | cons head tail ih =>
+    rw [ih, head.sendUna_balance, Seq.add_add]
     simp
 
 theorem receiveNext (chain : Chain initial steps final) :
@@ -303,17 +370,23 @@ theorem BytePath.fields (path : BytePath source target) :
   | trans first second ihFirst ihSecond =>
     exact ⟨ihSecond.1.trans ihFirst.1, ihSecond.2.trans ihFirst.2⟩
 
+def NoRetry (step : Step) : Prop := ∀ policy, step.event ≠ .timeout policy
+
 inductive OutputOrigin (step : Step) (output : Input) : Prop where
   | send (count : Nat) (policy : Bool)
       (event : step.event = .send count policy)
       (accepted : step.result.decision = .accepted (.send count))
+      (actual : step.result.output = some output) : OutputOrigin step output
+  | retry (count : Nat) (policy : Bool)
+      (event : step.event = .timeout policy)
+      (accepted : step.result.decision = .accepted (.retry count))
       (actual : step.result.output = some output) : OutputOrigin step output
   | ack (policy : Bool)
       (event : step.event = .emitAck policy)
       (accepted : step.result.decision = .accepted .emitAck)
       (actual : step.result.output = some output) : OutputOrigin step output
 
-theorem OutputOrigin.fields (origin : OutputOrigin step output) :
+theorem OutputOrigin.fields (origin : OutputOrigin step output) (original : NoRetry step) :
     output.packet.segment.payload = step.emitted ∧
       output.packet.segment.sequence = step.before.core.sendNext := by
   cases origin with
@@ -336,6 +409,7 @@ theorem OutputOrigin.fields (origin : OutputOrigin step output) :
     subst output
     exact ⟨by simpa only [Step.emitted, event, emitted] using Output.emit_payload _ _ _ encoded,
       (Output.emit_transport _ _ _ encoded).2.1⟩
+  | retry count policy event accepted actual => exact False.elim (original policy event)
 
 structure OutputAt (steps : List Step) where
   prior : List Step
@@ -351,20 +425,71 @@ theorem member (value : OutputAt steps) : value.step ∈ steps := by
   have member : value.step ∈ value.prior ++ value.step :: value.later := by simp
   exact Eq.mp (congrArg (fun list => value.step ∈ list) value.same.symm) member
 
-theorem emitted_prefix (value : OutputAt steps) :
+theorem emitted_prefix (value : OutputAt steps) (original : NoRetry value.step) :
     value.prior.flatMap Step.emitted ++ value.output.packet.segment.payload <+: steps.flatMap Step.emitted := by
-  rw [value.origin.fields.1]
+  rw [(value.origin.fields original).1]
   have all := congrArg (List.flatMap Step.emitted) value.same
   simp only [List.flatMap_append, List.flatMap_cons] at all
   rw [all]
   exact ⟨value.later.flatMap Step.emitted, List.append_assoc _ _ _⟩
 
-theorem coordinate (value : OutputAt steps) (chain : Chain initial steps final) :
+theorem coordinate (value : OutputAt steps) (chain : Chain initial steps final) (original : NoRetry value.step) :
     value.output.packet.segment.sequence = initial.core.sendNext.add (value.prior.flatMap Step.emitted).length := by
-  rw [value.origin.fields.2]
+  rw [(value.origin.fields original).2]
   have split := chain
   rw [value.same] at split
   exact split.cut.1.sendNext
+
+theorem scope_prefix (value : OutputAt steps) :
+    (value.prior ++ [value.step]).flatMap Step.emitted <+: steps.flatMap Step.emitted := by
+  have all := congrArg (List.flatMap Step.emitted) value.same
+  exact ⟨value.later.flatMap Step.emitted, by simpa only [List.flatMap_append, List.flatMap_cons,
+    List.flatMap_singleton, List.flatMap_nil, List.nil_append, List.append_assoc] using all.symm⟩
+
+theorem range (value : OutputAt steps) (chain : Chain initial steps final) (emptySent : initial.core.sent = []) :
+    ∃ prefixBytes : List UInt8,
+      prefixBytes ++ value.output.packet.segment.payload <+: (value.prior ++ [value.step]).flatMap Step.emitted ∧
+      value.output.packet.segment.sequence = initial.core.sendNext.add prefixBytes.length := by
+  have split := chain
+  rw [value.same] at split
+  have prior := split.cut.1
+  cases origin : value.origin with
+  | send count policy event accepted actual =>
+    have original : NoRetry value.step := by intro other same; rw [event] at same; cases same
+    refine ⟨value.prior.flatMap Step.emitted, ?_, value.coordinate chain original⟩
+    rw [(value.origin.fields original).1]
+    exact ⟨[], by simp⟩
+  | ack policy event accepted actual =>
+    have original : NoRetry value.step := by intro other same; rw [event] at same; cases same
+    refine ⟨value.prior.flatMap Step.emitted, ?_, value.coordinate chain original⟩
+    rw [(value.origin.fields original).1]
+    exact ⟨[], by simp⟩
+  | retry count policy event accepted actual =>
+    have selected : (Endpoint.timeout value.step.before policy).decision = .accepted (.retry count) := by
+      simpa only [value.step.computed, event, evaluate] using accepted
+    obtain ⟨recovery, after, output, _, timed, changed, produced, encoded, payload, sequence, bound⟩ :=
+      Endpoint.timeout_output _ _ _ selected
+    have same : output = value.output := by
+      have emitted : (Endpoint.timeout value.step.before policy).output = some value.output := by
+        simpa only [value.step.computed, event, evaluate] using actual
+      exact Option.some.inj (produced.symm.trans emitted)
+    subst output
+    have balance := prior.sent
+    simp only [emptySent, List.nil_append] at balance
+    have emitted : value.step.emitted = [] := by simp [Step.emitted, ApplicationTrace.emitted, event]
+    have initialValid : initial.Valid := by
+      have member := value.member
+      cases chain with
+      | nil state => simp at member
+      | cons head tail => exact head.beforeValid
+    have initialCursor := initialValid.1.2.2.2.2.1
+    simp only [emptySent, List.length_nil, Seq.add_zero] at initialCursor
+    refine ⟨value.prior.flatMap Step.acknowledged, ?_, ?_⟩
+    · rw [payload]
+      refine ⟨value.step.before.core.sent.drop count, ?_⟩
+      rw [List.append_assoc, List.take_append_drop, ← balance]
+      simp [emitted]
+    · rw [sequence, prior.sendUna, initialCursor]
 
 end OutputAt
 
@@ -377,7 +502,7 @@ structure DeliveryHistory (sender receiver : List Step) : Prop where
   delivered : ∀ step ∈ receiver, ∀ input, step.event = .receive input →
     ∃ source : OutputAt sender, source.step.stamp < step.stamp ∧ BytePath source.output input
 
-private theorem Step.data (step : Step) (nonempty : step.acceptedPayload ≠ []) :
+theorem Step.data (step : Step) (nonempty : step.acceptedPayload ≠ []) :
     ∃ input count size, step.event = .receive input ∧
       step.result.decision = .accepted (.receive count size) ∧
       step.acceptedPayload = input.packet.segment.payload ∧
@@ -387,16 +512,18 @@ private theorem Step.data (step : Step) (nonempty : step.acceptedPayload ≠ [])
   | send count policy => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | read count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | emitAck policy => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
+  | enableRecovery | advanceClock _ | timeout _ =>
+    simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | receive input =>
     cases selected : step.result.decision with
     | reject reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
-    | unsupported reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
+    | unsupported reason | recoveryUnsupported reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
     | accepted action =>
       cases action with
       | write count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | send count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | read count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
-      | emitAck => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
+      | emitAck | enableRecovery | advanceClock | retry _ => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | receive count size =>
         have accepted : (Endpoint.receive step.before input).decision = .accepted (.receive count size) := by
           simpa only [step.computed, event, evaluate] using selected
@@ -412,6 +539,7 @@ def Delivered (sender : List Step) (step : Step) : Prop :=
     ∃ source : OutputAt sender, source.step.stamp < step.stamp ∧ BytePath source.output input
 
 private theorem extend_prefix (sourceChain : Chain sourceInitial sourceSteps sourceFinal)
+    (emptySent : sourceInitial.core.sent = [])
     (epoch : (sourceSteps.flatMap Step.emitted).length < Seq.halfSpace)
     (step : Step) (accumulated : List UInt8)
     (priorPrefix : accumulated <+: sourceSteps.flatMap Step.emitted)
@@ -422,31 +550,34 @@ private theorem extend_prefix (sourceChain : Chain sourceInitial sourceSteps sou
   · simpa only [empty, List.append_nil] using priorPrefix
   · obtain ⟨input, count, size, event, _, payload, inOrder⟩ := step.data empty
     obtain ⟨source, _, path⟩ := delivered input event
-    have sourcePrefix : source.prior.flatMap Step.emitted <+: sourceSteps.flatMap Step.emitted :=
-      (List.prefix_append _ _).trans source.emitted_prefix
+    obtain ⟨prefixBytes, rangePrefix, coordinate⟩ := source.range sourceChain emptySent
+    have ranged := rangePrefix.trans source.scope_prefix
+    have sourcePrefix : prefixBytes <+: sourceSteps.flatMap Step.emitted :=
+      (List.prefix_append _ _).trans ranged
     have accumulatedBound : accumulated.length < Seq.modulus := by
       have bound := priorPrefix.length_le
       unfold Seq.modulus Seq.halfSpace at *
       omega
-    have sourceBound : (source.prior.flatMap Step.emitted).length < Seq.modulus := by
+    have sourceBound : prefixBytes.length < Seq.modulus := by
       have bound := sourcePrefix.length_le
       unfold Seq.modulus Seq.halfSpace at *
       omega
     have sameSequence : sourceInitial.core.sendNext.add accumulated.length =
-        sourceInitial.core.sendNext.add (source.prior.flatMap Step.emitted).length := by
+        sourceInitial.core.sendNext.add prefixBytes.length := by
       calc
         _ = step.before.core.receiveNext := cursor.symm
         _ = input.packet.segment.sequence := inOrder.symm
         _ = source.output.packet.segment.sequence := path.fields.2
-        _ = _ := source.coordinate sourceChain
+        _ = _ := coordinate
     have sameLength := congrArg (Seq.distance sourceInitial.core.sendNext) sameSequence
     simp only [Seq.distance_add, Nat.mod_eq_of_lt accumulatedBound, Nat.mod_eq_of_lt sourceBound] at sameLength
-    have sameBytes : accumulated = source.prior.flatMap Step.emitted :=
+    have sameBytes : accumulated = prefixBytes :=
       (List.prefix_of_prefix_length_le priorPrefix sourcePrefix (Nat.le_of_eq sameLength)).eq_of_length sameLength
     rw [sameBytes, payload, path.fields.1]
-    exact source.emitted_prefix
+    exact ranged
 
 private theorem accepted_prefix_aux (sourceChain : Chain sourceInitial sourceSteps sourceFinal)
+    (emptySent : sourceInitial.core.sent = [])
     (epoch : (sourceSteps.flatMap Step.emitted).length < Seq.halfSpace)
     (targetChain : Chain targetInitial targetSteps targetFinal) :
     ∀ accumulated : List UInt8,
@@ -458,7 +589,7 @@ private theorem accepted_prefix_aux (sourceChain : Chain sourceInitial sourceSte
   | nil state => intro accumulated priorPrefix _ _; simpa using priorPrefix
   | cons head tail ih =>
     intro accumulated priorPrefix cursor delivered
-    have added := extend_prefix sourceChain epoch head accumulated priorPrefix cursor (delivered head (by simp))
+    have added := extend_prefix sourceChain emptySent epoch head accumulated priorPrefix cursor (delivered head (by simp))
     have nextCursor : head.result.state.core.receiveNext =
         sourceInitial.core.sendNext.add (accumulated ++ head.acceptedPayload).length := by
       rw [head.receiveNext_balance, cursor, Seq.add_add, List.length_append]
@@ -467,12 +598,13 @@ private theorem accepted_prefix_aux (sourceChain : Chain sourceInitial sourceSte
     simpa only [List.flatMap_cons, List.append_assoc] using rest
 
 theorem accepted_prefix_emitted (sourceChain : Chain sourceInitial sourceSteps sourceFinal)
+    (emptySent : sourceInitial.core.sent = [])
     (targetChain : Chain targetInitial targetSteps targetFinal)
     (history : DeliveryHistory sourceSteps targetSteps)
     (cursors : targetInitial.core.receiveNext = sourceInitial.core.sendNext)
     (epoch : (sourceSteps.flatMap Step.emitted).length < Seq.halfSpace) :
     targetSteps.flatMap Step.acceptedPayload <+: sourceSteps.flatMap Step.emitted := by
-  have result := accepted_prefix_aux sourceChain epoch targetChain [] (by simp)
+  have result := accepted_prefix_aux sourceChain emptySent epoch targetChain [] (by simp)
     (by simpa using cursors) history.delivered
   simpa only [List.nil_append] using result
 
@@ -480,42 +612,45 @@ theorem application_prefix (sourceChain : Chain sourceInitial sourceSteps source
     (targetChain : Chain targetInitial targetSteps targetFinal)
     (history : DeliveryHistory sourceSteps targetSteps)
     (emptyPending : sourceInitial.pending = [])
+    (emptySent : sourceInitial.core.sent = [])
     (emptyReceived : targetInitial.core.received = [])
     (cursors : targetInitial.core.receiveNext = sourceInitial.core.sendNext)
     (epoch : (sourceSteps.flatMap Step.emitted).length < Seq.halfSpace) :
     targetSteps.flatMap Step.readBytes <+: sourceSteps.flatMap Step.written := by
   exact (targetChain.read_prefix_received emptyReceived).trans
-    ((accepted_prefix_emitted sourceChain targetChain history cursors epoch).trans
+    ((accepted_prefix_emitted sourceChain emptySent targetChain history cursors epoch).trans
       (sourceChain.emitted_prefix_written emptyPending))
 
 
-theorem OutputOrigin.pending_prefix (origin : OutputOrigin step output) :
+theorem OutputOrigin.pending_prefix (origin : OutputOrigin step output) (original : NoRetry step) :
     output.packet.segment.payload <+: step.before.pending := by
-  rw [origin.fields.1]
+  rw [(origin.fields original).1]
   cases origin with
   | send count policy event accepted actual =>
     simpa only [Step.emitted, event, accepted, emitted] using List.take_prefix count step.before.pending
   | ack policy event accepted actual =>
     simp only [Step.emitted, event, emitted, List.nil_prefix]
+  | retry count policy event accepted actual => exact False.elim (original policy event)
 
-theorem OutputOrigin.nonempty_send (origin : OutputOrigin step output)
+theorem OutputOrigin.nonempty_send (origin : OutputOrigin step output) (original : NoRetry step)
     (nonempty : output.packet.segment.payload ≠ []) :
     ∃ count policy, step.event = .send count policy ∧ step.result.decision = .accepted (.send count) := by
   cases origin with
   | send count policy event accepted actual => exact ⟨count, policy, event, accepted⟩
   | ack policy event accepted actual =>
-    have payload := (OutputOrigin.ack policy event accepted actual).fields.1
+    have payload := ((OutputOrigin.ack policy event accepted actual).fields original).1
     simp only [Step.emitted, event, emitted] at payload
     exact False.elim (nonempty payload)
+  | retry count policy event accepted actual => exact False.elim (original policy event)
 
 theorem OutputAt.written_prefix (value : OutputAt steps) (chain : Chain initial steps final)
-    (empty : initial.pending = []) :
+    (empty : initial.pending = []) (original : NoRetry value.step) :
     value.prior.flatMap Step.emitted ++ value.output.packet.segment.payload <+: value.prior.flatMap Step.written := by
   have split := chain
   rw [value.same] at split
   have balance := split.cut.1.pending
   simp only [empty, List.nil_append] at balance
-  obtain ⟨remaining, same⟩ := value.origin.pending_prefix
+  obtain ⟨remaining, same⟩ := value.origin.pending_prefix original
   exact ⟨remaining, by rw [List.append_assoc, same, ← balance]⟩
 
 theorem OutputAt.prior_before (value : OutputAt steps) (order : Chronological steps)
@@ -526,11 +661,11 @@ theorem OutputAt.prior_before (value : OutputAt steps) (order : Chronological st
   exact (List.pairwise_append.mp ordered).2.2 writer member value.step (by simp)
 
 theorem OutputAt.byte_write (value : OutputAt steps) (chain : Chain initial steps final)
-    (empty : initial.pending = []) (order : Chronological steps)
+    (empty : initial.pending = []) (order : Chronological steps) (original : NoRetry value.step)
     (byte : UInt8) (member : byte ∈ value.output.packet.segment.payload) :
     ∃ writer ∈ value.prior, writer.stamp < value.step.stamp ∧ byte ∈ writer.written := by
   have priorMember : byte ∈ value.prior.flatMap Step.written :=
-    (value.written_prefix chain empty).subset (List.mem_append_right _ member)
+    (value.written_prefix chain empty original).subset (List.mem_append_right _ member)
   obtain ⟨writer, before, present⟩ := List.mem_flatMap.mp priorMember
   exact ⟨writer, before, value.prior_before order writer before, present⟩
 
@@ -542,10 +677,11 @@ theorem Step.written_event (step : Step) (byte : UInt8) (member : byte ∈ step.
   | read count => simp [Step.written, ApplicationTrace.written, event] at member
   | emitAck policy => simp [Step.written, ApplicationTrace.written, event] at member
   | receive input => simp [Step.written, ApplicationTrace.written, event] at member
+  | enableRecovery | advanceClock _ | timeout _ => simp [Step.written, ApplicationTrace.written, event] at member
   | write bytes =>
     cases selected : step.result.decision with
     | reject reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
-    | unsupported reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
+    | unsupported reason | recoveryUnsupported reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
     | accepted action =>
       cases action with
       | write count =>
@@ -553,11 +689,12 @@ theorem Step.written_event (step : Step) (byte : UInt8) (member : byte ∈ step.
           simpa only [Step.written, ApplicationTrace.written, event, selected] using member⟩
       | send count => simp [Step.written, ApplicationTrace.written, event, selected] at member
       | read count => simp [Step.written, ApplicationTrace.written, event, selected] at member
-      | emitAck => simp [Step.written, ApplicationTrace.written, event, selected] at member
+      | emitAck | enableRecovery | advanceClock | retry _ => simp [Step.written, ApplicationTrace.written, event, selected] at member
       | receive count size => simp [Step.written, ApplicationTrace.written, event, selected] at member
 
-theorem received_byte_origin (sourceChain : Chain sourceInitial sourceSteps sourceFinal)
+theorem received_original_byte_origin (sourceChain : Chain sourceInitial sourceSteps sourceFinal)
     (history : DeliveryHistory sourceSteps targetSteps) (empty : sourceInitial.pending = [])
+    (originals : ∀ source : OutputAt sourceSteps, NoRetry source.step)
     (step : Step) (member : step ∈ targetSteps)
     (byte : UInt8) (present : byte ∈ step.acceptedPayload) :
     ∃ input count size, step.event = .receive input ∧
@@ -580,9 +717,9 @@ theorem received_byte_origin (sourceChain : Chain sourceInitial sourceSteps sour
     intro empty
     simp [empty] at sourceMember
   obtain ⟨writer, prior, before, writtenMember⟩ :=
-    source.byte_write sourceChain empty history.senderOrder byte sourceMember
+    source.byte_write sourceChain empty history.senderOrder (originals source) byte sourceMember
   exact ⟨input, count, size, event, accepted, source, path, earlier,
-    source.origin.nonempty_send sourceNonempty, writer, prior, before,
+    source.origin.nonempty_send (originals source) sourceNonempty, writer, prior, before,
     writer.written_event byte writtenMember⟩
 
 theorem paired_application_prefix
@@ -591,6 +728,7 @@ theorem paired_application_prefix
     (leftToRight : DeliveryHistory leftSteps rightSteps)
     (rightToLeft : DeliveryHistory rightSteps leftSteps)
     (leftPending : leftInitial.pending = []) (rightPending : rightInitial.pending = [])
+    (leftSent : leftInitial.core.sent = []) (rightSent : rightInitial.core.sent = [])
     (leftReceived : leftInitial.core.received = []) (rightReceived : rightInitial.core.received = [])
     (leftCursor : leftInitial.core.receiveNext = rightInitial.core.sendNext)
     (rightCursor : rightInitial.core.receiveNext = leftInitial.core.sendNext)
@@ -598,7 +736,7 @@ theorem paired_application_prefix
     (rightEpoch : (rightSteps.flatMap Step.emitted).length < Seq.halfSpace) :
     rightSteps.flatMap Step.readBytes <+: leftSteps.flatMap Step.written ∧
       leftSteps.flatMap Step.readBytes <+: rightSteps.flatMap Step.written := by
-  exact ⟨application_prefix leftChain rightChain leftToRight leftPending rightReceived rightCursor leftEpoch,
-    application_prefix rightChain leftChain rightToLeft rightPending leftReceived leftCursor rightEpoch⟩
+  exact ⟨application_prefix leftChain rightChain leftToRight leftPending leftSent rightReceived rightCursor leftEpoch,
+    application_prefix rightChain leftChain rightToLeft rightPending rightSent leftReceived leftCursor rightEpoch⟩
 
 end Netlib.Protocol.TCP.ApplicationTrace

@@ -131,7 +131,8 @@ theorem rewritten_application_prefix : Nonempty Witness := by
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit receiver.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    simp only [Endpoint.receive, receiver_valid, not_true_eq_false, ite_false, coreReceived, payload]
+    rw [Endpoint.receive_without_recovery receiver input receiver_valid rfl, coreReceived]
+    simp only [payload]
     rfl
   have receivedCore : receivedState.core = EstablishedReceive.commit receiver.core [42] 0 := by
     rw [receivedEq, receiveState_core]
@@ -211,7 +212,8 @@ theorem rewritten_application_prefix : Nonempty Witness := by
   have returnedResult : Endpoint.receive sentState ackInput =
       ⟨returnedState, .accepted (.receive 1 0), none, [], none⟩ := by
     rw [returnedEq]
-    simp only [Endpoint.receive, sentValid, not_true_eq_false, ite_false, coreReturned]
+    have disabled : sentState.recovery = none := by rw [sentEq, writtenEq]; rfl
+    rw [Endpoint.receive_without_recovery sentState ackInput sentValid disabled, coreReturned]
   let returned : A.Step := ⟨sentState, .receive ackInput,
     ⟨returnedState, .accepted (.receive 1 0), none, [], none⟩, 5, sentValid, returnedResult.symm⟩
   let senderSteps := [write, send, returned]
@@ -261,7 +263,7 @@ theorem rewritten_application_prefix : Nonempty Witness := by
     change ([] : List UInt8).length < Seq.halfSpace
     decide
   have application := ApplicationTrace.paired_application_prefix senderChain receiverChain forward backward
-    rfl rfl rfl rfl rfl rfl senderEpoch receiverEpoch
+    rfl rfl rfl rfl rfl rfl rfl rfl senderEpoch receiverEpoch
   have senderEmpty : returnedState.core.sent = [] := by
     rw [returnedEq, receiveState_core]
     change (sentState.core.sent.drop 1) = []

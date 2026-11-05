@@ -234,6 +234,36 @@ class ComponentTests(unittest.TestCase):
         _, reason = reference.admit(reference.Admission(), records[0], "original", False, raw)
         self.assertEqual(reason, "missingHistory")
 
+    def test_repeated_actual_range_survives_an_ack_seen_only_at_the_gateway(self):
+        state, records = self.startup()
+        raw = reference.wire.fixture_packet(
+            reference.handshake.header(self.client.socket, self.public),
+            reference.wire.Segment(1001, 5001, 16, window=8, payload=b"abc"),
+        ).hex()
+        state, reason = reference.admit(state, records[0], "original", False, raw)
+        self.assertIsNone(reason)
+        ack = reference.handshake.control_output(
+            self.server, reference.handshake.Socket("203.0.113.1", 40000), 5001, 1004, 16
+        )["rawIPv4Hex"]
+        state, reason = reference.admit(state, records[0], "reply", False, ack)
+        self.assertIsNone(reason)
+        self.assertEqual(state.original.acknowledged, 3)
+        repeated, reason = reference.admit(state, records[0], "original", False, raw)
+        self.assertIsNone(reason)
+        self.assertEqual(repeated.original.observed, 3)
+        self.assertEqual(repeated.original.acknowledged, 3)
+        self.assertEqual(len(repeated.observations), len(state.observations) + 1)
+        segment = reference.wire.decode_packet(raw).segment
+        for sequence, payload, expected in ((1002, b"bc", None), (1001, b"abd", "sequence")):
+            candidate = reference.wire.fixture_packet(
+                reference.handshake.header(self.client.socket, self.public),
+                reference.replace(segment, sequence=sequence, payload=payload),
+            ).hex()
+            after, reason = reference.admit(state, records[0], "original", False, candidate)
+            self.assertEqual(reason, expected)
+            if reason is None:
+                self.assertEqual(after.original.observed, 3)
+
     def test_invalid_reply_does_not_commit_prepared_seen_reply(self):
         first = reference.forward((), self.routing, self.configs["permit"], self.syn["rawIPv4Hex"])
         state, reason = reference.admit(

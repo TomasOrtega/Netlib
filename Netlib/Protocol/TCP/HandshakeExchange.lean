@@ -373,7 +373,8 @@ theorem Complete.application_prefix (value : Complete input)
     passiveSteps.flatMap ApplicationTrace.Step.readBytes <+: activeSteps.flatMap ApplicationTrace.Step.written ∧
       activeSteps.flatMap ApplicationTrace.Step.readBytes <+: passiveSteps.flatMap ApplicationTrace.Step.written := by
   exact ApplicationTrace.paired_application_prefix activeChain passiveChain forward backward
-    value.empty.1 value.empty.2.2.2.1 value.empty.2.2.1 value.empty.2.2.2.2.2
+    value.empty.1 value.empty.2.2.2.1 value.empty.2.1 value.empty.2.2.2.2.1
+    value.empty.2.2.1 value.empty.2.2.2.2.2
     value.cursors.1 value.cursors.2 activeEpoch passiveEpoch
 
 theorem Complete.startup_to_application (value : Complete input)

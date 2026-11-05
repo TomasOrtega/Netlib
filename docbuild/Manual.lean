@@ -1830,9 +1830,76 @@ The deferred ACK acknowledges 1201 transferred server bytes.
 The same application histories read 1600 and 2401 bytes, with actual permission at service time.
 The final proofs retain startup provenance, exact checkpoint ancestry, and current Logoff denial.
 
-Other options, retransmission, timers, congestion control, native correspondence, and the full campus demonstration remain open.
+The bounded recovery chapter adds explicit timers and exact retries to this path.
+Other options, broader recovery, congestion control, native correspondence, and the full campus demonstration remain open.
 A non-SYN option stop is selected unsupported scope, not an RFC-mandated drop or reset.
 All seven research programs remain OPEN.
+
+# Bounded TCP data recovery
+%%%
+tag := "tcp-recovery"
+file := "tcp-recovery"
+%%%
+
+The selected recovery path separates unique stream bytes from packet attempts.
+A new send consumes pending bytes and advances `SND.NXT`.
+A timer retry emits an actual unacknowledged prefix at `SND.UNA`.
+It preserves pending storage, outstanding byte storage, and the unique send frontier.
+The application trace derives its range from actual prior sends and ACK retirement.
+Empty initial outstanding storage comes from checked startup.
+
+Recovery is enabled by an actual endpoint event, without replacing its startup seed.
+Each host advances its own explicit absolute millisecond clock.
+Ordinal event stamps retain causal order even when clock readings are equal.
+The clock model does not establish native clock or credential-expiry correspondence.
+
+The estimator uses exact rational SRTT and RTTVAR.
+Variance uses the old SRTT, with coefficients 1/8 and 1/4.
+The final interval rounds up and has a one-second floor:
+
+```lean
+open Netlib.Protocol.TCP.RTO in
+example (estimate : Estimator) :
+    1000 ≤ interval estimate 1 :=
+  interval_floor estimate 1
+```
+
+An advancing ACK retires the actual prefix and restarts or stops the timer.
+A repeated ACK does not restart it.
+A partial ACK retains the original timing identity and retry ambiguity.
+Karn's rule prevents an RTT sample from a retransmitted range.
+The input cannot supply an RTT sample or a retry byte string.
+
+Timeout output requires an elapsed deadline and the required last-attempt interval.
+Successful timeout output doubles the interval:
+
+```lean
+open Netlib.Protocol.TCP.Recovery in
+example (before after : State) (count : Nat)
+    (step : timeout before = .ok (count, after)) :
+    after.rto = 2 * before.rto ∧
+      after.deadline = some (before.now + 2 * before.rto) :=
+  timeout_backoff before count after step
+```
+
+Local output denial retains the due timer and creates no attempt.
+Current gateway permission remains a separate check at actual service time.
+Repeat admission checks an exact earlier observed slice for the same entry and direction.
+It preserves unique byte frontiers, even after an ACK observed only by the gateway.
+Each processed repeat still advances the checkpoint history cut.
+The exact source image retains those observations through planned transfer.
+Endpoint timer state stays at the hosts during that operation.
+
+The campus example recovers data loss and ACK loss with asymmetric MSS.
+Whole old duplicates add no receive bytes, and explicit ACK events produce checked replies.
+Application and transfer assurance use the same actual global history.
+Current Logoff denial still prevents later gateway output for a valid repeated range.
+
+The selected congestion window stays at one effective MSS.
+Only two timer retries of an outstanding original segment are supported.
+The third qualifying duplicate ACK stops for omitted fast recovery.
+Broader congestion control, persist, overlap storage, control retries, native refinement, and eventual delivery remain open.
+All seven research programs and the full campus demonstration remain OPEN.
 
 # An authenticated campus TCP path
 %%%
@@ -1955,7 +2022,8 @@ Logoff with current standby denial blocks later output while retaining the copie
 
 This is modeled planned transfer with fixed declared gateway lifetimes.
 It does not establish native migration, physical fencing, reliable synchronization, unexpected failure recovery, or general TCP drain progress.
-Options, retransmission, congestion control, timers, and the full campus demonstration remain open.
+The bounded recovery chapter adds explicit host timers and exact retries through this transfer.
+Other options, broader recovery, congestion control, native clocks, and the full campus demonstration remain open.
 All seven research programs remain OPEN.
 
 # Documentation process

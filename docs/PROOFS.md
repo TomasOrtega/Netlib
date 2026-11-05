@@ -104,7 +104,7 @@ Window shrink preserves validity even when outstanding bytes exceed the new peer
 
 `TCP.ApplicationTrace.Chain` proves byte conservation for actual computed events.
 Its paired theorem connects earlier peer outputs, preserved sequence values, and bounded byte positions to the application prefix property.
-The theorem requires delivery-history evidence and a finite epoch below half the sequence space.
+The theorem requires delivery-history evidence, empty initial byte buffers, and a finite epoch below half the sequence space.
 Seed construction, native transmission, eventual delivery, and congestion control remain separate obligations.
 The [application guide](TCP_APPLICATION.md) states the proof contract and command limits.
 
@@ -131,6 +131,13 @@ Startup derives each peer limit from the correct actual message.
 `TCP.AdmissionMSSFacts` connects observed offers to actual directional data admission and commitment.
 Checkpoint image equality retains raw offers, including absent versus explicit 536.
 The [MSS guide](TCP_MSS.md) gives the asymmetric campus witness and remaining scope.
+
+`TCP.RTO` uses exact rational estimates and proves conservative millisecond rounding.
+`TCP.Recovery` retains actual original-range timing, partial ACK clipping, Karn exclusion, deadline checks, and timeout backoff.
+The application trace separates unique stream bytes from packet attempts and derives earlier retry positions from byte conservation.
+`TCP.AdmissionRecoveryFacts` connects repeated payloads to exact prior observations while preserving unique frontiers.
+The existing checkpoint image retains this full observation history and its actual transition cut.
+The [recovery guide](TCP_RECOVERY.md) states the selected congestion bound and remaining protocol scope.
 
 ## Authenticated campus TCP path
 

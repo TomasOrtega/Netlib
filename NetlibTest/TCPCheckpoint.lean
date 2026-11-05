@@ -206,11 +206,31 @@ private def directionalMSS : IO Unit := do
   rejected (CP.run returned.gateway permit ⟨← packet translated.reverse 6301 2401 24 (List.replicate 701 1) 2048, 0, none⟩)
     (.admission (.unsupported .data))
 
+private def repeatedRange : IO Unit := do
+  let ready ← startup
+  let sent ← advance ready (← packet original 1001 5001 16 [1, 2, 3])
+  let old ← checked (CP.capture sent.history)
+  let repeated ← advance sent (← packet original 1001 5001 16 [1, 2, 3])
+  ensure ((← session repeated.gateway).original == (← session sent.gateway).original &&
+      repeated.history.length == sent.history.length + 1 && !repeated.gateway.same sent.gateway)
+    "A repeated packet must advance the exact history cut while its unique lane remains equal."
+  rejected (CP.install old repeated.history .initial) .staleSource
+  let snapshot ← checked (CP.capture repeated.history)
+  let installed ← checked (CP.install snapshot repeated.history .initial)
+  let retry ← checked (CP.run installed.state permit ⟨← packet original 1002 5001 16 [2, 3], 0, none⟩)
+  ensure (retry.outcome.output.isSome && (← session retry.after).original.observed == 3)
+    "The installed exact observations must justify the earlier range slice on the target."
+  let changed : CP.Gateway := { snapshot.source with admission := {
+    snapshot.source.admission with observations := snapshot.source.admission.observations.dropLast } }
+  ensure (!changed.same snapshot.source)
+    "The checkpoint image must retain repeated packet observations as well as byte frontiers."
+
 def run : IO Unit := do
   rejected (CP.capture (Checkpoint.History.initial)) .notEstablished
   continuingBytes
   droppedReply
   directionalMSS
+  repeatedRange
   IO.println "Reachable TCP checkpoint tests passed."
 
 end NetlibTest.TCPCheckpoint

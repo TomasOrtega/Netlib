@@ -127,6 +127,8 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
   | «open» remote policy => exact produces_changes _ (startup_produces _ _ _ _ accepted)
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact produces_changes _ (application_produces _ _ _ _ _ accepted)
+  | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
+    exact produces_changes _ (application_produces _ _ _ _ _ accepted)
   | authentication index =>
     simp only [Check.CampusTCPModel.process] at accepted
     split at accepted
