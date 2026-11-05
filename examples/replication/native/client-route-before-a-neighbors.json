@@ -1,0 +1,1 @@
+[{"dst":"192.0.2.2","dev":"car","lladdr":"02:00:00:10:00:00","state":["STALE"]},{"dst":"198.51.100.2","dev":"sar","lladdr":"02:00:00:10:02:00","state":["REACHABLE"]},{"dst":"10.10.0.2","dev":"syncl","lladdr":"02:00:00:10:04:01","state":["REACHABLE"]}]

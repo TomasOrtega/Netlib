@@ -1,0 +1,4091 @@
+{
+  "schema": 1,
+  "profile": "conntrackd-ftfw-udp-handoff",
+  "startNs": 74498866397590,
+  "byteorder": "little",
+  "interfaces": {
+    "client": [
+      "cal",
+      "cbl"
+    ],
+    "a": [
+      "car",
+      "sar",
+      "syncl"
+    ],
+    "b": [
+      "cbr",
+      "sbr",
+      "syncr"
+    ],
+    "server": [
+      "sal",
+      "sbl"
+    ]
+  },
+  "events": [
+    {
+      "id": "establish",
+      "type": "packet",
+      "startNs": 74499584724111,
+      "gateway": "a",
+      "leg": "original",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "establish-before-a-conntrack.json",
+            "command": 125
+          },
+          "b": {
+            "file": "establish-before-b-conntrack.json",
+            "command": 127
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "establish-before-a-nftables.json",
+            "command": 126
+          },
+          "b": {
+            "file": "establish-before-b-nftables.json",
+            "command": 128
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "establish-before-client-links.json",
+              "command": 129
+            },
+            "addresses": {
+              "file": "establish-before-client-addresses.json",
+              "command": 130
+            },
+            "routes": {
+              "file": "establish-before-client-routes.json",
+              "command": 131
+            },
+            "rules": {
+              "file": "establish-before-client-rules.json",
+              "command": 132
+            },
+            "neighbors": {
+              "file": "establish-before-client-neighbors.json",
+              "command": 133
+            }
+          },
+          "a": {
+            "links": {
+              "file": "establish-before-a-links.json",
+              "command": 134
+            },
+            "addresses": {
+              "file": "establish-before-a-addresses.json",
+              "command": 135
+            },
+            "routes": {
+              "file": "establish-before-a-routes.json",
+              "command": 136
+            },
+            "rules": {
+              "file": "establish-before-a-rules.json",
+              "command": 137
+            },
+            "neighbors": {
+              "file": "establish-before-a-neighbors.json",
+              "command": 138
+            }
+          },
+          "b": {
+            "links": {
+              "file": "establish-before-b-links.json",
+              "command": 139
+            },
+            "addresses": {
+              "file": "establish-before-b-addresses.json",
+              "command": 140
+            },
+            "routes": {
+              "file": "establish-before-b-routes.json",
+              "command": 141
+            },
+            "rules": {
+              "file": "establish-before-b-rules.json",
+              "command": 142
+            },
+            "neighbors": {
+              "file": "establish-before-b-neighbors.json",
+              "command": 143
+            }
+          },
+          "server": {
+            "links": {
+              "file": "establish-before-server-links.json",
+              "command": 144
+            },
+            "addresses": {
+              "file": "establish-before-server-addresses.json",
+              "command": 145
+            },
+            "routes": {
+              "file": "establish-before-server-routes.json",
+              "command": 146
+            },
+            "rules": {
+              "file": "establish-before-server-rules.json",
+              "command": 147
+            },
+            "neighbors": {
+              "file": "establish-before-server-neighbors.json",
+              "command": 148
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.2",
+              8080
+            ],
+            "payloadHex": "7265706c69636174696f6e3a65737461626c697368",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74499653644752,
+            "endNs": 74499654771881,
+            "result": {
+              "bytesSent": 21,
+              "payloadHex": "7265706c69636174696f6e3a65737461626c697368",
+              "local": [
+                "192.0.2.2",
+                41000
+              ],
+              "peer": [
+                "203.0.113.2",
+                8080
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74499653598877,
+          "endNs": 74499654904965
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74499654946507,
+            "endNs": 74499654958549,
+            "result": {
+              "payloadHex": "7265706c69636174696f6e3a65737461626c697368",
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "local": [
+                "198.51.100.2",
+                9000
+              ]
+            }
+          },
+          "startNs": 74499654906340,
+          "endNs": 74499654986049
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "establish-after-a-conntrack.json",
+            "command": 149
+          },
+          "b": {
+            "file": "establish-after-b-conntrack.json",
+            "command": 151
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "establish-after-a-nftables.json",
+            "command": 150
+          },
+          "b": {
+            "file": "establish-after-b-nftables.json",
+            "command": 152
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "establish-after-client-links.json",
+              "command": 153
+            },
+            "addresses": {
+              "file": "establish-after-client-addresses.json",
+              "command": 154
+            },
+            "routes": {
+              "file": "establish-after-client-routes.json",
+              "command": 155
+            },
+            "rules": {
+              "file": "establish-after-client-rules.json",
+              "command": 156
+            },
+            "neighbors": {
+              "file": "establish-after-client-neighbors.json",
+              "command": 157
+            }
+          },
+          "a": {
+            "links": {
+              "file": "establish-after-a-links.json",
+              "command": 158
+            },
+            "addresses": {
+              "file": "establish-after-a-addresses.json",
+              "command": 159
+            },
+            "routes": {
+              "file": "establish-after-a-routes.json",
+              "command": 160
+            },
+            "rules": {
+              "file": "establish-after-a-rules.json",
+              "command": 161
+            },
+            "neighbors": {
+              "file": "establish-after-a-neighbors.json",
+              "command": 162
+            }
+          },
+          "b": {
+            "links": {
+              "file": "establish-after-b-links.json",
+              "command": 163
+            },
+            "addresses": {
+              "file": "establish-after-b-addresses.json",
+              "command": 164
+            },
+            "routes": {
+              "file": "establish-after-b-routes.json",
+              "command": 165
+            },
+            "rules": {
+              "file": "establish-after-b-rules.json",
+              "command": 166
+            },
+            "neighbors": {
+              "file": "establish-after-b-neighbors.json",
+              "command": 167
+            }
+          },
+          "server": {
+            "links": {
+              "file": "establish-after-server-links.json",
+              "command": 168
+            },
+            "addresses": {
+              "file": "establish-after-server-addresses.json",
+              "command": 169
+            },
+            "routes": {
+              "file": "establish-after-server-routes.json",
+              "command": 170
+            },
+            "rules": {
+              "file": "establish-after-server-rules.json",
+              "command": 171
+            },
+            "neighbors": {
+              "file": "establish-after-server-neighbors.json",
+              "command": 172
+            }
+          }
+        }
+      },
+      "endNs": 74499724522733
+    },
+    {
+      "id": "replicate",
+      "type": "stage",
+      "startNs": 74499724525525,
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "replicate-before-a-conntrack.json",
+            "command": 173
+          },
+          "b": {
+            "file": "replicate-before-b-conntrack.json",
+            "command": 175
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "replicate-before-a-nftables.json",
+            "command": 174
+          },
+          "b": {
+            "file": "replicate-before-b-nftables.json",
+            "command": 176
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "replicate-before-client-links.json",
+              "command": 177
+            },
+            "addresses": {
+              "file": "replicate-before-client-addresses.json",
+              "command": 178
+            },
+            "routes": {
+              "file": "replicate-before-client-routes.json",
+              "command": 179
+            },
+            "rules": {
+              "file": "replicate-before-client-rules.json",
+              "command": 180
+            },
+            "neighbors": {
+              "file": "replicate-before-client-neighbors.json",
+              "command": 181
+            }
+          },
+          "a": {
+            "links": {
+              "file": "replicate-before-a-links.json",
+              "command": 182
+            },
+            "addresses": {
+              "file": "replicate-before-a-addresses.json",
+              "command": 183
+            },
+            "routes": {
+              "file": "replicate-before-a-routes.json",
+              "command": 184
+            },
+            "rules": {
+              "file": "replicate-before-a-rules.json",
+              "command": 185
+            },
+            "neighbors": {
+              "file": "replicate-before-a-neighbors.json",
+              "command": 186
+            }
+          },
+          "b": {
+            "links": {
+              "file": "replicate-before-b-links.json",
+              "command": 187
+            },
+            "addresses": {
+              "file": "replicate-before-b-addresses.json",
+              "command": 188
+            },
+            "routes": {
+              "file": "replicate-before-b-routes.json",
+              "command": 189
+            },
+            "rules": {
+              "file": "replicate-before-b-rules.json",
+              "command": 190
+            },
+            "neighbors": {
+              "file": "replicate-before-b-neighbors.json",
+              "command": 191
+            }
+          },
+          "server": {
+            "links": {
+              "file": "replicate-before-server-links.json",
+              "command": 192
+            },
+            "addresses": {
+              "file": "replicate-before-server-addresses.json",
+              "command": 193
+            },
+            "routes": {
+              "file": "replicate-before-server-routes.json",
+              "command": 194
+            },
+            "rules": {
+              "file": "replicate-before-server-rules.json",
+              "command": 195
+            },
+            "neighbors": {
+              "file": "replicate-before-server-neighbors.json",
+              "command": 196
+            }
+          }
+        }
+      },
+      "result": {
+        "external": {
+          "file": "stage-b-cache-0.xml",
+          "command": 197
+        },
+        "attempts": [
+          {
+            "file": "stage-b-cache-0.xml",
+            "command": 197
+          }
+        ],
+        "internal": {
+          "file": "stage-a-internal.xml",
+          "command": 198
+        }
+      },
+      "commands": [
+        197,
+        198
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "replicate-after-a-conntrack.json",
+            "command": 199
+          },
+          "b": {
+            "file": "replicate-after-b-conntrack.json",
+            "command": 201
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "replicate-after-a-nftables.json",
+            "command": 200
+          },
+          "b": {
+            "file": "replicate-after-b-nftables.json",
+            "command": 202
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "replicate-after-client-links.json",
+              "command": 203
+            },
+            "addresses": {
+              "file": "replicate-after-client-addresses.json",
+              "command": 204
+            },
+            "routes": {
+              "file": "replicate-after-client-routes.json",
+              "command": 205
+            },
+            "rules": {
+              "file": "replicate-after-client-rules.json",
+              "command": 206
+            },
+            "neighbors": {
+              "file": "replicate-after-client-neighbors.json",
+              "command": 207
+            }
+          },
+          "a": {
+            "links": {
+              "file": "replicate-after-a-links.json",
+              "command": 208
+            },
+            "addresses": {
+              "file": "replicate-after-a-addresses.json",
+              "command": 209
+            },
+            "routes": {
+              "file": "replicate-after-a-routes.json",
+              "command": 210
+            },
+            "rules": {
+              "file": "replicate-after-a-rules.json",
+              "command": 211
+            },
+            "neighbors": {
+              "file": "replicate-after-a-neighbors.json",
+              "command": 212
+            }
+          },
+          "b": {
+            "links": {
+              "file": "replicate-after-b-links.json",
+              "command": 213
+            },
+            "addresses": {
+              "file": "replicate-after-b-addresses.json",
+              "command": 214
+            },
+            "routes": {
+              "file": "replicate-after-b-routes.json",
+              "command": 215
+            },
+            "rules": {
+              "file": "replicate-after-b-rules.json",
+              "command": 216
+            },
+            "neighbors": {
+              "file": "replicate-after-b-neighbors.json",
+              "command": 217
+            }
+          },
+          "server": {
+            "links": {
+              "file": "replicate-after-server-links.json",
+              "command": 218
+            },
+            "addresses": {
+              "file": "replicate-after-server-addresses.json",
+              "command": 219
+            },
+            "routes": {
+              "file": "replicate-after-server-routes.json",
+              "command": 220
+            },
+            "rules": {
+              "file": "replicate-after-server-rules.json",
+              "command": 221
+            },
+            "neighbors": {
+              "file": "replicate-after-server-neighbors.json",
+              "command": 222
+            }
+          }
+        }
+      },
+      "endNs": 74499867436493
+    },
+    {
+      "id": "client-route",
+      "type": "handoff",
+      "startNs": 74499867438909,
+      "leg": "original",
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "client-route-before-a-conntrack.json",
+            "command": 223
+          },
+          "b": {
+            "file": "client-route-before-b-conntrack.json",
+            "command": 225
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "client-route-before-a-nftables.json",
+            "command": 224
+          },
+          "b": {
+            "file": "client-route-before-b-nftables.json",
+            "command": 226
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "client-route-before-client-links.json",
+              "command": 227
+            },
+            "addresses": {
+              "file": "client-route-before-client-addresses.json",
+              "command": 228
+            },
+            "routes": {
+              "file": "client-route-before-client-routes.json",
+              "command": 229
+            },
+            "rules": {
+              "file": "client-route-before-client-rules.json",
+              "command": 230
+            },
+            "neighbors": {
+              "file": "client-route-before-client-neighbors.json",
+              "command": 231
+            }
+          },
+          "a": {
+            "links": {
+              "file": "client-route-before-a-links.json",
+              "command": 232
+            },
+            "addresses": {
+              "file": "client-route-before-a-addresses.json",
+              "command": 233
+            },
+            "routes": {
+              "file": "client-route-before-a-routes.json",
+              "command": 234
+            },
+            "rules": {
+              "file": "client-route-before-a-rules.json",
+              "command": 235
+            },
+            "neighbors": {
+              "file": "client-route-before-a-neighbors.json",
+              "command": 236
+            }
+          },
+          "b": {
+            "links": {
+              "file": "client-route-before-b-links.json",
+              "command": 237
+            },
+            "addresses": {
+              "file": "client-route-before-b-addresses.json",
+              "command": 238
+            },
+            "routes": {
+              "file": "client-route-before-b-routes.json",
+              "command": 239
+            },
+            "rules": {
+              "file": "client-route-before-b-rules.json",
+              "command": 240
+            },
+            "neighbors": {
+              "file": "client-route-before-b-neighbors.json",
+              "command": 241
+            }
+          },
+          "server": {
+            "links": {
+              "file": "client-route-before-server-links.json",
+              "command": 242
+            },
+            "addresses": {
+              "file": "client-route-before-server-addresses.json",
+              "command": 243
+            },
+            "routes": {
+              "file": "client-route-before-server-routes.json",
+              "command": 244
+            },
+            "rules": {
+              "file": "client-route-before-server-rules.json",
+              "command": 245
+            },
+            "neighbors": {
+              "file": "client-route-before-server-neighbors.json",
+              "command": 246
+            }
+          }
+        }
+      },
+      "result": 247,
+      "commands": [
+        247
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "client-route-after-a-conntrack.json",
+            "command": 248
+          },
+          "b": {
+            "file": "client-route-after-b-conntrack.json",
+            "command": 250
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "client-route-after-a-nftables.json",
+            "command": 249
+          },
+          "b": {
+            "file": "client-route-after-b-nftables.json",
+            "command": 251
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "client-route-after-client-links.json",
+              "command": 252
+            },
+            "addresses": {
+              "file": "client-route-after-client-addresses.json",
+              "command": 253
+            },
+            "routes": {
+              "file": "client-route-after-client-routes.json",
+              "command": 254
+            },
+            "rules": {
+              "file": "client-route-after-client-rules.json",
+              "command": 255
+            },
+            "neighbors": {
+              "file": "client-route-after-client-neighbors.json",
+              "command": 256
+            }
+          },
+          "a": {
+            "links": {
+              "file": "client-route-after-a-links.json",
+              "command": 257
+            },
+            "addresses": {
+              "file": "client-route-after-a-addresses.json",
+              "command": 258
+            },
+            "routes": {
+              "file": "client-route-after-a-routes.json",
+              "command": 259
+            },
+            "rules": {
+              "file": "client-route-after-a-rules.json",
+              "command": 260
+            },
+            "neighbors": {
+              "file": "client-route-after-a-neighbors.json",
+              "command": 261
+            }
+          },
+          "b": {
+            "links": {
+              "file": "client-route-after-b-links.json",
+              "command": 262
+            },
+            "addresses": {
+              "file": "client-route-after-b-addresses.json",
+              "command": 263
+            },
+            "routes": {
+              "file": "client-route-after-b-routes.json",
+              "command": 264
+            },
+            "rules": {
+              "file": "client-route-after-b-rules.json",
+              "command": 265
+            },
+            "neighbors": {
+              "file": "client-route-after-b-neighbors.json",
+              "command": 266
+            }
+          },
+          "server": {
+            "links": {
+              "file": "client-route-after-server-links.json",
+              "command": 267
+            },
+            "addresses": {
+              "file": "client-route-after-server-addresses.json",
+              "command": 268
+            },
+            "routes": {
+              "file": "client-route-after-server-routes.json",
+              "command": 269
+            },
+            "rules": {
+              "file": "client-route-after-server-rules.json",
+              "command": 270
+            },
+            "neighbors": {
+              "file": "client-route-after-server-neighbors.json",
+              "command": 271
+            }
+          }
+        }
+      },
+      "endNs": 74500013658765
+    },
+    {
+      "id": "server-route",
+      "type": "handoff",
+      "startNs": 74500013660848,
+      "leg": "reply",
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "server-route-before-a-conntrack.json",
+            "command": 272
+          },
+          "b": {
+            "file": "server-route-before-b-conntrack.json",
+            "command": 274
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "server-route-before-a-nftables.json",
+            "command": 273
+          },
+          "b": {
+            "file": "server-route-before-b-nftables.json",
+            "command": 275
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "server-route-before-client-links.json",
+              "command": 276
+            },
+            "addresses": {
+              "file": "server-route-before-client-addresses.json",
+              "command": 277
+            },
+            "routes": {
+              "file": "server-route-before-client-routes.json",
+              "command": 278
+            },
+            "rules": {
+              "file": "server-route-before-client-rules.json",
+              "command": 279
+            },
+            "neighbors": {
+              "file": "server-route-before-client-neighbors.json",
+              "command": 280
+            }
+          },
+          "a": {
+            "links": {
+              "file": "server-route-before-a-links.json",
+              "command": 281
+            },
+            "addresses": {
+              "file": "server-route-before-a-addresses.json",
+              "command": 282
+            },
+            "routes": {
+              "file": "server-route-before-a-routes.json",
+              "command": 283
+            },
+            "rules": {
+              "file": "server-route-before-a-rules.json",
+              "command": 284
+            },
+            "neighbors": {
+              "file": "server-route-before-a-neighbors.json",
+              "command": 285
+            }
+          },
+          "b": {
+            "links": {
+              "file": "server-route-before-b-links.json",
+              "command": 286
+            },
+            "addresses": {
+              "file": "server-route-before-b-addresses.json",
+              "command": 287
+            },
+            "routes": {
+              "file": "server-route-before-b-routes.json",
+              "command": 288
+            },
+            "rules": {
+              "file": "server-route-before-b-rules.json",
+              "command": 289
+            },
+            "neighbors": {
+              "file": "server-route-before-b-neighbors.json",
+              "command": 290
+            }
+          },
+          "server": {
+            "links": {
+              "file": "server-route-before-server-links.json",
+              "command": 291
+            },
+            "addresses": {
+              "file": "server-route-before-server-addresses.json",
+              "command": 292
+            },
+            "routes": {
+              "file": "server-route-before-server-routes.json",
+              "command": 293
+            },
+            "rules": {
+              "file": "server-route-before-server-rules.json",
+              "command": 294
+            },
+            "neighbors": {
+              "file": "server-route-before-server-neighbors.json",
+              "command": 295
+            }
+          }
+        }
+      },
+      "result": 296,
+      "commands": [
+        296
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "server-route-after-a-conntrack.json",
+            "command": 297
+          },
+          "b": {
+            "file": "server-route-after-b-conntrack.json",
+            "command": 299
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "server-route-after-a-nftables.json",
+            "command": 298
+          },
+          "b": {
+            "file": "server-route-after-b-nftables.json",
+            "command": 300
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "server-route-after-client-links.json",
+              "command": 301
+            },
+            "addresses": {
+              "file": "server-route-after-client-addresses.json",
+              "command": 302
+            },
+            "routes": {
+              "file": "server-route-after-client-routes.json",
+              "command": 303
+            },
+            "rules": {
+              "file": "server-route-after-client-rules.json",
+              "command": 304
+            },
+            "neighbors": {
+              "file": "server-route-after-client-neighbors.json",
+              "command": 305
+            }
+          },
+          "a": {
+            "links": {
+              "file": "server-route-after-a-links.json",
+              "command": 306
+            },
+            "addresses": {
+              "file": "server-route-after-a-addresses.json",
+              "command": 307
+            },
+            "routes": {
+              "file": "server-route-after-a-routes.json",
+              "command": 308
+            },
+            "rules": {
+              "file": "server-route-after-a-rules.json",
+              "command": 309
+            },
+            "neighbors": {
+              "file": "server-route-after-a-neighbors.json",
+              "command": 310
+            }
+          },
+          "b": {
+            "links": {
+              "file": "server-route-after-b-links.json",
+              "command": 311
+            },
+            "addresses": {
+              "file": "server-route-after-b-addresses.json",
+              "command": 312
+            },
+            "routes": {
+              "file": "server-route-after-b-routes.json",
+              "command": 313
+            },
+            "rules": {
+              "file": "server-route-after-b-rules.json",
+              "command": 314
+            },
+            "neighbors": {
+              "file": "server-route-after-b-neighbors.json",
+              "command": 315
+            }
+          },
+          "server": {
+            "links": {
+              "file": "server-route-after-server-links.json",
+              "command": 316
+            },
+            "addresses": {
+              "file": "server-route-after-server-addresses.json",
+              "command": 317
+            },
+            "routes": {
+              "file": "server-route-after-server-routes.json",
+              "command": 318
+            },
+            "rules": {
+              "file": "server-route-after-server-rules.json",
+              "command": 319
+            },
+            "neighbors": {
+              "file": "server-route-after-server-neighbors.json",
+              "command": 320
+            }
+          }
+        }
+      },
+      "endNs": 74500153571721
+    },
+    {
+      "id": "fence-primary",
+      "type": "fence",
+      "startNs": 74500153573512,
+      "gateway": "a",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "fence-primary-before-a-conntrack.json",
+            "command": 321
+          },
+          "b": {
+            "file": "fence-primary-before-b-conntrack.json",
+            "command": 323
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "fence-primary-before-a-nftables.json",
+            "command": 322
+          },
+          "b": {
+            "file": "fence-primary-before-b-nftables.json",
+            "command": 324
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "fence-primary-before-client-links.json",
+              "command": 325
+            },
+            "addresses": {
+              "file": "fence-primary-before-client-addresses.json",
+              "command": 326
+            },
+            "routes": {
+              "file": "fence-primary-before-client-routes.json",
+              "command": 327
+            },
+            "rules": {
+              "file": "fence-primary-before-client-rules.json",
+              "command": 328
+            },
+            "neighbors": {
+              "file": "fence-primary-before-client-neighbors.json",
+              "command": 329
+            }
+          },
+          "a": {
+            "links": {
+              "file": "fence-primary-before-a-links.json",
+              "command": 330
+            },
+            "addresses": {
+              "file": "fence-primary-before-a-addresses.json",
+              "command": 331
+            },
+            "routes": {
+              "file": "fence-primary-before-a-routes.json",
+              "command": 332
+            },
+            "rules": {
+              "file": "fence-primary-before-a-rules.json",
+              "command": 333
+            },
+            "neighbors": {
+              "file": "fence-primary-before-a-neighbors.json",
+              "command": 334
+            }
+          },
+          "b": {
+            "links": {
+              "file": "fence-primary-before-b-links.json",
+              "command": 335
+            },
+            "addresses": {
+              "file": "fence-primary-before-b-addresses.json",
+              "command": 336
+            },
+            "routes": {
+              "file": "fence-primary-before-b-routes.json",
+              "command": 337
+            },
+            "rules": {
+              "file": "fence-primary-before-b-rules.json",
+              "command": 338
+            },
+            "neighbors": {
+              "file": "fence-primary-before-b-neighbors.json",
+              "command": 339
+            }
+          },
+          "server": {
+            "links": {
+              "file": "fence-primary-before-server-links.json",
+              "command": 340
+            },
+            "addresses": {
+              "file": "fence-primary-before-server-addresses.json",
+              "command": 341
+            },
+            "routes": {
+              "file": "fence-primary-before-server-routes.json",
+              "command": 342
+            },
+            "rules": {
+              "file": "fence-primary-before-server-rules.json",
+              "command": 343
+            },
+            "neighbors": {
+              "file": "fence-primary-before-server-neighbors.json",
+              "command": 344
+            }
+          }
+        }
+      },
+      "result": [
+        345,
+        346
+      ],
+      "commands": [
+        345,
+        346
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "fence-primary-after-a-conntrack.json",
+            "command": 347
+          },
+          "b": {
+            "file": "fence-primary-after-b-conntrack.json",
+            "command": 349
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "fence-primary-after-a-nftables.json",
+            "command": 348
+          },
+          "b": {
+            "file": "fence-primary-after-b-nftables.json",
+            "command": 350
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "fence-primary-after-client-links.json",
+              "command": 351
+            },
+            "addresses": {
+              "file": "fence-primary-after-client-addresses.json",
+              "command": 352
+            },
+            "routes": {
+              "file": "fence-primary-after-client-routes.json",
+              "command": 353
+            },
+            "rules": {
+              "file": "fence-primary-after-client-rules.json",
+              "command": 354
+            },
+            "neighbors": {
+              "file": "fence-primary-after-client-neighbors.json",
+              "command": 355
+            }
+          },
+          "a": {
+            "links": {
+              "file": "fence-primary-after-a-links.json",
+              "command": 356
+            },
+            "addresses": {
+              "file": "fence-primary-after-a-addresses.json",
+              "command": 357
+            },
+            "routes": {
+              "file": "fence-primary-after-a-routes.json",
+              "command": 358
+            },
+            "rules": {
+              "file": "fence-primary-after-a-rules.json",
+              "command": 359
+            },
+            "neighbors": {
+              "file": "fence-primary-after-a-neighbors.json",
+              "command": 360
+            }
+          },
+          "b": {
+            "links": {
+              "file": "fence-primary-after-b-links.json",
+              "command": 361
+            },
+            "addresses": {
+              "file": "fence-primary-after-b-addresses.json",
+              "command": 362
+            },
+            "routes": {
+              "file": "fence-primary-after-b-routes.json",
+              "command": 363
+            },
+            "rules": {
+              "file": "fence-primary-after-b-rules.json",
+              "command": 364
+            },
+            "neighbors": {
+              "file": "fence-primary-after-b-neighbors.json",
+              "command": 365
+            }
+          },
+          "server": {
+            "links": {
+              "file": "fence-primary-after-server-links.json",
+              "command": 366
+            },
+            "addresses": {
+              "file": "fence-primary-after-server-addresses.json",
+              "command": 367
+            },
+            "routes": {
+              "file": "fence-primary-after-server-routes.json",
+              "command": 368
+            },
+            "rules": {
+              "file": "fence-primary-after-server-rules.json",
+              "command": 369
+            },
+            "neighbors": {
+              "file": "fence-primary-after-server-neighbors.json",
+              "command": 370
+            }
+          }
+        }
+      },
+      "endNs": 74500293733593
+    },
+    {
+      "id": "uncommitted",
+      "type": "packet",
+      "startNs": 74500293735093,
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "uncommitted-before-a-conntrack.json",
+            "command": 371
+          },
+          "b": {
+            "file": "uncommitted-before-b-conntrack.json",
+            "command": 373
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "uncommitted-before-a-nftables.json",
+            "command": 372
+          },
+          "b": {
+            "file": "uncommitted-before-b-nftables.json",
+            "command": 374
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "uncommitted-before-client-links.json",
+              "command": 375
+            },
+            "addresses": {
+              "file": "uncommitted-before-client-addresses.json",
+              "command": 376
+            },
+            "routes": {
+              "file": "uncommitted-before-client-routes.json",
+              "command": 377
+            },
+            "rules": {
+              "file": "uncommitted-before-client-rules.json",
+              "command": 378
+            },
+            "neighbors": {
+              "file": "uncommitted-before-client-neighbors.json",
+              "command": 379
+            }
+          },
+          "a": {
+            "links": {
+              "file": "uncommitted-before-a-links.json",
+              "command": 380
+            },
+            "addresses": {
+              "file": "uncommitted-before-a-addresses.json",
+              "command": 381
+            },
+            "routes": {
+              "file": "uncommitted-before-a-routes.json",
+              "command": 382
+            },
+            "rules": {
+              "file": "uncommitted-before-a-rules.json",
+              "command": 383
+            },
+            "neighbors": {
+              "file": "uncommitted-before-a-neighbors.json",
+              "command": 384
+            }
+          },
+          "b": {
+            "links": {
+              "file": "uncommitted-before-b-links.json",
+              "command": 385
+            },
+            "addresses": {
+              "file": "uncommitted-before-b-addresses.json",
+              "command": 386
+            },
+            "routes": {
+              "file": "uncommitted-before-b-routes.json",
+              "command": 387
+            },
+            "rules": {
+              "file": "uncommitted-before-b-rules.json",
+              "command": 388
+            },
+            "neighbors": {
+              "file": "uncommitted-before-b-neighbors.json",
+              "command": 389
+            }
+          },
+          "server": {
+            "links": {
+              "file": "uncommitted-before-server-links.json",
+              "command": 390
+            },
+            "addresses": {
+              "file": "uncommitted-before-server-addresses.json",
+              "command": 391
+            },
+            "routes": {
+              "file": "uncommitted-before-server-routes.json",
+              "command": 392
+            },
+            "rules": {
+              "file": "uncommitted-before-server-rules.json",
+              "command": 393
+            },
+            "neighbors": {
+              "file": "uncommitted-before-server-neighbors.json",
+              "command": 394
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.1",
+              40000
+            ],
+            "payloadHex": "7265706c69636174696f6e3a756e636f6d6d6974746564",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74500363646904,
+            "endNs": 74500364127739,
+            "result": {
+              "bytesSent": 23,
+              "payloadHex": "7265706c69636174696f6e3a756e636f6d6d6974746564",
+              "local": [
+                "198.51.100.2",
+                9000
+              ],
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74500363597571,
+          "endNs": 74500364166656
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74500364209656,
+            "endNs": 74500664842522,
+            "result": null
+          },
+          "startNs": 74500364168073,
+          "endNs": 74500665260274
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "uncommitted-after-a-conntrack.json",
+            "command": 395
+          },
+          "b": {
+            "file": "uncommitted-after-b-conntrack.json",
+            "command": 397
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "uncommitted-after-a-nftables.json",
+            "command": 396
+          },
+          "b": {
+            "file": "uncommitted-after-b-nftables.json",
+            "command": 398
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "uncommitted-after-client-links.json",
+              "command": 399
+            },
+            "addresses": {
+              "file": "uncommitted-after-client-addresses.json",
+              "command": 400
+            },
+            "routes": {
+              "file": "uncommitted-after-client-routes.json",
+              "command": 401
+            },
+            "rules": {
+              "file": "uncommitted-after-client-rules.json",
+              "command": 402
+            },
+            "neighbors": {
+              "file": "uncommitted-after-client-neighbors.json",
+              "command": 403
+            }
+          },
+          "a": {
+            "links": {
+              "file": "uncommitted-after-a-links.json",
+              "command": 404
+            },
+            "addresses": {
+              "file": "uncommitted-after-a-addresses.json",
+              "command": 405
+            },
+            "routes": {
+              "file": "uncommitted-after-a-routes.json",
+              "command": 406
+            },
+            "rules": {
+              "file": "uncommitted-after-a-rules.json",
+              "command": 407
+            },
+            "neighbors": {
+              "file": "uncommitted-after-a-neighbors.json",
+              "command": 408
+            }
+          },
+          "b": {
+            "links": {
+              "file": "uncommitted-after-b-links.json",
+              "command": 409
+            },
+            "addresses": {
+              "file": "uncommitted-after-b-addresses.json",
+              "command": 410
+            },
+            "routes": {
+              "file": "uncommitted-after-b-routes.json",
+              "command": 411
+            },
+            "rules": {
+              "file": "uncommitted-after-b-rules.json",
+              "command": 412
+            },
+            "neighbors": {
+              "file": "uncommitted-after-b-neighbors.json",
+              "command": 413
+            }
+          },
+          "server": {
+            "links": {
+              "file": "uncommitted-after-server-links.json",
+              "command": 414
+            },
+            "addresses": {
+              "file": "uncommitted-after-server-addresses.json",
+              "command": 415
+            },
+            "routes": {
+              "file": "uncommitted-after-server-routes.json",
+              "command": 416
+            },
+            "rules": {
+              "file": "uncommitted-after-server-rules.json",
+              "command": 417
+            },
+            "neighbors": {
+              "file": "uncommitted-after-server-neighbors.json",
+              "command": 418
+            }
+          }
+        }
+      },
+      "endNs": 74500778331875
+    },
+    {
+      "id": "commit",
+      "type": "commit",
+      "startNs": 74500778333334,
+      "gateway": "b",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "commit-before-a-conntrack.json",
+            "command": 419
+          },
+          "b": {
+            "file": "commit-before-b-conntrack.json",
+            "command": 421
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "commit-before-a-nftables.json",
+            "command": 420
+          },
+          "b": {
+            "file": "commit-before-b-nftables.json",
+            "command": 422
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "commit-before-client-links.json",
+              "command": 423
+            },
+            "addresses": {
+              "file": "commit-before-client-addresses.json",
+              "command": 424
+            },
+            "routes": {
+              "file": "commit-before-client-routes.json",
+              "command": 425
+            },
+            "rules": {
+              "file": "commit-before-client-rules.json",
+              "command": 426
+            },
+            "neighbors": {
+              "file": "commit-before-client-neighbors.json",
+              "command": 427
+            }
+          },
+          "a": {
+            "links": {
+              "file": "commit-before-a-links.json",
+              "command": 428
+            },
+            "addresses": {
+              "file": "commit-before-a-addresses.json",
+              "command": 429
+            },
+            "routes": {
+              "file": "commit-before-a-routes.json",
+              "command": 430
+            },
+            "rules": {
+              "file": "commit-before-a-rules.json",
+              "command": 431
+            },
+            "neighbors": {
+              "file": "commit-before-a-neighbors.json",
+              "command": 432
+            }
+          },
+          "b": {
+            "links": {
+              "file": "commit-before-b-links.json",
+              "command": 433
+            },
+            "addresses": {
+              "file": "commit-before-b-addresses.json",
+              "command": 434
+            },
+            "routes": {
+              "file": "commit-before-b-routes.json",
+              "command": 435
+            },
+            "rules": {
+              "file": "commit-before-b-rules.json",
+              "command": 436
+            },
+            "neighbors": {
+              "file": "commit-before-b-neighbors.json",
+              "command": 437
+            }
+          },
+          "server": {
+            "links": {
+              "file": "commit-before-server-links.json",
+              "command": 438
+            },
+            "addresses": {
+              "file": "commit-before-server-addresses.json",
+              "command": 439
+            },
+            "routes": {
+              "file": "commit-before-server-routes.json",
+              "command": 440
+            },
+            "rules": {
+              "file": "commit-before-server-rules.json",
+              "command": 441
+            },
+            "neighbors": {
+              "file": "commit-before-server-neighbors.json",
+              "command": 442
+            }
+          }
+        }
+      },
+      "result": 443,
+      "commands": [
+        443
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "commit-after-a-conntrack.json",
+            "command": 444
+          },
+          "b": {
+            "file": "commit-after-b-conntrack.json",
+            "command": 446
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "commit-after-a-nftables.json",
+            "command": 445
+          },
+          "b": {
+            "file": "commit-after-b-nftables.json",
+            "command": 447
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "commit-after-client-links.json",
+              "command": 448
+            },
+            "addresses": {
+              "file": "commit-after-client-addresses.json",
+              "command": 449
+            },
+            "routes": {
+              "file": "commit-after-client-routes.json",
+              "command": 450
+            },
+            "rules": {
+              "file": "commit-after-client-rules.json",
+              "command": 451
+            },
+            "neighbors": {
+              "file": "commit-after-client-neighbors.json",
+              "command": 452
+            }
+          },
+          "a": {
+            "links": {
+              "file": "commit-after-a-links.json",
+              "command": 453
+            },
+            "addresses": {
+              "file": "commit-after-a-addresses.json",
+              "command": 454
+            },
+            "routes": {
+              "file": "commit-after-a-routes.json",
+              "command": 455
+            },
+            "rules": {
+              "file": "commit-after-a-rules.json",
+              "command": 456
+            },
+            "neighbors": {
+              "file": "commit-after-a-neighbors.json",
+              "command": 457
+            }
+          },
+          "b": {
+            "links": {
+              "file": "commit-after-b-links.json",
+              "command": 458
+            },
+            "addresses": {
+              "file": "commit-after-b-addresses.json",
+              "command": 459
+            },
+            "routes": {
+              "file": "commit-after-b-routes.json",
+              "command": 460
+            },
+            "rules": {
+              "file": "commit-after-b-rules.json",
+              "command": 461
+            },
+            "neighbors": {
+              "file": "commit-after-b-neighbors.json",
+              "command": 462
+            }
+          },
+          "server": {
+            "links": {
+              "file": "commit-after-server-links.json",
+              "command": 463
+            },
+            "addresses": {
+              "file": "commit-after-server-addresses.json",
+              "command": 464
+            },
+            "routes": {
+              "file": "commit-after-server-routes.json",
+              "command": 465
+            },
+            "rules": {
+              "file": "commit-after-server-rules.json",
+              "command": 466
+            },
+            "neighbors": {
+              "file": "commit-after-server-neighbors.json",
+              "command": 467
+            }
+          }
+        }
+      },
+      "endNs": 74500916851408
+    },
+    {
+      "id": "install-deny",
+      "type": "policy",
+      "startNs": 74500916853200,
+      "gateway": "b",
+      "policy": "deny",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "install-deny-before-a-conntrack.json",
+            "command": 468
+          },
+          "b": {
+            "file": "install-deny-before-b-conntrack.json",
+            "command": 470
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "install-deny-before-a-nftables.json",
+            "command": 469
+          },
+          "b": {
+            "file": "install-deny-before-b-nftables.json",
+            "command": 471
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "install-deny-before-client-links.json",
+              "command": 472
+            },
+            "addresses": {
+              "file": "install-deny-before-client-addresses.json",
+              "command": 473
+            },
+            "routes": {
+              "file": "install-deny-before-client-routes.json",
+              "command": 474
+            },
+            "rules": {
+              "file": "install-deny-before-client-rules.json",
+              "command": 475
+            },
+            "neighbors": {
+              "file": "install-deny-before-client-neighbors.json",
+              "command": 476
+            }
+          },
+          "a": {
+            "links": {
+              "file": "install-deny-before-a-links.json",
+              "command": 477
+            },
+            "addresses": {
+              "file": "install-deny-before-a-addresses.json",
+              "command": 478
+            },
+            "routes": {
+              "file": "install-deny-before-a-routes.json",
+              "command": 479
+            },
+            "rules": {
+              "file": "install-deny-before-a-rules.json",
+              "command": 480
+            },
+            "neighbors": {
+              "file": "install-deny-before-a-neighbors.json",
+              "command": 481
+            }
+          },
+          "b": {
+            "links": {
+              "file": "install-deny-before-b-links.json",
+              "command": 482
+            },
+            "addresses": {
+              "file": "install-deny-before-b-addresses.json",
+              "command": 483
+            },
+            "routes": {
+              "file": "install-deny-before-b-routes.json",
+              "command": 484
+            },
+            "rules": {
+              "file": "install-deny-before-b-rules.json",
+              "command": 485
+            },
+            "neighbors": {
+              "file": "install-deny-before-b-neighbors.json",
+              "command": 486
+            }
+          },
+          "server": {
+            "links": {
+              "file": "install-deny-before-server-links.json",
+              "command": 487
+            },
+            "addresses": {
+              "file": "install-deny-before-server-addresses.json",
+              "command": 488
+            },
+            "routes": {
+              "file": "install-deny-before-server-routes.json",
+              "command": 489
+            },
+            "rules": {
+              "file": "install-deny-before-server-rules.json",
+              "command": 490
+            },
+            "neighbors": {
+              "file": "install-deny-before-server-neighbors.json",
+              "command": 491
+            }
+          }
+        }
+      },
+      "result": 492,
+      "commands": [
+        492
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "install-deny-after-a-conntrack.json",
+            "command": 493
+          },
+          "b": {
+            "file": "install-deny-after-b-conntrack.json",
+            "command": 495
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "install-deny-after-a-nftables.json",
+            "command": 494
+          },
+          "b": {
+            "file": "install-deny-after-b-nftables.json",
+            "command": 496
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "install-deny-after-client-links.json",
+              "command": 497
+            },
+            "addresses": {
+              "file": "install-deny-after-client-addresses.json",
+              "command": 498
+            },
+            "routes": {
+              "file": "install-deny-after-client-routes.json",
+              "command": 499
+            },
+            "rules": {
+              "file": "install-deny-after-client-rules.json",
+              "command": 500
+            },
+            "neighbors": {
+              "file": "install-deny-after-client-neighbors.json",
+              "command": 501
+            }
+          },
+          "a": {
+            "links": {
+              "file": "install-deny-after-a-links.json",
+              "command": 502
+            },
+            "addresses": {
+              "file": "install-deny-after-a-addresses.json",
+              "command": 503
+            },
+            "routes": {
+              "file": "install-deny-after-a-routes.json",
+              "command": 504
+            },
+            "rules": {
+              "file": "install-deny-after-a-rules.json",
+              "command": 505
+            },
+            "neighbors": {
+              "file": "install-deny-after-a-neighbors.json",
+              "command": 506
+            }
+          },
+          "b": {
+            "links": {
+              "file": "install-deny-after-b-links.json",
+              "command": 507
+            },
+            "addresses": {
+              "file": "install-deny-after-b-addresses.json",
+              "command": 508
+            },
+            "routes": {
+              "file": "install-deny-after-b-routes.json",
+              "command": 509
+            },
+            "rules": {
+              "file": "install-deny-after-b-rules.json",
+              "command": 510
+            },
+            "neighbors": {
+              "file": "install-deny-after-b-neighbors.json",
+              "command": 511
+            }
+          },
+          "server": {
+            "links": {
+              "file": "install-deny-after-server-links.json",
+              "command": 512
+            },
+            "addresses": {
+              "file": "install-deny-after-server-addresses.json",
+              "command": 513
+            },
+            "routes": {
+              "file": "install-deny-after-server-routes.json",
+              "command": 514
+            },
+            "rules": {
+              "file": "install-deny-after-server-rules.json",
+              "command": 515
+            },
+            "neighbors": {
+              "file": "install-deny-after-server-neighbors.json",
+              "command": 516
+            }
+          }
+        }
+      },
+      "endNs": 74501062485136
+    },
+    {
+      "id": "denied",
+      "type": "packet",
+      "startNs": 74501062487136,
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "denied-before-a-conntrack.json",
+            "command": 517
+          },
+          "b": {
+            "file": "denied-before-b-conntrack.json",
+            "command": 519
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "denied-before-a-nftables.json",
+            "command": 518
+          },
+          "b": {
+            "file": "denied-before-b-nftables.json",
+            "command": 520
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "denied-before-client-links.json",
+              "command": 521
+            },
+            "addresses": {
+              "file": "denied-before-client-addresses.json",
+              "command": 522
+            },
+            "routes": {
+              "file": "denied-before-client-routes.json",
+              "command": 523
+            },
+            "rules": {
+              "file": "denied-before-client-rules.json",
+              "command": 524
+            },
+            "neighbors": {
+              "file": "denied-before-client-neighbors.json",
+              "command": 525
+            }
+          },
+          "a": {
+            "links": {
+              "file": "denied-before-a-links.json",
+              "command": 526
+            },
+            "addresses": {
+              "file": "denied-before-a-addresses.json",
+              "command": 527
+            },
+            "routes": {
+              "file": "denied-before-a-routes.json",
+              "command": 528
+            },
+            "rules": {
+              "file": "denied-before-a-rules.json",
+              "command": 529
+            },
+            "neighbors": {
+              "file": "denied-before-a-neighbors.json",
+              "command": 530
+            }
+          },
+          "b": {
+            "links": {
+              "file": "denied-before-b-links.json",
+              "command": 531
+            },
+            "addresses": {
+              "file": "denied-before-b-addresses.json",
+              "command": 532
+            },
+            "routes": {
+              "file": "denied-before-b-routes.json",
+              "command": 533
+            },
+            "rules": {
+              "file": "denied-before-b-rules.json",
+              "command": 534
+            },
+            "neighbors": {
+              "file": "denied-before-b-neighbors.json",
+              "command": 535
+            }
+          },
+          "server": {
+            "links": {
+              "file": "denied-before-server-links.json",
+              "command": 536
+            },
+            "addresses": {
+              "file": "denied-before-server-addresses.json",
+              "command": 537
+            },
+            "routes": {
+              "file": "denied-before-server-routes.json",
+              "command": 538
+            },
+            "rules": {
+              "file": "denied-before-server-rules.json",
+              "command": 539
+            },
+            "neighbors": {
+              "file": "denied-before-server-neighbors.json",
+              "command": 540
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.1",
+              40000
+            ],
+            "payloadHex": "7265706c69636174696f6e3a64656e696564",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74501134625455,
+            "endNs": 74501134677955,
+            "result": {
+              "bytesSent": 18,
+              "payloadHex": "7265706c69636174696f6e3a64656e696564",
+              "local": [
+                "198.51.100.2",
+                9000
+              ],
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74501134579913,
+          "endNs": 74501134878414
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74501134917539,
+            "endNs": 74501444066811,
+            "result": null
+          },
+          "startNs": 74501134879373,
+          "endNs": 74501444246936
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "denied-after-a-conntrack.json",
+            "command": 541
+          },
+          "b": {
+            "file": "denied-after-b-conntrack.json",
+            "command": 543
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "denied-after-a-nftables.json",
+            "command": 542
+          },
+          "b": {
+            "file": "denied-after-b-nftables.json",
+            "command": 544
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "denied-after-client-links.json",
+              "command": 545
+            },
+            "addresses": {
+              "file": "denied-after-client-addresses.json",
+              "command": 546
+            },
+            "routes": {
+              "file": "denied-after-client-routes.json",
+              "command": 547
+            },
+            "rules": {
+              "file": "denied-after-client-rules.json",
+              "command": 548
+            },
+            "neighbors": {
+              "file": "denied-after-client-neighbors.json",
+              "command": 549
+            }
+          },
+          "a": {
+            "links": {
+              "file": "denied-after-a-links.json",
+              "command": 550
+            },
+            "addresses": {
+              "file": "denied-after-a-addresses.json",
+              "command": 551
+            },
+            "routes": {
+              "file": "denied-after-a-routes.json",
+              "command": 552
+            },
+            "rules": {
+              "file": "denied-after-a-rules.json",
+              "command": 553
+            },
+            "neighbors": {
+              "file": "denied-after-a-neighbors.json",
+              "command": 554
+            }
+          },
+          "b": {
+            "links": {
+              "file": "denied-after-b-links.json",
+              "command": 555
+            },
+            "addresses": {
+              "file": "denied-after-b-addresses.json",
+              "command": 556
+            },
+            "routes": {
+              "file": "denied-after-b-routes.json",
+              "command": 557
+            },
+            "rules": {
+              "file": "denied-after-b-rules.json",
+              "command": 558
+            },
+            "neighbors": {
+              "file": "denied-after-b-neighbors.json",
+              "command": 559
+            }
+          },
+          "server": {
+            "links": {
+              "file": "denied-after-server-links.json",
+              "command": 560
+            },
+            "addresses": {
+              "file": "denied-after-server-addresses.json",
+              "command": 561
+            },
+            "routes": {
+              "file": "denied-after-server-routes.json",
+              "command": 562
+            },
+            "rules": {
+              "file": "denied-after-server-rules.json",
+              "command": 563
+            },
+            "neighbors": {
+              "file": "denied-after-server-neighbors.json",
+              "command": 564
+            }
+          }
+        }
+      },
+      "endNs": 74501577975659
+    },
+    {
+      "id": "install-permit",
+      "type": "policy",
+      "startNs": 74501577978450,
+      "gateway": "b",
+      "policy": "permit-established",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "install-permit-before-a-conntrack.json",
+            "command": 565
+          },
+          "b": {
+            "file": "install-permit-before-b-conntrack.json",
+            "command": 567
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "install-permit-before-a-nftables.json",
+            "command": 566
+          },
+          "b": {
+            "file": "install-permit-before-b-nftables.json",
+            "command": 568
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "install-permit-before-client-links.json",
+              "command": 569
+            },
+            "addresses": {
+              "file": "install-permit-before-client-addresses.json",
+              "command": 570
+            },
+            "routes": {
+              "file": "install-permit-before-client-routes.json",
+              "command": 571
+            },
+            "rules": {
+              "file": "install-permit-before-client-rules.json",
+              "command": 572
+            },
+            "neighbors": {
+              "file": "install-permit-before-client-neighbors.json",
+              "command": 573
+            }
+          },
+          "a": {
+            "links": {
+              "file": "install-permit-before-a-links.json",
+              "command": 574
+            },
+            "addresses": {
+              "file": "install-permit-before-a-addresses.json",
+              "command": 575
+            },
+            "routes": {
+              "file": "install-permit-before-a-routes.json",
+              "command": 576
+            },
+            "rules": {
+              "file": "install-permit-before-a-rules.json",
+              "command": 577
+            },
+            "neighbors": {
+              "file": "install-permit-before-a-neighbors.json",
+              "command": 578
+            }
+          },
+          "b": {
+            "links": {
+              "file": "install-permit-before-b-links.json",
+              "command": 579
+            },
+            "addresses": {
+              "file": "install-permit-before-b-addresses.json",
+              "command": 580
+            },
+            "routes": {
+              "file": "install-permit-before-b-routes.json",
+              "command": 581
+            },
+            "rules": {
+              "file": "install-permit-before-b-rules.json",
+              "command": 582
+            },
+            "neighbors": {
+              "file": "install-permit-before-b-neighbors.json",
+              "command": 583
+            }
+          },
+          "server": {
+            "links": {
+              "file": "install-permit-before-server-links.json",
+              "command": 584
+            },
+            "addresses": {
+              "file": "install-permit-before-server-addresses.json",
+              "command": 585
+            },
+            "routes": {
+              "file": "install-permit-before-server-routes.json",
+              "command": 586
+            },
+            "rules": {
+              "file": "install-permit-before-server-rules.json",
+              "command": 587
+            },
+            "neighbors": {
+              "file": "install-permit-before-server-neighbors.json",
+              "command": 588
+            }
+          }
+        }
+      },
+      "result": 589,
+      "commands": [
+        589
+      ],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "install-permit-after-a-conntrack.json",
+            "command": 590
+          },
+          "b": {
+            "file": "install-permit-after-b-conntrack.json",
+            "command": 592
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "install-permit-after-a-nftables.json",
+            "command": 591
+          },
+          "b": {
+            "file": "install-permit-after-b-nftables.json",
+            "command": 593
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "install-permit-after-client-links.json",
+              "command": 594
+            },
+            "addresses": {
+              "file": "install-permit-after-client-addresses.json",
+              "command": 595
+            },
+            "routes": {
+              "file": "install-permit-after-client-routes.json",
+              "command": 596
+            },
+            "rules": {
+              "file": "install-permit-after-client-rules.json",
+              "command": 597
+            },
+            "neighbors": {
+              "file": "install-permit-after-client-neighbors.json",
+              "command": 598
+            }
+          },
+          "a": {
+            "links": {
+              "file": "install-permit-after-a-links.json",
+              "command": 599
+            },
+            "addresses": {
+              "file": "install-permit-after-a-addresses.json",
+              "command": 600
+            },
+            "routes": {
+              "file": "install-permit-after-a-routes.json",
+              "command": 601
+            },
+            "rules": {
+              "file": "install-permit-after-a-rules.json",
+              "command": 602
+            },
+            "neighbors": {
+              "file": "install-permit-after-a-neighbors.json",
+              "command": 603
+            }
+          },
+          "b": {
+            "links": {
+              "file": "install-permit-after-b-links.json",
+              "command": 604
+            },
+            "addresses": {
+              "file": "install-permit-after-b-addresses.json",
+              "command": 605
+            },
+            "routes": {
+              "file": "install-permit-after-b-routes.json",
+              "command": 606
+            },
+            "rules": {
+              "file": "install-permit-after-b-rules.json",
+              "command": 607
+            },
+            "neighbors": {
+              "file": "install-permit-after-b-neighbors.json",
+              "command": 608
+            }
+          },
+          "server": {
+            "links": {
+              "file": "install-permit-after-server-links.json",
+              "command": 609
+            },
+            "addresses": {
+              "file": "install-permit-after-server-addresses.json",
+              "command": 610
+            },
+            "routes": {
+              "file": "install-permit-after-server-routes.json",
+              "command": 611
+            },
+            "rules": {
+              "file": "install-permit-after-server-rules.json",
+              "command": 612
+            },
+            "neighbors": {
+              "file": "install-permit-after-server-neighbors.json",
+              "command": 613
+            }
+          }
+        }
+      },
+      "endNs": 74501752047203
+    },
+    {
+      "id": "permitted",
+      "type": "packet",
+      "startNs": 74501752048953,
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "permitted-before-a-conntrack.json",
+            "command": 614
+          },
+          "b": {
+            "file": "permitted-before-b-conntrack.json",
+            "command": 616
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "permitted-before-a-nftables.json",
+            "command": 615
+          },
+          "b": {
+            "file": "permitted-before-b-nftables.json",
+            "command": 617
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "permitted-before-client-links.json",
+              "command": 618
+            },
+            "addresses": {
+              "file": "permitted-before-client-addresses.json",
+              "command": 619
+            },
+            "routes": {
+              "file": "permitted-before-client-routes.json",
+              "command": 620
+            },
+            "rules": {
+              "file": "permitted-before-client-rules.json",
+              "command": 621
+            },
+            "neighbors": {
+              "file": "permitted-before-client-neighbors.json",
+              "command": 622
+            }
+          },
+          "a": {
+            "links": {
+              "file": "permitted-before-a-links.json",
+              "command": 623
+            },
+            "addresses": {
+              "file": "permitted-before-a-addresses.json",
+              "command": 624
+            },
+            "routes": {
+              "file": "permitted-before-a-routes.json",
+              "command": 625
+            },
+            "rules": {
+              "file": "permitted-before-a-rules.json",
+              "command": 626
+            },
+            "neighbors": {
+              "file": "permitted-before-a-neighbors.json",
+              "command": 627
+            }
+          },
+          "b": {
+            "links": {
+              "file": "permitted-before-b-links.json",
+              "command": 628
+            },
+            "addresses": {
+              "file": "permitted-before-b-addresses.json",
+              "command": 629
+            },
+            "routes": {
+              "file": "permitted-before-b-routes.json",
+              "command": 630
+            },
+            "rules": {
+              "file": "permitted-before-b-rules.json",
+              "command": 631
+            },
+            "neighbors": {
+              "file": "permitted-before-b-neighbors.json",
+              "command": 632
+            }
+          },
+          "server": {
+            "links": {
+              "file": "permitted-before-server-links.json",
+              "command": 633
+            },
+            "addresses": {
+              "file": "permitted-before-server-addresses.json",
+              "command": 634
+            },
+            "routes": {
+              "file": "permitted-before-server-routes.json",
+              "command": 635
+            },
+            "rules": {
+              "file": "permitted-before-server-rules.json",
+              "command": 636
+            },
+            "neighbors": {
+              "file": "permitted-before-server-neighbors.json",
+              "command": 637
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.1",
+              40000
+            ],
+            "payloadHex": "7265706c69636174696f6e3a7065726d6974746564",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74501841113837,
+            "endNs": 74501842203549,
+            "result": {
+              "bytesSent": 21,
+              "payloadHex": "7265706c69636174696f6e3a7065726d6974746564",
+              "local": [
+                "198.51.100.2",
+                9000
+              ],
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74501840970461,
+          "endNs": 74501842248674
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74501842298716,
+            "endNs": 74501842312174,
+            "result": {
+              "payloadHex": "7265706c69636174696f6e3a7065726d6974746564",
+              "peer": [
+                "203.0.113.2",
+                8080
+              ],
+              "local": [
+                "192.0.2.2",
+                41000
+              ]
+            }
+          },
+          "startNs": 74501842250424,
+          "endNs": 74501842341550
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "permitted-after-a-conntrack.json",
+            "command": 638
+          },
+          "b": {
+            "file": "permitted-after-b-conntrack.json",
+            "command": 640
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "permitted-after-a-nftables.json",
+            "command": 639
+          },
+          "b": {
+            "file": "permitted-after-b-nftables.json",
+            "command": 641
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "permitted-after-client-links.json",
+              "command": 642
+            },
+            "addresses": {
+              "file": "permitted-after-client-addresses.json",
+              "command": 643
+            },
+            "routes": {
+              "file": "permitted-after-client-routes.json",
+              "command": 644
+            },
+            "rules": {
+              "file": "permitted-after-client-rules.json",
+              "command": 645
+            },
+            "neighbors": {
+              "file": "permitted-after-client-neighbors.json",
+              "command": 646
+            }
+          },
+          "a": {
+            "links": {
+              "file": "permitted-after-a-links.json",
+              "command": 647
+            },
+            "addresses": {
+              "file": "permitted-after-a-addresses.json",
+              "command": 648
+            },
+            "routes": {
+              "file": "permitted-after-a-routes.json",
+              "command": 649
+            },
+            "rules": {
+              "file": "permitted-after-a-rules.json",
+              "command": 650
+            },
+            "neighbors": {
+              "file": "permitted-after-a-neighbors.json",
+              "command": 651
+            }
+          },
+          "b": {
+            "links": {
+              "file": "permitted-after-b-links.json",
+              "command": 652
+            },
+            "addresses": {
+              "file": "permitted-after-b-addresses.json",
+              "command": 653
+            },
+            "routes": {
+              "file": "permitted-after-b-routes.json",
+              "command": 654
+            },
+            "rules": {
+              "file": "permitted-after-b-rules.json",
+              "command": 655
+            },
+            "neighbors": {
+              "file": "permitted-after-b-neighbors.json",
+              "command": 656
+            }
+          },
+          "server": {
+            "links": {
+              "file": "permitted-after-server-links.json",
+              "command": 657
+            },
+            "addresses": {
+              "file": "permitted-after-server-addresses.json",
+              "command": 658
+            },
+            "routes": {
+              "file": "permitted-after-server-routes.json",
+              "command": 659
+            },
+            "rules": {
+              "file": "permitted-after-server-rules.json",
+              "command": 660
+            },
+            "neighbors": {
+              "file": "permitted-after-server-neighbors.json",
+              "command": 661
+            }
+          }
+        }
+      },
+      "endNs": 74501927962170
+    },
+    {
+      "id": "continued-original",
+      "type": "packet",
+      "startNs": 74501927964379,
+      "gateway": "b",
+      "leg": "original",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "continued-original-before-a-conntrack.json",
+            "command": 662
+          },
+          "b": {
+            "file": "continued-original-before-b-conntrack.json",
+            "command": 664
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "continued-original-before-a-nftables.json",
+            "command": 663
+          },
+          "b": {
+            "file": "continued-original-before-b-nftables.json",
+            "command": 665
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "continued-original-before-client-links.json",
+              "command": 666
+            },
+            "addresses": {
+              "file": "continued-original-before-client-addresses.json",
+              "command": 667
+            },
+            "routes": {
+              "file": "continued-original-before-client-routes.json",
+              "command": 668
+            },
+            "rules": {
+              "file": "continued-original-before-client-rules.json",
+              "command": 669
+            },
+            "neighbors": {
+              "file": "continued-original-before-client-neighbors.json",
+              "command": 670
+            }
+          },
+          "a": {
+            "links": {
+              "file": "continued-original-before-a-links.json",
+              "command": 671
+            },
+            "addresses": {
+              "file": "continued-original-before-a-addresses.json",
+              "command": 672
+            },
+            "routes": {
+              "file": "continued-original-before-a-routes.json",
+              "command": 673
+            },
+            "rules": {
+              "file": "continued-original-before-a-rules.json",
+              "command": 674
+            },
+            "neighbors": {
+              "file": "continued-original-before-a-neighbors.json",
+              "command": 675
+            }
+          },
+          "b": {
+            "links": {
+              "file": "continued-original-before-b-links.json",
+              "command": 676
+            },
+            "addresses": {
+              "file": "continued-original-before-b-addresses.json",
+              "command": 677
+            },
+            "routes": {
+              "file": "continued-original-before-b-routes.json",
+              "command": 678
+            },
+            "rules": {
+              "file": "continued-original-before-b-rules.json",
+              "command": 679
+            },
+            "neighbors": {
+              "file": "continued-original-before-b-neighbors.json",
+              "command": 680
+            }
+          },
+          "server": {
+            "links": {
+              "file": "continued-original-before-server-links.json",
+              "command": 681
+            },
+            "addresses": {
+              "file": "continued-original-before-server-addresses.json",
+              "command": 682
+            },
+            "routes": {
+              "file": "continued-original-before-server-routes.json",
+              "command": 683
+            },
+            "rules": {
+              "file": "continued-original-before-server-rules.json",
+              "command": 684
+            },
+            "neighbors": {
+              "file": "continued-original-before-server-neighbors.json",
+              "command": 685
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.2",
+              8080
+            ],
+            "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74502013866750,
+            "endNs": 74502013951251,
+            "result": {
+              "bytesSent": 30,
+              "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+              "local": [
+                "192.0.2.2",
+                41000
+              ],
+              "peer": [
+                "203.0.113.2",
+                8080
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74502013805167,
+          "endNs": 74502014474669
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74502014529086,
+            "endNs": 74502014546003,
+            "result": {
+              "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "local": [
+                "198.51.100.2",
+                9000
+              ]
+            }
+          },
+          "startNs": 74502014476294,
+          "endNs": 74502014572336
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "continued-original-after-a-conntrack.json",
+            "command": 686
+          },
+          "b": {
+            "file": "continued-original-after-b-conntrack.json",
+            "command": 688
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "continued-original-after-a-nftables.json",
+            "command": 687
+          },
+          "b": {
+            "file": "continued-original-after-b-nftables.json",
+            "command": 689
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "continued-original-after-client-links.json",
+              "command": 690
+            },
+            "addresses": {
+              "file": "continued-original-after-client-addresses.json",
+              "command": 691
+            },
+            "routes": {
+              "file": "continued-original-after-client-routes.json",
+              "command": 692
+            },
+            "rules": {
+              "file": "continued-original-after-client-rules.json",
+              "command": 693
+            },
+            "neighbors": {
+              "file": "continued-original-after-client-neighbors.json",
+              "command": 694
+            }
+          },
+          "a": {
+            "links": {
+              "file": "continued-original-after-a-links.json",
+              "command": 695
+            },
+            "addresses": {
+              "file": "continued-original-after-a-addresses.json",
+              "command": 696
+            },
+            "routes": {
+              "file": "continued-original-after-a-routes.json",
+              "command": 697
+            },
+            "rules": {
+              "file": "continued-original-after-a-rules.json",
+              "command": 698
+            },
+            "neighbors": {
+              "file": "continued-original-after-a-neighbors.json",
+              "command": 699
+            }
+          },
+          "b": {
+            "links": {
+              "file": "continued-original-after-b-links.json",
+              "command": 700
+            },
+            "addresses": {
+              "file": "continued-original-after-b-addresses.json",
+              "command": 701
+            },
+            "routes": {
+              "file": "continued-original-after-b-routes.json",
+              "command": 702
+            },
+            "rules": {
+              "file": "continued-original-after-b-rules.json",
+              "command": 703
+            },
+            "neighbors": {
+              "file": "continued-original-after-b-neighbors.json",
+              "command": 704
+            }
+          },
+          "server": {
+            "links": {
+              "file": "continued-original-after-server-links.json",
+              "command": 705
+            },
+            "addresses": {
+              "file": "continued-original-after-server-addresses.json",
+              "command": 706
+            },
+            "routes": {
+              "file": "continued-original-after-server-routes.json",
+              "command": 707
+            },
+            "rules": {
+              "file": "continued-original-after-server-rules.json",
+              "command": 708
+            },
+            "neighbors": {
+              "file": "continued-original-after-server-neighbors.json",
+              "command": 709
+            }
+          }
+        }
+      },
+      "endNs": 74502109397409
+    },
+    {
+      "id": "continued-reply",
+      "type": "packet",
+      "startNs": 74502109399409,
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "conntrack": {
+          "a": {
+            "file": "continued-reply-before-a-conntrack.json",
+            "command": 710
+          },
+          "b": {
+            "file": "continued-reply-before-b-conntrack.json",
+            "command": 712
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "continued-reply-before-a-nftables.json",
+            "command": 711
+          },
+          "b": {
+            "file": "continued-reply-before-b-nftables.json",
+            "command": 713
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "continued-reply-before-client-links.json",
+              "command": 714
+            },
+            "addresses": {
+              "file": "continued-reply-before-client-addresses.json",
+              "command": 715
+            },
+            "routes": {
+              "file": "continued-reply-before-client-routes.json",
+              "command": 716
+            },
+            "rules": {
+              "file": "continued-reply-before-client-rules.json",
+              "command": 717
+            },
+            "neighbors": {
+              "file": "continued-reply-before-client-neighbors.json",
+              "command": 718
+            }
+          },
+          "a": {
+            "links": {
+              "file": "continued-reply-before-a-links.json",
+              "command": 719
+            },
+            "addresses": {
+              "file": "continued-reply-before-a-addresses.json",
+              "command": 720
+            },
+            "routes": {
+              "file": "continued-reply-before-a-routes.json",
+              "command": 721
+            },
+            "rules": {
+              "file": "continued-reply-before-a-rules.json",
+              "command": 722
+            },
+            "neighbors": {
+              "file": "continued-reply-before-a-neighbors.json",
+              "command": 723
+            }
+          },
+          "b": {
+            "links": {
+              "file": "continued-reply-before-b-links.json",
+              "command": 724
+            },
+            "addresses": {
+              "file": "continued-reply-before-b-addresses.json",
+              "command": 725
+            },
+            "routes": {
+              "file": "continued-reply-before-b-routes.json",
+              "command": 726
+            },
+            "rules": {
+              "file": "continued-reply-before-b-rules.json",
+              "command": 727
+            },
+            "neighbors": {
+              "file": "continued-reply-before-b-neighbors.json",
+              "command": 728
+            }
+          },
+          "server": {
+            "links": {
+              "file": "continued-reply-before-server-links.json",
+              "command": 729
+            },
+            "addresses": {
+              "file": "continued-reply-before-server-addresses.json",
+              "command": 730
+            },
+            "routes": {
+              "file": "continued-reply-before-server-routes.json",
+              "command": 731
+            },
+            "rules": {
+              "file": "continued-reply-before-server-rules.json",
+              "command": 732
+            },
+            "neighbors": {
+              "file": "continued-reply-before-server-neighbors.json",
+              "command": 733
+            }
+          }
+        }
+      },
+      "result": {
+        "sender": {
+          "request": {
+            "operation": "send",
+            "peer": [
+              "203.0.113.1",
+              40000
+            ],
+            "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+            "ttl": 64
+          },
+          "response": {
+            "startNs": 74502192429436,
+            "endNs": 74502193140064,
+            "result": {
+              "bytesSent": 27,
+              "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+              "local": [
+                "198.51.100.2",
+                9000
+              ],
+              "peer": [
+                "203.0.113.1",
+                40000
+              ],
+              "ttl": 64
+            }
+          },
+          "startNs": 74502192351561,
+          "endNs": 74502193194397
+        },
+        "receiver": {
+          "request": {
+            "operation": "receive",
+            "timeout": 0.3
+          },
+          "response": {
+            "startNs": 74502193259731,
+            "endNs": 74502193275773,
+            "result": {
+              "payloadHex": "7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+              "peer": [
+                "203.0.113.2",
+                8080
+              ],
+              "local": [
+                "192.0.2.2",
+                41000
+              ]
+            }
+          },
+          "startNs": 74502193196939,
+          "endNs": 74502193309648
+        }
+      },
+      "commands": [],
+      "after": {
+        "conntrack": {
+          "a": {
+            "file": "continued-reply-after-a-conntrack.json",
+            "command": 734
+          },
+          "b": {
+            "file": "continued-reply-after-b-conntrack.json",
+            "command": 736
+          }
+        },
+        "tables": {
+          "a": {
+            "file": "continued-reply-after-a-nftables.json",
+            "command": 735
+          },
+          "b": {
+            "file": "continued-reply-after-b-nftables.json",
+            "command": 737
+          }
+        },
+        "networks": {
+          "client": {
+            "links": {
+              "file": "continued-reply-after-client-links.json",
+              "command": 738
+            },
+            "addresses": {
+              "file": "continued-reply-after-client-addresses.json",
+              "command": 739
+            },
+            "routes": {
+              "file": "continued-reply-after-client-routes.json",
+              "command": 740
+            },
+            "rules": {
+              "file": "continued-reply-after-client-rules.json",
+              "command": 741
+            },
+            "neighbors": {
+              "file": "continued-reply-after-client-neighbors.json",
+              "command": 742
+            }
+          },
+          "a": {
+            "links": {
+              "file": "continued-reply-after-a-links.json",
+              "command": 743
+            },
+            "addresses": {
+              "file": "continued-reply-after-a-addresses.json",
+              "command": 744
+            },
+            "routes": {
+              "file": "continued-reply-after-a-routes.json",
+              "command": 745
+            },
+            "rules": {
+              "file": "continued-reply-after-a-rules.json",
+              "command": 746
+            },
+            "neighbors": {
+              "file": "continued-reply-after-a-neighbors.json",
+              "command": 747
+            }
+          },
+          "b": {
+            "links": {
+              "file": "continued-reply-after-b-links.json",
+              "command": 748
+            },
+            "addresses": {
+              "file": "continued-reply-after-b-addresses.json",
+              "command": 749
+            },
+            "routes": {
+              "file": "continued-reply-after-b-routes.json",
+              "command": 750
+            },
+            "rules": {
+              "file": "continued-reply-after-b-rules.json",
+              "command": 751
+            },
+            "neighbors": {
+              "file": "continued-reply-after-b-neighbors.json",
+              "command": 752
+            }
+          },
+          "server": {
+            "links": {
+              "file": "continued-reply-after-server-links.json",
+              "command": 753
+            },
+            "addresses": {
+              "file": "continued-reply-after-server-addresses.json",
+              "command": 754
+            },
+            "routes": {
+              "file": "continued-reply-after-server-routes.json",
+              "command": 755
+            },
+            "rules": {
+              "file": "continued-reply-after-server-rules.json",
+              "command": 756
+            },
+            "neighbors": {
+              "file": "continued-reply-after-server-neighbors.json",
+              "command": 757
+            }
+          }
+        }
+      },
+      "endNs": 74502279812563
+    }
+  ],
+  "settings": {
+    "client": {
+      "file": "client-settings.txt",
+      "command": 91
+    },
+    "a": {
+      "file": "a-settings.txt",
+      "command": 92
+    },
+    "b": {
+      "file": "b-settings.txt",
+      "command": 93
+    },
+    "server": {
+      "file": "server-settings.txt",
+      "command": 94
+    }
+  },
+  "initial": {
+    "conntrack": {
+      "a": {
+        "file": "initial-a-conntrack.json",
+        "command": 99
+      },
+      "b": {
+        "file": "initial-b-conntrack.json",
+        "command": 101
+      }
+    },
+    "tables": {
+      "a": {
+        "file": "initial-a-nftables.json",
+        "command": 100
+      },
+      "b": {
+        "file": "initial-b-nftables.json",
+        "command": 102
+      }
+    },
+    "networks": {
+      "client": {
+        "links": {
+          "file": "initial-client-links.json",
+          "command": 103
+        },
+        "addresses": {
+          "file": "initial-client-addresses.json",
+          "command": 104
+        },
+        "routes": {
+          "file": "initial-client-routes.json",
+          "command": 105
+        },
+        "rules": {
+          "file": "initial-client-rules.json",
+          "command": 106
+        },
+        "neighbors": {
+          "file": "initial-client-neighbors.json",
+          "command": 107
+        }
+      },
+      "a": {
+        "links": {
+          "file": "initial-a-links.json",
+          "command": 108
+        },
+        "addresses": {
+          "file": "initial-a-addresses.json",
+          "command": 109
+        },
+        "routes": {
+          "file": "initial-a-routes.json",
+          "command": 110
+        },
+        "rules": {
+          "file": "initial-a-rules.json",
+          "command": 111
+        },
+        "neighbors": {
+          "file": "initial-a-neighbors.json",
+          "command": 112
+        }
+      },
+      "b": {
+        "links": {
+          "file": "initial-b-links.json",
+          "command": 113
+        },
+        "addresses": {
+          "file": "initial-b-addresses.json",
+          "command": 114
+        },
+        "routes": {
+          "file": "initial-b-routes.json",
+          "command": 115
+        },
+        "rules": {
+          "file": "initial-b-rules.json",
+          "command": 116
+        },
+        "neighbors": {
+          "file": "initial-b-neighbors.json",
+          "command": 117
+        }
+      },
+      "server": {
+        "links": {
+          "file": "initial-server-links.json",
+          "command": 118
+        },
+        "addresses": {
+          "file": "initial-server-addresses.json",
+          "command": 119
+        },
+        "routes": {
+          "file": "initial-server-routes.json",
+          "command": 120
+        },
+        "rules": {
+          "file": "initial-server-rules.json",
+          "command": 121
+        },
+        "neighbors": {
+          "file": "initial-server-neighbors.json",
+          "command": 122
+        }
+      }
+    }
+  },
+  "initialCaches": {
+    "a": {
+      "file": "initial-a-cache.xml",
+      "command": 123
+    },
+    "b": {
+      "file": "initial-b-cache.xml",
+      "command": 124
+    }
+  },
+  "final": {
+    "conntrack": {
+      "a": {
+        "file": "final-a-conntrack.json",
+        "command": 758
+      },
+      "b": {
+        "file": "final-b-conntrack.json",
+        "command": 760
+      }
+    },
+    "tables": {
+      "a": {
+        "file": "final-a-nftables.json",
+        "command": 759
+      },
+      "b": {
+        "file": "final-b-nftables.json",
+        "command": 761
+      }
+    },
+    "networks": {
+      "client": {
+        "links": {
+          "file": "final-client-links.json",
+          "command": 762
+        },
+        "addresses": {
+          "file": "final-client-addresses.json",
+          "command": 763
+        },
+        "routes": {
+          "file": "final-client-routes.json",
+          "command": 764
+        },
+        "rules": {
+          "file": "final-client-rules.json",
+          "command": 765
+        },
+        "neighbors": {
+          "file": "final-client-neighbors.json",
+          "command": 766
+        }
+      },
+      "a": {
+        "links": {
+          "file": "final-a-links.json",
+          "command": 767
+        },
+        "addresses": {
+          "file": "final-a-addresses.json",
+          "command": 768
+        },
+        "routes": {
+          "file": "final-a-routes.json",
+          "command": 769
+        },
+        "rules": {
+          "file": "final-a-rules.json",
+          "command": 770
+        },
+        "neighbors": {
+          "file": "final-a-neighbors.json",
+          "command": 771
+        }
+      },
+      "b": {
+        "links": {
+          "file": "final-b-links.json",
+          "command": 772
+        },
+        "addresses": {
+          "file": "final-b-addresses.json",
+          "command": 773
+        },
+        "routes": {
+          "file": "final-b-routes.json",
+          "command": 774
+        },
+        "rules": {
+          "file": "final-b-rules.json",
+          "command": 775
+        },
+        "neighbors": {
+          "file": "final-b-neighbors.json",
+          "command": 776
+        }
+      },
+      "server": {
+        "links": {
+          "file": "final-server-links.json",
+          "command": 777
+        },
+        "addresses": {
+          "file": "final-server-addresses.json",
+          "command": 778
+        },
+        "routes": {
+          "file": "final-server-routes.json",
+          "command": 779
+        },
+        "rules": {
+          "file": "final-server-rules.json",
+          "command": 780
+        },
+        "neighbors": {
+          "file": "final-server-neighbors.json",
+          "command": 781
+        }
+      }
+    }
+  },
+  "finalCaches": {
+    "a": {
+      "file": "final-a-cache.xml",
+      "command": 782
+    },
+    "b": {
+      "file": "final-b-cache.xml",
+      "command": 783
+    }
+  },
+  "statistics": {
+    "a": {
+      "cache": {
+        "file": "a-cache-statistics.txt",
+        "command": 784
+      },
+      "network": {
+        "file": "a-network-statistics.txt",
+        "command": 785
+      },
+      "runtime": {
+        "file": "a-runtime-statistics.txt",
+        "command": 786
+      },
+      "ct": {
+        "file": "a-ct-statistics.txt",
+        "command": 787
+      }
+    },
+    "b": {
+      "cache": {
+        "file": "b-cache-statistics.txt",
+        "command": 788
+      },
+      "network": {
+        "file": "b-network-statistics.txt",
+        "command": 789
+      },
+      "runtime": {
+        "file": "b-runtime-statistics.txt",
+        "command": 790
+      },
+      "ct": {
+        "file": "b-ct-statistics.txt",
+        "command": 791
+      }
+    }
+  },
+  "endpoints": [
+    {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "client",
+        "python3",
+        "/task/replication/exercise.py",
+        "endpoint",
+        "192.0.2.2",
+        "41000"
+      ],
+      "startNs": 74499551307524,
+      "binding": {
+        "request": {
+          "operation": "bind"
+        },
+        "response": {
+          "startNs": 74499568289673,
+          "endNs": 74499568294423,
+          "result": {
+            "local": [
+              "192.0.2.2",
+              41000
+            ],
+            "mtuDiscover": 0
+          }
+        },
+        "startNs": 74499551552150,
+        "endNs": 74499568331006
+      },
+      "returncode": 0,
+      "endNs": 74502380543491
+    },
+    {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "server",
+        "python3",
+        "/task/replication/exercise.py",
+        "endpoint",
+        "198.51.100.2",
+        "9000"
+      ],
+      "startNs": 74499568335048,
+      "binding": {
+        "request": {
+          "operation": "bind"
+        },
+        "response": {
+          "startNs": 74499584684736,
+          "endNs": 74499584688944,
+          "result": {
+            "local": [
+              "198.51.100.2",
+              9000
+            ],
+            "mtuDiscover": 0
+          }
+        },
+        "startNs": 74499568713841,
+        "endNs": 74499584720403
+      },
+      "returncode": 0,
+      "endNs": 74502388132604
+    }
+  ],
+  "observers": [
+    {
+      "kind": "packet",
+      "actor": "client",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "client",
+        "python3",
+        "/task/replication/exercise.py",
+        "sniff",
+        "/tmp/netlib-replication/client-frames.jsonl",
+        "client",
+        "cal",
+        "cbl"
+      ],
+      "ready": {
+        "readyNs": 74499212063174,
+        "namespace": "client",
+        "interfaces": [
+          {
+            "interface": "cal",
+            "ifindex": 3,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "cbl",
+            "ifindex": 5,
+            "receiveBuffer": 425984
+          }
+        ]
+      },
+      "file": "client-frames.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74502546630378,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74502672448861
+    },
+    {
+      "kind": "packet",
+      "actor": "a",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "a",
+        "python3",
+        "/task/replication/exercise.py",
+        "sniff",
+        "/tmp/netlib-replication/a-frames.jsonl",
+        "a",
+        "car",
+        "sar",
+        "syncl"
+      ],
+      "ready": {
+        "readyNs": 74499255367300,
+        "namespace": "a",
+        "interfaces": [
+          {
+            "interface": "car",
+            "ifindex": 2,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "sar",
+            "ifindex": 6,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "syncl",
+            "ifindex": 11,
+            "receiveBuffer": 425984
+          }
+        ]
+      },
+      "file": "a-frames.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74502672467945,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74502793936244
+    },
+    {
+      "kind": "packet",
+      "actor": "b",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "b",
+        "python3",
+        "/task/replication/exercise.py",
+        "sniff",
+        "/tmp/netlib-replication/b-frames.jsonl",
+        "b",
+        "cbr",
+        "sbr",
+        "syncr"
+      ],
+      "ready": {
+        "readyNs": 74499295369454,
+        "namespace": "b",
+        "interfaces": [
+          {
+            "interface": "cbr",
+            "ifindex": 4,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "sbr",
+            "ifindex": 8,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "syncr",
+            "ifindex": 10,
+            "receiveBuffer": 425984
+          }
+        ]
+      },
+      "file": "b-frames.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74502793945077,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74502864119013
+    },
+    {
+      "kind": "packet",
+      "actor": "server",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "server",
+        "python3",
+        "/task/replication/exercise.py",
+        "sniff",
+        "/tmp/netlib-replication/server-frames.jsonl",
+        "server",
+        "sal",
+        "sbl"
+      ],
+      "ready": {
+        "readyNs": 74499329374252,
+        "namespace": "server",
+        "interfaces": [
+          {
+            "interface": "sal",
+            "ifindex": 7,
+            "receiveBuffer": 425984
+          },
+          {
+            "interface": "sbl",
+            "ifindex": 9,
+            "receiveBuffer": 425984
+          }
+        ]
+      },
+      "file": "server-frames.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74502864128180,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74502990521582
+    },
+    {
+      "kind": "nflog",
+      "actor": "a",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "a",
+        "python3",
+        "/task/replication/nflog.py",
+        "/tmp/netlib-replication/a-nflog.jsonl",
+        "42"
+      ],
+      "ready": {
+        "readyNs": 74499343417264,
+        "port": 117,
+        "group": 42,
+        "receiveBuffer": 425984,
+        "configuration": [
+          {
+            "startNs": 74499343381347,
+            "endNs": 74499343396389,
+            "request": "1c000000010405000100000075000000020000000500010003000000",
+            "acknowledgment": "24000000020000010100000075000000000000001c000000010405000100000075000000",
+            "sender": [
+              0,
+              0
+            ],
+            "flags": 0
+          },
+          {
+            "startNs": 74499343407097,
+            "endNs": 74499343413972,
+            "request": "400000000104050002000000750000000200002a05000100010000000a0002000000fffb02000000080004000000000108000500000000010600060000030000",
+            "acknowledgment": "240000000200000102000000750000000000000040000000010405000200000075000000",
+            "sender": [
+              0,
+              0
+            ],
+            "flags": 0
+          }
+        ]
+      },
+      "file": "a-nflog.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74502990535873,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74503025221215
+    },
+    {
+      "kind": "trace",
+      "actor": "a",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "a",
+        "nft",
+        "monitor",
+        "trace"
+      ],
+      "startNs": 74499343925641,
+      "file": "a-trace.txt",
+      "errors": "a-trace-errors.txt",
+      "runningBeforeStop": true,
+      "stopNs": 74503025229715,
+      "stopSignal": 15,
+      "returncode": -15,
+      "endNs": 74503026484261
+    },
+    {
+      "kind": "nflog",
+      "actor": "b",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "b",
+        "python3",
+        "/task/replication/nflog.py",
+        "/tmp/netlib-replication/b-nflog.jsonl",
+        "42"
+      ],
+      "ready": {
+        "readyNs": 74499357322734,
+        "port": 119,
+        "group": 42,
+        "receiveBuffer": 425984,
+        "configuration": [
+          {
+            "startNs": 74499357277443,
+            "endNs": 74499357288651,
+            "request": "1c000000010405000100000077000000020000000500010003000000",
+            "acknowledgment": "24000000020000010100000077000000000000001c000000010405000100000077000000",
+            "sender": [
+              0,
+              0
+            ],
+            "flags": 0
+          },
+          {
+            "startNs": 74499357313276,
+            "endNs": 74499357319693,
+            "request": "400000000104050002000000770000000200002a05000100010000000a0002000000fffb02000000080004000000000108000500000000010600060000030000",
+            "acknowledgment": "240000000200000102000000770000000000000040000000010405000200000077000000",
+            "sender": [
+              0,
+              0
+            ],
+            "flags": 0
+          }
+        ]
+      },
+      "file": "b-nflog.jsonl",
+      "runningBeforeStop": true,
+      "stopNs": 74503026490511,
+      "stopSignal": 15,
+      "returncode": 0,
+      "endNs": 74503157821765
+    },
+    {
+      "kind": "trace",
+      "actor": "b",
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "b",
+        "nft",
+        "monitor",
+        "trace"
+      ],
+      "startNs": 74499357775111,
+      "file": "b-trace.txt",
+      "errors": "b-trace-errors.txt",
+      "runningBeforeStop": true,
+      "stopNs": 74503157845473,
+      "stopSignal": 15,
+      "returncode": -15,
+      "endNs": 74503159513646
+    }
+  ],
+  "endNs": 74503159525396
+}

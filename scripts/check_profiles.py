@@ -10,6 +10,7 @@ from check_icmp_examples import check as icmp_checks
 from check_reassembly_examples import synthetic_checks as reassembly_checks
 from check_reassembly_native_examples import check as reassembly_native_checks
 from check_received_icmp_examples import check as received_icmp_checks
+from check_replication_examples import check as replication_checks
 
 
 def catalogue(report):
@@ -1132,6 +1133,7 @@ def main():
     received_icmp_checks()
     reassembly_checks()
     reassembly_native_checks()
+    replication_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

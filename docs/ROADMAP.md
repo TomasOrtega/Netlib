@@ -16,7 +16,7 @@ It does not establish completion of the goal.
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. Interval/run invariants, timed input queues, and accepted-byte provenance. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
 | Connected protocol stacks | IPv4 UDP forwarding preserves payload through tracked NAT, regenerates checksums, decrements TTL, and produces verified MTU-bounded fragment families. Generated and received ICMP errors restore quoted tuples through related NAT. Host PMTU feedback has bounds, expiry, and forgery-limit proofs. Ingress reassembly precedes current policy; timeout errors retain first-fragment bytes and zone templates. Checked EAP evidence and credentials control the selected packet classes. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
-| Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
+| Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. Ordered native handoff connects cache staging and observed kernel installation. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. Typed ICMP output guards retain type/code requirements. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
 | Safe operation | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
@@ -50,6 +50,14 @@ Exact pre-fault replication permits a return path under each admitted single int
 The model assumes a currently permitted session, unchanged grant clocks, and a usable shared public alias.
 It does not implement replication, ownership transfer, route selection, or convergence.
 Native configuration bindings and the complete campus landmark remain open.
+
+The [native failover layer](STATEFUL_FAILOVER.md) now uses ordinary byte-derived UDP processing across two gateways.
+Both kernel tables start empty; an actual primary packet establishes the record selected for replication.
+The replay separates received cache state, kernel commitment, each endpoint route change, and the primary data fence.
+Current standby policy remains effective after installation, including a denied reply's seen-reply update.
+Provenance identifies the actual earlier staging prefix and computed source table.
+The abstract campus graph and this native flow still need a common failure, session, and deployment interpretation.
+Automatic detection, reliable synchronization, expiry, concurrent installs, and bounded convergence remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
@@ -125,7 +133,7 @@ Principal-to-tuple ownership and global policy-installation timing also need str
 ## Next implementation work
 
 1. Broaden ingress reassembly through options, disorder heuristics, resources, and associated timeout processing. Extend TCP, IPv6, host behavior, routing, concurrency, and implementation refinement.
-2. Connect stateful failover to native processing, replication behavior, and routing convergence.
+2. Extend ordered native handoff through expiry, deletion propagation, failures, concurrent changes, and bounded routing convergence. Connect it to the complete campus interpretation.
 3. Refine EAP method evidence with cryptographic semantics, wireless key installation, and trusted link/session attribution.
 4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.
 5. Connect physical service lower bounds and concurrent queue models to the FIFO drain proof, then add timing and reliability guarantees.

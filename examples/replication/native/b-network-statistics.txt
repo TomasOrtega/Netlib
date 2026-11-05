@@ -1,0 +1,22 @@
+network statistics:
+	recv:
+		Malformed messages:	                   0
+		Wrong protocol version:	                   0
+		Malformed header:	                   0
+		Malformed payload:	                   0
+		Bad message type:	                   0
+		Truncated message:	                   0
+		Bad message size:	                   0
+	send:
+		Malformed messages:	                   0
+
+sequence tracking statistics:
+	recv:
+		Packets lost:		                   0
+		Packets before:		                   0
+
+UDP traffic (active device=syncr):
+                 132 Bytes sent                  108 Bytes recv
+                   3 Pckts sent                    3 Pckts recv
+                   0 Error send                    0 Error recv
+

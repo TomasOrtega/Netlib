@@ -1318,6 +1318,42 @@ Timeouts and event clocks share one unit; the native projection uses nanoseconds
 Allocation, capture authenticity, synchronous policy installation, and kernel correspondence remain explicit assumptions.
 A complete arbitrary-arrival permutation theorem, broader transport behavior, and concurrency remain open.
 
+# Replication and gateway handoff
+%%%
+tag := "stateful-failover"
+file := "stateful-failover"
+%%%
+
+The failover replay starts with two empty ordinary conntrack tables.
+A byte-derived packet creates the primary record before any cached replica exists.
+Staging selects that record from the actual computed primary prefix.
+Commitment installs its supported NAT and seen-reply projection into the standby.
+
+```lean
+open Netlib.Protocol in
+example (installed : ConntrackReplication.Installed) :
+    installed.selection.recordForInstall ∈
+      installed.selection.source.records :=
+  installed.provenance
+```
+
+The client route, server return route, and primary data fence are separate operations.
+Packets use the current route owner, an unfenced gateway, and the current supplied policy.
+A replica preserves its binding without carrying an earlier permission.
+An associated reply can set seen-reply state before a current filter drops it.
+
+```
+lake exe netlib wire-failover examples/replication/replay.json --json
+```
+
+Cache observations retain actual daemon attributes and cache membership.
+Separate kernel dumps establish installation; command success and transport acknowledgements cannot substitute for them.
+Commit provenance locates the actual earlier staging event within the replay prefix.
+Matched output preserves the original payload and decrements TTL through the ordinary wire-forwarding proofs.
+
+The configured timeout is metadata without modeled aging.
+Collisions, expiry, reliable synchronization, automatic failure detection, routing convergence, and split-brain prevention remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

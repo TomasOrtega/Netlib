@@ -135,3 +135,6 @@ import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields
 import Netlib.Import.TransferConfig
+import Netlib.Protocol.ConntrackReplication
+import Netlib.Protocol.StatefulFailover
+import Netlib.Check.StatefulFailover

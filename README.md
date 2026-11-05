@@ -34,7 +34,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
 | Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |
 | Audit native conntrack records and tuple associations | [Conntrack](docs/CONNTRACK.md) |
-| Check tracked forwarding and operational cutovers | [Lifecycle](docs/LIFECYCLE.md) |
+| Check tracked forwarding and operational cutovers | [Lifecycle](docs/LIFECYCLE.md), [Stateful failover](docs/STATEFUL_FAILOVER.md) |
 | Compile packet or session requirements to a firewall | [Compiler](docs/COMPILER.md), [Session enforcement](docs/SESSION_FIREWALL.md) |
 | Check rewrites and timed flow authorization | [Stateful models](docs/STATEFUL.md) |
 | Check 5G admission traces | [5G](docs/FIVEG.md) |

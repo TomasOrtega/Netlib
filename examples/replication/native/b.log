@@ -1,0 +1,10 @@
+[Thu Nov  5 04:18:36 2026] (pid=124) [warning] scheduler configuration failed: Function not implemented. Likely a bug in conntrackd, please report it. Continuing with system default scheduler.
+[Thu Nov  5 04:18:36 2026] (pid=124) [notice] using user-space event filtering
+[Thu Nov  5 04:18:36 2026] (pid=124) [notice] NetlinkBufferSize is either not set or is greater than NetlinkBufferSizeMaxGrowth. Using current system buffer size
+[Thu Nov  5 04:18:36 2026] (pid=124) [notice] netlink event socket buffer size has been set to 212992 bytes
+[Thu Nov  5 04:18:36 2026] (pid=124) [notice] initialization completed
+[Thu Nov  5 04:18:36 2026] (pid=125) [notice] -- starting in daemon mode --
+[Thu Nov  5 04:18:37 2026] (pid=125) [notice] committing all external caches
+[Thu Nov  5 04:18:37 2026] (pid=125) [notice] Committed 1 new entries
+[Thu Nov  5 04:18:37 2026] (pid=125) [notice] commit has taken 0.000043 seconds
+[Thu Nov  5 04:18:39 2026] (pid=125) [notice] ---- shutdown received ----

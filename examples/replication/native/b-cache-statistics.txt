@@ -1,0 +1,20 @@
+cache:internal	active objects:		           1
+	active/total entries:		           1/           1
+	creation OK/failed:		           1/           0
+		no memory available:	           0
+		no space left in cache:	           0
+	update OK/failed:		           1/           0
+		entry not found:	           0
+	deletion created/failed:	           0/           0
+		entry not found:	           0
+
+cache:external	active objects:		           1
+	active/total entries:		           1/           1
+	creation OK/failed:		           1/           0
+		no memory available:	           0
+		no space left in cache:	           0
+	update OK/failed:		           0/           0
+		entry not found:	           0
+	deletion created/failed:	           0/           0
+		entry not found:	           0
+

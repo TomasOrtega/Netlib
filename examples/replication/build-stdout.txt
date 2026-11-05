@@ -1,0 +1,11 @@
+Sending build context to Docker daemon  41.47kB
+Step 1/3 : FROM netlib-received-icmp-capture:1
+ ---> 05d09351510c
+Step 2/3 : COPY exercise.py nflog.py capture.sh /task/replication/
+ ---> 73653c9c8b56
+Step 3/3 : CMD ["sh", "/task/replication/capture.sh"]
+ ---> Running in 3bb89e98555e
+ ---> Removed intermediate container 3bb89e98555e
+ ---> 2e4db031fbbd
+Successfully built 2e4db031fbbd
+Successfully tagged netlib-replication-capture:1

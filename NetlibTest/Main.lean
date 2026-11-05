@@ -106,6 +106,9 @@ import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
 
+import NetlibTest.ConntrackReplication
+import NetlibTest.StatefulFailover
+
 open Netlib
 
 def main : IO Unit := do
@@ -211,4 +214,6 @@ def main : IO Unit := do
   NetlibTest.NftablesICMPControl.run
   NetlibTest.ReassemblyTimeoutCheck.run
   NetlibTest.WireNATDeployment.run
+  NetlibTest.ConntrackReplication.run
+  NetlibTest.StatefulFailover.run
   IO.println "Netlib tests passed."
