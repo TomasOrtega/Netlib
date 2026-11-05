@@ -538,7 +538,7 @@
   },
   "projection": "Independent native verification supplies raw error frames, complete and partial quote observations, whole UDP hook checksums, and one-to-one output trace attribution. The shared EAP/session projector and ICMP builder derive the replay inputs. Model output never constructs native observations. Synthetic quotation boundary cases remain separate tests.",
   "projectionSHA256": {
-    "docs/ICMP.md": "404db811ba505029145031a1c0529ac4215d8852d717867d44c6df7a8f563f41",
+    "docs/ICMP.md": "e9ec431bbe19b01995097eb09ab852948bf8fb3c0e33760170278ad89adfd372",
     "docs/research/ICMP_ERRORS.md": "711e2071d7ca472deec1be2c55532509f779fed90370a67e9bbb6366bd5ce901",
     "examples/icmp/Dockerfile": "e1973cf4db8c9a7d5b3a554f559deb881e08d16c345e42d46fdc58ad167faf6e",
     "examples/icmp/README.md": "4f38437eb775c45a9fc4f1d9eaae727e9852a9442a688b88c989769f9d65cb93",

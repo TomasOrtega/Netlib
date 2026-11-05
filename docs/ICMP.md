@@ -129,6 +129,7 @@ LOCAL_OUT and postrouting traces expose related classification and NAT correctio
 Native snapshots, sysctl readbacks, socket observations, and provenance remain available for independent inspection.
 
 Packet-mechanics probes use a separate fixed permit suffix and establish no new current-session authorization claim.
-Received ICMP forwarding, extensions, input fragments, IP options, PMTU-cache updates, rate-limit state, allocation failures, and concurrency remain open.
+The [received-error layer](RECEIVED_ICMP.md) adds received ICMP forwarding and host PMTU-cache updates.
+Extensions, input fragments, IP options, rate-limit state, allocation failures, and concurrency remain open.
 Routing provenance, current installation, capture attribution, source identity, and kernel implementation refinement also retain explicit assumptions.
 The [roadmap](ROADMAP.md) keeps the complete networking objective active.

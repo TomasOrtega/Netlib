@@ -43,7 +43,11 @@ def input_hashes():
     paths.update((ROOT / "docs/assets").rglob("*"))
     paths.update((ROOT / "examples").rglob("*"))
     return {
-        p.relative_to(ROOT).as_posix(): digest(p.read_bytes()) for p in sorted(paths) if p.is_file()
+        p.relative_to(ROOT).as_posix(): digest(p.read_bytes())
+        for p in sorted(paths)
+        if p.is_file()
+        and "__pycache__" not in p.relative_to(ROOT).parts
+        and p.suffix not in {".pyc", ".pyo"}
     }
 
 
