@@ -1,0 +1,64 @@
+[
+  {
+    "id": "client",
+    "direction": "original",
+    "ingress": {
+      "namespace": {
+        "id": 1,
+        "birth": 1
+      },
+      "ifindex": 1,
+      "birth": 1
+    },
+    "match": {
+      "source": {
+        "address": 3221225986,
+        "length": 32
+      },
+      "destination": {
+        "address": 3405803778,
+        "length": 32
+      },
+      "protocol": 6,
+      "sourcePorts": {
+        "first": 41000,
+        "last": 41000
+      },
+      "destinationPorts": {
+        "first": 8080,
+        "last": 8080
+      }
+    }
+  },
+  {
+    "id": "server",
+    "direction": "reply",
+    "ingress": {
+      "namespace": {
+        "id": 1,
+        "birth": 1
+      },
+      "ifindex": 2,
+      "birth": 1
+    },
+    "match": {
+      "source": {
+        "address": 3325256706,
+        "length": 32
+      },
+      "destination": {
+        "address": 3405803777,
+        "length": 32
+      },
+      "protocol": 6,
+      "sourcePorts": {
+        "first": 9000,
+        "last": 9000
+      },
+      "destinationPorts": {
+        "first": 40000,
+        "last": 40000
+      }
+    }
+  }
+]

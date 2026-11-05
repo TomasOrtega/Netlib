@@ -142,9 +142,19 @@ Stale allow rules retain their actual computation and fail comparison.
 
 `CampusTCPModel` records actual endpoint, assignment, service, and receipt operations.
 `CampusTCPOrigins` and `CampusTCPFacts` derive the causal references and delivery history used by the application theorem.
-Their service facts connect compliant output to the declared primary campus path and modeled management isolation.
+Their service facts connect compliant output to the declared selected gateway path and modeled management isolation.
 The concrete trace has nonempty application reads through the same gateway as startup.
 The [campus TCP guide](CAMPUS_TCP.md) states the selected model and remaining deployment assumptions.
+
+`TCP.Checkpoint` captures a reachable established tracker and admission pair from actual transport computations.
+Its image comparison is equivalent to full pair equality, including the learned windows and packet observations.
+Installation requires an unchanged source cut and an empty target.
+The target inherits the exact source history, selected lookup, and continuation facts.
+
+The joint campus replay retains gateway identity and route epoch in each immutable ticket.
+Planned controls test actual pending work, current source equality, target namespace lifetime, route owners, and fencing conditions.
+The existing application assurance builder uses the combined actual history across the selected gateways.
+The [planned transfer guide](CAMPUS_TCP_TRANSFER.md) states the pause contract and native obligations.
 
 ## Admission around reassembly
 
