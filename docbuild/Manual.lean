@@ -1506,6 +1506,53 @@ The controller's EAP-to-data-port mapping and authentic lifetime observations re
 Same-port impersonation, cryptographic packet provenance, fragment isolation, and complete campus correspondence remain open.
 The full seven-program objective remains OPEN.
 
+# Admission around reassembly
+%%%
+tag := "fragment-admission"
+file := "fragment-admission"
+%%%
+
+An early fragment guard reads IPv4 addresses, protocol, and input-interface metadata.
+It cannot require transport ports from noninitial fragments.
+The typed guard therefore carries a syntactic absence-of-port-selectors proof.
+Its decisions are independent of every port value:
+
+```lean
+open Netlib.Packet in
+open Netlib.Protocol.FragmentAdmission in
+example (guard : EarlyGuard) (index : Nat)
+    (first second : Header)
+    (same : IPv4Envelope.ofHeader first =
+      IPv4Envelope.ofHeader second) :
+    guard.policy.allows index first =
+      guard.policy.allows index second :=
+  guard.port_independent index first second same
+```
+
+The selected importer requires raw prerouting priority `-450` and retains the actual source rules.
+It rejects transport reads even when their ranges are tautological in a complete-header model.
+Coarse application and maintenance classes have separate disjointness checks after port erasure.
+
+The transition executes the installed early decision, actual reassembly, installed full-datagram decision, and ordinary tracked MTU forwarding.
+An early drop preserves queues and tracking.
+A fine drop preserves tracking after the computed reassembly change.
+An ordinary drop can retain ordinary preparation effects.
+Current coarse permission and complete-datagram permission have separate proofs.
+
+Reassembly keeps its existing namespace, user/vif, address, protocol, and identification interpretation.
+Input interface and EAP round do not become artificial queue partitions.
+Every output piece has a matching admitted receipt in its actual domain and namespace, with arrival time no later than completion.
+This is byte provenance, without unique physical attribution among identical duplicate occurrences.
+
+Retirement archives model state and removes the active processing target.
+A successor starts in a fresh namespace lifetime with empty model state.
+Session residency requires this change when the authentication round changes.
+These operations do not establish a native queue flush or a physical namespace cutover.
+
+The new library component has pure Lean and passive Python checks.
+Its new Linux capture, joint campus runtime integration, and complete implementation correspondence remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"
