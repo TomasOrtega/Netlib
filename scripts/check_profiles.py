@@ -6,6 +6,7 @@ import tempfile
 from pathlib import Path
 
 from check_cli import ROOT, invoke
+from check_icmp_examples import check as icmp_checks
 
 
 def catalogue(report):
@@ -1124,6 +1125,7 @@ def main():
     wire_checks()
     wire_forwarding_checks()
     mtu_checks()
+    icmp_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

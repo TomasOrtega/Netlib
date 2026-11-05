@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "captureContainer": "netlib-icmp-final-v5",
+  "captureImageID": "sha256:08969d1b8e9861ded58795860824c9e3890344590b71f4f1ce96933fcb1e6a68",
+  "captureStartedAt": "2026-11-05T01:04:10.158362665Z",
+  "captureCompletedAt": "2026-11-05T01:04:20.459050717Z",
+  "actualBuildCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-icmp-capture:1",
+    "/private/tmp/netlib-icmp-build"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "run",
+    "--name",
+    "netlib-icmp-final-v5",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-icmp-capture:1"
+  ],
+  "recipeNote": "The retained run used Docker run directly. The packaged recipe uses create/start with the same source inputs and runtime options. Build and runtime logs belong to this final retained run."
+}

@@ -12,3 +12,6 @@ examples/wire-nat/native/trace.txt -whitespace
 examples/mtu/build-stdout.txt -whitespace
 examples/mtu/build-stderr.txt -whitespace
 examples/mtu/native/trace.txt -whitespace
+examples/icmp/build-stdout.txt -whitespace
+examples/icmp/build-stderr.txt -whitespace
+examples/icmp/native/trace.txt -whitespace

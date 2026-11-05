@@ -14,7 +14,7 @@ It does not establish completion of the goal.
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
-| Connected protocol stacks | IPv4 UDP forwarding preserves payload through tracked NAT, regenerates checksums, decrements TTL, and produces verified MTU-bounded fragment families. Checked EAP evidence and credentials control the selected packet classes. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
+| Connected protocol stacks | IPv4 UDP forwarding preserves payload through tracked NAT, regenerates checksums, decrements TTL, and produces verified MTU-bounded fragment families. Generated ICMP errors restore quoted tuples through related NAT. Checked EAP evidence and credentials control the selected packet classes. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
@@ -104,12 +104,16 @@ The [MTU extension](MTU.md) now orders TTL and DF rejection before filtering and
 Generated families fit the selected effective MTU and recover the whole packet under strict reassembly, including arbitrary capture order.
 Compliant native replay transfers payload, TTL, and fragment-size guarantees to observed families.
 A normal UDP socket receives the complete 1,200-byte payload after native three-fragment forwarding.
-Input fragmentation, ICMP semantics, options, full transport behavior, concurrency, and complete kernel refinement remain open.
+The [ICMP extension](ICMP.md) now generates selected TTL and DF errors with bounded quotations, related output filtering, and NAT restoration.
+Incremental checksum proofs establish valid translation and exact quoted-packet restoration without requiring missing application bytes.
+Compliant replay transfers observed errors to the computed source prefix and generation guards.
+A fresh capture checks twelve errors across full and truncated quotations, TOS changes, and both NAT directions.
+Received ICMP, input fragmentation, options, full transport behavior, concurrency, and complete kernel refinement remain open.
 Principal-to-tuple ownership and global policy-installation timing also need stronger evidence.
 
 ## Next implementation work
 
-1. Extend byte-derived forwarding through ICMP, input fragmentation and reassembly, transport validation, expiry, concurrency, and additional hooks and routing scopes.
+1. Extend byte-derived forwarding through received ICMP, PMTU discovery, input fragmentation and reassembly, transport validation, expiry, concurrency, and broader routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Refine EAP method evidence with cryptographic semantics, wireless key installation, and trusted link/session attribution.
 4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.

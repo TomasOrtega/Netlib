@@ -1168,6 +1168,55 @@ Current EAP permission authorizes modeled families, while Logoff denies cached t
 ICMP generation, input reassembly, options, resource failures, concurrency, and native implementation refinement remain open.
 Capture attribution, effective MTU, principal binding, and current installation retain explicit assumptions.
 
+# ICMP errors and quoted NAT
+%%%
+tag := "icmp"
+file := "icmp"
+%%%
+
+The ICMP extension generates Time Exceeded and Fragmentation Needed from the computed transit rejection.
+It quotes the packet after destination NAT, then restores the embedded tuple through related NAT.
+The restored quote equals the original input prefix, including its UDP checksum.
+Only equivalent IPv4 checksum zero representations can differ.
+
+Incremental checksum updates require the changed tuple words, without requiring missing application bytes.
+The operation preserves checksum omission and has a general inverse:
+
+```lean
+open Netlib.Protocol in
+example (checksum : InternetChecksum.Word)
+    (removed added : Nat) :
+    ChecksumRewrite.update
+      (ChecksumRewrite.update checksum removed added)
+      added removed = checksum :=
+  ChecksumRewrite.update_inverse checksum removed added
+```
+
+The quote retains its original IPv4 and UDP declared lengths even when truncated.
+The return MTU bounds generated output independently of the forward MTU reported by Fragmentation Needed.
+For IHL five, the quote budget is `min(returnMTU, 576) - 28` bytes.
+Only complete UDP quotations establish transport checksum validity.
+
+The error reuses the opposite connection direction as related traffic.
+Separate output and late policies govern control emission.
+Fresh rejected candidates remain unconfirmed, and earlier reply observations survive.
+Current-session guards still authorize UDP transit.
+A control error does not imply application permission because TTL and DF rejection precede forward filtering.
+
+```
+lake exe netlib wire-icmp examples/icmp/replay.json --json
+lake exe netlib session-firewall examples/icmp/session.json --json
+```
+
+The checker validates both the UDP transit family and the generated ICMP error.
+Compliant observed quotations inherit the source-prefix and generation proofs.
+Observed identification supplies an explicit allocator choice; the remaining semantic fields are computed.
+
+A fresh capture retains twelve errors across full and truncated quotations, odd lengths, TOS changes, and checksum omission.
+Native LOCAL_OUT and postrouting traces expose related filtering and NAT correction.
+The selected profile disables rate limiting and assumes successful allocation and transmission.
+Received ICMP, input fragments, PMTU discovery, concurrency, and kernel refinement remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

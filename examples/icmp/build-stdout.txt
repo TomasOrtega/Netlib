@@ -1,0 +1,13 @@
+Sending build context to Docker daemon  34.82kB
+Step 1/4 : FROM netlib-mtu-capture:1
+ ---> 5339283b9b4b
+Step 2/4 : COPY exercise.py capture.sh /task/icmp/
+ ---> 244c7779a970
+Step 3/4 : COPY requirements.json deny.json permit.json demo-credential.json /task/admission/input/
+ ---> c71c4b554a56
+Step 4/4 : CMD ["sh", "/task/icmp/capture.sh"]
+ ---> Running in a9bc41bd042f
+ ---> Removed intermediate container a9bc41bd042f
+ ---> 08969d1b8e98
+Successfully built 08969d1b8e98
+Successfully tagged netlib-icmp-capture:1

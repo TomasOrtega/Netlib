@@ -119,6 +119,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [IPv4 and UDP wire bytes and checksums](WIRE.md).
 - [Payload, TTL, and NAT wire forwarding](WIRE_FORWARDING.md).
 - [MTU decisions, fragmentation, and strict reassembly](MTU.md).
+- [Generated ICMP errors and related quotation NAT](ICMP.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).

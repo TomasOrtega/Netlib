@@ -76,6 +76,14 @@ import NetlibTest.IPv4Fragmentation
 import NetlibTest.MTUForwarding
 import NetlibTest.MTUForwardingCheck
 import NetlibTest.MTUDeployment
+import NetlibTest.ChecksumRewrite
+import NetlibTest.IPv4Quote
+import NetlibTest.ICMP
+import NetlibTest.ICMPNAT
+import NetlibTest.ICMPForwarding
+import NetlibTest.ICMPError
+import NetlibTest.ICMPForwardingCheck
+import NetlibTest.ICMPDeployment
 import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
@@ -158,5 +166,13 @@ def main : IO Unit := do
   NetlibTest.MTUForwarding.run
   NetlibTest.MTUForwardingCheck.run
   NetlibTest.MTUDeployment.run
+  NetlibTest.ChecksumRewrite.run
+  NetlibTest.IPv4Quote.run
+  NetlibTest.ICMP.run
+  NetlibTest.ICMPNAT.run
+  NetlibTest.ICMPForwarding.run
+  NetlibTest.ICMPError.run
+  NetlibTest.ICMPForwardingCheck.run
+  NetlibTest.ICMPDeployment.run
   NetlibTest.WireNATDeployment.run
   IO.println "Netlib tests passed."

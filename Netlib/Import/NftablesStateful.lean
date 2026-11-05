@@ -206,14 +206,16 @@ private def parseRule (input : RuleInput) : Except String SourceRule := do
 
 namespace Snapshot
 
-def fromJson (json : Lean.Json) : Except String Snapshot := do
-  let source ← envelope json ["forward", "postrouting"]
+def fromJsonFor (json : Lean.Json) (hooks : List String) : Except String Snapshot := do
+  let source ← envelope json hooks
   let mut rules := []
   for input in source.rules do
     let rule ← (parseRule input).mapError (s!"nftables[{input.objectIndex}]: " ++ ·)
     rules := rule :: rules
   return ⟨source.version, source.releaseName, source.table, source.chain, source.tableHandle,
     source.chainHandle, source.tableIndex, source.chainIndex, source.hook, source.priority, source.policy, rules.reverse⟩
+
+def fromJson (json : Lean.Json) : Except String Snapshot := fromJsonFor json ["forward", "postrouting"]
 
 def parse (text : String) : Except String Snapshot := do
   fromJson (← Json.parse text)
