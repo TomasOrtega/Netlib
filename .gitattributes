@@ -15,3 +15,6 @@ examples/mtu/native/trace.txt -whitespace
 examples/icmp/build-stdout.txt -whitespace
 examples/icmp/build-stderr.txt -whitespace
 examples/icmp/native/trace.txt -whitespace
+examples/received-icmp/build-stdout.txt -whitespace
+examples/received-icmp/build-stderr.txt -whitespace
+examples/received-icmp/native/trace.txt -whitespace

@@ -19,6 +19,8 @@ import Netlib.Check.Wire
 import Netlib.Check.WireForwarding
 import Netlib.Check.MTUForwarding
 import Netlib.Check.ICMPForwarding
+import Netlib.Check.RelatedICMP
+import Netlib.Check.PMTU
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -47,6 +49,8 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib wire-forward TRACE.json [--json]\n\
   netlib wire-mtu TRACE.json [--json]\n\
   netlib wire-icmp TRACE.json [--json]\n\
+  netlib wire-related TRACE.json [--json]\n\
+  netlib host-pmtu TRACE.json [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -213,6 +217,18 @@ private def wireMTU (path : String) (json : Bool) : IO UInt32 := do
 
 private def wireICMP (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.ICMPForwarding.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
+private def wireRelated (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.RelatedICMP.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
+private def hostPMTU (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.PMTU.Input.parse (← IO.FS.readFile path))
   let report ← unwrap input.check
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.compliant then 0 else 1
@@ -445,6 +461,10 @@ private def run (args : List String) : IO UInt32 := do
   | ["wire-mtu", path, "--json"] => wireMTU path true
   | ["wire-icmp", path] => wireICMP path false
   | ["wire-icmp", path, "--json"] => wireICMP path true
+  | ["wire-related", path] => wireRelated path false
+  | ["wire-related", path, "--json"] => wireRelated path true
+  | ["host-pmtu", path] => hostPMTU path false
+  | ["host-pmtu", path, "--json"] => hostPMTU path true
   | ["transfer", path] => transfer path 4096 false
   | ["transfer", path, "--json"] => transfer path 4096 true
   | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false

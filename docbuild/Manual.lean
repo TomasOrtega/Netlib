@@ -1215,7 +1215,57 @@ Observed identification supplies an explicit allocator choice; the remaining sem
 A fresh capture retains twelve errors across full and truncated quotations, odd lengths, TOS changes, and checksum omission.
 Native `LOCAL_OUT` and postrouting traces expose related filtering and NAT correction.
 The selected profile disables rate limiting and assumes successful allocation and transmission.
-Received ICMP, input fragments, PMTU discovery, concurrency, and kernel refinement remain open.
+This generation layer excludes received ICMP and host PMTU feedback; the next chapter connects both.
+Input fragments, concurrency, and kernel refinement remain open.
+
+# Received errors and host PMTU
+%%%
+tag := "received-icmp"
+file := "received-icmp"
+%%%
+
+The received-error layer associates a reversed quoted UDP tuple and zone with confirmed connection state.
+The outer destination must agree with the found tuple.
+The quoted fields remain untrusted data, including incorrect checksums, declarations, and raw flag bits.
+
+Related NAT restores the sender-boundary tuple and updates checksums incrementally.
+Invalid checksum residue remains invalid.
+The quoted TTL retains the earlier forwarding hop's decrement.
+Forwarded errors lose one outer TTL, retain frozen conntrack state, and pass related forward and late policy.
+Small egress MTUs produce certified fragment families.
+
+The host matches the restored socket tuple and Fragmentation Needed kind.
+PMTU updates model floor locking, refresh, and expiry.
+Expired exceptions can restore the physical route MTU.
+A drained-error DF send has the following capacity condition:
+
+```lean
+open Netlib.Protocol in
+example (route : PMTU.Route) (state : PMTU.State)
+    (now payload : Nat) :
+    PMTU.send route state now true payload = .accepted ↔
+      payload + 28 ≤ 65535 ∧
+      payload + 28 ≤ (state.current route now).val := by
+  simpa using PMTU.send_accepted_iff
+    route state now true payload
+```
+
+The reporter address does not authenticate feedback.
+A matching forged quote can lower an unlocked cached PMTU.
+The composition theorem connects actual gateway output and restored quote bytes to the host update while conntrack remains frozen.
+
+```
+lake exe netlib wire-related examples/received-icmp/replay.json --json
+lake exe netlib host-pmtu examples/received-icmp/host.json --json
+```
+
+The gateway replay checks sixteen events and the host replay checks nineteen observations.
+Post-episode snapshots attach only to their final observed event; earlier prefixes can remain unobserved.
+The native experiment uses an EAP/NAT edge, downstream router, client, and server.
+It demonstrates PMTU 600, local oversized-send rejection, smaller UDP delivery, and a matching forgery lowering PMTU to 576.
+Runtime tests also cover 68-byte output fragmentation and abstract exception expiry.
+
+Clock-to-kernel correspondence, source identity, broader host behavior, input reassembly, and implementation refinement remain open.
 
 # Documentation process
 %%%
