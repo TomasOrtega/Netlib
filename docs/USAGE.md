@@ -121,6 +121,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [MTU decisions, fragmentation, and strict reassembly](MTU.md).
 - [Generated ICMP errors and related quotation NAT](ICMP.md).
 - [Received ICMP, NAT association, and host PMTU feedback](RECEIVED_ICMP.md).
+- [Ingress IPv4 reassembly and policy at completion](REASSEMBLY.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).

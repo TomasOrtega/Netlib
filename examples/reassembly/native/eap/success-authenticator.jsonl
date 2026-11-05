@@ -1,0 +1,567 @@
+{"timeNs": 70195257430253, "line": "random: Trying to read entropy from /dev/random"}
+{"timeNs": 70195257464503, "line": "Configuration file: /tmp/netlib-admission/eap/hostapd.conf"}
+{"timeNs": 70195257471711, "line": "eapol_version=2"}
+{"timeNs": 70195257475545, "line": "Opening raw packet socket for ifindex 3"}
+{"timeNs": 70195265832641, "line": "BSS count 1, BSSID mask 00:00:00:00:00:00 (0 bits)"}
+{"timeNs": 70195265865391, "line": "Completing interface initialization"}
+{"timeNs": 70195265871933, "line": "hostapd_setup_bss(hapd=0xf89fba25e050 (auth0), first=1)"}
+{"timeNs": 70195265887558, "line": "Using interface auth0 with hwaddr 02:00:00:00:ea:01 and ssid \"\""}
+{"timeNs": 70195265892974, "line": "PKCS11 provider not present"}
+{"timeNs": 70195265897266, "line": "tls_global_set_params: Clearing pending SSL error: error:12800067:DSO support routines::could not load the shared library"}
+{"timeNs": 70195265901349, "line": "tls_global_set_params: Clearing pending SSL error: error:12800067:DSO support routines::could not load the shared library"}
+{"timeNs": 70195265904349, "line": "tls_global_set_params: Clearing pending SSL error: error:07880025:common libcrypto routines::reason(37)"}
+{"timeNs": 70195266247143, "line": "TLS: Trusted root certificate(s) loaded"}
+{"timeNs": 70195266666396, "line": "OpenSSL: tls_use_private_key_file (PEM) --> loaded"}
+{"timeNs": 70195266683063, "line": "OpenSSL: Enabled cipher suites in priority order"}
+{"timeNs": 70195266687604, "line": "Cipher 0: TLS_AES_256_GCM_SHA384"}
+{"timeNs": 70195266690396, "line": "Cipher 1: TLS_CHACHA20_POLY1305_SHA256"}
+{"timeNs": 70195266692896, "line": "Cipher 2: TLS_AES_128_GCM_SHA256"}
+{"timeNs": 70195266695188, "line": "Cipher 3: ECDHE-ECDSA-AES256-GCM-SHA384"}
+{"timeNs": 70195266697521, "line": "Cipher 4: ECDHE-RSA-AES256-GCM-SHA384"}
+{"timeNs": 70195266700105, "line": "Cipher 5: DHE-RSA-AES256-GCM-SHA384"}
+{"timeNs": 70195266702355, "line": "Cipher 6: ECDHE-ECDSA-CHACHA20-POLY1305"}
+{"timeNs": 70195266704813, "line": "Cipher 7: ECDHE-RSA-CHACHA20-POLY1305"}
+{"timeNs": 70195266707105, "line": "Cipher 8: DHE-RSA-CHACHA20-POLY1305"}
+{"timeNs": 70195266709313, "line": "Cipher 9: ECDHE-ECDSA-AES128-GCM-SHA256"}
+{"timeNs": 70195266712021, "line": "Cipher 10: ECDHE-RSA-AES128-GCM-SHA256"}
+{"timeNs": 70195266715105, "line": "Cipher 11: DHE-RSA-AES128-GCM-SHA256"}
+{"timeNs": 70195266717521, "line": "Cipher 12: ECDHE-ECDSA-AES256-SHA384"}
+{"timeNs": 70195266719730, "line": "Cipher 13: ECDHE-RSA-AES256-SHA384"}
+{"timeNs": 70195266721813, "line": "Cipher 14: DHE-RSA-AES256-SHA256"}
+{"timeNs": 70195266723896, "line": "Cipher 15: ECDHE-ECDSA-AES128-SHA256"}
+{"timeNs": 70195266726063, "line": "Cipher 16: ECDHE-RSA-AES128-SHA256"}
+{"timeNs": 70195266728688, "line": "Cipher 17: DHE-RSA-AES128-SHA256"}
+{"timeNs": 70195266731063, "line": "Cipher 18: ECDHE-ECDSA-AES256-SHA"}
+{"timeNs": 70195266733188, "line": "Cipher 19: ECDHE-RSA-AES256-SHA"}
+{"timeNs": 70195266735355, "line": "Cipher 20: DHE-RSA-AES256-SHA"}
+{"timeNs": 70195266737480, "line": "Cipher 21: ECDHE-ECDSA-AES128-SHA"}
+{"timeNs": 70195266739605, "line": "Cipher 22: ECDHE-RSA-AES128-SHA"}
+{"timeNs": 70195266741688, "line": "Cipher 23: DHE-RSA-AES128-SHA"}
+{"timeNs": 70195266743688, "line": "Cipher 24: RSA-PSK-AES256-GCM-SHA384"}
+{"timeNs": 70195266745980, "line": "Cipher 25: DHE-PSK-AES256-GCM-SHA384"}
+{"timeNs": 70195266748688, "line": "Cipher 26: RSA-PSK-CHACHA20-POLY1305"}
+{"timeNs": 70195266750730, "line": "Cipher 27: DHE-PSK-CHACHA20-POLY1305"}
+{"timeNs": 70195266752688, "line": "Cipher 28: ECDHE-PSK-CHACHA20-POLY1305"}
+{"timeNs": 70195266754688, "line": "Cipher 29: AES256-GCM-SHA384"}
+{"timeNs": 70195266756688, "line": "Cipher 30: PSK-AES256-GCM-SHA384"}
+{"timeNs": 70195266758688, "line": "Cipher 31: PSK-CHACHA20-POLY1305"}
+{"timeNs": 70195266760897, "line": "Cipher 32: RSA-PSK-AES128-GCM-SHA256"}
+{"timeNs": 70195266762938, "line": "Cipher 33: DHE-PSK-AES128-GCM-SHA256"}
+{"timeNs": 70195266764897, "line": "Cipher 34: AES128-GCM-SHA256"}
+{"timeNs": 70195266766855, "line": "Cipher 35: PSK-AES128-GCM-SHA256"}
+{"timeNs": 70195266768938, "line": "Cipher 36: AES256-SHA256"}
+{"timeNs": 70195266777105, "line": "Cipher 37: AES128-SHA256"}
+{"timeNs": 70195266780147, "line": "Cipher 38: ECDHE-PSK-AES256-CBC-SHA384"}
+{"timeNs": 70195266782313, "line": "Cipher 39: ECDHE-PSK-AES256-CBC-SHA"}
+{"timeNs": 70195266784397, "line": "Cipher 40: SRP-RSA-AES-256-CBC-SHA"}
+{"timeNs": 70195266786563, "line": "Cipher 41: SRP-AES-256-CBC-SHA"}
+{"timeNs": 70195266788605, "line": "Cipher 42: RSA-PSK-AES256-CBC-SHA384"}
+{"timeNs": 70195266790730, "line": "Cipher 43: DHE-PSK-AES256-CBC-SHA384"}
+{"timeNs": 70195266792688, "line": "Cipher 44: RSA-PSK-AES256-CBC-SHA"}
+{"timeNs": 70195266794730, "line": "Cipher 45: DHE-PSK-AES256-CBC-SHA"}
+{"timeNs": 70195266796772, "line": "Cipher 46: AES256-SHA"}
+{"timeNs": 70195266798814, "line": "Cipher 47: PSK-AES256-CBC-SHA384"}
+{"timeNs": 70195266800855, "line": "Cipher 48: PSK-AES256-CBC-SHA"}
+{"timeNs": 70195266802855, "line": "Cipher 49: ECDHE-PSK-AES128-CBC-SHA256"}
+{"timeNs": 70195266806314, "line": "Cipher 50: ECDHE-PSK-AES128-CBC-SHA"}
+{"timeNs": 70195266808355, "line": "Cipher 51: SRP-RSA-AES-128-CBC-SHA"}
+{"timeNs": 70195266810272, "line": "Cipher 52: SRP-AES-128-CBC-SHA"}
+{"timeNs": 70195266812230, "line": "Cipher 53: RSA-PSK-AES128-CBC-SHA256"}
+{"timeNs": 70195266814230, "line": "Cipher 54: DHE-PSK-AES128-CBC-SHA256"}
+{"timeNs": 70195266816189, "line": "Cipher 55: RSA-PSK-AES128-CBC-SHA"}
+{"timeNs": 70195266818147, "line": "Cipher 56: DHE-PSK-AES128-CBC-SHA"}
+{"timeNs": 70195266820147, "line": "Cipher 57: AES128-SHA"}
+{"timeNs": 70195266822064, "line": "Cipher 58: PSK-AES128-CBC-SHA256"}
+{"timeNs": 70195266824022, "line": "Cipher 59: PSK-AES128-CBC-SHA"}
+{"timeNs": 70195266825980, "line": "OpenSSL: Configured certificate chain"}
+{"timeNs": 70195266827980, "line": "0: /CN=radius.campus.example.test (EC) 1000"}
+{"timeNs": 70195266831480, "line": "auth0: Deauthenticate all stations at BSS start"}
+{"timeNs": 70195266833647, "line": "auth0: interface state UNINITIALIZED->ENABLED"}
+{"timeNs": 70195266835647, "line": "auth0: AP-ENABLED "}
+{"timeNs": 70195266837647, "line": "auth0: Setup of interface done."}
+{"timeNs": 70195266839605, "line": "ctrl_iface not configured!"}
+{"timeNs": 70195266841480, "line": "random: Got 20/20 bytes from /dev/random"}
+{"timeNs": 70197293090513, "line": "Received EAPOL packet"}
+{"timeNs": 70197293128805, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197293138305, "line": "Data frame from unknown STA 02:00:00:00:ea:02 - adding a new STA"}
+{"timeNs": 70197293146305, "line": "  New STA"}
+{"timeNs": 70197293155347, "line": "ap_sta_add: register ap_handle_timer timeout for 02:00:00:00:ea:02 (300 seconds - ap_max_inactivity)"}
+{"timeNs": 70197293162597, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: start authentication"}
+{"timeNs": 70197293169139, "line": "EAP: Server state machine created"}
+{"timeNs": 70197293175555, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state IDLE"}
+{"timeNs": 70197293182180, "line": "IEEE 802.1X: 02:00:00:00:ea:02 CTRL_DIR entering state FORCE_BOTH"}
+{"timeNs": 70197293188889, "line": "auth0: hostapd_new_assoc_sta: canceled wired ap_handle_timer timeout for 02:00:00:00:ea:02"}
+{"timeNs": 70197293320181, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197293327015, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197293333681, "line": "IEEE 802.1X: 4 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197293340223, "line": "   IEEE 802.1X: version=2 type=1 length=0"}
+{"timeNs": 70197293346723, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAPOL-Start from STA"}
+{"timeNs": 70197293353182, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state DISCONNECTED"}
+{"timeNs": 70197293359223, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: unauthorizing port"}
+{"timeNs": 70197293374348, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state RESTART"}
+{"timeNs": 70197293381265, "line": "EAP: EAP entering state INITIALIZE"}
+{"timeNs": 70197293387432, "line": "auth0: CTRL-EVENT-EAP-STARTED 02:00:00:00:ea:02"}
+{"timeNs": 70197293402640, "line": "EAP: EAP entering state SELECT_ACTION"}
+{"timeNs": 70197293409432, "line": "EAP: getDecision: no identity known yet -> CONTINUE"}
+{"timeNs": 70197293415640, "line": "EAP: EAP entering state PROPOSE_METHOD"}
+{"timeNs": 70197293421682, "line": "EAP: getNextMethod: vendor 0 type 1"}
+{"timeNs": 70197293427849, "line": "auth0: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=1"}
+{"timeNs": 70197293437182, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197293444640, "line": "EAP: building EAP-Request: Identifier 1"}
+{"timeNs": 70197293450682, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197293456766, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197293462849, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197293468807, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state CONNECTING"}
+{"timeNs": 70197293474974, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state AUTHENTICATING"}
+{"timeNs": 70197293480932, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197293487141, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 1)"}
+{"timeNs": 70197295941157, "line": "Received EAPOL packet"}
+{"timeNs": 70197295978907, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197295995615, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197296057574, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197296076657, "line": "IEEE 802.1X: 38 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197296098283, "line": "   IEEE 802.1X: version=2 type=0 length=34"}
+{"timeNs": 70197296114033, "line": "EAP: code=2 (response) identifier=1 length=34"}
+{"timeNs": 70197296129575, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=1 len=34) from STA: EAP Response-Identity (1)"}
+{"timeNs": 70197296147991, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197296163408, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197296178575, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=1 respMethod=1 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197296194950, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197296213950, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197296228950, "line": "EAP-Identity: Peer identity - hexdump_ascii(len=29):"}
+{"timeNs": 70197296244659, "line": "     61 6e 6f 6e 79 6d 6f 75 73 40 63 61 6d 70 75 73   anonymous@campus"}
+{"timeNs": 70197296259867, "line": "     2e 65 78 61 6d 70 6c 65 2e 74 65 73 74            .example.test   "}
+{"timeNs": 70197296274950, "line": "EAP: EAP entering state SELECT_ACTION"}
+{"timeNs": 70197296289826, "line": "EAP: getDecision: another method available -> CONTINUE"}
+{"timeNs": 70197296304826, "line": "EAP: EAP entering state PROPOSE_METHOD"}
+{"timeNs": 70197296319617, "line": "EAP: getNextMethod: vendor 0 type 13"}
+{"timeNs": 70197296334409, "line": "auth0: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=13"}
+{"timeNs": 70197296349618, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197296364118, "line": "EAP: building EAP-Request: Identifier 2"}
+{"timeNs": 70197296379159, "line": "EAP-TLS: START -> CONTINUE"}
+{"timeNs": 70197296394368, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197296409076, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197296424076, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197296439618, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197296454493, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 2)"}
+{"timeNs": 70197299211844, "line": "Received EAPOL packet"}
+{"timeNs": 70197299235386, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197299247720, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197299268012, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197299280553, "line": "IEEE 802.1X: 1412 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197299292262, "line": "   IEEE 802.1X: version=2 type=0 length=1408"}
+{"timeNs": 70197299303470, "line": "EAP: code=2 (response) identifier=2 length=1408"}
+{"timeNs": 70197299314845, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=2 len=1408) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197299327887, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197299339137, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197299350262, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=2 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197299361679, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197299372471, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197299383346, "line": "SSL: Received packet(len=1408) - Flags 0xc0"}
+{"timeNs": 70197299404304, "line": "SSL: Received data - hexdump(len=1402): 00 00 05 95 16 03 01 05 90 01 00 05 8c 03 03 88 bc 18 9b 2c 23 f9 f4 e8 3d 8b 68 f8 3d da 96 18 19 e3 6b b2 48 35 6e 26 ed a8 05 9a 4e 3e 60 00 00 06 13 02 13 03 13 01 01 00 05 5d ff 01 00 01 00 00 0b 00 04 03 00 01 02 00 0a 00 12 00 10 11 ec 00 1d 00 17 00 1e 00 18 00 19 01 00 01 01 00 05 00 05 01 00 00 00 00 00 16 00 00 00 17 00 00 00 0d 00 2a 00 28 09 05 09 06 09 04 04 03 05 03 06 03 08 07 08 08 08 1a 08 1b 08 1c 08 09 08 0a 08 0b 08 04 08 05 08 06 04 01 05 01 06 01 00 2b 00 03 02 03 04 00 2d 00 02 01 01 00 33 04 ea 04 e8 11 ec 04 c0 81 27 b8 67 08 19 94 96 62 91 eb 8a fd 75 c5 1a e8 9f 58 5c 68 5b 10 3a 73 65 3f 7b 97 4c 85 40 11 e2 69 c0 53 d0 1d 3b 7b c8 0a 49 b1 9a 7a 96 d4 43 2f f8 95 7d b0 b9 10 98 dc 9e f3 c6 0a 39 72 3b 4d 58 2f 67 00 2b 95 6c 7f 01 7a c9 37 5b a0 a7 fc ae 9b 44 18 89 a1 09 7b f8 08 4e 13 c4 db 06 27 37 23 16 09 68 63 3d fc 7d f9 fa c2 74 da 35 76 45 ab d5 7c 76 2a 25 c7 fc 40 77 5a c4 53 b3 18 53 bc c4 25 9f 61 bf ac 68 8b 8f d2 78 d0 0a c0 ec b4 cb c8 b3 2d 84 6c 2e 33 85 91 35 dc 7a 14 dc ba db e9 59 f6 d0 67 ae 55 53 55 67 a8 cd 24 1f c7 46 3e 4a d1 07 34 43 ca ac b1 b5 43 40 3d c7 78 a1 20 71 96 37 f3 42 02 9c 61 97 67 52 1a 35 c6 fc 7a 64 27 64 2f 86 c9 8c 4a c1 07 5f 84 1e d7 80 6d 0b 71 ca b9 b8 02 2d 04 88 12 d3 63 1b 4b 0a 57 4c 44 95 73 4f f4 2b bd 67 eb c9 05 80 07 c2 b3 91 5f 63 6f 8e 38 90 c5 12 81 14 26 41 ba 50 42 87 21 17 eb d3 36 2e e1 8b 6d 9a 78 0b 1c b2 89 72 20 bf 59 8f 00 78 0c d2 61 b8 e9 0c 50 f5 01 26 33 ca 0d ef a1 b6 86 f4 9d b8 45 be c4 cb 5c 0c d9 20 25 31 cd c4 95 b6 53 0a 03 bd e0 2d c7 d9 bf 47 88 c6 88 48 93 ca a5 8c b4 f7 24 73 b6 b2 90 11 4f b0 f8 90 41 79 80 ff f4 3a 14 e5 62 1d a1 80 e8 62 4c f5 54 87 24 63 07 60 90 a6 2e 96 3e 92 79 c6 bc 43 37 49 54 6f 7c 57 06 3c 11 32 31 63 71 dd 48 6d c8 bc af a0 b4 4f 09 c4 3e e8 f3 88 9b cb a3 c1 21 32 cb 36 5b ce 57 8d 87 82 6b 5d 45 50 f8 70 44 e5 ab c0 00 73 3b 2d bc 5f 19 b5 91 e2 73 9c 47 b6 28 1b bb 0a 0a f1 13 6b 3a c7 fc 27 33 f7 05 78 f9 15 05 a2 67 9f ce a6 a9 2a 96 66 21 1a 32 87 87 87 69 dc 21 7e 80 28 55 fa 80 5e 12 8a 46 07 08 e8 22 3b ac b8 bc 79 19 24 ff 9a 5c 34 53 93 bc 56 19 32 73 8a 36 82 59 76 dc c6 4b d4 86 ff 91 55 8c 1c 4c 13 76 24 c2 15 77 dd 54 23 76 11 43 e7 b4 63 f3 db 0d ce 20 3a d4 83 a9 df 09 12 6f 78 75 03 da 1d e6 b0 43 99 fa ae bc 75 a6 ca 3a a4 a7 e5 75 e6 0c 1c 2b 09 06 6e a0 36 e9 69 bb 21 f4 17 d8 d5 21 c4 13 3c fc 6b a1 3d 26 a3 7e a7 5b 92 3c 29 1d 43 99 6c 83 16 2d 3a 5a 8e a9 cf 14 50 c2 1e 2a c1 33 2a 1c fc 72 5f 7f 44 4f ab b1 5e 44 7b 16 38 d6 93 2c 27 3a 7c 29 29 f2 88 af 14 85 6e bb 83 43 5d c5 c2 cf 64 31 c1 b5 07 4d 07 1d b4 67 90 43 15 89 9d a8 90 a8 3a 7f a5 d8 7e 93 27 6e 64 fc 56 ef 99 1a 82 b5 9b 09 f9 2d 67 9a 1c e5 63 3d 19 0b c4 0c fb 21 49 15 3e 73 bc 81 3f 51 15 aa 34 50 c5 46 21 60 24 06 92 a3 54 02 ec 65 8b a5 0b 31 64 74 53 97 bc 9f f5 08 f0 95 55 85 58 a3 90 b0 61 30 81 58 73 eb 4b de bb 5f a0 45 22 e3 45 bb 9c 5a c9 0d d6 88 8e 01 80 0d d6 26 12 2b 93 7d 66 cd f0 4b 68 7c f6 4c 5f 16 9e d4 9a 10 e9 52 72 ec c8 8d af 3b 15 f6 75 6a c5 44 6f 97 d9 42 ca 60 6c b3 a6 80 0c b1 5d f2 d4 39 a8 b2 14 af 54 7c d3 8a 00 cf fc 32 7c 79 72 f5 51 70 c3 65 61 29 c6 22 d1 86 c3 83 11 99 13 dc 26 2e 52 ae 24 c3 27 a8 70 68 46 f9 5c 2f 61 8f 08 c3 0a b9 73 03 5b 13 27 58 c5 cc 4e 5c 1f 8d 59 ce 6e 76 95 77 30 27 5e c3 17 2d 05 2a c2 1c ce 6d b6 ac cf ba 84 bc 84 c5 bf fc 98 96 92 c7 35 85 28 68 04 81 60 db 73 e8 ab a2 57 b7 b3 5a 79 09 4d a7 6e 81 db 81 a0 10 2a 8f 94 3c 37 46 bf dc 30 7a f4 ac 7a d5 22 4c ae 1b 37 f4 39 c2 c7 e2 c2 57 f8 54 80 03 1a 21 d0 35 b6 73 c4 47 49 30 18 f1 65 7e 3c 49 bc 5b 7f 52 75 9f fc 97 7b 26 7a 50 15 fa ca ee b9 48 71 81 1a b1 b7 9b e1 d0 0d 36 ac 34 3b 00 42 70 f4 ad ae 56 8a 73 a6 48 d2 d7 26 33 88 a1 b4 6a 73 a8 3a b4 06 4a 74 58 45 55 06 bb 39 e1 aa 13 5e 29 bf ac a8 62 4b c3 c9 e3 8a 7c 0c 04 39 9f 53 75 f9 54 61 6b da 7b df 9b 0a 67 7b 11 2f 33 58 34 33 23 4f ec 8f 60 58 3e 1f 6c c1 9e f9 1a 9d b6 20 8d 0b 22 db e4 58 bc 24 89 18 56 48 f7 7b bf f1 ee ae 86 7e 42 c4 34 29 4f cb 45 79 0b 23 1c b1 c1 77 e8 14 1b a5 51 4c 6f 2f b6 55 3a e8 26 ff a6 9a 64 fd e7 a5 b0 b9 a9 62 17 62 41 c4 e4 76 78 6c bc e3 89 57 07 f7 de c5 aa 6e 00 1d 00 20 5f"}
+{"timeNs": 70197299449471, "line": "SSL: TLS Message Length: 1429"}
+{"timeNs": 70197299461638, "line": "SSL: Received packet: Flags 0xc0 Message Length 1429"}
+{"timeNs": 70197299473638, "line": "SSL: Received 1398 bytes in first fragment, waiting for 31 bytes more"}
+{"timeNs": 70197299484930, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197299495846, "line": "EAP: building EAP-Request: Identifier 3"}
+{"timeNs": 70197299506763, "line": "SSL: Building ACK"}
+{"timeNs": 70197299517638, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197299528847, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197299539472, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197299550347, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197299561263, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 3)"}
+{"timeNs": 70197301081565, "line": "Received EAPOL packet"}
+{"timeNs": 70197301160399, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197301170274, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197301177607, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197301185107, "line": "IEEE 802.1X: 41 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197301192066, "line": "   IEEE 802.1X: version=2 type=0 length=37"}
+{"timeNs": 70197301198316, "line": "EAP: code=2 (response) identifier=3 length=37"}
+{"timeNs": 70197301204607, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=3 len=37) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197301212566, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197301218566, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197301225191, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=3 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197301231983, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197301238149, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197301244108, "line": "SSL: Received packet(len=37) - Flags 0x00"}
+{"timeNs": 70197301250441, "line": "SSL: Received data - hexdump(len=31): fa 00 21 6c 7a ae be d3 1c 84 ef 57 ac 76 60 93 4d d5 c5 70 aa 0c 4d 16 90 a4 7f 89 48 fa 60"}
+{"timeNs": 70197301257691, "line": "SSL: Received packet: Flags 0x0 Message Length 0"}
+{"timeNs": 70197301263774, "line": "SSL: Received 31 bytes, waiting for 0 bytes more"}
+{"timeNs": 70197301269816, "line": "SSL: All fragments received"}
+{"timeNs": 70197301276025, "line": "SSL: (where=0x10 ret=0x1)"}
+{"timeNs": 70197301281816, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301297941, "line": "SSL: SSL_accept:before SSL initialization"}
+{"timeNs": 70197301304775, "line": "OpenSSL: RX ver=0x301 content_type=256 (TLS header info/)"}
+{"timeNs": 70197301310900, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197301316900, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301322775, "line": "SSL: SSL_accept:before SSL initialization"}
+{"timeNs": 70197301328692, "line": "OpenSSL: RX ver=0x304 content_type=22 (handshake/client hello)"}
+{"timeNs": 70197301334567, "line": "OpenSSL: Message - hexdump(len=1424): [REMOVED]"}
+{"timeNs": 70197301340483, "line": "OpenSSL: OCSP status callback - send cached response"}
+{"timeNs": 70197301346483, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301364733, "line": "SSL: SSL_accept:SSLv3/TLS read client hello"}
+{"timeNs": 70197301370942, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197301377109, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197301383442, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/server hello)"}
+{"timeNs": 70197301389442, "line": "OpenSSL: Message - hexdump(len=1178): [REMOVED]"}
+{"timeNs": 70197301395359, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301401317, "line": "SSL: SSL_accept:SSLv3/TLS write server hello"}
+{"timeNs": 70197301467942, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197301481234, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197301487568, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197301493609, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197301499526, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/encrypted extensions)"}
+{"timeNs": 70197301505568, "line": "OpenSSL: Message - hexdump(len=6): [REMOVED]"}
+{"timeNs": 70197301511693, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301517651, "line": "SSL: SSL_accept:TLSv1.3 write encrypted extensions"}
+{"timeNs": 70197301524693, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197301530735, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197301536693, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197301542651, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197301549235, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/certificate request)"}
+{"timeNs": 70197301555276, "line": "OpenSSL: Message - hexdump(len=100): [REMOVED]"}
+{"timeNs": 70197301561110, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197301567068, "line": "SSL: SSL_accept:SSLv3/TLS write certificate request"}
+{"timeNs": 70197302254114, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197302310740, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197302325323, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197302336073, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197302346073, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/certificate)"}
+{"timeNs": 70197302355698, "line": "OpenSSL: Message - hexdump(len=1704): [REMOVED]"}
+{"timeNs": 70197302365282, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197302374282, "line": "SSL: SSL_accept:SSLv3/TLS write certificate"}
+{"timeNs": 70197302386657, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197302434615, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197302443990, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197302452824, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197302461991, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/certificate verify)"}
+{"timeNs": 70197302470657, "line": "OpenSSL: Message - hexdump(len=78): [REMOVED]"}
+{"timeNs": 70197302479407, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197302508574, "line": "SSL: SSL_accept:TLSv1.3 write server certificate verify"}
+{"timeNs": 70197302518908, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197302528074, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197302537366, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197302546033, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197302554908, "line": "OpenSSL: TX ver=0x304 content_type=22 (handshake/finished)"}
+{"timeNs": 70197302803618, "line": "OpenSSL: Message - hexdump(len=52): [REMOVED]"}
+{"timeNs": 70197302816410, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197302825910, "line": "SSL: SSL_accept:SSLv3/TLS write finished"}
+{"timeNs": 70197302834743, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197302843451, "line": "SSL: SSL_accept:TLSv1.3 early data"}
+{"timeNs": 70197302852076, "line": "SSL: (where=0x2002 ret=0xffffffff)"}
+{"timeNs": 70197302860618, "line": "SSL: SSL_accept:error in TLSv1.3 early data"}
+{"timeNs": 70197302868952, "line": "SSL: SSL_connect - want more data"}
+{"timeNs": 70197302877493, "line": "SSL: 3233 bytes pending from ssl_out"}
+{"timeNs": 70197302886160, "line": "SSL: Using TLS version TLSv1.3"}
+{"timeNs": 70197302895660, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197302904410, "line": "EAP: building EAP-Request: Identifier 4"}
+{"timeNs": 70197302913202, "line": "SSL: Generating Request"}
+{"timeNs": 70197302922285, "line": "SSL: Sending out 1393 bytes (1840 more to send)"}
+{"timeNs": 70197302930952, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197302939452, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197302948035, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197302956744, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197302965619, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 4)"}
+{"timeNs": 70197303418372, "line": "Received EAPOL packet"}
+{"timeNs": 70197303462247, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197303472872, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197303483289, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197303492914, "line": "IEEE 802.1X: 10 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197303519747, "line": "   IEEE 802.1X: version=2 type=0 length=6"}
+{"timeNs": 70197303528747, "line": "EAP: code=2 (response) identifier=4 length=6"}
+{"timeNs": 70197303537748, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=4 len=6) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197303550789, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197303560123, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197303569664, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=4 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197303579331, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197303587915, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197303596956, "line": "SSL: Received packet(len=6) - Flags 0x00"}
+{"timeNs": 70197303605581, "line": "SSL: Received data - hexdump(len=0):"}
+{"timeNs": 70197303614081, "line": "SSL: Received packet: Flags 0x0 Message Length 0"}
+{"timeNs": 70197303622873, "line": "SSL: Fragment acknowledged"}
+{"timeNs": 70197303632040, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197303640373, "line": "EAP: building EAP-Request: Identifier 5"}
+{"timeNs": 70197303648707, "line": "SSL: Generating Request"}
+{"timeNs": 70197303657790, "line": "SSL: Sending out 1397 bytes (443 more to send)"}
+{"timeNs": 70197303666207, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197303674623, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197303683207, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197303697749, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197303707082, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 5)"}
+{"timeNs": 70197303891875, "line": "Received EAPOL packet"}
+{"timeNs": 70197303916750, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197303926500, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197303991584, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197304041126, "line": "IEEE 802.1X: 10 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197304052043, "line": "   IEEE 802.1X: version=2 type=0 length=6"}
+{"timeNs": 70197304061376, "line": "EAP: code=2 (response) identifier=5 length=6"}
+{"timeNs": 70197304070834, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=5 len=6) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197304084001, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197304093251, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197304102335, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=5 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197304111668, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197304120710, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197304129543, "line": "SSL: Received packet(len=6) - Flags 0x00"}
+{"timeNs": 70197304138251, "line": "SSL: Received data - hexdump(len=0):"}
+{"timeNs": 70197304147418, "line": "SSL: Received packet: Flags 0x0 Message Length 0"}
+{"timeNs": 70197304156585, "line": "SSL: Fragment acknowledged"}
+{"timeNs": 70197304165168, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197304173752, "line": "EAP: building EAP-Request: Identifier 6"}
+{"timeNs": 70197304197502, "line": "SSL: Generating Request"}
+{"timeNs": 70197304410337, "line": "SSL: Sending out 443 bytes (message sent completely)"}
+{"timeNs": 70197304436128, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197304447795, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197304458545, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197304468962, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197304479212, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 6)"}
+{"timeNs": 70197310031040, "line": "Received EAPOL packet"}
+{"timeNs": 70197310057290, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197310083915, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197310092082, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197310099998, "line": "IEEE 802.1X: 1136 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197310107415, "line": "   IEEE 802.1X: version=2 type=0 length=1132"}
+{"timeNs": 70197310117249, "line": "EAP: code=2 (response) identifier=6 length=1132"}
+{"timeNs": 70197310124957, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=6 len=1132) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197310133915, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197310141457, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197310154707, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=6 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197310163999, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197310171374, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197310178916, "line": "SSL: Received packet(len=1132) - Flags 0x00"}
+{"timeNs": 70197310213707, "line": "SSL: Received data - hexdump(len=1126): 17 03 03 03 b2 b3 96 8d d6 a1 28 c7 ab bb 1e 29 00 81 e6 d4 85 78 53 69 2a d8 3c ec 10 1b 84 56 a8 f6 9e e3 a1 c5 67 1b 1b 40 29 81 fa 3c 4b f0 5d e7 73 24 72 12 8b 60 b7 e1 89 02 a5 42 9e a9 52 94 81 64 f6 be 44 47 54 d9 ab 45 e5 1b 4a 11 9a 8e 1d 82 79 15 ef 3d 81 ee 8a 02 d5 ce 78 ed dd 72 4f c8 af 74 24 28 5a 3d 0a 9a 27 38 fb 80 00 dd 5a 12 0f 62 e8 d5 a6 0a 56 ab eb 4e 75 4e e2 ee 2c 7b 36 f6 4a 52 e8 80 d8 6e 25 68 e3 c9 5b 68 19 54 a5 11 bb cf 97 55 19 ae a6 72 89 ad 88 82 79 df dc 0e 03 3a 5e 17 9d 35 cf d6 68 53 c2 f3 a4 c0 ca 57 ea 17 32 53 96 ca 21 7d d8 f0 21 86 35 0d ad 39 35 aa dc 69 53 2d a3 88 a3 69 1d 9e 4f e9 38 a2 86 e8 4e 48 b6 70 74 6f c9 e5 ec 99 e4 b8 77 3f 29 c7 99 d3 7b ae 7f 37 50 d9 01 d7 d0 3a a0 32 54 07 10 bd 0c 15 f2 7b 66 43 2c a4 55 45 b0 e9 0f 3a 92 cc d3 47 37 39 fd b1 3c ad f6 ba b8 41 a5 33 32 5f e1 42 a1 74 88 c3 d6 22 7c 84 5e ff 98 8b 18 5a f2 fe b9 45 36 e7 fa a9 69 92 19 0b 4c 92 fe 30 47 e3 eb 29 a6 3a 92 2d cb 39 01 75 27 c2 47 d7 76 2e e3 85 b5 84 c5 dc dc 71 12 8f f7 b4 43 fc bd bb e2 20 e4 d9 b0 fd aa fb 45 16 ce 97 f6 4f c3 aa 3c 9a 4e 29 2a ff 54 53 a0 9c 4b ce f9 42 ab 33 9a 13 1a de 0b df 79 29 e2 00 6d 6c 05 c1 7c 7a 3e 2b 6a c2 93 2e 3c 06 a7 4a f6 c0 aa 45 f2 26 19 d1 d6 37 fe 3a 41 83 09 82 9e eb 79 7b 1d 02 c4 72 1a 76 f7 7b 7c 32 f9 9b b0 78 84 94 13 55 e7 db 70 bc 0f a0 b0 18 e0 ab ea 1d 34 cc 30 f6 5d 19 6b fe 43 d4 86 06 ec b6 69 3d e2 6d 36 43 e8 36 b6 e3 5c 7b ab 71 a5 19 60 8d 5c 4c cc 3c 78 f7 95 e7 b4 ac 5e 97 6f 6d 9c a7 ef 41 b3 bc f3 b4 55 ed e5 60 d8 97 c6 44 6d 1f ef 9a ee 9f e0 27 e6 ed 92 be 34 b2 fc ca 02 c9 25 58 4c 4e 5c 97 22 8d be 44 49 e7 aa 90 b4 04 c9 15 0a 5f df 7a 92 b1 56 f8 1d a3 68 18 88 0f 80 1c f1 36 28 a9 ef 4f 5a 58 63 88 82 cd 85 84 fd 00 ac 9f 80 d5 07 72 19 73 ee 30 66 1e 08 df 00 b6 bb 2b b7 f6 29 c6 dd 19 78 10 e0 ae 44 da 75 aa d5 14 6a 67 7a 06 90 16 bc 34 16 8a dd f1 ba 14 10 fa 11 02 b9 31 28 d4 99 fd 5c 45 93 3b e6 9f 74 e3 84 7b bd cc 97 a9 e8 53 c9 0e 57 0b f2 e4 3b e6 69 8f a2 47 5a d2 29 88 dd d5 f7 ee d3 1b 8a 2b 58 55 a4 22 95 98 9e e2 8f dd e4 cf ae c9 48 99 bb e8 2c 94 fc 0c fa fc e9 4f d1 f8 f2 81 04 7c 39 a3 c9 5d 93 cf f2 75 75 22 79 d8 5b 51 03 df 50 b3 2f 3b fe 82 7d ee a9 07 b8 cc 5f 0c 3e ca 3b d8 81 0f 10 15 84 87 ad c4 86 cf 37 07 75 57 47 9f 50 ae 92 95 74 c3 6f 74 27 0d 99 fd 31 c7 39 b9 25 7b b6 34 af 0e b4 ab 5c dc ae 5e cc f5 e8 a6 ad 93 31 53 31 87 78 93 21 e2 77 ea 6f d3 ac 54 a5 86 ed b8 a0 16 9c 41 26 ef 3c 3e 7d c1 32 2f b8 38 2d 4d 0c 8b 33 2b e3 f9 de ca 07 0c 47 87 6b 3c 35 06 75 d1 f5 14 4f 7e 77 66 24 b5 c0 2a 48 8a 1c 1f 7b a9 60 18 5e b9 d8 2a cb 23 8b 37 9c 59 59 1e 32 53 fb ba 92 2b 5c da bc e2 97 9d 69 8f 20 f3 28 35 31 00 b5 1c 02 8c 6b ee f6 1b 8c 90 34 9b 6d f8 52 8e 01 c1 7d 4b 48 ee 9b 76 44 12 c6 03 3c 30 d3 fd 59 7d d7 68 70 5f 41 13 a3 b4 55 8d be 4a 71 72 28 17 03 03 00 60 92 24 7e d7 37 9d 0c c3 8b 5c c9 5e 80 db e0 a7 49 2a b9 bc 99 12 9c fc ad f7 6f 06 34 80 9f 3e fb 79 0e aa e5 1e 10 2f 7b 19 21 14 87 8a 64 bb ad 4a 07 0b 7d 75 2b d8 61 6e d4 e8 b0 3c 67 1a 54 4a d2 38 bf c1 85 47 ee f8 aa 21 24 3e 66 b1 39 3e 72 67 ac d1 4c e4 86 38 73 44 cd d2 83 89 17 03 03 00 45 8d 45 c4 72 b8 80 9d 34 ca a3 32 7f 54 51 fb f4 d8 cf dc 0b a6 f8 2b aa 9c 30 37 f8 c6 af c3 b4 73 aa 96 62 49 e4 6a bb 5c a1 b0 7d 44 4c f0 8f 6c af 2c 53 9f 2e 10 0a 7d 7a 76 30 68 16 0a f1 52 c4 77 8f b8"}
+{"timeNs": 70197310244208, "line": "SSL: Received packet: Flags 0x0 Message Length 0"}
+{"timeNs": 70197310252541, "line": "OpenSSL: RX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197310260124, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197310268874, "line": "OpenSSL: RX ver=0x304 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197310276541, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197310283791, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197310291291, "line": "SSL: SSL_accept:TLSv1.3 early data"}
+{"timeNs": 70197310299250, "line": "OpenSSL: RX ver=0x304 content_type=22 (handshake/certificate)"}
+{"timeNs": 70197310306958, "line": "OpenSSL: Message - hexdump(len=929): [REMOVED]"}
+{"timeNs": 70197312052219, "line": "OpenSSL: Peer certificate - depth 1"}
+{"timeNs": 70197312127678, "line": "Certificate:"}
+{"timeNs": 70197312158678, "line": "    Data:"}
+{"timeNs": 70197312169512, "line": "        Version: 3 (0x2)"}
+{"timeNs": 70197312178595, "line": "        Serial Number:"}
+{"timeNs": 70197312187470, "line": "            32:59:d2:6f:cc:4e:c4:22:62:1e:91:6c:85:b0:8e:dd:09:ab:db:7d"}
+{"timeNs": 70197312196429, "line": "        Signature Algorithm: ecdsa-with-SHA256"}
+{"timeNs": 70197312205679, "line": "        Issuer: CN=Netlib private EAP test CA"}
+{"timeNs": 70197312213929, "line": "        Validity"}
+{"timeNs": 70197312222679, "line": "            Not Before: Nov  5 03:06:51 2026 GMT"}
+{"timeNs": 70197312230971, "line": "            Not After : Nov 12 03:06:51 2026 GMT"}
+{"timeNs": 70197312239137, "line": "        Subject: CN=Netlib private EAP test CA"}
+{"timeNs": 70197312247387, "line": "        Subject Public Key Info:"}
+{"timeNs": 70197312271846, "line": "            Public Key Algorithm: id-ecPublicKey"}
+{"timeNs": 70197312280429, "line": "                Public-Key: (256 bit)"}
+{"timeNs": 70197312288513, "line": "                pub:"}
+{"timeNs": 70197312296638, "line": "                    04:66:aa:48:51:f3:34:38:e5:d9:44:2b:56:34:cb:"}
+{"timeNs": 70197312304888, "line": "                    87:6d:20:6f:bb:59:5f:06:52:15:71:77:c2:53:aa:"}
+{"timeNs": 70197312313179, "line": "                    f3:e7:d8:40:bf:a4:54:de:c8:cd:a2:8d:0f:32:e2:"}
+{"timeNs": 70197312321596, "line": "                    04:b9:d3:45:5b:6f:73:50:7b:fc:da:06:ee:d5:07:"}
+{"timeNs": 70197312329888, "line": "                    7c:fd:ee:f6:11"}
+{"timeNs": 70197312338055, "line": "                ASN1 OID: prime256v1"}
+{"timeNs": 70197312346263, "line": "                NIST CURVE: P-256"}
+{"timeNs": 70197312355430, "line": "        X509v3 extensions:"}
+{"timeNs": 70197312363721, "line": "            X509v3 Subject Key Identifier: "}
+{"timeNs": 70197312372096, "line": "                FE:34:E6:1B:5C:1F:E9:18:64:77:7C:57:36:AA:C5:3B:B0:EF:C6:D7"}
+{"timeNs": 70197312381597, "line": "            X509v3 Authority Key Identifier: "}
+{"timeNs": 70197312390430, "line": "                FE:34:E6:1B:5C:1F:E9:18:64:77:7C:57:36:AA:C5:3B:B0:EF:C6:D7"}
+{"timeNs": 70197312398472, "line": "            X509v3 Basic Constraints: critical"}
+{"timeNs": 70197312406638, "line": "                CA:TRUE, pathlen:0"}
+{"timeNs": 70197312414638, "line": "            X509v3 Key Usage: critical"}
+{"timeNs": 70197312422555, "line": "                Certificate Sign, CRL Sign"}
+{"timeNs": 70197312430264, "line": "    Signature Algorithm: ecdsa-with-SHA256"}
+{"timeNs": 70197312438055, "line": "    Signature Value:"}
+{"timeNs": 70197312446055, "line": "        30:44:02:20:4f:c9:b6:c6:44:f1:1c:d7:3c:e9:58:12:d7:05:"}
+{"timeNs": 70197312454305, "line": "        99:15:40:ca:2a:ef:94:b1:c0:03:1d:45:e6:55:d5:92:87:22:"}
+{"timeNs": 70197312462514, "line": "        02:20:3a:49:19:3a:0a:1b:ad:56:d8:a4:62:ec:d5:96:73:9a:"}
+{"timeNs": 70197312470555, "line": "        fb:f6:f6:e7:47:d3:da:20:9c:fe:59:fa:d6:82:ef:cf"}
+{"timeNs": 70197312479097, "line": ""}
+{"timeNs": 70197312487389, "line": "authsrv: peer certificate: depth=1 serial_num=3259D26FCC4EC422621E916C85B08EDD09ABDB7D subject=/CN=Netlib private EAP test CA"}
+{"timeNs": 70197312498014, "line": "TLS: tls_verify_cb - preverify_ok=1 err=0 (ok) ca_cert_verify=1 depth=1 buf='/CN=Netlib private EAP test CA'"}
+{"timeNs": 70197312511181, "line": "OpenSSL: Peer certificate - depth 0"}
+{"timeNs": 70197312519847, "line": "Certificate:"}
+{"timeNs": 70197312527889, "line": "    Data:"}
+{"timeNs": 70197312535639, "line": "        Version: 3 (0x2)"}
+{"timeNs": 70197312543473, "line": "        Serial Number: 4097 (0x1001)"}
+{"timeNs": 70197312551264, "line": "        Signature Algorithm: ecdsa-with-SHA256"}
+{"timeNs": 70197312559014, "line": "        Issuer: CN=Netlib private EAP test CA"}
+{"timeNs": 70197312566806, "line": "        Validity"}
+{"timeNs": 70197312574514, "line": "            Not Before: Nov  5 03:06:51 2026 GMT"}
+{"timeNs": 70197312582223, "line": "            Not After : Nov 12 03:06:51 2026 GMT"}
+{"timeNs": 70197312589973, "line": "        Subject: CN=alice@campus.example.test"}
+{"timeNs": 70197312605515, "line": "        Subject Public Key Info:"}
+{"timeNs": 70197312615015, "line": "            Public Key Algorithm: id-ecPublicKey"}
+{"timeNs": 70197312622973, "line": "                Public-Key: (256 bit)"}
+{"timeNs": 70197312630806, "line": "                pub:"}
+{"timeNs": 70197312639223, "line": "                    04:3e:69:f6:67:cd:83:aa:fd:59:38:b1:0e:d3:5d:"}
+{"timeNs": 70197312647057, "line": "                    b8:b0:6c:f3:9a:cc:c0:c0:f8:27:ef:50:58:53:5f:"}
+{"timeNs": 70197312655432, "line": "                    e0:9f:33:57:24:a0:31:b5:90:ed:cb:45:9d:f0:be:"}
+{"timeNs": 70197312663348, "line": "                    67:4a:35:fe:04:75:98:73:10:75:2d:e4:f5:fc:ee:"}
+{"timeNs": 70197312671182, "line": "                    4c:7b:99:26:56"}
+{"timeNs": 70197312706682, "line": "                ASN1 OID: prime256v1"}
+{"timeNs": 70197312714807, "line": "                NIST CURVE: P-256"}
+{"timeNs": 70197312722432, "line": "        X509v3 extensions:"}
+{"timeNs": 70197312730099, "line": "            X509v3 Basic Constraints: critical"}
+{"timeNs": 70197312737640, "line": "                CA:FALSE"}
+{"timeNs": 70197312745307, "line": "            X509v3 Key Usage: critical"}
+{"timeNs": 70197312752807, "line": "                Digital Signature"}
+{"timeNs": 70197312760432, "line": "            X509v3 Extended Key Usage: "}
+{"timeNs": 70197312768682, "line": "                TLS Web Client Authentication"}
+{"timeNs": 70197312776432, "line": "            X509v3 Subject Alternative Name: "}
+{"timeNs": 70197312784349, "line": "                email:alice@campus.example.test"}
+{"timeNs": 70197312792058, "line": "            X509v3 Subject Key Identifier: "}
+{"timeNs": 70197312799724, "line": "                63:35:00:D9:53:D2:F8:80:17:63:93:04:B7:2F:A7:48:95:CE:92:26"}
+{"timeNs": 70197312807974, "line": "            X509v3 Authority Key Identifier: "}
+{"timeNs": 70197312815599, "line": "                FE:34:E6:1B:5C:1F:E9:18:64:77:7C:57:36:AA:C5:3B:B0:EF:C6:D7"}
+{"timeNs": 70197312823599, "line": "    Signature Algorithm: ecdsa-with-SHA256"}
+{"timeNs": 70197312831266, "line": "    Signature Value:"}
+{"timeNs": 70197312838974, "line": "        30:45:02:21:00:cd:a1:d3:76:52:71:cd:e1:bc:ad:e1:ae:91:"}
+{"timeNs": 70197312846975, "line": "        b8:0a:7b:4c:f0:ff:83:9d:83:10:64:9b:21:71:46:08:4f:30:"}
+{"timeNs": 70197312854766, "line": "        4b:02:20:7b:2c:dc:50:ef:2b:a7:f9:aa:3a:0a:16:05:ef:1b:"}
+{"timeNs": 70197312862558, "line": "        19:d1:00:14:35:a5:e6:b5:67:23:38:13:9a:9a:11:74:fd"}
+{"timeNs": 70197312870266, "line": ""}
+{"timeNs": 70197312878350, "line": "authsrv: peer certificate: depth=0 serial_num=1001 subject=/CN=alice@campus.example.test"}
+{"timeNs": 70197312886766, "line": "TLS: tls_verify_cb - preverify_ok=1 err=0 (ok) ca_cert_verify=1 depth=0 buf='/CN=alice@campus.example.test'"}
+{"timeNs": 70197312895808, "line": "authsrv: remote certificate verification success"}
+{"timeNs": 70197312903558, "line": "OpenSSL: RX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197312911350, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197312923017, "line": "OpenSSL: RX ver=0x304 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197312931600, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197312939392, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197312947934, "line": "SSL: SSL_accept:SSLv3/TLS read client certificate"}
+{"timeNs": 70197312955809, "line": "OpenSSL: RX ver=0x304 content_type=22 (handshake/certificate verify)"}
+{"timeNs": 70197312963642, "line": "OpenSSL: Message - hexdump(len=79): [REMOVED]"}
+{"timeNs": 70197312971309, "line": "OpenSSL: RX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197312979475, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197312987142, "line": "OpenSSL: RX ver=0x304 content_type=257 (inner content type/handshake)"}
+{"timeNs": 70197312994809, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197313491729, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197313506229, "line": "SSL: SSL_accept:SSLv3/TLS read certificate verify"}
+{"timeNs": 70197313514271, "line": "OpenSSL: RX ver=0x304 content_type=22 (handshake/finished)"}
+{"timeNs": 70197313522146, "line": "OpenSSL: Message - hexdump(len=52): [REMOVED]"}
+{"timeNs": 70197313530937, "line": "SSL: (where=0x2001 ret=0x1)"}
+{"timeNs": 70197313538896, "line": "SSL: SSL_accept:SSLv3/TLS read finished"}
+{"timeNs": 70197313547354, "line": "SSL: (where=0x20 ret=0x1)"}
+{"timeNs": 70197313555271, "line": "SSL: (where=0x2002 ret=0x1)"}
+{"timeNs": 70197313563354, "line": "SSL: 0 bytes pending from ssl_out"}
+{"timeNs": 70197313571354, "line": "OpenSSL: Handshake finished - resumed=0"}
+{"timeNs": 70197313637813, "line": "OpenSSL: Shared ciphers: TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"}
+{"timeNs": 70197313649730, "line": "SSL: Using TLS version TLSv1.3"}
+{"timeNs": 70197313657980, "line": "EAP-TLS: Send protected success indication (appl data 0x00)"}
+{"timeNs": 70197313666438, "line": "OpenSSL: TX ver=0x303 content_type=256 (TLS header info/)"}
+{"timeNs": 70197313674980, "line": "OpenSSL: Message - hexdump(len=5): [REMOVED]"}
+{"timeNs": 70197313682605, "line": "OpenSSL: TX ver=0x303 content_type=257 (inner content type/application data)"}
+{"timeNs": 70197313690647, "line": "OpenSSL: Message - hexdump(len=1): [REMOVED]"}
+{"timeNs": 70197313699063, "line": "EAP-TLS: Data appended to the message - hexdump(len=23): 17 03 03 00 12 6e e5 88 a6 68 21 2e 31 63 01 84 35 5b ae d6 00 99 24"}
+{"timeNs": 70197313707980, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70197313717897, "line": "EAP: building EAP-Request: Identifier 7"}
+{"timeNs": 70197313725272, "line": "SSL: Generating Request"}
+{"timeNs": 70197313733355, "line": "SSL: Sending out 23 bytes (message sent completely)"}
+{"timeNs": 70197313740939, "line": "EAP-TLS: Done"}
+{"timeNs": 70197313749147, "line": "EAP-TLS: CONTINUE -> SUCCESS"}
+{"timeNs": 70197313757564, "line": "EAP-TLS: Updated user entry based on the serial number of the client certificate "}
+{"timeNs": 70197313765730, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70197313773397, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70197313781147, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70197313788772, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70197313796689, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 7)"}
+{"timeNs": 70197313808022, "line": "Received EAPOL packet"}
+{"timeNs": 70197313816439, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70197313824273, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70197313832064, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70197313839606, "line": "IEEE 802.1X: 10 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70197313847189, "line": "   IEEE 802.1X: version=2 type=0 length=6"}
+{"timeNs": 70197313854939, "line": "EAP: code=2 (response) identifier=7 length=6"}
+{"timeNs": 70197313862731, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAP packet (code=2 id=7 len=6) from STA: EAP Response-TLS (13)"}
+{"timeNs": 70197313871606, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state RESPONSE"}
+{"timeNs": 70197313879690, "line": "EAP: EAP entering state RECEIVED"}
+{"timeNs": 70197313887190, "line": "EAP: parseEapResp: rxResp=1 rxInitiate=0 respId=7 respMethod=13 respVendor=0 respVendorMethod=0"}
+{"timeNs": 70197313895481, "line": "EAP: EAP entering state INTEGRITY_CHECK"}
+{"timeNs": 70197313903023, "line": "EAP: EAP entering state METHOD_RESPONSE"}
+{"timeNs": 70197313910731, "line": "SSL: Received packet(len=6) - Flags 0x00"}
+{"timeNs": 70197313918523, "line": "SSL: Received data - hexdump(len=0):"}
+{"timeNs": 70197313925940, "line": "SSL: Received packet: Flags 0x0 Message Length 0"}
+{"timeNs": 70197313933898, "line": "EAP-TLS: Client acknowledged final TLS handshake message"}
+{"timeNs": 70197313950898, "line": "EAP-TLS: Derived key - hexdump(len=64): [COLLECTOR-REDACTED]"}
+{"timeNs": 70197313959773, "line": "EAP: Session-Id - hexdump(len=65): 0d 0c af b2 f7 03 bf 76 74 39 e9 fc 0b 26 f3 73 dc 0f f0 b6 b3 aa 46 46 e9 19 49 05 97 60 79 44 b5 67 6e a6 2e 29 fa ad cc bc 16 97 20 7d e8 cd 00 40 e7 66 45 36 ab d4 1c e6 26 71 43 31 2f 7c 3f"}
+{"timeNs": 70197313969690, "line": "EAP: EAP entering state SELECT_ACTION"}
+{"timeNs": 70197313975940, "line": "EAP: getDecision: method succeeded -> SUCCESS"}
+{"timeNs": 70197313982190, "line": "EAP: EAP entering state SUCCESS"}
+{"timeNs": 70197313988357, "line": "EAP: Building EAP-Success (id=7)"}
+{"timeNs": 70197313994315, "line": "auth0: CTRL-EVENT-EAP-SUCCESS 02:00:00:00:ea:02"}
+{"timeNs": 70197314037399, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state SUCCESS"}
+{"timeNs": 70197314066274, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 7)"}
+{"timeNs": 70197314074107, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state AUTHENTICATED"}
+{"timeNs": 70197314105483, "line": "auth0: AP-STA-CONNECTED 02:00:00:00:ea:02"}
+{"timeNs": 70197314113358, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: authorizing port"}
+{"timeNs": 70197314125191, "line": "auth0: STA 02:00:00:00:ea:02 RADIUS: starting accounting session 97F433B1144CDBA9"}
+{"timeNs": 70197314230150, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: authenticated - EAP type: 0 (unknown)"}
+{"timeNs": 70197314253609, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state IDLE"}
+{"timeNs": 70197332238725, "line": "RX ctrl_iface - hexdump_ascii(len=21):"}
+{"timeNs": 70197332333934, "line": "     53 54 41 20 30 32 3a 30 30 3a 30 30 3a 30 30 3a   STA 02:00:00:00:"}
+{"timeNs": 70197332346143, "line": "     65 61 3a 30 32                                    ea:02           "}
+{"timeNs": 70198087159452, "line": "Received EAPOL packet"}
+{"timeNs": 70198087166369, "line": "auth0: Event NEW_STA (22) received"}
+{"timeNs": 70198087169160, "line": "auth0: Event EAPOL_RX (23) received"}
+{"timeNs": 70198087171410, "line": "No STA-specific hostapd instance for EAPOL RX found - fall back to initial context"}
+{"timeNs": 70198087173744, "line": "IEEE 802.1X: 4 bytes from 02:00:00:00:ea:02 (encrypted=-1)"}
+{"timeNs": 70198087175952, "line": "   IEEE 802.1X: version=2 type=2 length=0"}
+{"timeNs": 70198087178035, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: received EAPOL-Logoff from STA"}
+{"timeNs": 70198087188452, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state DISCONNECTED"}
+{"timeNs": 70198087191119, "line": "auth0: AP-STA-DISCONNECTED 02:00:00:00:ea:02"}
+{"timeNs": 70198087193369, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: unauthorizing port"}
+{"timeNs": 70198087195577, "line": "auth0: IEEE 802.1X: Force disconnection of 02:00:00:00:ea:02 after EAP-Failure in 0 ms"}
+{"timeNs": 70198087197869, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state RESTART"}
+{"timeNs": 70198087199994, "line": "EAP: EAP entering state INITIALIZE"}
+{"timeNs": 70198087202036, "line": "auth0: CTRL-EVENT-EAP-STARTED 02:00:00:00:ea:02"}
+{"timeNs": 70198087206786, "line": "EAP: EAP entering state SELECT_ACTION"}
+{"timeNs": 70198087212494, "line": "EAP: getDecision: another method available -> CONTINUE"}
+{"timeNs": 70198087217744, "line": "EAP: EAP entering state PROPOSE_METHOD"}
+{"timeNs": 70198087222702, "line": "EAP: getNextMethod: vendor 0 type 1"}
+{"timeNs": 70198087229119, "line": "auth0: CTRL-EVENT-EAP-PROPOSED-METHOD vendor=0 method=1"}
+{"timeNs": 70198087277578, "line": "EAP: EAP entering state METHOD_REQUEST"}
+{"timeNs": 70198087279828, "line": "EAP: building EAP-Request: Identifier 22"}
+{"timeNs": 70198087283036, "line": "EAP: EAP entering state SEND_REQUEST"}
+{"timeNs": 70198087285203, "line": "EAP: EAP entering state IDLE"}
+{"timeNs": 70198087287245, "line": "EAP: retransmit timeout 3 seconds (from dynamic back off; retransCount=0)"}
+{"timeNs": 70198087289328, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state CONNECTING"}
+{"timeNs": 70198087293245, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state AUTHENTICATING"}
+{"timeNs": 70198087295453, "line": "IEEE 802.1X: 02:00:00:00:ea:02 BE_AUTH entering state REQUEST"}
+{"timeNs": 70198087297536, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.1X: Sending EAP Packet (identifier 22)"}
+{"timeNs": 70198087371953, "line": "auth0: IEEE 802.1X: Scheduled disconnection of 02:00:00:00:ea:02 after EAP-Failure"}
+{"timeNs": 70198087375995, "line": "auth0: ap_sta_disconnect STA 02:00:00:00:ea:02 reason=23"}
+{"timeNs": 70198087378162, "line": "auth0: disconnect STA 02:00:00:00:ea:02"}
+{"timeNs": 70198087380245, "line": "reschedule ap_handle_timer timeout (5 sec) for 02:00:00:00:ea:02"}
+{"timeNs": 70198087382328, "line": "IEEE 802.1X: 02:00:00:00:ea:02 AUTH_PAE entering state INITIALIZE"}
+{"timeNs": 70198087384412, "line": "EAP: EAP entering state DISABLED"}
+{"timeNs": 70198087386328, "line": "auth0: Deauthentication callback for STA 02:00:00:00:ea:02"}
+{"timeNs": 70198087388370, "line": "auth0: Removing STA 02:00:00:00:ea:02 from kernel driver"}
+{"timeNs": 70198087390329, "line": "auth0: STA 02:00:00:00:ea:02 MLME: MLME-DEAUTHENTICATE.indication(02:00:00:00:ea:02, 23)"}
+{"timeNs": 70198087392537, "line": "auth0: STA 02:00:00:00:ea:02 MLME: MLME-DELETEKEYS.request(02:00:00:00:ea:02)"}
+{"timeNs": 70198109539264, "line": "RX ctrl_iface - hexdump_ascii(len=21):"}
+{"timeNs": 70198109557222, "line": "     53 54 41 20 30 32 3a 30 30 3a 30 30 3a 30 30 3a   STA 02:00:00:00:"}
+{"timeNs": 70198109561347, "line": "     65 61 3a 30 32                                    ea:02           "}
+{"timeNs": 70200295637863, "line": "IEEE 802.1X: 02:00:00:00:ea:02 - (EAP) retransWhile --> 0"}
+{"timeNs": 70203088296829, "line": "auth0: ap_handle_timer: 02:00:00:00:ea:02 flags=0x40000000 timeout_next=3"}
+{"timeNs": 70203088339120, "line": "auth0: STA 02:00:00:00:ea:02 IEEE 802.11: deauthenticated due to local deauth request"}
+{"timeNs": 70203088346621, "line": "ap_free_sta: cancel ap_handle_timer for 02:00:00:00:ea:02"}
+{"timeNs": 70203088350621, "line": "EAP: Server state machine removed"}
+{"timeNs": 70217209527805, "line": "Signal 15 received - terminating"}
+{"timeNs": 70217209555097, "line": "hostapd_interface_deinit_free(0xf89fba25f030)"}
+{"timeNs": 70217209562513, "line": "hostapd_interface_deinit_free: num_bss=1 conf->num_bss=1"}
+{"timeNs": 70217209569305, "line": "hostapd_interface_deinit(0xf89fba25f030)"}
+{"timeNs": 70217209574972, "line": "auth0: interface state ENABLED->DISABLED"}
+{"timeNs": 70217209579972, "line": "hostapd_bss_deinit: deinit bss auth0"}
+{"timeNs": 70217209586680, "line": "auth0: Flushing old station entries"}
+{"timeNs": 70217209592180, "line": "auth0: Deauthenticate all stations"}
+{"timeNs": 70217209597347, "line": "auth0: AP-DISABLED "}
+{"timeNs": 70217209602680, "line": "hostapd_cleanup(hapd=0xf89fba25e050 (auth0))"}
+{"timeNs": 70217209607847, "line": "auth0: CTRL-EVENT-TERMINATING "}
+{"timeNs": 70217209612639, "line": "hostapd_free_hapd_data(auth0)"}
+{"timeNs": 70217209672431, "line": "hostapd_interface_deinit_free: driver=0xc58c2f4feb88 drv_priv=0xc58c2f500570 -> hapd_deinit"}
+{"timeNs": 70217215339341, "line": "hostapd_interface_free(0xf89fba25f030)"}
+{"timeNs": 70217215369800, "line": "hostapd_interface_free: free hapd 0xf89fba25e050"}
+{"timeNs": 70217215380258, "line": "hostapd_cleanup_iface(0xf89fba25f030)"}
+{"timeNs": 70217215387425, "line": "hostapd_cleanup_iface_partial(0xf89fba25f030)"}
+{"timeNs": 70217215393592, "line": "hostapd_cleanup_iface: free iface=0xf89fba25f030"}

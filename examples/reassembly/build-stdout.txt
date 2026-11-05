@@ -1,0 +1,13 @@
+Sending build context to Docker daemon  45.06kB
+Step 1/4 : FROM netlib-received-icmp-capture:1
+ ---> 05d09351510c
+Step 2/4 : COPY exercise.py nflog.py capture.sh /task/reassembly/
+ ---> d6f47ec77b11
+Step 3/4 : COPY requirements.json deny.json permit.json demo-credential.json /task/admission/input/
+ ---> 119ed36dd436
+Step 4/4 : CMD ["sh", "/task/reassembly/capture.sh"]
+ ---> Running in 4c7bb202a548
+ ---> Removed intermediate container 4c7bb202a548
+ ---> 43bb65d7eeb3
+Successfully built 43bb65d7eeb3
+Successfully tagged netlib-reassembly-capture:1

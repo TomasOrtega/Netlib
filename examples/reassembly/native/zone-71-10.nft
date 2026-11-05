@@ -1,0 +1,2 @@
+flush chain ip reassembly_observe zone
+add rule ip reassembly_observe zone ct zone set 10 meta mark set 10

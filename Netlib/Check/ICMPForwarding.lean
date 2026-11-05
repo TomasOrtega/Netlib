@@ -292,9 +292,9 @@ private def controlDispositionText : Netlib.Protocol.ICMPForwarding.Disposition 
   | .outputDrop => "outputDrop" | .lateDrop => "lateDrop" | .sent => "sent"
 
 private def kindJson (kind : ICMP.Kind) : Lean.Json := Lean.Json.mkObj [
-  ("type", Lean.toJson (match kind with | .timeExceeded => 11 | .fragmentationNeeded _ => 3 : Nat)),
-  ("code", Lean.toJson (match kind with | .timeExceeded => 0 | .fragmentationNeeded _ => 4 : Nat)),
-  ("mtu", Lean.toJson (match kind with | .timeExceeded => none | .fragmentationNeeded mtu => some mtu.val))]
+  ("type", Lean.toJson (match kind with | .timeExceeded | .reassemblyTimeout => 11 | .fragmentationNeeded _ => 3 : Nat)),
+  ("code", Lean.toJson (match kind with | .timeExceeded => 0 | .reassemblyTimeout => 1 | .fragmentationNeeded _ => 4 : Nat)),
+  ("mtu", Lean.toJson (match kind with | .timeExceeded | .reassemblyTimeout => none | .fragmentationNeeded mtu => some mtu.val))]
 
 private def fragmentJson (fragment : IPv4Fragment.Decoded) : Lean.Json := Lean.Json.mkObj [
   ("wireLength", Lean.toJson fragment.packet.wireLength),

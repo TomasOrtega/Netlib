@@ -30,7 +30,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | --- | --- |
 | Use the CLI and input formats | [Usage](docs/USAGE.md) |
 | Check Wi-Fi settings and EAP session traces | [Wi-Fi](docs/WIFI.md), [EAP](docs/EAP.md) |
-| Check packet bytes, forwarding, and identity policies | [Packet forwarding](docs/RECEIVED_ICMP.md), [Wire bytes](docs/WIRE.md), [Data plane](docs/DATAPLANE.md) |
+| Check packet bytes, forwarding, and identity policies | [Packet forwarding](docs/REASSEMBLY.md), [Wire bytes](docs/WIRE.md), [Data plane](docs/DATAPLANE.md) |
 | Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
 | Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |
 | Audit native conntrack records and tuple associations | [Conntrack](docs/CONNTRACK.md) |

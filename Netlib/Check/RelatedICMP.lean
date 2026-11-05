@@ -372,6 +372,7 @@ private def errorDispositionText : Netlib.Protocol.RelatedICMP.Disposition → S
 
 private def kindJson : ICMP.Kind → Lean.Json
   | .timeExceeded => Lean.Json.mkObj [("type", Lean.toJson (11 : Nat)), ("code", Lean.toJson (0 : Nat))]
+  | .reassemblyTimeout => Lean.Json.mkObj [("type", Lean.toJson (11 : Nat)), ("code", Lean.toJson (1 : Nat))]
   | .fragmentationNeeded mtu => Lean.Json.mkObj [("type", Lean.toJson (3 : Nat)),
       ("code", Lean.toJson (4 : Nat)), ("mtu", Lean.toJson mtu.val)]
 

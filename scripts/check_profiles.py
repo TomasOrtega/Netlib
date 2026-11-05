@@ -7,6 +7,8 @@ from pathlib import Path
 
 from check_cli import ROOT, invoke
 from check_icmp_examples import check as icmp_checks
+from check_reassembly_examples import synthetic_checks as reassembly_checks
+from check_reassembly_native_examples import check as reassembly_native_checks
 from check_received_icmp_examples import check as received_icmp_checks
 
 
@@ -1128,6 +1130,8 @@ def main():
     mtu_checks()
     icmp_checks()
     received_icmp_checks()
+    reassembly_checks()
+    reassembly_native_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

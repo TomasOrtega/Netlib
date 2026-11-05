@@ -228,6 +228,11 @@ theorem feedback_time_exceeded (policy : Policy) (route : Route) (socket : Heade
     feedback policy route socket before now ⟨.timeExceeded, quote, reporter⟩ = none := by
   by_cases matching : quote = socket <;> simp [feedback, matching]
 
+theorem feedback_reassembly_timeout (policy : Policy) (route : Route) (socket : Header) (before : State)
+    (now : Nat) (quote : Header) (reporter : Address) :
+    feedback policy route socket before now ⟨.reassemblyTimeout, quote, reporter⟩ = none := by
+  by_cases matching : quote = socket <;> simp [feedback, matching]
+
 theorem feedback_accepted (policy : Policy) (route : Route) (socket : Header) (before : State)
     (now : Nat) (message : Feedback) (result : Result)
     (accepted : feedback policy route socket before now message = some result) :
@@ -237,7 +242,7 @@ theorem feedback_accepted (policy : Policy) (route : Route) (socket : Header) (b
   split at accepted
   · rename_i matching
     cases kind : message.kind with
-    | timeExceeded => simp [kind] at accepted
+    | timeExceeded | reassemblyTimeout => simp [kind] at accepted
     | fragmentationNeeded advertised =>
       simp only [kind, Option.some.injEq] at accepted
       exact ⟨matching, advertised, rfl, accepted.symm⟩

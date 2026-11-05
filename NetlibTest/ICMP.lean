@@ -24,7 +24,11 @@ private def reject (value : Except String α) (message : String) : IO Unit :=
   | .ok _ => throw (IO.userError message)
 
 def run : IO Unit := do
-  for kind in [Kind.timeExceeded, .fragmentationNeeded 0, .fragmentationNeeded 1500, .fragmentationNeeded 65535] do
+  let timeoutWire : List UInt8 := [11, 1, 244, 254, 0, 0, 0, 0]
+  let timeout ← unwrap (decode timeoutWire)
+  ensure (kindPrefix timeout.message.kind == [11, 1] && (← unwrap (encodeDecoded timeout)) == timeoutWire)
+    "Reassembly Time Exceeded must decode code one and preserve its exact valid bytes."
+  for kind in [Kind.timeExceeded, .reassemblyTimeout, .fragmentationNeeded 0, .fragmentationNeeded 1500, .fragmentationNeeded 65535] do
     for quote in [[], [1], [1, 2], [1, 2, 3], List.replicate 28 255, List.replicate 29 0] do
       let message : Message := ⟨kind, quote⟩
       let wire := encode message
@@ -34,7 +38,7 @@ def run : IO Unit := do
         "ICMP errors must preserve kind, MTU, odd quotes, checksum, and exact bytes."
       reject (decode (wire.toArray.modify 2 (· + 1)).toList) "A corrupted ICMP checksum must fail."
       reject (decode (wire.toArray.modify 4 (· + 1)).toList) "A nonzero unused ICMP field must fail."
-      reject (decode (wire.toArray.modify 1 (· + 1)).toList) "An unsupported ICMP code must fail."
+      reject (decode (wire.toArray.modify 1 (fun _ => 7)).toList) "An unsupported ICMP code must fail."
   let odd := encode ⟨.timeExceeded, [1, 2, 3]⟩
   reject (decode (odd.take (odd.length - 1))) "A truncated odd ICMP quote must fail its checksum."
   reject (decode (odd ++ [1])) "Unaccounted bytes participate in the ICMP checksum."

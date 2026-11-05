@@ -87,9 +87,9 @@ def Checked.renderJson (checked : Checked bytes) : Lean.Json := Lean.Json.mkObj 
   ("tos", Lean.toJson checked.ip.packet.tos.toNat),
   ("identification", Lean.toJson checked.ip.packet.identification.val),
   ("kind", Lean.toJson (match checked.icmp.message.kind with
-    | .timeExceeded => "timeExceeded" | .fragmentationNeeded _ => "fragmentationNeeded")),
+    | .timeExceeded => "timeExceeded" | .reassemblyTimeout => "reassemblyTimeout" | .fragmentationNeeded _ => "fragmentationNeeded")),
   ("mtu", Lean.toJson (match checked.icmp.message.kind with
-    | .timeExceeded => none | .fragmentationNeeded mtu => some mtu.val)),
+    | .timeExceeded | .reassemblyTimeout => none | .fragmentationNeeded mtu => some mtu.val)),
   ("quoteHeader", Import.PacketFields.headerJson (IPv4Quote.header checked.quote)),
   ("quoteLength", Lean.toJson (IPv4Quote.bytes checked.quote).length),
   ("declaredLength", Lean.toJson checked.quote.declaredLength.val),

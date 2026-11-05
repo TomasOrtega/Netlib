@@ -503,6 +503,43 @@ Only the final event using each post-episode table receives that native snapshot
 All computed prefixes retain their formal validity guarantee.
 The [received-error guide](RECEIVED_ICMP.md) describes both schemas, observation attribution, proofs, and remaining scope.
 
+## Ingress IPv4 queues and completion-time policy
+
+The `wire-reassembly` command processes raw IPv4 arrivals before selected UDP forwarding.
+Its queue keys include effective user, zone encoding, L3 master identity, source, destination, protocol, and identification.
+Each model instance represents one network namespace.
+
+The selected transition uses fixed queue expiry, MF trimming, source-dependent run grouping, duplicate suppression, and overlap destruction.
+Accepted fragments supply the first header, ECN set, maximum size, and maximum DF size.
+Completion requires exact byte coverage, first and last information, valid ECN, and a bounded reconstructed packet.
+An incomplete oversized queue can persist until completion or expiry.
+
+Incomplete arrivals cannot attach UDP, create NAT candidates, or change the ordinary table.
+The completing event selects current forwarding policy.
+Logoff or credential revocation installed before completion therefore governs the whole datagram.
+Earlier buffering does not retain an older permission.
+
+Reassembled packets retain their maximum fragment size for later output.
+DF rejection uses that maximum under the selected Netfilter ignore-DF behavior.
+The output cap is the smaller of that maximum and the outgoing route MTU.
+The fragment-family contract supports 28-byte budgets and checks exact payload and metadata without selecting a kernel allocation path.
+A fitting unreassembled whole input requires a single whole output.
+
+The ICMP codec also accepts reassembly timeout type 11/code 1.
+The timeout model selects expired queues and actual stored first-fragment bytes.
+A locally assigned VIP can permit timeout ICMP even when the later destination-NAT route would forward the packet.
+The selected timeout output profile requires a reverse-quote miss, invalid-state filtering, and no NAT rewrite.
+Associated timeout output remains unsupported by that adapter.
+
+Replay times and timeout values must share one declared clock unit.
+Native projection uses monotonic nanoseconds and converts the namespace timeout from seconds.
+Observation timestamps do not establish exact internal timer scheduling.
+Pre-reassembly logging supplies immutable input bytes; deferred packet-socket observations retain explicit buffer-lifetime limitations.
+
+The queue profile requires successful allocation and zero source-disorder distance control.
+Memory-pressure eviction, positive disorder heuristics, concurrency, options, broader transport processing, and full kernel refinement remain open.
+The [ingress guide](REASSEMBLY.md) records the selected semantics and evidence.
+
 ## Static stateful filter refinement
 
 The `stateful-refines` command checks permission inclusion between two stateful source chains.

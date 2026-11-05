@@ -107,7 +107,7 @@ def feedback (policy : Policy) (route : Route) (socket : Header) (before : State
   if message.quoted = socket then
     match message.kind with
     | .fragmentationNeeded mtu => some (update policy route before now mtu)
-    | .timeExceeded => none
+    | .timeExceeded | .reassemblyTimeout => none
   else none
 
 theorem feedback_unrelated (policy : Policy) (route : Route) (socket : Header) (before : State) (now : Nat)

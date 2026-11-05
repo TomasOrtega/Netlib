@@ -92,6 +92,16 @@ import NetlibTest.PMTU
 import NetlibTest.RelatedICMPCheck
 import NetlibTest.PMTUCheck
 import NetlibTest.PMTUDeployment
+import NetlibTest.IPv4InputFragment
+import NetlibTest.IPv4Reassembly
+import NetlibTest.IPv4ReassemblyTimeout
+import NetlibTest.IPv4Refragmentation
+import NetlibTest.ReassemblyForwarding
+import NetlibTest.ReassemblyForwardingCheck
+import NetlibTest.ReassemblyDeployment
+import NetlibTest.ICMPControl
+import NetlibTest.NftablesICMPControl
+import NetlibTest.ReassemblyTimeoutCheck
 import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
@@ -190,5 +200,15 @@ def main : IO Unit := do
   NetlibTest.RelatedICMPCheck.run
   NetlibTest.PMTUCheck.run
   NetlibTest.PMTUDeployment.run
+  NetlibTest.IPv4InputFragment.run
+  NetlibTest.IPv4Reassembly.run
+  NetlibTest.IPv4ReassemblyTimeout.run
+  NetlibTest.IPv4Refragmentation.run
+  NetlibTest.ReassemblyForwarding.run
+  NetlibTest.ReassemblyForwardingCheck.run
+  NetlibTest.ReassemblyDeployment.run
+  NetlibTest.ICMPControl.run
+  NetlibTest.NftablesICMPControl.run
+  NetlibTest.ReassemblyTimeoutCheck.run
   NetlibTest.WireNATDeployment.run
   IO.println "Netlib tests passed."
