@@ -4,6 +4,25 @@ Run commands from the repository root after the [local setup](TOOLING.md#local-b
 The [README](../README.md) gives the first demo command.
 The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication, commitment, route handoff, and current packet policy.
 
+## Joint campus deployment
+
+```sh
+lake exe netlib campus-deployment examples/campus/bundle.json --json
+lake exe netlib campus-deployment examples/campus/bundle.json --budget 100000 --json
+```
+
+Use `campus-deployment BUNDLE [--budget N] [--json]` with the combined input in the [campus deployment guide](CAMPUS_DEPLOYMENT.md).
+The timeline interleaves indexed authentication and network observations with planned primary withdrawal.
+Current installation certificates compare actual configured policy with the consumed authentication prefix.
+A declared application class must cover every processed packet, including denied packets.
+Selected next-hop labels must match the request or reply endpoint role.
+
+The primary's retained state becomes an archive after withdrawal; later live primary operations are rejected.
+The wired interpretation connects request and reply continuity without inferring native access points or Wi-Fi.
+Matched ticket outputs retain exact NAT headers, payload, and TTL effects from their actual earlier assignments.
+The current prefix supplies the session and method-readiness conclusions.
+Cryptography, principal ownership, lifetime stability, physical correspondence, and automatic failure recovery remain explicit limits.
+
 ## Safe gateway handoff
 
 ```sh
@@ -144,6 +163,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).
 - [Safe gateway handoff with outstanding assignments](SAFE_HANDOFF.md).
+- [Joint campus authentication, installation, and withdrawal](CAMPUS_DEPLOYMENT.md).
 - [Tracked forwarding and stateful filter refinement](LIFECYCLE.md).
 - [Output exclusion after a policy cutover](REVOCATION.md).
 - [Buffered cutovers and delivery after draining](BUFFERING.md).

@@ -58,6 +58,44 @@ Its synthetic integration test covers Logoff, queued denial, and a stale install
 The native example records 20 operations, seven datagrams, and six protected tickets; it establishes no native EAP enforcement claim.
 The [safe handoff guide](SAFE_HANDOFF.md) states the command, source pins, proof premises, and evidence limits.
 
+## Joint campus session and withdrawal
+
+`Examples.CampusDuplex` adds request and reply continuity under endpoint-safe single internal-node faults.
+Current application permission holds exactly when both directions remain reachable in the enforced graph.
+Management isolation and mandatory gateway traversal hold in both application directions.
+`Examples.CampusDirect` interprets the direct wired data roles without inferring physical access points.
+Its stuttering refinement collapses abstract access-point vertices to the client role.
+Its expansion simulates each direct edge by an existing campus path.
+
+`Protocol.CampusWithdrawal` extends the handoff contract with a separate physical-withdrawal phase.
+Withdrawal requires both routes at standby, no outstanding primary work, and a primary fence.
+The retained primary table becomes historical archive data.
+Subsequent operations preserve that archive and permit no live primary processing or control.
+Progress follows from conditions on the preceding state, including after withdrawal.
+The actual pending tickets remain assigned to the standby.
+Current session permission supplies their paths in both interpretations.
+
+`Check.SessionInstallation.Checked.forward_equivalent` derives policy equivalence from the actual source configuration and a successful current-prefix comparison.
+It checks configuration identity, compiled rules, fallback, hook context, and decisions for every modeled state and header.
+The joint checker requires those certificates rather than a caller-supplied equivalence hypothesis.
+Installations persist across authentication changes, so a stale installed permit cannot inherit a later session certificate.
+
+`Check.CampusDeployment.Report.prefix_counts` identifies each finding's actual preceding replay prefix.
+Its authentication and network counters equal the corresponding prior payload counts.
+`served_source` identifies the served ticket's actual earlier assignment within that same joint timeline.
+`observed_output_nat_facts` proves exact captured NAT headers, payload preservation, and one TTL decrement from that retained source.
+It also supplies current application validity, method readiness, and duplex graph reachability at the actual consumed authentication prefix.
+`denied_output_none` excludes emission when the current application denies access.
+`forward_iff_duplex` connects the certified forward decision to duplex reachability under an explicit covered-header premise.
+`CheckedReport.served_class_route` derives actual served-header coverage and the selected endpoint route from compliance.
+`CheckedReport.served_forward_iff_duplex` uses that derived coverage without another caller premise.
+
+The checked report additionally requires full observation consumption, actual withdrawal, application-class coverage even for drops, and selected next-hop role agreement.
+These are finite replay checks alongside the reusable interleaving and topology theorems.
+The native example records 26 operations, eight datagrams, and seven protected tickets.
+Its joint model timeline has 21 authentication operations, 23 network operations, and one withdrawal.
+The [campus deployment guide](CAMPUS_DEPLOYMENT.md) separates these results from cryptography, wireless deployment, anti-spoofing, physical correspondence, and automatic recovery obligations.
+
 ## Requirements and logic
 
 `Netlib/Core/Logic.lean` defines a Boolean evaluator and propositional semantics

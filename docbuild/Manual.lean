@@ -1410,6 +1410,59 @@ A separate queued standby packet encounters newly installed deny policy.
 Queue readbacks supplement actual gateway outcomes and socket observations; queue emptiness alone does not establish drain.
 The capture does not establish native EAP enforcement or complete kernel refinement.
 
+# One checked campus deployment
+%%%
+tag := "campus-deployment"
+file := "campus-deployment"
+%%%
+
+The deployment replay consumes authentication and network observations through one ordered timeline.
+Each numbered reference selects its stream's next actual observation exactly once.
+The final report requires complete consumption and guarded primary withdrawal.
+Prefix proofs count actual preceding findings in that same report.
+
+Installed configurations persist through authentication changes.
+Each installation and packet-processing step compares its actual stored forward policy against the current consumed EAP prefix.
+The comparison covers every modeled state and header.
+A stale allow after Logoff remains the computed policy and produces a mismatch, even when forwarded bytes agree.
+Current permission no longer requires the caller to supply forward equivalence.
+
+Every selected packet must also match its declared application class after destination NAT.
+Imported gateway routes must select the declared endpoint role in both directions.
+The direct topology interpretation explicitly collapses abstract access-point roles; the native experiment uses wired authentication and claims no physical APs.
+Observed output inherits the exact protected NAT header, preserved payload, checksum validity, and one TTL decrement.
+Current credential validity and method readiness use the actual earlier authentication prefix.
+
+Withdrawal requires both owners on the standby, drained primary work, and the primary fence.
+The natural-before guards construct an actual safe transition:
+
+```lean
+open Netlib.Protocol.CampusWithdrawal in
+example (before : State) (safe : before.Safe)
+    (active : before.withdrawn = false)
+    (ready : before.Ready) :
+    ∃ result, step before .withdraw = .ok result ∧
+      result.state.Safe := by
+  obtain ⟨result, computed, preserved, _⟩ :=
+    withdraw_completes before safe active ready
+  exact ⟨result, computed, preserved⟩
+```
+
+The retained primary table becomes an archive, rather than a claim about its later live kernel.
+Primary operations and new primary table observations are then unsupported.
+Every remaining ticket uses the standby.
+When current session permission holds, its direct modeled route exists in either direction.
+
+```
+lake exe netlib campus-deployment examples/campus/bundle.json --json
+```
+
+One coordinated native run supplies 26 operations, eight datagrams, and seven protected tickets.
+Its projection consumes 21 authentication observations and 23 network operations, plus the withdrawal.
+Actual EAP-TLS, policy installs, delayed traffic, standby continuity, physical withdrawal, Logoff, and deny share that history.
+Method attribution, credential integrity, header ownership, faithful exports, physical scheduling, and implementation correspondence retain explicit assumptions.
+Wi-Fi enforcement, cryptographic refinement, unexpected failures, aging, and the complete campus landmark remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

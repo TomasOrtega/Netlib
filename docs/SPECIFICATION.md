@@ -904,6 +904,57 @@ It demonstrates old-route processing after both routes change, standby overtakin
 It supplies no native EAP enforcement claim.
 See [safe handoff](SAFE_HANDOFF.md) for the schema, command, proof endpoints, and evidence boundaries.
 
+## Joint campus deployment history
+
+The `campus-deployment BUNDLE [--budget N] [--json]` command checks one authentication, policy installation, packet, handoff, and withdrawal history.
+Its bundle supplies the actual authentication observations, a declared application scope, packet classes, gateway configurations, network observations, and their joint timeline.
+Authentication and network operations each consume the next observation in their indexed source history.
+A compliant checked report consumes both complete histories and records primary withdrawal.
+
+The policy certificate selects the actual installed configuration by identity.
+Its compiled rules and fallback must match that configuration's native source.
+Both directions of policy refinement compare every modeled conntrack state and header at the certified hook context.
+The generated comparison uses the actual consumed authentication prefix.
+This derives forward equivalence rather than accepting that relation from the caller.
+Authentication changes do not automatically change the stored installed configuration.
+A stale policy therefore fails comparison with a current incompatible session policy.
+
+All declared packet requirements name the same application scope.
+Every processed packet must match a declared class at its actual post-destination-NAT header, including packets denied by current policy.
+Computed next-hop labels must identify the selected request or reply endpoint role.
+The reviewed native mapping binds those labels to the declared direct topology.
+Class coverage and route labels do not establish principal ownership or prevent spoofed source headers.
+
+Request and reply topology use client, primary, standby, and server data roles.
+A formal management role retains the stated segmentation property.
+The direct interpretation collapses abstract access-point vertices to the client role and expands direct edges to declared campus paths.
+It establishes no physical AP, Wi-Fi link, or wireless key installation.
+Current application permission is equivalent to duplex reachability in this declared enforced topology.
+Actual packet availability still requires live TTL, a usable route, and current forward and late permits.
+
+Withdrawal follows both endpoint route changes, retirement of actual primary assignments, and primary fencing.
+The model archives the last primary table without claiming that it remains a live kernel table.
+Later operations cannot process primary tickets or invoke primary controls.
+Live primary observations after withdrawal are rejected.
+Standby processing preserves the archive and uses its own current configuration and classification.
+The operation-count drain proves no physical deadline, fairness, or eventual delivery.
+
+Every served ticket cites an actual earlier assignment within the same joint replay prefix.
+Matched output retains that source's exact NAT boundary, payload, and one TTL decrement.
+The output theorem also supplies current application validity and method readiness at the actual consumed authentication prefix.
+Current application denial excludes emission under the checked installed policy.
+The generic decision theorem uses a covered-header premise to connect forward permission with duplex campus reachability.
+The checked served-packet theorem derives that coverage from compliance.
+Observed bytes and table snapshots never replace computed source or tracker state.
+
+Two joint native captures exercise the selected sequence.
+The saved example records 26 native operations, eight datagrams, and seven protected ticket identities.
+Its 45 model operations comprise 21 authentication operations, 23 network operations, and one withdrawal.
+Retained evidence includes 18 EAP frames, 88 live conntrack dumps, 28 packet-socket data frames, 30 Netfilter observations, and 26 synchronization frames.
+These counts describe finite evidence rather than universal native correctness.
+Wired EAP evidence does not establish cryptographic refinement, wireless behavior, principal anti-spoofing, physical correspondence, automatic failures, or lifetime evolution.
+The complete campus objective remains open; the [campus deployment guide](CAMPUS_DEPLOYMENT.md) records the exact profile and remaining premises.
+
 ## Requirement language
 
 The text interface accepts one requirement per line:
