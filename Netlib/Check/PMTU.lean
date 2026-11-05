@@ -336,6 +336,7 @@ private def sendText : Protocol.PMTU.Send → String
 
 private def kindJson : ICMP.Kind → Lean.Json
   | .timeExceeded => Lean.Json.mkObj [("type", Lean.toJson (11 : Nat)), ("code", Lean.toJson (0 : Nat))]
+  | .reassemblyTimeout => Lean.Json.mkObj [("type", Lean.toJson (11 : Nat)), ("code", Lean.toJson (1 : Nat))]
   | .fragmentationNeeded value => Lean.Json.mkObj [("type", Lean.toJson (3 : Nat)),
       ("code", Lean.toJson (4 : Nat)), ("mtu", Lean.toJson value.val)]
 

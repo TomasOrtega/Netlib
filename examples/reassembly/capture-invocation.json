@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "workingDirectory": "/Users/to1717/Documents/GitHub/Netlib",
+  "captureContainer": "netlib-reassembly-final-candidate",
+  "captureImageID": "sha256:43bb65d7eeb3cc8c1ae7b02118b62899d5ba0cccf616318c9f28390a03bcb11e",
+  "captureStartedAt": "2026-11-05T03:06:51.136018638Z",
+  "captureCompletedAt": "2026-11-05T03:07:14.635771904Z",
+  "actualBuildCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-reassembly-capture:1",
+    "examples/reassembly"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "run",
+    "--name",
+    "netlib-reassembly-final-candidate",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-reassembly-capture:1"
+  ],
+  "recipeNote": "The retained run used Docker run directly. The packaged recipe uses create/start with the same source inputs and runtime options. Logs belong to this retained run."
+}

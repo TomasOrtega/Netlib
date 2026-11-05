@@ -1077,3 +1077,39 @@ Post-episode snapshots remain unobserved at earlier intermediate prefixes rather
 
 Physical timer correspondence, complete host error queues, source identity, broader protocol coverage, concurrency, and implementation refinement remain open.
 The [received-error guide](RECEIVED_ICMP.md) records the exact input and evidence boundaries.
+
+
+## Ingress queues, completion policy, and timeout errors
+
+`Protocol.IPv4InputFragment` proves exact IHL-five framing before fragment-shape validation.
+DF/MF combinations, empty payloads, and unaligned payloads reach the queue transition unchanged.
+
+`Protocol.IPv4Reassembly` computes queue effects for each arrival.
+`IPv4ReassemblyFacts` proves normalized-byte provenance, key isolation, bounds, duplicate suppression, completion, removal, and expiry separation.
+`IPv4ReassemblyLayout` proves run coverage, disjoint ordering, unique keys, and preservation through every computed prefix.
+Its readiness theorem establishes completion from complete coverage and valid metadata.
+The defensive invalid-layout result is unreachable from the initial state.
+
+The permutation result compares actual outputs with equivalent retained pieces.
+It does not establish completion for every permutation of arbitrary arrivals.
+Run grouping and conflicting duplicates can depend on arrival order.
+
+`Protocol.ReassemblyForwarding.step_incomplete` proves that incomplete arrivals leave conntrack unchanged.
+Its output facts derive current routing, live TTL, DF checks, and the effective fragment cap from actual processing.
+`Examples.ReassemblyDeployment` connects completion to the current compiled EAP scope and method readiness.
+Its Logoff and credential-revocation results exclude output under current installed policy, regardless of the earlier buffering policy.
+Installation timing and identity-to-packet binding remain deployment premises.
+
+`Protocol.IPv4Refragmentation` supports budgets from 28 bytes and proves payload, header, coverage, and size contracts.
+Observed layouts have computed semantic checks rather than an assumed copying-path shape.
+A fitting whole input still requires one whole output.
+The internal kernel allocation path remains outside the model.
+
+`Protocol.IPv4ReassemblyTimeout` derives errors from actually expired queues and their stored first fragments.
+Its quotation uses the original fragment header and normalized accepted bytes.
+The selected local-output path proves a reversed-quote lookup miss, invalid-state output permission, unchanged conntrack, and bounded ICMP type 11/code 1.
+Unsupported associations remain outside this selected timeout path.
+
+The reassembly checker carries ordinary-table, queue, and layout invariants through actual fragment, wait, and erase events.
+The timeout checker compares expired-queue errors alongside the same queue and ordinary-table history.
+The [ingress guide](REASSEMBLY.md) records framing, clocks, control-policy scope, native observation boundaries, and remaining work.

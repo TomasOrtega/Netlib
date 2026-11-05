@@ -1265,7 +1265,58 @@ The native experiment uses an EAP/NAT edge, downstream router, client, and serve
 It demonstrates PMTU 600, local oversized-send rejection, smaller UDP delivery, and a matching forgery lowering PMTU to 576.
 Runtime tests also cover 68-byte output fragmentation and abstract exception expiry.
 
-Clock-to-kernel correspondence, source identity, broader host behavior, input reassembly, and implementation refinement remain open.
+Received-error input reassembly, clock correspondence, broader host behavior, source identity, and implementation refinement remain open.
+
+# Ingress queues and current policy
+%%%
+tag := "reassembly"
+file := "reassembly"
+%%%
+
+Ingress reassembly buffers fragments before ordinary UDP attachment and NAT.
+Queue keys retain effective defragmentation user, L3 master identity, addresses, protocol, and identification.
+The selected namespace uses a fixed timeout and zero source-disorder distance control.
+
+The model preserves Linux run grouping, including order-dependent duplicate classification.
+It trims unaligned MF data and destroys queues on genuine overlaps or inconsistent final lengths.
+Accepted first-header, ECN, DF, and size metadata determine the completed packet.
+Proofs preserve byte provenance, key isolation, layout, and bounds through every computed arrival.
+
+Incomplete fragments leave conntrack unchanged.
+Completion evaluates the current installed session policy.
+A fragment buffered before Logoff does not retain the earlier permission.
+The deployment proof connects actual completion to a valid current scope and ready EAP method.
+
+Output can require fragmentation again even when the whole datagram fits its route.
+The retained maximum fragment size supplies another cap.
+The shared output contract supports small legal budgets and different kernel layout paths.
+
+```lean
+open Netlib.Protocol in
+open Netlib.Protocol.IPv4Refragmentation in
+example (packet : IPv4.Packet)
+    (cap : Budget) (df : Bool)
+    (bounded : packet.Encodable) :
+    reassemble (generate packet cap df bounded).fragments =
+      .ok (outputPacket packet df) :=
+  (generate packet cap df bounded).reassembled
+```
+
+Timeout errors use the expired queue's actual first-fragment header and accepted normalized payload prefix.
+The codec includes reassembly time exceeded, type 11/code 1.
+A VIP that is local before destination NAT can trigger this error.
+The selected unassociated local-output path checks invalid-state permission and preserves conntrack.
+
+```
+lake exe netlib wire-reassembly examples/reassembly/replay.json --json
+lake exe netlib wire-reassembly-timeouts examples/reassembly/timeout.json --json
+```
+
+Replay observations do not replace computed queue or ordinary-table state.
+Native early-hook logging separates reassembly bytes from later mutable packet buffers.
+Timeouts and event clocks share one unit; the native projection uses nanoseconds.
+Allocation, capture authenticity, synchronous policy installation, and kernel correspondence remain explicit assumptions.
+A complete arbitrary-arrival permutation theorem, broader transport behavior, and concurrency remain open.
 
 # Documentation process
 %%%

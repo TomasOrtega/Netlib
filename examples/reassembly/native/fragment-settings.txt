@@ -1,0 +1,8 @@
+net.ipv4.ipfrag_max_dist = 0
+net.ipv4.ipfrag_time = 30
+net.ipv4.ipfrag_high_thresh = 4194304
+net.ipv4.ip_forward = 1
+net.ipv4.icmp_errors_use_inbound_ifaddr = 0
+net.ipv4.icmp_ratelimit = 0
+net.ipv4.icmp_ratemask = 0
+net.ipv4.ip_default_ttl = 64

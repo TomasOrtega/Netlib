@@ -1,0 +1,18 @@
+table ip reassembly_observe {
+ chain trace { type filter hook prerouting priority -452; policy accept; meta l4proto udp meta nftrace set 1; }
+ chain zone { type filter hook prerouting priority -451; policy accept; ct zone set 0; meta mark set 0; }
+ chain before { type filter hook prerouting priority -450; policy accept; meta l4proto udp meta nftrace set 1; meta l4proto udp counter log prefix "PRE_DEFRAG" group 42 snaplen 65531 queue-threshold 1; }
+ chain after { type filter hook prerouting priority -300; policy accept; meta l4proto udp counter log prefix "POST_DEFRAG" group 42 snaplen 65531 queue-threshold 1; }
+ chain afterDestination { type filter hook prerouting priority -90; policy accept; }
+ chain beforeSource { type filter hook postrouting priority 90; policy accept; }
+ chain afterSource { type filter hook postrouting priority 110; policy accept; }
+ chain late { type filter hook postrouting priority 210; policy accept; meta l4proto icmp log prefix "TIMEOUT_EGRESS" group 42 snaplen 65531 queue-threshold 1; }
+ chain input { type filter hook input priority 0; policy drop; }
+}
+table ip netlib_nat {
+ chain destination { type nat hook prerouting priority -100; policy accept; ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000; }
+ chain source { type nat hook postrouting priority 100; policy accept; ip saddr 192.0.2.0/24 ip daddr 198.51.100.2 udp dport 9000 snat to 203.0.113.1:40000; }
+}
+table ip netlib_late {
+ chain late { type filter hook postrouting priority 200; policy accept; }
+}

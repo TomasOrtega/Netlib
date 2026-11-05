@@ -6,6 +6,7 @@ open InternetChecksum
 
 inductive Kind where
   | timeExceeded
+  | reassemblyTimeout
   | fragmentationNeeded (nextHopMTU : Word)
   deriving Repr, BEq, DecidableEq
 
@@ -21,10 +22,11 @@ structure Decoded where
 
 def kindPrefix : Kind → List UInt8
   | .timeExceeded => [11, 0]
+  | .reassemblyTimeout => [11, 1]
   | .fragmentationNeeded _ => [3, 4]
 
 def kindSuffix : Kind → List UInt8
-  | .timeExceeded => [0, 0, 0, 0]
+  | .timeExceeded | .reassemblyTimeout => [0, 0, 0, 0]
   | .fragmentationNeeded mtu => [0, 0] ++ wordBytes mtu
 
 @[simp] theorem kindPrefix_length (kind : Kind) : (kindPrefix kind).length = 2 := by cases kind <;> rfl
@@ -52,9 +54,11 @@ def decode : List UInt8 → Except String Decoded
   | type :: code :: ch :: cl :: u0 :: u1 :: u2 :: u3 :: quote => do
     let kind ← if type = 11 ∧ code = 0 ∧ u0 = 0 ∧ u1 = 0 ∧ u2 = 0 ∧ u3 = 0 then
         .ok Kind.timeExceeded
+      else if type = 11 ∧ code = 1 ∧ u0 = 0 ∧ u1 = 0 ∧ u2 = 0 ∧ u3 = 0 then
+        .ok Kind.reassemblyTimeout
       else if type = 3 ∧ code = 4 ∧ u0 = 0 ∧ u1 = 0 then
         .ok (Kind.fragmentationNeeded (read16 u2 u3))
-      else .error "Require ICMP time exceeded or fragmentation needed with zero unused fields."
+      else .error "Require ICMP transit/reassembly time exceeded or fragmentation needed with zero unused fields."
     let message : Message := ⟨kind, quote⟩
     if valid (bytes message (read16 ch cl)) then return ⟨message, read16 ch cl⟩
     else throw "The ICMP checksum is invalid."
@@ -92,14 +96,21 @@ theorem decode_fields (wire : List UInt8) (value : Decoded) (accepted : decode w
         cases accepted
         exact ⟨checked, by simp [bytes, kindPrefix, kindSuffix, wordBytes]⟩
       · simp [checked, bind, Except.bind, throw] at accepted
-    · by_cases frag : type = 3 ∧ code = 4 ∧ u0 = 0 ∧ u1 = 0
-      · obtain ⟨rfl, rfl, rfl, rfl⟩ := frag
-        by_cases checked : valid (bytes ⟨.fragmentationNeeded (read16 u2 u3), quote⟩ (read16 ch cl)) = true
+    · by_cases timeout : type = 11 ∧ code = 1 ∧ u0 = 0 ∧ u1 = 0 ∧ u2 = 0 ∧ u3 = 0
+      · obtain ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩ := timeout
+        by_cases checked : valid (bytes ⟨.reassemblyTimeout, quote⟩ (read16 ch cl)) = true
         · simp [checked, bind, Except.bind, pure] at accepted
           cases accepted
           exact ⟨checked, by simp [bytes, kindPrefix, kindSuffix, wordBytes]⟩
         · simp [checked, bind, Except.bind, throw] at accepted
-      · simp [time, frag, bind, Except.bind] at accepted
+      · by_cases frag : type = 3 ∧ code = 4 ∧ u0 = 0 ∧ u1 = 0
+        · obtain ⟨rfl, rfl, rfl, rfl⟩ := frag
+          by_cases checked : valid (bytes ⟨.fragmentationNeeded (read16 u2 u3), quote⟩ (read16 ch cl)) = true
+          · simp [checked, bind, Except.bind, pure] at accepted
+            cases accepted
+            exact ⟨checked, by simp [bytes, kindPrefix, kindSuffix, wordBytes]⟩
+          · simp [checked, bind, Except.bind, throw] at accepted
+        · simp [time, timeout, frag, bind, Except.bind] at accepted
   · cases accepted
 
 theorem encode_decode (wire : List UInt8) (value : Decoded) (accepted : decode wire = .ok value) :

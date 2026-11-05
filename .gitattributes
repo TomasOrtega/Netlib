@@ -18,3 +18,6 @@ examples/icmp/native/trace.txt -whitespace
 examples/received-icmp/build-stdout.txt -whitespace
 examples/received-icmp/build-stderr.txt -whitespace
 examples/received-icmp/native/trace.txt -whitespace
+examples/reassembly/build-stdout.txt -whitespace
+examples/reassembly/build-stderr.txt -whitespace
+examples/reassembly/native/trace.txt -whitespace
