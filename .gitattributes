@@ -33,3 +33,15 @@ examples/replication/native/b-cache-statistics.txt -whitespace
 examples/replication/native/b-ct-statistics.txt -whitespace
 examples/replication/native/b-network-statistics.txt -whitespace
 examples/replication/native/b-runtime-statistics.txt -whitespace
+examples/safe-handoff/build-stdout.txt -whitespace
+examples/safe-handoff/build-stderr.txt -whitespace
+examples/safe-handoff/native/a-trace.txt -whitespace
+examples/safe-handoff/native/b-trace.txt -whitespace
+examples/safe-handoff/native/a-cache-statistics.txt -whitespace
+examples/safe-handoff/native/a-ct-statistics.txt -whitespace
+examples/safe-handoff/native/a-network-statistics.txt -whitespace
+examples/safe-handoff/native/a-runtime-statistics.txt -whitespace
+examples/safe-handoff/native/b-cache-statistics.txt -whitespace
+examples/safe-handoff/native/b-ct-statistics.txt -whitespace
+examples/safe-handoff/native/b-network-statistics.txt -whitespace
+examples/safe-handoff/native/b-runtime-statistics.txt -whitespace

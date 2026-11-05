@@ -21,6 +21,43 @@ They bind the staged record to that prefix's computed primary table and operatio
 Observed-output facts connect payload, TTL, ordinary NAT binding, and current policy to the actual accepted packet step.
 Native evidence correspondence, aging, reliable replication, automatic detection, and convergence remain explicit open obligations.
 
+## Safe handoff with outstanding assignments
+
+`Protocol.TrackedFlow` derives ordinary attachment from any valid table containing the protected NAT binding.
+The gateways can retain different seen-reply knowledge without changing that binding.
+Selected packet processing completes and preserves readiness even when routing, TTL, or current policy prevents output.
+The service theorem constructs an emission when routing, live TTL, and both current filter permits hold.
+Its target, payload, checksum effects, and TTL decrement follow the existing wire semantics.
+
+`Theory.Outstanding` allocates unique identities and completes an actual pending item by identity.
+It permits arbitrary completion order without requiring equality of stored payloads.
+Its invariants preserve exact membership, retirement history, and targeted counts.
+An identity cannot complete twice.
+
+`Protocol.SafeHandoff` separates route assignment from processing at the assigned gateway.
+Lean uses `assign` and `serve`; JSON retains `admit` for assignment.
+`Admissible` states operation conditions entirely on the preceding state.
+`admissible_progress` constructs an actual successful step and proves preservation without assuming success or a safe result.
+`arbitrary_interleavings` and `arbitrary_prefixes` cover every modeled admissible packet and control interleaving.
+They preserve protected readiness, unfenced active gateways, ticket identities, and further admissible progress.
+A current policy denial remains compatible with that structural invariant.
+
+`serve_service` uses the assigned gateway's current configuration and local classification, including later seen-reply changes.
+`drain_gateway` constructs a retirement sequence with exactly the initial outstanding target count.
+`drain_then_fence` permits fencing after that drain and both endpoint route changes.
+These are operation counts without time, fairness, delivery, or physical queue correspondence guarantees.
+
+`Check.SafeHandoff.Report.every_served_source` identifies each served item's actual earlier assignment prefix.
+It binds immutable bytes, identity, gateway, direction, and operation epoch to that prefix's computed state.
+`observed_output_facts` transfers matched Ethernet output to that source's payload, TTL, NAT boundary, and current filter permits.
+`commit_source` identifies the earlier actual primary-prefix stage behind the installed record.
+Observations never replace ticket input or computed tables.
+
+`Examples.SafeHandoffDeployment` connects service to a current certified EAP session policy under an explicit installation premise.
+Its synthetic integration test covers Logoff, queued denial, and a stale installed-policy counterexample.
+The native example records 20 operations, seven datagrams, and six protected tickets; it establishes no native EAP enforcement claim.
+The [safe handoff guide](SAFE_HANDOFF.md) states the command, source pins, proof premises, and evidence limits.
+
 ## Requirements and logic
 
 `Netlib/Core/Logic.lean` defines a Boolean evaluator and propositional semantics

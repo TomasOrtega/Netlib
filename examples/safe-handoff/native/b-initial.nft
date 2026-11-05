@@ -1,0 +1,19 @@
+table ip netlib_nat {
+ chain prerouting { type nat hook prerouting priority -100; policy accept; ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000; }
+ chain postrouting { type nat hook postrouting priority 100; policy accept; ip saddr 192.0.2.2 ip daddr 198.51.100.2 udp sport 41000 udp dport 9000 snat to 203.0.113.1:40000; }
+}
+table ip netlib {
+ chain forward { type filter hook forward priority 0; policy drop; ip saddr 192.0.2.2 ip daddr 198.51.100.2 udp sport 41000 udp dport 9000 ct state new,established accept; ct state established accept; }
+}
+table ip sync_untracked {
+ chain prerouting { type filter hook prerouting priority -300; policy accept; ip saddr 10.10.0.0/24 udp dport 3780 notrack; }
+ chain output { type filter hook output priority -300; policy accept; ip saddr 10.10.0.0/24 udp dport 3780 notrack; }
+}
+table ip netlib_late {
+ chain late { type filter hook postrouting priority 200; policy accept; }
+}
+table ip replication_observe {
+ chain ingress { type filter hook prerouting priority -450; policy accept; meta l4proto udp udp dport != 3780 meta nftrace set 1; meta l4proto udp udp dport != 3780 counter log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1; }
+ chain tracked { type filter hook prerouting priority -199; policy accept; meta l4proto udp udp dport != 3780 ct state new counter comment "NEW"; meta l4proto udp udp dport != 3780 ct state established counter comment "ESTABLISHED"; meta l4proto udp udp dport != 3780 counter log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1; }
+ chain egress { type filter hook postrouting priority 210; policy accept; meta l4proto udp udp dport != 3780 counter log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1; }
+}

@@ -1,0 +1,2524 @@
+{
+  "schema": 1,
+  "routing": {
+    "primary": {
+      "version": "6.19.0",
+      "bindings": [
+        {
+          "device": "syncl",
+          "nextNode": "sync",
+          "gateway": null
+        },
+        {
+          "device": "car",
+          "nextNode": "client",
+          "gateway": null
+        },
+        {
+          "device": "sar",
+          "nextNode": "server",
+          "gateway": null
+        }
+      ],
+      "routes": [
+        {
+          "dst": "10.10.0.0/24",
+          "dev": "syncl",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "10.10.0.1",
+          "flags": []
+        },
+        {
+          "dst": "192.0.2.0/24",
+          "dev": "car",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "192.0.2.1",
+          "flags": []
+        },
+        {
+          "dst": "198.51.100.0/24",
+          "dev": "sar",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "198.51.100.1",
+          "flags": []
+        },
+        {
+          "type": "blackhole",
+          "dst": "203.0.113.1",
+          "flags": []
+        }
+      ]
+    },
+    "standby": {
+      "version": "6.19.0",
+      "bindings": [
+        {
+          "device": "syncr",
+          "nextNode": "sync",
+          "gateway": null
+        },
+        {
+          "device": "cbr",
+          "nextNode": "client",
+          "gateway": "192.0.3.2"
+        },
+        {
+          "device": "cbr",
+          "nextNode": "client",
+          "gateway": null
+        },
+        {
+          "device": "sbr",
+          "nextNode": "server",
+          "gateway": "198.51.101.2"
+        },
+        {
+          "device": "sbr",
+          "nextNode": "server",
+          "gateway": null
+        }
+      ],
+      "routes": [
+        {
+          "dst": "10.10.0.0/24",
+          "dev": "syncr",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "10.10.0.2",
+          "flags": []
+        },
+        {
+          "dst": "192.0.2.2",
+          "gateway": "192.0.3.2",
+          "dev": "cbr",
+          "flags": []
+        },
+        {
+          "dst": "192.0.3.0/24",
+          "dev": "cbr",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "192.0.3.1",
+          "flags": []
+        },
+        {
+          "dst": "198.51.100.2",
+          "gateway": "198.51.101.2",
+          "dev": "sbr",
+          "flags": []
+        },
+        {
+          "dst": "198.51.101.0/24",
+          "dev": "sbr",
+          "protocol": "kernel",
+          "scope": "link",
+          "prefsrc": "198.51.101.1",
+          "flags": []
+        },
+        {
+          "type": "blackhole",
+          "dst": "203.0.113.1",
+          "flags": []
+        }
+      ]
+    }
+  },
+  "configs": [
+    {
+      "id": "initial-primary",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 2,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "in",
+                    "left": {
+                      "ct": {
+                        "key": "state"
+                      }
+                    },
+                    "right": [
+                      "established",
+                      "new"
+                    ]
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "in",
+                    "left": {
+                      "ct": {
+                        "key": "state"
+                      }
+                    },
+                    "right": "established"
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "initial-standby",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 2,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "in",
+                    "left": {
+                      "ct": {
+                        "key": "state"
+                      }
+                    },
+                    "right": [
+                      "established",
+                      "new"
+                    ]
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "in",
+                    "left": {
+                      "ct": {
+                        "key": "state"
+                      }
+                    },
+                    "right": "established"
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "install-deny",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "install-permit",
+      "forward": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 2
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "in",
+                    "left": {
+                      "ct": {
+                        "key": "state"
+                      }
+                    },
+                    "right": "established"
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "late": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_late",
+              "handle": 4
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_late",
+              "name": "late",
+              "handle": 1,
+              "type": "filter",
+              "hook": "postrouting",
+              "prio": 200,
+              "policy": "accept"
+            }
+          }
+        ]
+      },
+      "nat": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib_nat",
+              "handle": 1
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "prerouting",
+              "handle": 1,
+              "type": "nat",
+              "hook": "prerouting",
+              "prio": -100,
+              "policy": "accept"
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "name": "postrouting",
+              "handle": 2,
+              "type": "nat",
+              "hook": "postrouting",
+              "prio": 100,
+              "policy": "accept"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "prerouting",
+              "handle": 3,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "203.0.113.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 8080
+                  }
+                },
+                {
+                  "dnat": {
+                    "addr": "198.51.100.2",
+                    "port": 9000
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib_nat",
+              "chain": "postrouting",
+              "handle": 4,
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "snat": {
+                    "addr": "203.0.113.1",
+                    "port": 40000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "initialConfigs": {
+    "primary": "initial-primary",
+    "standby": "initial-standby"
+  },
+  "events": [
+    {
+      "type": "establish",
+      "zone": 0,
+      "rawIPv4": "45000032b75200004011c563c0000202cb007102a0281f90001e1f73736166652d68616e646f66663a65737461626c697368",
+      "observed": {
+        "classification": "new",
+        "fresh": true,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "020000100200020000100201080045000032b75200003f115e31cb007101c63364029c402328001eb790736166652d68616e646f66663a65737461626c697368"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a40000000001220057012904cd00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a40000000001220057012904cd00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "140000000300020057012904cd00000000000000"
+          ],
+          "request": "140000000101010357012904cd00000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [],
+          "messages": [
+            "1400000003000200652a3ad1cf00000000000000"
+          ],
+          "request": "1400000001010103652a3ad1cf00000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "stage",
+      "zone": 0,
+      "key": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 41000,
+        "destinationPort": 8080
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200dfab0d250901000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a400000000012200dfab0d250901000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "1400000003000200dfab0d250901000000000000"
+          ],
+          "request": "1400000001010103dfab0d250901000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [],
+          "messages": [
+            "1400000003000200b3600c630b01000000000000"
+          ],
+          "request": "1400000001010103b3600c630b01000002000000"
+        }
+      },
+      "cache": [
+        {
+          "original": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 41000,
+            "destinationPort": 8080
+          },
+          "zone": 0,
+          "sourceNAT": {
+            "address": "203.0.113.1",
+            "port": 40000
+          },
+          "destinationNAT": {
+            "address": "198.51.100.2",
+            "port": 9000
+          },
+          "seenReply": false
+        }
+      ]
+    },
+    {
+      "type": "commit",
+      "timeout": 180,
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a4000000000122008412d0e04201000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a4000000000122008412d0e04201000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "14000000030002008412d0e04201000000000000"
+          ],
+          "request": "14000000010101038412d0e04201000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 179,
+              "status": 440,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200a489bcc74401000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200a489bcc74401000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200a489bcc74401000000000000"
+          ],
+          "request": "1400000001010103a489bcc74401000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "original",
+      "rawIPv4": "45000035b8dc00004011c3d6c0000202cb007102a0281f9000215626736166652d68616e646f66663a68656c642d7072696d617279",
+      "observedID": 0,
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a40000000001220045837653b301000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a40000000001220045837653b301000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "140000000300020045837653b301000000000000"
+          ],
+          "request": "140000000101010345837653b301000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 179,
+              "status": 440,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200ffc5bd75b501000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200ffc5bd75b501000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200ffc5bd75b501000000000000"
+          ],
+          "request": "1400000001010103ffc5bd75b501000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "handoff",
+      "leg": "client",
+      "gateway": "standby",
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a40000000001220087dd39edec01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a40000000001220087dd39edec01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "140000000300020087dd39edec01000000000000"
+          ],
+          "request": "140000000101010387dd39edec01000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 179,
+              "status": 440,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200244db0d0ee01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200244db0d0ee01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200244db0d0ee01000000000000"
+          ],
+          "request": "1400000001010103244db0d0ee01000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "handoff",
+      "leg": "server",
+      "gateway": "standby",
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200802bc0f42502000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a400000000012200802bc0f42502000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "1400000003000200802bc0f42502000000000000"
+          ],
+          "request": "1400000001010103802bc0f42502000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 179,
+              "status": 440,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200949831772702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200949831772702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200949831772702000000000000"
+          ],
+          "request": "1400000001010103949831772702000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "original",
+      "rawIPv4": "45000039b99200004011c31cc0000202cb007102a0281f9000256742736166652d68616e646f66663a6f76657274616b652d72657175657374",
+      "observedID": 1,
+      "states": {
+        "primary": null,
+        "standby": null
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 1,
+      "rawIPv4": "45000039b99200004011c31cc0000202cb007102a0281f9000256742736166652d68616e646f66663a6f76657274616b652d72657175657374",
+      "observed": {
+        "classification": "new",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "020000100300020000100301080045000039b99200003f115beacb007101c63364029c4023280025ff5f736166652d68616e646f66663a6f76657274616b652d72657175657374"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 28,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a4000000000122002ed3063a5d02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001c"
+            }
+          ],
+          "messages": [
+            "a4000000000122002ed3063a5d02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001c",
+            "14000000030002002ed3063a5d02000000000000"
+          ],
+          "request": "14000000010101032ed3063a5d02000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200263203d85f02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200263203d85f02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00a5379c5108000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200263203d85f02000000000000"
+          ],
+          "request": "1400000001010103263203d85f02000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "reply",
+      "rawIPv4": "450000372fd500004011e4a9c6336402cb00710123289c40002360e0736166652d68616e646f66663a6f76657274616b652d7265706c79",
+      "observedID": 2,
+      "states": {
+        "primary": null,
+        "standby": null
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 2,
+      "rawIPv4": "450000372fd500004011e4a9c6336402cb00710123289c40002360e0736166652d68616e646f66663a6f76657274616b652d7265706c79",
+      "observed": {
+        "classification": "established",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "0200001001000200001001010800450000372fd500003f114ddccb007102c00002021f90a0280023c8c2736166652d68616e646f66663a6f76657274616b652d7265706c79"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 28,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200decd6f189502000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001c"
+            }
+          ],
+          "messages": [
+            "a400000000012200decd6f189502000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001c",
+            "1400000003000200decd6f189502000000000000"
+          ],
+          "request": "1400000001010103decd6f189502000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 442,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c00000000001220077fb7c019702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c00000000001220077fb7c019702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000",
+            "140000000300020077fb7c019702000000000000"
+          ],
+          "request": "140000000101010377fb7c019702000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 0,
+      "rawIPv4": "45000035b8dc00004011c3d6c0000202cb007102a0281f9000215626736166652d68616e646f66663a68656c642d7072696d617279",
+      "observed": {
+        "classification": "new",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "020000100200020000100201080045000035b8dc00003f115ca4cb007101c63364029c4023280021ee43736166652d68616e646f66663a68656c642d7072696d617279"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200b8ebb0fccd02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a400000000012200b8ebb0fccd02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "1400000003000200b8ebb0fccd02000000000000"
+          ],
+          "request": "1400000001010103b8ebb0fccd02000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 28,
+              "status": 442,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200af52c2a6cf02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001c1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200af52c2a6cf02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001c1c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200af52c2a6cf02000000000000"
+          ],
+          "request": "1400000001010103af52c2a6cf02000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "fence",
+      "gateway": "primary",
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a4000000000122003c2cb4a34103000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a4000000000122003c2cb4a34103000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "14000000030002003c2cb4a34103000000000000"
+          ],
+          "request": "14000000010101033c2cb4a34103000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 27,
+              "status": 442,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c0000000000122003f426be24303000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c0000000000122003f426be24303000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000",
+            "14000000030002003f426be24303000000000000"
+          ],
+          "request": "14000000010101033f426be24303000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "original",
+      "rawIPv4": "45000035c3a100004011b911c0000202cb007102a0281f9000215833736166652d68616e646f66663a68656c642d7374616e646279",
+      "observedID": 3,
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200b5819185b203000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a400000000012200b5819185b203000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "1400000003000200b5819185b203000000000000"
+          ],
+          "request": "1400000001010103b5819185b203000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 27,
+              "status": 442,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200fd31373eb403000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200fd31373eb403000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200fd31373eb403000000000000"
+          ],
+          "request": "1400000001010103fd31373eb403000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "install",
+      "gateway": "standby",
+      "config": "install-deny",
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 29,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a40000000001220045091674eb03000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d"
+            }
+          ],
+          "messages": [
+            "a40000000001220045091674eb03000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001d",
+            "140000000300020045091674eb03000000000000"
+          ],
+          "request": "140000000101010345091674eb03000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 27,
+              "status": 442,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200fd1e2bf1ed03000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200fd1e2bf1ed03000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00a5379c5108000b0000000001080007000000001b1c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200fd1e2bf1ed03000000000000"
+          ],
+          "request": "1400000001010103fd1e2bf1ed03000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 3,
+      "rawIPv4": "45000035c3a100004011b911c0000202cb007102a0281f9000215833736166652d68616e646f66663a68656c642d7374616e646279",
+      "observed": {
+        "classification": "established",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwardDrop",
+        "output": null
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 27,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a4000000000122009584c4ab2304000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001b"
+            }
+          ],
+          "messages": [
+            "a4000000000122009584c4ab2304000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001b",
+            "14000000030002009584c4ab2304000000000000"
+          ],
+          "request": "14000000010101039584c4ab2304000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 119,
+              "status": 446,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c0000000000122000611851f2504000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c0000000000122000611851f2504000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000",
+            "14000000030002000611851f2504000000000000"
+          ],
+          "request": "14000000010101030611851f2504000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "install",
+      "gateway": "standby",
+      "config": "install-permit",
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 26,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200b2ffeebd9604000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a"
+            }
+          ],
+          "messages": [
+            "a400000000012200b2ffeebd9604000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a",
+            "1400000003000200b2ffeebd9604000000000000"
+          ],
+          "request": "1400000001010103b2ffeebd9604000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 118,
+              "status": 446,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200a123ff159804000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000761c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200a123ff159804000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000761c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200a123ff159804000000000000"
+          ],
+          "request": "1400000001010103a123ff159804000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "original",
+      "rawIPv4": "4500003acce000004011afcdc0000202cb007102a0281f900026a09e736166652d68616e646f66663a636f6e74696e7565642d72657175657374",
+      "observedID": 4,
+      "states": {
+        "primary": null,
+        "standby": null
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 4,
+      "rawIPv4": "4500003acce000004011afcdc0000202cb007102a0281f900026a09e736166652d68616e646f66663a636f6e74696e7565642d72657175657374",
+      "observed": {
+        "classification": "established",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "02000010030002000010030108004500003acce000003f11489bcb007101c63364029c402328002638bc736166652d68616e646f66663a636f6e74696e7565642d72657175657374"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 26,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a40000000001220099b5e961ce04000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a"
+            }
+          ],
+          "messages": [
+            "a40000000001220099b5e961ce04000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a",
+            "140000000300020099b5e961ce04000000000000"
+          ],
+          "request": "140000000101010399b5e961ce04000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 119,
+              "status": 446,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c0000000000122006151912fd004000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c0000000000122006151912fd004000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000",
+            "14000000030002006151912fd004000000000000"
+          ],
+          "request": "14000000010101036151912fd004000002000000"
+        }
+      },
+      "cache": null
+    },
+    {
+      "type": "admit",
+      "direction": "reply",
+      "rawIPv4": "450000383cad00004011d7d0c6336402cb00710123289c400024b521736166652d68616e646f66663a636f6e74696e7565642d7265706c79",
+      "observedID": 5,
+      "states": {
+        "primary": null,
+        "standby": null
+      },
+      "cache": null
+    },
+    {
+      "type": "serve",
+      "id": 5,
+      "rawIPv4": "450000383cad00004011d7d0c6336402cb00710123289c400024b521736166652d68616e646f66663a636f6e74696e7565642d7265706c79",
+      "observed": {
+        "classification": "established",
+        "fresh": false,
+        "afterDestination": null,
+        "afterSource": null,
+        "nextHop": null,
+        "disposition": "forwarded",
+        "output": "0200001001000200001001010800450000383cad00003f114103cb007102c00002021f90a02800241d04736166652d68616e646f66663a636f6e74696e7565642d7265706c79"
+      },
+      "states": {
+        "primary": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 26,
+              "status": 440,
+              "id": 3432748625,
+              "mark": 0,
+              "use": 1,
+              "raw": "a400000000012200fc6592430605000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a"
+            }
+          ],
+          "messages": [
+            "a400000000012200fc6592430605000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00cc9b965108000b0000000001080007000000001a",
+            "1400000003000200fc6592430605000000000000"
+          ],
+          "request": "1400000001010103fc6592430605000002000000"
+        },
+        "standby": {
+          "schema": 1,
+          "family": 2,
+          "entries": [
+            {
+              "original": {
+                "source": "192.0.2.2",
+                "destination": "203.0.113.2",
+                "protocol": 17,
+                "sourcePort": 41000,
+                "destinationPort": 8080
+              },
+              "reply": {
+                "source": "198.51.100.2",
+                "destination": "203.0.113.1",
+                "protocol": 17,
+                "sourcePort": 9000,
+                "destinationPort": 40000
+              },
+              "originalZone": 0,
+              "replyZone": 0,
+              "remainingTTL": 119,
+              "status": 446,
+              "id": 2771885137,
+              "mark": 0,
+              "use": 1,
+              "raw": "c000000000012200963ec1e50805000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+            }
+          ],
+          "messages": [
+            "c000000000012200963ec1e50805000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00a5379c5108000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000",
+            "1400000003000200963ec1e50805000000000000"
+          ],
+          "request": "1400000001010103963ec1e50805000002000000"
+        }
+      },
+      "cache": null
+    }
+  ]
+}

@@ -1354,6 +1354,62 @@ Matched output preserves the original payload and decrements TTL through the ord
 The configured timeout is metadata without modeled aging.
 Collisions, expiry, reliable synchronization, automatic failure detection, routing convergence, and split-brain prevention remain open.
 
+# Outstanding traffic during handoff
+%%%
+tag := "safe-handoff"
+file := "safe-handoff"
+%%%
+
+Endpoint route assignment and gateway processing are separate operations.
+An assignment retains complete validated IPv4 UDP bytes and its selected gateway.
+Later route changes preserve that ticket.
+Processing selects an actual pending identity and uses its assigned gateway's current installed configuration.
+New standby traffic can complete before an older primary packet.
+
+`Theory.Outstanding` proves fresh allocation, unique identities, and arbitrary completion order without requiring payload equality.
+Completion cannot select an absent identity or complete the same identity twice.
+`Protocol.TrackedFlow` supports independent seen-reply knowledge at gateways sharing the protected binding.
+Current classification, routing, TTL, and both current filters govern actual emission.
+A policy-denied reply can still update tracking state and retire its ticket.
+
+`SafeHandoff.Admissible` states natural preconditions before each protected operation.
+An actual bootstrap packet establishes the source record before this protected phase.
+The progress proof constructs a successful step and proves its resulting invariant:
+
+```lean
+open Netlib.Protocol.SafeHandoff in
+example (before : State) (event : Event)
+    (safe : before.Safe)
+    (allowed : Admissible before event) :
+    ∃ result, step before event = .ok result ∧
+      result.state.Safe :=
+  admissible_progress before event safe allowed
+```
+
+Universal trace and prefix theorems cover every modeled admissible interleaving.
+Fencing requires both endpoint owners elsewhere and no outstanding assignment to the selected gateway.
+The constructive drain theorem retires exactly the selected gateway's initial outstanding count before fencing.
+It counts processing operations without imposing global FIFO order.
+Physical time, scheduler fairness, packet loss, and resource correspondence remain additional obligations.
+
+```
+lake exe netlib wire-safe-handoff examples/safe-handoff/replay.json --json
+```
+
+The replay starts with empty tables, cache, and outstanding work.
+Every served item traces to an actual strictly earlier assignment prefix.
+Later observed input cannot replace its retained source bytes.
+Current certified EAP policy can deny queued traffic after Logoff or revocation.
+That result requires the updated policy to be installed at the actual assigned gateway.
+
+The native evidence covers 20 operations, seven datagrams, and six protected ticket identities.
+Endpoint NFLOG records route assignment before qdisc release; packet-socket transmission taps occur after dequeue.
+All selected admission bytes pass the complete IPv4 UDP codec.
+An old primary packet survives both route changes while newer standby traffic completes.
+A separate queued standby packet encounters newly installed deny policy.
+Queue readbacks supplement actual gateway outcomes and socket observations; queue emptiness alone does not establish drain.
+The capture does not establish native EAP enforcement or complete kernel refinement.
+
 # Documentation process
 %%%
 tag := "documentation"
