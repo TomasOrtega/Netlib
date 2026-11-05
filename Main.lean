@@ -23,6 +23,7 @@ import Netlib.Check.RelatedICMP
 import Netlib.Check.PMTU
 import Netlib.Check.ReassemblyForwarding
 import Netlib.Check.ReassemblyTimeout
+import Netlib.Check.StatefulFailover
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -55,6 +56,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib host-pmtu TRACE.json [--json]\n\
   netlib wire-reassembly TRACE.json [--json]\n\
   netlib wire-reassembly-timeouts TRACE.json [--json]\n\
+  netlib wire-failover TRACE.json [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -247,6 +249,12 @@ private def reassemblyTimeouts (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.ReassemblyTimeout.Input.parse (← IO.FS.readFile path))
   let report ← unwrap input.check
   IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.compliant then 0 else 1
+
+private def wireFailover (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.StatefulFailover.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then Check.StatefulFailover.renderJson report |>.pretty else Check.StatefulFailover.render report)
   return if report.compliant then 0 else 1
 
 private def transfer (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
@@ -486,6 +494,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["wire-reassembly-timeouts", path] => reassemblyTimeouts path false
   | ["wire-reassembly-timeouts", path, "--json"] => reassemblyTimeouts path true
   | ["transfer", path] => transfer path 4096 false
+  | ["wire-failover", path] => wireFailover path false
+  | ["wire-failover", path, "--json"] => wireFailover path true
   | ["transfer", path, "--json"] => transfer path 4096 true
   | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false
   | ["transfer", path, "--budget", budget, "--json"] => transfer path (← budgetValue budget) true

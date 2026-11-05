@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "workingDirectory": "/Users/to1717/Documents/GitHub/Netlib",
+  "captureContainer": "netlib-replication-final-candidate",
+  "captureImageID": "sha256:2e4db031fbbdf6afde48186e0765b0e464cb1719bfde11cb42b40ede5d89c73f",
+  "captureStartedAt": "2026-11-05T04:18:35.670682632Z",
+  "captureCompletedAt": "2026-11-05T04:18:40.064640368Z",
+  "actualBuildCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-replication-capture:1",
+    "examples/replication"
+  ],
+  "actualCreateCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "create",
+    "--name",
+    "netlib-replication-final-candidate",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-replication-capture:1"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "start",
+    "-a",
+    "netlib-replication-final-candidate"
+  ]
+}

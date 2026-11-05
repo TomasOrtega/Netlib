@@ -53,6 +53,20 @@ theorem Trace.steps (trace : Trace system initial findings final) :
     · exact ⟨before, computed⟩
     · exact ih finding member
 
+theorem Trace.prefix (trace : Trace system initial findings final) (finding : Finding Observation Result)
+    (member : finding ∈ findings) :
+    ∃ prior later before,
+      findings = prior ++ finding :: later ∧ Trace system initial prior before ∧
+      system.step before finding.observation = .ok finding.result ∧
+      Trace system (system.state finding.result) later final := by
+  induction trace with
+  | nil => simp at member
+  | @cons before final head tail computed rest ih =>
+    rcases List.mem_cons.mp member with rfl | member
+    · exact ⟨[], tail, before, rfl, .nil before, computed, rest⟩
+    · obtain ⟨prior, later, previous, covered, preceding, accepted, following⟩ := ih member
+      exact ⟨head :: prior, later, previous, by simp [covered], .cons computed preceding, accepted, following⟩
+
 theorem Trace.invariant (trace : Trace system initial findings final) (property : State → Prop)
     (preserved : ∀ before observation result, property before → system.step before observation = .ok result →
       property (system.state result)) (valid : property initial) :

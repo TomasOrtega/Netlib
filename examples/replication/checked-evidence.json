@@ -1,0 +1,1743 @@
+{
+  "schema": 1,
+  "profile": "conntrackd-ftfw-udp-handoff",
+  "initial": {
+    "a": [],
+    "b": []
+  },
+  "initialSnapshots": {
+    "a": "initial-a-conntrack.json",
+    "b": "initial-b-conntrack.json"
+  },
+  "final": {
+    "a": [
+      {
+        "original": {
+          "source": "192.0.2.2",
+          "destination": "203.0.113.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 8080
+        },
+        "reply": {
+          "source": "198.51.100.2",
+          "destination": "203.0.113.1",
+          "protocol": 17,
+          "sourcePort": 9000,
+          "destinationPort": 40000
+        },
+        "originalZone": 0,
+        "replyZone": 0,
+        "status": 440,
+        "remainingTTL": 27,
+        "id": 426940632,
+        "mark": 0,
+        "use": 1,
+        "raw": "a4000000000122002e4cab511803000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+      }
+    ],
+    "b": [
+      {
+        "original": {
+          "source": "192.0.2.2",
+          "destination": "203.0.113.2",
+          "protocol": 17,
+          "sourcePort": 41000,
+          "destinationPort": 8080
+        },
+        "reply": {
+          "source": "198.51.100.2",
+          "destination": "203.0.113.1",
+          "protocol": 17,
+          "sourcePort": 9000,
+          "destinationPort": 40000
+        },
+        "originalZone": 0,
+        "replyZone": 0,
+        "status": 446,
+        "remainingTTL": 119,
+        "id": 3854685413,
+        "mark": 0,
+        "use": 1,
+        "raw": "c0000000000122006a11fade1a03000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+      }
+    ]
+  },
+  "finalSnapshots": {
+    "a": "final-a-conntrack.json",
+    "b": "final-b-conntrack.json"
+  },
+  "events": [
+    {
+      "id": "establish",
+      "type": "packet",
+      "gateway": "a",
+      "leg": "original",
+      "before": {
+        "a": [],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "establish-before-a-conntrack.json",
+          "b": "establish-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "establish-after-a-conntrack.json",
+          "b": "establish-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200a7702612b500000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "inputHex": "45000031c8fb00004011b3bbc0000202cb007102a0281f90001daeed7265706c69636174696f6e3a65737461626c697368",
+      "outputHex": "45000031c8fb00003f114c89cb007101c63364029c402328001d470b7265706c69636174696f6e3a65737461626c697368",
+      "outputEthernetHex": "020000100200020000100201080045000031c8fb00003f114c89cb007101c63364029c402328001d470b7265706c69636174696f6e3a65737461626c697368",
+      "ingressSource": "a-nflog.jsonl:1",
+      "postSource": "a-nflog.jsonl:3",
+      "frameSources": [
+        "client-frames.jsonl:3",
+        "a-frames.jsonl:5",
+        "a-frames.jsonl:6",
+        "server-frames.jsonl:3"
+      ],
+      "outputFrameSource": "a-frames.jsonl:6",
+      "disposition": "forwarded",
+      "classification": "new"
+    },
+    {
+      "id": "replicate",
+      "type": "stage",
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200e85d1b54cd00000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "replicate-before-a-conntrack.json",
+          "b": "replicate-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "replicate-after-a-conntrack.json",
+          "b": "replicate-after-b-conntrack.json"
+        }
+      },
+      "cacheSource": "stage-b-cache-0.xml",
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220007dd2df9e900000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "sourceSync": [
+        {
+          "source": "b-frames.jsonl:3",
+          "messageIndex": 0,
+          "sequence": 1793852316,
+          "attributes": {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "status": 440,
+            "sourceNAT": "203.0.113.1",
+            "destinationNAT": "198.51.100.2",
+            "sourceNATPort": 40000,
+            "destinationNATPort": 9000
+          }
+        }
+      ],
+      "cache": [
+        {
+          "original": {
+            "source": "192.0.2.2",
+            "destination": "203.0.113.2",
+            "protocol": 17,
+            "sourcePort": 41000,
+            "destinationPort": 8080
+          },
+          "zone": 0,
+          "sourceNAT": {
+            "address": "203.0.113.1",
+            "port": 40000
+          },
+          "destinationNAT": {
+            "address": "198.51.100.2",
+            "port": 9000
+          },
+          "seenReply": false
+        }
+      ]
+    },
+    {
+      "id": "client-route",
+      "type": "handoff",
+      "leg": "original",
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200fde50f8b0101000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "client-route-before-a-conntrack.json",
+          "b": "client-route-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "client-route-after-a-conntrack.json",
+          "b": "client-route-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200415240ea1a01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      }
+    },
+    {
+      "id": "server-route",
+      "type": "handoff",
+      "leg": "reply",
+      "source": "a",
+      "destination": "b",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122008298f5ab3201000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "server-route-before-a-conntrack.json",
+          "b": "server-route-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "server-route-after-a-conntrack.json",
+          "b": "server-route-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200db52bcb74b01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      }
+    },
+    {
+      "id": "fence-primary",
+      "type": "fence",
+      "gateway": "a",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200910266d36301000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "fence-primary-before-a-conntrack.json",
+          "b": "fence-primary-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "fence-primary-after-a-conntrack.json",
+          "b": "fence-primary-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200b01eff417d01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      }
+    },
+    {
+      "id": "uncommitted",
+      "type": "packet",
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 29,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200f41651929501000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001d"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "uncommitted-before-a-conntrack.json",
+          "b": "uncommitted-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "uncommitted-after-a-conntrack.json",
+          "b": "uncommitted-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122007fabb919ad01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": []
+      },
+      "inputHex": "45000033593100004011bb51c6336402cb00710123289c40001fcc967265706c69636174696f6e3a756e636f6d6d6974746564",
+      "outputHex": null,
+      "outputEthernetHex": null,
+      "ingressSource": "b-nflog.jsonl:1",
+      "postSource": null,
+      "frameSources": [
+        "b-frames.jsonl:6",
+        "server-frames.jsonl:6"
+      ],
+      "outputFrameSource": null,
+      "disposition": "routeDrop",
+      "classification": "new"
+    },
+    {
+      "id": "commit",
+      "type": "commit",
+      "gateway": "b",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200d3fbc1c5c501000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": []
+      },
+      "snapshots": {
+        "before": {
+          "a": "commit-before-a-conntrack.json",
+          "b": "commit-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "commit-after-a-conntrack.json",
+          "b": "commit-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200780f0e08de01000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 179,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c000000000012200a9f12865e001000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00e5c1d4e508000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      }
+    },
+    {
+      "id": "install-deny",
+      "type": "policy",
+      "gateway": "b",
+      "policy": "deny",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200e0c7eb64f601000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 179,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c0000000000122006144dcbaf801000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00e5c1d4e508000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "install-deny-before-a-conntrack.json",
+          "b": "install-deny-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "install-deny-after-a-conntrack.json",
+          "b": "install-deny-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200fb7133fd0f02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 179,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c0000000000122006ea1fc7d1102000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00e5c1d4e508000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      }
+    },
+    {
+      "id": "denied",
+      "type": "packet",
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122004dc584972702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 179,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c0000000000122004bf5132d2902000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00e5c1d4e508000b000000000108000700000000b31c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "denied-before-a-conntrack.json",
+          "b": "denied-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "denied-after-a-conntrack.json",
+          "b": "denied-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122002ba913f33f02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 442,
+            "remainingTTL": 29,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c0000000000122009a3d01754102000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00e5c1d4e508000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "inputHex": "4500002e599e00004011bae9c6336402cb00710123289c40001a1c937265706c69636174696f6e3a64656e696564",
+      "outputHex": null,
+      "outputEthernetHex": null,
+      "ingressSource": "b-nflog.jsonl:3",
+      "postSource": null,
+      "frameSources": [
+        "b-frames.jsonl:9",
+        "server-frames.jsonl:7"
+      ],
+      "outputFrameSource": null,
+      "disposition": "forwardDrop",
+      "classification": "established"
+    },
+    {
+      "id": "install-permit",
+      "type": "policy",
+      "gateway": "b",
+      "policy": "permit-established",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 28,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122008e8328055702000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001c"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 442,
+            "remainingTTL": 29,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c000000000012200133dbe835902000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00e5c1d4e508000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "install-permit-before-a-conntrack.json",
+          "b": "install-permit-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "install-permit-after-a-conntrack.json",
+          "b": "install-permit-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a400000000012200079f0cca7002000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 442,
+            "remainingTTL": 29,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c00000000001220076cfd2a47202000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00e5c1d4e508000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      }
+    },
+    {
+      "id": "permitted",
+      "type": "packet",
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220061aae6768802000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 442,
+            "remainingTTL": 29,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c000000000012200a60cb71f8a02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001ba080008000000000008000c00e5c1d4e508000b0000000001080007000000001d1c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "permitted-before-a-conntrack.json",
+          "b": "permitted-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "permitted-after-a-conntrack.json",
+          "b": "permitted-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220063c30552a002000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 446,
+            "remainingTTL": 119,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c000000000012200099d5e1aa202000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "inputHex": "450000315af900004011b98bc6336402cb00710123289c40001d30137265706c69636174696f6e3a7065726d6974746564",
+      "outputHex": "450000315af900003f1122becb007102c00002021f90a028001d97f57265706c69636174696f6e3a7065726d6974746564",
+      "outputEthernetHex": "0200001001000200001001010800450000315af900003f1122becb007102c00002021f90a028001d97f57265706c69636174696f6e3a7065726d6974746564",
+      "ingressSource": "b-nflog.jsonl:5",
+      "postSource": "b-nflog.jsonl:7",
+      "frameSources": [
+        "client-frames.jsonl:6",
+        "b-frames.jsonl:13",
+        "b-frames.jsonl:16",
+        "server-frames.jsonl:8"
+      ],
+      "outputFrameSource": "b-frames.jsonl:16",
+      "disposition": "forwarded",
+      "classification": "established"
+    },
+    {
+      "id": "continued-original",
+      "type": "packet",
+      "gateway": "b",
+      "leg": "original",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122006c7e3cf0b802000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 446,
+            "remainingTTL": 119,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c00000000001220020728901ba02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "continued-original-before-a-conntrack.json",
+          "b": "continued-original-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "continued-original-after-a-conntrack.json",
+          "b": "continued-original-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a4000000000122003ee55074d002000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 446,
+            "remainingTTL": 119,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c00000000001220067dbdba0d202000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "inputHex": "4500003ad0af00004011abfec0000202cb007102a0281f90002603f77265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+      "outputHex": "4500003ad0af00003f1144cccb007101c63364029c40232800269c147265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+      "outputEthernetHex": "02000010030002000010030108004500003ad0af00003f1144cccb007101c63364029c40232800269c147265706c69636174696f6e3a636f6e74696e7565642d6f726967696e616c",
+      "ingressSource": "b-nflog.jsonl:8",
+      "postSource": "b-nflog.jsonl:10",
+      "frameSources": [
+        "client-frames.jsonl:7",
+        "b-frames.jsonl:17",
+        "b-frames.jsonl:20",
+        "server-frames.jsonl:11"
+      ],
+      "outputFrameSource": "b-frames.jsonl:20",
+      "disposition": "forwarded",
+      "classification": "established"
+    },
+    {
+      "id": "continued-reply",
+      "type": "packet",
+      "gateway": "b",
+      "leg": "reply",
+      "before": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220078ee8923e802000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 446,
+            "remainingTTL": 119,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c00000000001220019d2986fea02000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "snapshots": {
+        "before": {
+          "a": "continued-reply-before-a-conntrack.json",
+          "b": "continued-reply-before-b-conntrack.json"
+        },
+        "after": {
+          "a": "continued-reply-after-a-conntrack.json",
+          "b": "continued-reply-after-b-conntrack.json"
+        }
+      },
+      "after": {
+        "a": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 440,
+            "remainingTTL": 27,
+            "id": 426940632,
+            "mark": 0,
+            "use": 1,
+            "raw": "a40000000001220007a1aa720003000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001b8080008000000000008000c00197298d808000b0000000001080007000000001b"
+          }
+        ],
+        "b": [
+          {
+            "original": {
+              "source": "192.0.2.2",
+              "destination": "203.0.113.2",
+              "protocol": 17,
+              "sourcePort": 41000,
+              "destinationPort": 8080
+            },
+            "reply": {
+              "source": "198.51.100.2",
+              "destination": "203.0.113.1",
+              "protocol": 17,
+              "sourcePort": 9000,
+              "destinationPort": 40000
+            },
+            "originalZone": 0,
+            "replyZone": 0,
+            "status": 446,
+            "remainingTTL": 119,
+            "id": 3854685413,
+            "mark": 0,
+            "use": 1,
+            "raw": "c0000000000122003a42b1e50203000002000000340001801400018008000100c000020208000200cb0071021c000280050001001100000006000200a0280000060003001f900000340002801400018008000100c633640208000200cb0071011c00028005000100110000000600020023280000060003009c40000008000300000001be080008000000000008000c00e5c1d4e508000b000000000108000700000000771c001880080001000000000008000200000000000800030000000000"
+          }
+        ]
+      },
+      "inputHex": "450000375b7d00004011b901c6336402cb00710123289c400023e3fc7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+      "outputHex": "450000375b7d00003f112234cb007102c00002021f90a02800234bdf7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+      "outputEthernetHex": "0200001001000200001001010800450000375b7d00003f112234cb007102c00002021f90a02800234bdf7265706c69636174696f6e3a636f6e74696e7565642d7265706c79",
+      "ingressSource": "b-nflog.jsonl:11",
+      "postSource": "b-nflog.jsonl:13",
+      "frameSources": [
+        "client-frames.jsonl:8",
+        "b-frames.jsonl:21",
+        "b-frames.jsonl:22",
+        "server-frames.jsonl:12"
+      ],
+      "outputFrameSource": "b-frames.jsonl:21",
+      "disposition": "forwarded",
+      "classification": "established"
+    }
+  ],
+  "packetCount": 6,
+  "snapshotCount": 56,
+  "frameCount": 20,
+  "nflogCount": 16,
+  "syncFrameCount": 12,
+  "syncDataCount": 2,
+  "projection": {
+    "events": [
+      {
+        "event": 0,
+        "nativeEvent": 0,
+        "id": "establish"
+      },
+      {
+        "event": 1,
+        "nativeEvent": 1,
+        "id": "replicate"
+      },
+      {
+        "event": 2,
+        "nativeEvent": 2,
+        "id": "client-route"
+      },
+      {
+        "event": 3,
+        "nativeEvent": 3,
+        "id": "server-route"
+      },
+      {
+        "event": 4,
+        "nativeEvent": 4,
+        "id": "fence-primary"
+      },
+      {
+        "event": 5,
+        "nativeEvent": 5,
+        "id": "uncommitted"
+      },
+      {
+        "event": 6,
+        "nativeEvent": 6,
+        "id": "commit"
+      },
+      {
+        "event": 7,
+        "nativeEvent": 8,
+        "id": "denied"
+      },
+      {
+        "event": 8,
+        "nativeEvent": 10,
+        "id": "permitted"
+      },
+      {
+        "event": 9,
+        "nativeEvent": 11,
+        "id": "continued-original"
+      },
+      {
+        "event": 10,
+        "nativeEvent": 12,
+        "id": "continued-reply"
+      }
+    ],
+    "omittedPolicyEvents": [
+      {
+        "nativeEvent": 7,
+        "id": "install-deny"
+      },
+      {
+        "nativeEvent": 9,
+        "id": "install-permit"
+      }
+    ],
+    "tables": [
+      {
+        "config": "establish",
+        "field": "forward",
+        "source": "establish-before-a-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "config": "establish",
+        "field": "late",
+        "source": "establish-before-a-nftables.json",
+        "objectIndices": [
+          0,
+          15,
+          16
+        ]
+      },
+      {
+        "config": "establish",
+        "field": "nat",
+        "source": "establish-before-a-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "config": "uncommitted",
+        "field": "forward",
+        "source": "uncommitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "config": "uncommitted",
+        "field": "late",
+        "source": "uncommitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          15,
+          16
+        ]
+      },
+      {
+        "config": "uncommitted",
+        "field": "nat",
+        "source": "uncommitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "config": "denied",
+        "field": "forward",
+        "source": "denied-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7
+        ]
+      },
+      {
+        "config": "denied",
+        "field": "late",
+        "source": "denied-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          13,
+          14
+        ]
+      },
+      {
+        "config": "denied",
+        "field": "nat",
+        "source": "denied-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "config": "permitted",
+        "field": "forward",
+        "source": "permitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "config": "permitted",
+        "field": "late",
+        "source": "permitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          14,
+          15
+        ]
+      },
+      {
+        "config": "permitted",
+        "field": "nat",
+        "source": "permitted-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "config": "continued-original",
+        "field": "forward",
+        "source": "continued-original-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "config": "continued-original",
+        "field": "late",
+        "source": "continued-original-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          14,
+          15
+        ]
+      },
+      {
+        "config": "continued-original",
+        "field": "nat",
+        "source": "continued-original-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      {
+        "config": "continued-reply",
+        "field": "forward",
+        "source": "continued-reply-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          6,
+          7,
+          8
+        ]
+      },
+      {
+        "config": "continued-reply",
+        "field": "late",
+        "source": "continued-reply-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          14,
+          15
+        ]
+      },
+      {
+        "config": "continued-reply",
+        "field": "nat",
+        "source": "continued-reply-before-b-nftables.json",
+        "objectIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    ],
+    "routing": {
+      "primary": "initial-a-routes.json",
+      "standby": "initial-b-routes.json"
+    }
+  }
+}

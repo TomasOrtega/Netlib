@@ -297,6 +297,8 @@ private def packetObservation (json : Lean.Json) : Except String PacketObservati
 private def stateObservation (json : Lean.Json) : Except String (Option Import.ConntrackNetlink.Snapshot) :=
   optional Import.ConntrackNetlink.Snapshot.fromJson json
 
+def PacketObservation.fromJson (json : Lean.Json) : Except String PacketObservation := packetObservation json
+
 def Input.fromJson (json : Lean.Json) : Except String Input := do
   Import.PacketFields.fields json ["schema", "routing", "configs", "initial", "events"]
   require ((← (← json.getObjVal? "schema").getNat?) == 1) "Use wire forwarding schema 1."
@@ -361,6 +363,8 @@ private def outcomeJson (outcome : Netlib.Protocol.WireForwarding.Outcome packet
     ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex emission.decoded.datagram.payload)),
     ("ttl", Lean.toJson emission.decoded.ip.packet.ttl.toNat),
     ("udpChecksum", Lean.toJson emission.decoded.datagram.checksum.val)]).getD .null)]
+
+def outcomeToJson (outcome : Netlib.Protocol.WireForwarding.Outcome packet) : Lean.Json := outcomeJson outcome
 
 private def observationJson : Event → Lean.Json
   | .erase .. => .null

@@ -2,6 +2,7 @@
 
 Run commands from the repository root after the [local setup](TOOLING.md#local-build-and-ci).
 The [README](../README.md) gives the first demo command.
+The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication, commitment, route handoff, and current packet policy.
 
 ## Named-service commands
 

@@ -1,0 +1,75 @@
+trace id 7129557d ip replication_observe ingress packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22833 ip length 51 udp sport 9000 udp dport 40000 udp length 31 udp checksum 52374 
+trace id 7129557d ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 7129557d ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 7129557d ip replication_observe ingress policy accept 
+trace id 7129557d ip sync_untracked prerouting packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22833 ip length 51 udp sport 9000 udp dport 40000 udp length 31 udp checksum 52374 
+trace id 7129557d ip sync_untracked prerouting policy accept 
+trace id 7129557d ip replication_observe tracked packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22833 ip length 51 udp sport 9000 udp dport 40000 udp length 31 udp checksum 52374 
+trace id 7129557d ip replication_observe tracked rule udp dport != 3780 ct state new counter packets 0 bytes 0 comment "NEW" (verdict continue)
+trace id 7129557d ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 7129557d ip replication_observe tracked policy accept 
+trace id 7129557d ip netlib_nat prerouting packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22833 ip length 51 udp sport 9000 udp dport 40000 udp length 31 udp checksum 52374 
+trace id 7129557d ip netlib_nat prerouting policy accept 
+trace id 2e6ab6e0 ip replication_observe ingress packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22942 ip length 46 udp sport 9000 udp dport 40000 udp length 26 udp checksum 7315 
+trace id 2e6ab6e0 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 2e6ab6e0 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 2e6ab6e0 ip replication_observe ingress policy accept 
+trace id 2e6ab6e0 ip sync_untracked prerouting packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22942 ip length 46 udp sport 9000 udp dport 40000 udp length 26 udp checksum 7315 
+trace id 2e6ab6e0 ip sync_untracked prerouting policy accept 
+trace id 2e6ab6e0 ip replication_observe tracked packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 22942 ip length 46 udp sport 9000 udp dport 40000 udp length 26 udp checksum 7315 
+trace id 2e6ab6e0 ip replication_observe tracked rule udp dport != 3780 ct state established counter packets 0 bytes 0 comment "ESTABLISHED" (verdict continue)
+trace id 2e6ab6e0 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 2e6ab6e0 ip replication_observe tracked policy accept 
+trace id 2e6ab6e0 ip netlib forward packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 22942 ip length 46 udp sport 9000 udp dport 41000 udp length 26 udp checksum 37546 
+trace id 2e6ab6e0 ip netlib forward policy drop 
+trace id a95e5693 ip replication_observe ingress packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23289 ip length 49 udp sport 9000 udp dport 40000 udp length 29 udp checksum 12307 
+trace id a95e5693 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id a95e5693 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id a95e5693 ip replication_observe ingress policy accept 
+trace id a95e5693 ip sync_untracked prerouting packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23289 ip length 49 udp sport 9000 udp dport 40000 udp length 29 udp checksum 12307 
+trace id a95e5693 ip sync_untracked prerouting policy accept 
+trace id a95e5693 ip replication_observe tracked packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23289 ip length 49 udp sport 9000 udp dport 40000 udp length 29 udp checksum 12307 
+trace id a95e5693 ip replication_observe tracked rule udp dport != 3780 ct state established counter packets 0 bytes 0 comment "ESTABLISHED" (verdict continue)
+trace id a95e5693 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id a95e5693 ip replication_observe tracked policy accept 
+trace id a95e5693 ip netlib forward packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23289 ip length 49 udp sport 9000 udp dport 41000 udp length 29 udp checksum 42538 
+trace id a95e5693 ip netlib forward unknown rule handle 4 (verdict accept)
+trace id a95e5693 ip netlib_late late packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23289 ip length 49 udp sport 8080 udp dport 41000 udp length 29 udp checksum 38901 
+trace id a95e5693 ip netlib_late late policy accept 
+trace id a95e5693 ip replication_observe egress packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23289 ip length 49 udp sport 8080 udp dport 41000 udp length 29 udp checksum 38901 
+trace id a95e5693 ip replication_observe egress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id a95e5693 ip replication_observe egress policy accept 
+trace id 5b5a7110 ip replication_observe ingress packet: iif "cbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 53423 ip length 58 udp sport 41000 udp dport 8080 udp length 38 udp checksum 1015 
+trace id 5b5a7110 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 5b5a7110 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 5b5a7110 ip replication_observe ingress policy accept 
+trace id 5b5a7110 ip sync_untracked prerouting packet: iif "cbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 53423 ip length 58 udp sport 41000 udp dport 8080 udp length 38 udp checksum 1015 
+trace id 5b5a7110 ip sync_untracked prerouting policy accept 
+trace id 5b5a7110 ip replication_observe tracked packet: iif "cbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 53423 ip length 58 udp sport 41000 udp dport 8080 udp length 38 udp checksum 1015 
+trace id 5b5a7110 ip replication_observe tracked rule udp dport != 3780 ct state established counter packets 0 bytes 0 comment "ESTABLISHED" (verdict continue)
+trace id 5b5a7110 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 5b5a7110 ip replication_observe tracked policy accept 
+trace id 5b5a7110 ip netlib forward packet: iif "cbr" oif "sbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 53423 ip length 58 udp sport 41000 udp dport 9000 udp length 38 udp checksum 4652 
+trace id 5b5a7110 ip netlib forward unknown rule handle 4 (verdict accept)
+trace id 5b5a7110 ip netlib_late late packet: iif "cbr" oif "sbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 53423 ip length 58 udp sport 40000 udp dport 9000 udp length 38 udp checksum 39956 
+trace id 5b5a7110 ip netlib_late late policy accept 
+trace id 5b5a7110 ip replication_observe egress packet: iif "cbr" oif "sbr" ether saddr 02:00:00:10:01:00 ether daddr 02:00:00:10:01:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 53423 ip length 58 udp sport 40000 udp dport 9000 udp length 38 udp checksum 39956 
+trace id 5b5a7110 ip replication_observe egress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 5b5a7110 ip replication_observe egress policy accept 
+trace id 68ce7a57 ip replication_observe ingress packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23421 ip length 55 udp sport 9000 udp dport 40000 udp length 35 udp checksum 58364 
+trace id 68ce7a57 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 68ce7a57 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 68ce7a57 ip replication_observe ingress policy accept 
+trace id 68ce7a57 ip sync_untracked prerouting packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23421 ip length 55 udp sport 9000 udp dport 40000 udp length 35 udp checksum 58364 
+trace id 68ce7a57 ip sync_untracked prerouting policy accept 
+trace id 68ce7a57 ip replication_observe tracked packet: iif "sbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 203.0.113.1 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 23421 ip length 55 udp sport 9000 udp dport 40000 udp length 35 udp checksum 58364 
+trace id 68ce7a57 ip replication_observe tracked rule udp dport != 3780 ct state established counter packets 0 bytes 0 comment "ESTABLISHED" (verdict continue)
+trace id 68ce7a57 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 68ce7a57 ip replication_observe tracked policy accept 
+trace id 68ce7a57 ip netlib forward packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 198.51.100.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23421 ip length 55 udp sport 9000 udp dport 41000 udp length 35 udp checksum 23060 
+trace id 68ce7a57 ip netlib forward unknown rule handle 4 (verdict accept)
+trace id 68ce7a57 ip netlib_late late packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23421 ip length 55 udp sport 8080 udp dport 41000 udp length 35 udp checksum 19423 
+trace id 68ce7a57 ip netlib_late late policy accept 
+trace id 68ce7a57 ip replication_observe egress packet: iif "sbr" oif "cbr" ether saddr 02:00:00:10:03:00 ether daddr 02:00:00:10:03:01 ip saddr 203.0.113.2 ip daddr 192.0.2.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 23421 ip length 55 udp sport 8080 udp dport 41000 udp length 35 udp checksum 19423 
+trace id 68ce7a57 ip replication_observe egress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 68ce7a57 ip replication_observe egress policy accept 

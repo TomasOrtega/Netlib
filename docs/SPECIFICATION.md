@@ -828,6 +828,35 @@ It does not independently verify TLS cryptography, native current-round tagging,
 The [EAP guide](EAP.md) records the profile and evidence limits.
 The original Wi-Fi coverage obligations remain unchanged.
 
+## Native replication and fenced handoff
+
+The `wire-failover` command checks whole IPv4 UDP executions across a primary and standby gateway.
+Both ordinary tables and the selected external cache start empty.
+A source packet establishes the primary's record before an explicit stage operation selects it from that computed table.
+
+The selected replica carries normalized tuples, zone zero, NAT fields, and seen-reply state.
+Commit validates a collision-free append into the standby table.
+The configured positive timeout remains metadata without modeled aging.
+Native destructive retry, replacement, and expiry remain outside this successful-installation profile.
+
+Client and server route changes have separate ordered operations.
+A later fence disables selected primary packet processing.
+Every accepted packet names its current route owner and an unfenced gateway.
+Its current configuration governs routing, filtering, NAT, and wire output.
+The replica retains a binding without retaining an earlier policy permission.
+
+Input IPv4 and output Ethernet bytes supply actual packet fields.
+Optional observations compare both kernel tables and separately projected daemon cache attributes.
+Observations never overwrite computed state.
+Prefix provenance identifies the actual earlier stage and computed primary source for a committed record.
+Matched output preserves payload, decrements TTL, and satisfies the current forward and late policies.
+
+The native evidence requires received synchronization attributes, actual cache membership, and an observed target kernel record.
+Transport acknowledgements and command success cannot replace those observations.
+The evidence also checks complete rulesets, routes, command fences, endpoint results, and observer coverage.
+Finite capture agreement does not establish automatic detection, reliable replication, convergence, split-brain prevention, or complete implementation refinement.
+See [stateful failover](STATEFUL_FAILOVER.md) for the selected profile and source pins.
+
 ## Requirement language
 
 The text interface accepts one requirement per line:

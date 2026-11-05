@@ -1,0 +1,23 @@
+cache internal:
+current active connections:	           1
+connections created:		           1	failed:	           0
+connections updated:		           1	failed:	           0
+connections destroyed:		           0	failed:	           0
+
+cache external:
+current active connections:	           1
+connections created:		           1	failed:	           0
+connections updated:		           0	failed:	           0
+connections destroyed:		           0	failed:	           0
+
+traffic processed:
+                   0 Bytes                         0 Pckts
+
+UDP traffic (active device=syncr):
+                 132 Bytes sent                  108 Bytes recv
+                   3 Pckts sent                    3 Pckts recv
+                   0 Error send                    0 Error recv
+
+message tracking:
+                   0 Malformed msgs                    0 Lost msgs
+

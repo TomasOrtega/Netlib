@@ -21,3 +21,15 @@ examples/received-icmp/native/trace.txt -whitespace
 examples/reassembly/build-stdout.txt -whitespace
 examples/reassembly/build-stderr.txt -whitespace
 examples/reassembly/native/trace.txt -whitespace
+examples/replication/build-stdout.txt -whitespace
+examples/replication/build-stderr.txt -whitespace
+examples/replication/native/a-trace.txt -whitespace
+examples/replication/native/b-trace.txt -whitespace
+examples/replication/native/a-cache-statistics.txt -whitespace
+examples/replication/native/a-ct-statistics.txt -whitespace
+examples/replication/native/a-network-statistics.txt -whitespace
+examples/replication/native/a-runtime-statistics.txt -whitespace
+examples/replication/native/b-cache-statistics.txt -whitespace
+examples/replication/native/b-ct-statistics.txt -whitespace
+examples/replication/native/b-network-statistics.txt -whitespace
+examples/replication/native/b-runtime-statistics.txt -whitespace

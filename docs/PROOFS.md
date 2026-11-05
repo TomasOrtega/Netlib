@@ -4,6 +4,23 @@ Run `lake build` locally to verify the Lean declarations. The library adds no
 axioms and uses no `sorry` or `native_decide`. Tests in
 `NetlibTest/Core/Reasoning.lean` use kernel reduction or the general theorems below.
 
+## Native stateful failover
+
+`Protocol.ConntrackReplication` selects a record from a valid source table and checks a collision-free install into another valid table.
+Installation preserves both direction keys, supported NAT fields, inverse rewriting, seen-reply classification, and unrelated records.
+Completeness holds for valid targets with both keys absent and a positive bounded timeout parameter.
+Timeout remains metadata; the model does not evolve lifetimes.
+
+`Protocol.StatefulFailover` separates cache staging, kernel commitment, each endpoint route change, and gateway fencing.
+Every successful packet step uses its route owner, an unfenced gateway, and the current supplied pipeline.
+Both gateway tables remain valid through accepted operations.
+
+`Check.StatefulFailover` starts both tables and the cache empty.
+Cache and commit provenance theorems identify an actual earlier staging event within the replay's actual preceding prefix.
+They bind the staged record to that prefix's computed primary table and operation epoch.
+Observed-output facts connect payload, TTL, ordinary NAT binding, and current policy to the actual accepted packet step.
+Native evidence correspondence, aging, reliable replication, automatic detection, and convergence remain explicit open obligations.
+
 ## Requirements and logic
 
 `Netlib/Core/Logic.lean` defines a Boolean evaluator and propositional semantics
