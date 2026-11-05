@@ -93,6 +93,12 @@ The native experiment demonstrates header-only impersonation before a reset, the
 Trusted port mapping, authentic observations, same-port attacks, cryptographic data protection, and broader deployment correspondence remain open.
 This result leaves all seven programs and the complete campus landmark OPEN.
 
+The [fragment admission layer](FRAGMENT_ADMISSION.md) composes early coarse interface admission with existing reassembly and exact completion-time permission.
+Its provenance retains the actual user/vif domain and matching admitted receipt timestamps.
+Namespace retirement preserves historical queues while excluding later live operations through the residency interface.
+The importer excludes transport reads before reassembly even when complete-header equivalence would hide them.
+This formal component has passive synthetic checks; its new native campus capture and joint runtime integration remain open.
+
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
 Status-aware rewrite algebra and original-flow policy audits have separate proofs.

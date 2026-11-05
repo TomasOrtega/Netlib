@@ -58,6 +58,23 @@ Its synthetic integration test covers Logoff, queued denial, and a stale install
 The native example records 20 operations, seven datagrams, and six protected tickets; it establishes no native EAP enforcement claim.
 The [safe handoff guide](SAFE_HANDOFF.md) states the command, source pins, proof premises, and evidence limits.
 
+## Admission around reassembly
+
+`Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.
+`IngressPolicy.NoPorts` records a syntactic requirement, separately from complete-header equivalence.
+The coarse attachment compiler certifies that requirement and derives current validity and exact live ingress for every admitted application envelope.
+
+`Protocol.IPv4ReassemblySourcesBy` propagates source predicates through the actual user/vif queue domain.
+`Protocol.FragmentAdmission` composes installed early decisions, actual reassembly, installed full-datagram decisions, and ordinary MTU forwarding.
+Early rejection preserves queues and tracking; fine rejection preserves tracking after the computed reassembly change.
+`Accepted.output_bound_receipt` supplies matching admitted-byte provenance in the correct namespace and domain, with a timestamp bounded by completion.
+It does not promise unique attribution among identical duplicate occurrences.
+
+Active-only residency preserves archives and excludes later operations after retirement.
+Session residency requires a fresh namespace lifetime when the authentication round changes.
+Current coarse and full-datagram permission have separate checker theorems.
+The [fragment admission guide](FRAGMENT_ADMISSION.md) states the formal contracts and open runtime integration.
+
 ## Interface-bound current sessions
 
 `Packet.IngressPolicy.check_correct` proves complete equivalence across every numeric interface index and header.

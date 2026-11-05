@@ -904,6 +904,27 @@ It demonstrates old-route processing after both routes change, standby overtakin
 It supplies no native EAP enforcement claim.
 See [safe handoff](SAFE_HANDOFF.md) for the schema, command, proof endpoints, and evidence boundaries.
 
+## Fragment admission composition
+
+`Protocol.FragmentAdmission` composes installed coarse admission, reassembly, installed full-datagram admission, and ordinary tracked MTU forwarding.
+The coarse selector contains only IPv4 addresses and protocol, with numeric ingress evaluated separately.
+Its typed guard excludes transport reads.
+The strict source importer preserves raw priority `-450` and rejects transport predicates even when a complete-header equivalence check would accept them.
+
+The model keeps the existing user/vif domain inside an explicit namespace lifetime.
+The completing input supplies the later full-datagram ingress context.
+Early rejection preserves queues and conntrack; later rejection retains computed reassembly changes while preserving conntrack.
+Actual stale allows still execute before comparison with current desired policy.
+
+Domain-aware source predicates and observation-clock bounds connect every output piece to a matching admitted receipt.
+Identical duplicate occurrences do not gain unique physical identities through this theorem.
+Active-only namespace residency archives old state and prohibits later packet operations through that interface.
+Session residency requires retirement and a fresh namespace lifetime across authentication rounds.
+Native queue retirement, namespace cutover, and joint observed stream correspondence remain open.
+
+The [fragment admission guide](FRAGMENT_ADMISSION.md) describes these reusable formal contracts and passive checks.
+This component does not claim a new native capture or completed campus integration.
+
 ## Current ingress attachments
 
 The `attachment-campus` command adds explicit input-interface context to the joint campus history.

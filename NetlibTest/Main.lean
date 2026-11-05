@@ -110,6 +110,11 @@ import NetlibTest.NftablesIngress
 import NetlibTest.GuardedHandoff
 import NetlibTest.IngressProbe
 import NetlibTest.AttachmentCampus
+import NetlibTest.IPv4Envelope
+import NetlibTest.FragmentAttachment
+import NetlibTest.FragmentAdmission
+import NetlibTest.NftablesPredefrag
+import NetlibTest.FragmentAdmissionCheck
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -244,4 +249,9 @@ def main : IO Unit := do
   NetlibTest.GuardedHandoff.run
   NetlibTest.IngressProbe.run
   NetlibTest.AttachmentCampus.run
+  NetlibTest.IPv4Envelope.run
+  NetlibTest.FragmentAttachment.run
+  NetlibTest.FragmentAdmission.run
+  NetlibTest.NftablesPredefrag.run
+  NetlibTest.FragmentAdmissionCheck.run
   IO.println "Netlib tests passed."
