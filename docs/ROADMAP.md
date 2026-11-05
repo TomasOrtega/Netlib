@@ -99,6 +99,12 @@ Namespace retirement preserves historical queues while excluding later live oper
 The importer excludes transport reads before reassembly even when complete-header equivalence would hide them.
 This formal component has passive synthetic checks; its new native campus capture and joint runtime integration remain open.
 
+The [TCP foundation](TCP.md) adds exact segment/options codecs, mandatory checksum verification, and bounded circular sequence arithmetic. Checksum zero requires verification.
+Its IPv4 and completed-reassembly adapters connect checked transport bytes to certified bidirectional tuple rewriting.
+Reserved fields and transport content survive rewriting; fresh endpoint generation has a separate reserved-bit rule.
+Static independent fixtures include checksum arithmetic, option bounds, sequence wrap, and conditional order laws.
+Connection-state semantics, negotiated options, native TCP tracking, retransmission, and full stack correspondence remain open.
+
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
 Status-aware rewrite algebra and original-flow policy audits have separate proofs.

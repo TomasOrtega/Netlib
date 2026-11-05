@@ -58,6 +58,24 @@ Its synthetic integration test covers Logoff, queued denial, and a stale install
 The native example records 20 operations, seven datagrams, and six protected tickets; it establishes no native EAP enforcement claim.
 The [safe handoff guide](SAFE_HANDOFF.md) states the command, source pins, proof premises, and evidence limits.
 
+## TCP byte and serial foundations
+
+`Protocol.TCP.Segment` proves the two exact codec directions, offset and length bounds, and mandatory pseudoheader checksum validity.
+The codec verifies checksum zero normally. Recomputation uses the actual complement.
+`Protocol.TCP.Options` preserves unknown well-formed TLVs. Its option parser has positive progress.
+MSS placement remains a separate predicate.
+
+`Protocol.TCP.Seq` proves modular distances, translation invariance, asymmetry, and exact half-space incomparability.
+Its transitivity and common-arc laws include explicit bounded-span premises.
+The library has no global sequence ordering instance.
+SYN and FIN accounting is separate from transport-state meaning.
+
+`TCPRewrite.Certified` keeps the transport control fields and payload. It computes the two checksums again.
+Its pure `FlowNAT` helper connects derived wire headers to the existing bidirectional tuple projection.
+`TCP.Reassembly.Source` certifies the transport bytes of a supplied completed IPv4 packet.
+Earlier fragment provenance remains a separate reassembly proof.
+The [TCP guide](TCP.md) distinguishes these results from connection semantics and native implementation refinement.
+
 ## Admission around reassembly
 
 `Packet.IPv4Envelope` projects validated IPv4 fragments without transport selectors.

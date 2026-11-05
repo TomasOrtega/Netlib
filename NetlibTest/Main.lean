@@ -115,6 +115,12 @@ import NetlibTest.FragmentAttachment
 import NetlibTest.FragmentAdmission
 import NetlibTest.NftablesPredefrag
 import NetlibTest.FragmentAdmissionCheck
+import NetlibTest.TCPOptions
+import NetlibTest.TCPSegment
+import NetlibTest.TCPSequenceSpace
+import NetlibTest.TCPIPv4
+import NetlibTest.TCPRewrite
+import NetlibTest.TCPReassembly
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -254,4 +260,10 @@ def main : IO Unit := do
   NetlibTest.FragmentAdmission.run
   NetlibTest.NftablesPredefrag.run
   NetlibTest.FragmentAdmissionCheck.run
+  NetlibTest.TCPOptions.run
+  NetlibTest.TCPSegment.run
+  NetlibTest.TCPSequenceSpace.run
+  NetlibTest.TCPIPv4.run
+  NetlibTest.TCPRewrite.run
+  NetlibTest.TCPReassembly.run
   IO.println "Netlib tests passed."

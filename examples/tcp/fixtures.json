@@ -1,0 +1,725 @@
+{
+  "schema": 1,
+  "scope": "Static standards-model fixtures; no native capture or TCP connection-state evidence.",
+  "source": "192.0.2.1",
+  "destination": "198.51.100.2",
+  "cases": [
+    {
+      "name": "minimum-header-syn",
+      "segmentHex": "c00001bb010203040000000050021000ede90000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 60905,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "odd-payload",
+      "segmentHex": "c00001bb010203041122334450181000d60500006f6464",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 287454020,
+        "reserved": 0,
+        "flags": 24,
+        "flagNames": [
+          "ACK",
+          "PSH"
+        ],
+        "window": 4096,
+        "checksum": 54789,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": "6f6464"
+      }
+    },
+    {
+      "name": "even-payload",
+      "segmentHex": "c00001bb010203045566778850101000560400006576656e",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 1432778632,
+        "reserved": 0,
+        "flags": 16,
+        "flagNames": [
+          "ACK"
+        ],
+        "window": 4096,
+        "checksum": 22020,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": "6576656e"
+      }
+    },
+    {
+      "name": "checksum-zero",
+      "segmentHex": "30390050000000000000000050101000000000008312",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 12345,
+        "destinationPort": 80,
+        "sequence": 0,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 16,
+        "flagNames": [
+          "ACK"
+        ],
+        "window": 4096,
+        "checksum": 0,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": "8312"
+      }
+    },
+    {
+      "name": "received-reserved-bits",
+      "segmentHex": "c00001bb01020304000000005f021000dee90000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [
+        "reservedBits"
+      ],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 15,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 57065,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "all-eight-flags",
+      "segmentHex": "c00001bb010203040000000050ff1000eceb0001",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 255,
+        "flagNames": [
+          "CWR",
+          "ECE",
+          "URG",
+          "ACK",
+          "PSH",
+          "RST",
+          "SYN",
+          "FIN"
+        ],
+        "window": 4096,
+        "checksum": 60651,
+        "urgentPointer": 1,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "mss-on-syn",
+      "segmentHex": "c00001bb010203040000000060021000d62d0000020405b4",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 54829,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "020405b4",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "mss-on-ack",
+      "segmentHex": "c00001bb010203040000000060101000d61f0000020405b4",
+      "structural": true,
+      "semantic": false,
+      "semanticIssues": [
+        "mssRequiresSyn"
+      ],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 16,
+        "flagNames": [
+          "ACK"
+        ],
+        "window": 4096,
+        "checksum": 54815,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "020405b4",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "mss-zero-on-syn",
+      "segmentHex": "c00001bb010203040000000060021000dbe1000002040000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 56289,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "02040000",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "unaligned-mss-and-unknown",
+      "segmentHex": "c00001bb01020304000000007002100011dc000001020405b4fe0200",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 4572,
+        "urgentPointer": 0,
+        "headerLength": 28,
+        "optionsHex": "01020405b4fe0200",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "unknown-empty-option",
+      "segmentHex": "c00001bb010203040000000060021000dfe20000fe020000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 57314,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "fe020000",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "unknown-option-body",
+      "segmentHex": "c00001bb01020304000000006002100021f10000fd04beef",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 8689,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "fd04beef",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "eol-with-zero-padding",
+      "segmentHex": "c00001bb0102030400000000600210001474000000000000656e64",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 5236,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "00000000",
+        "payloadHex": "656e64"
+      }
+    },
+    {
+      "name": "maximum-header-forty-nops",
+      "segmentHex": "c00001bb0102030400000000f002100072c0000001010101010101010101010101010101010101010101010101010101010101010101010101010101626f6479",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 29376,
+        "urgentPointer": 0,
+        "headerLength": 60,
+        "optionsHex": "01010101010101010101010101010101010101010101010101010101010101010101010101010101",
+        "payloadHex": "626f6479"
+      }
+    },
+    {
+      "name": "nops-and-eol",
+      "segmentHex": "c00001bb010203040000000060021000dce4000001010000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 2,
+        "flagNames": [
+          "SYN"
+        ],
+        "window": 4096,
+        "checksum": 56548,
+        "urgentPointer": 0,
+        "headerLength": 24,
+        "optionsHex": "01010000",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "unsigned-field-maxima",
+      "segmentHex": "ffffffffffffffffffffffff5030ffffc37dffff",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 65535,
+        "destinationPort": 65535,
+        "sequence": 4294967295,
+        "acknowledgment": 4294967295,
+        "reserved": 0,
+        "flags": 48,
+        "flagNames": [
+          "URG",
+          "ACK"
+        ],
+        "window": 65535,
+        "checksum": 50045,
+        "urgentPointer": 65535,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "zero-window-empty-ack",
+      "segmentHex": "c00001bb010203040000000050100000fddb0000",
+      "structural": true,
+      "semantic": true,
+      "semanticIssues": [],
+      "generationIssues": [],
+      "expected": {
+        "sourcePort": 49152,
+        "destinationPort": 443,
+        "sequence": 16909060,
+        "acknowledgment": 0,
+        "reserved": 0,
+        "flags": 16,
+        "flagNames": [
+          "ACK"
+        ],
+        "window": 0,
+        "checksum": 64987,
+        "urgentPointer": 0,
+        "headerLength": 20,
+        "optionsHex": "",
+        "payloadHex": ""
+      }
+    },
+    {
+      "name": "empty",
+      "segmentHex": "",
+      "structural": false,
+      "semantic": null,
+      "error": "truncatedFixedHeader"
+    },
+    {
+      "name": "nineteen-byte-fixed-header",
+      "segmentHex": "c00001bb010203040000000050021000ede900",
+      "structural": false,
+      "semantic": null,
+      "error": "truncatedFixedHeader"
+    },
+    {
+      "name": "offset-zero",
+      "segmentHex": "c00001bb010203040000000000021000ede90000",
+      "structural": false,
+      "semantic": null,
+      "error": "dataOffset"
+    },
+    {
+      "name": "offset-four",
+      "segmentHex": "c00001bb010203040000000040021000ede90000",
+      "structural": false,
+      "semantic": null,
+      "error": "dataOffset"
+    },
+    {
+      "name": "offset-fifteen-short",
+      "segmentHex": "c00001bb0102030400000000f0021000ede90000",
+      "structural": false,
+      "semantic": null,
+      "error": "truncatedHeader"
+    },
+    {
+      "name": "offset-six-short",
+      "segmentHex": "c00001bb010203040000000060021000ede90000",
+      "structural": false,
+      "semantic": null,
+      "error": "truncatedHeader"
+    },
+    {
+      "name": "invalid-checksum",
+      "segmentHex": "c00001bb010203040000000050021000ece90000",
+      "structural": false,
+      "semantic": null,
+      "error": "checksum"
+    },
+    {
+      "name": "zero-checksum-corrupted-port",
+      "segmentHex": "30390051000000000000000050101000000000008312",
+      "structural": false,
+      "semantic": null,
+      "error": "checksum"
+    },
+    {
+      "name": "wrong-pseudoheader-address",
+      "segmentHex": "c00001bb010203040000000050021000ede80000",
+      "structural": false,
+      "semantic": null,
+      "error": "checksum"
+    },
+    {
+      "name": "option-missing-length",
+      "segmentHex": "c00001bb010203040000000060021000dae60000010101fe",
+      "structural": false,
+      "semantic": null,
+      "error": "optionLengthMissing"
+    },
+    {
+      "name": "option-zero-length",
+      "segmentHex": "c00001bb010203040000000060021000dfe40000fe000000",
+      "structural": false,
+      "semantic": null,
+      "error": "optionLength"
+    },
+    {
+      "name": "option-one-length",
+      "segmentHex": "c00001bb010203040000000060021000dfe30000fe010000",
+      "structural": false,
+      "semantic": null,
+      "error": "optionLength"
+    },
+    {
+      "name": "option-overrun",
+      "segmentHex": "c00001bb010203040000000060021000dfdf0000fe050000",
+      "structural": false,
+      "semantic": null,
+      "error": "optionTruncated"
+    },
+    {
+      "name": "mss-wrong-length",
+      "segmentHex": "c00001bb010203040000000060021000dbe2000002030000",
+      "structural": false,
+      "semantic": null,
+      "error": "mssLength"
+    },
+    {
+      "name": "eol-nonzero-padding",
+      "segmentHex": "c00001bb010203040000000060021000dde4000000010000",
+      "structural": false,
+      "semantic": null,
+      "error": "eolPadding"
+    }
+  ],
+  "sequenceCases": [
+    {
+      "name": "equal-zero",
+      "first": 0,
+      "second": 0,
+      "distance": 0,
+      "before": false,
+      "reverseBefore": false
+    },
+    {
+      "name": "forward-one",
+      "first": 0,
+      "second": 1,
+      "distance": 1,
+      "before": true,
+      "reverseBefore": false
+    },
+    {
+      "name": "backward-one",
+      "first": 1,
+      "second": 0,
+      "distance": 4294967295,
+      "before": false,
+      "reverseBefore": true
+    },
+    {
+      "name": "wrap-forward",
+      "first": 4294967295,
+      "second": 0,
+      "distance": 1,
+      "before": true,
+      "reverseBefore": false
+    },
+    {
+      "name": "wrap-backward",
+      "first": 0,
+      "second": 4294967295,
+      "distance": 4294967295,
+      "before": false,
+      "reverseBefore": true
+    },
+    {
+      "name": "half-minus-one",
+      "first": 0,
+      "second": 2147483647,
+      "distance": 2147483647,
+      "before": true,
+      "reverseBefore": false
+    },
+    {
+      "name": "exact-half",
+      "first": 0,
+      "second": 2147483648,
+      "distance": 2147483648,
+      "before": false,
+      "reverseBefore": false
+    },
+    {
+      "name": "half-plus-one",
+      "first": 0,
+      "second": 2147483649,
+      "distance": 2147483649,
+      "before": false,
+      "reverseBefore": true
+    },
+    {
+      "name": "exact-half-from-max",
+      "first": 4294967295,
+      "second": 2147483647,
+      "distance": 2147483648,
+      "before": false,
+      "reverseBefore": false
+    },
+    {
+      "name": "wrapped-forward-four",
+      "first": 4294967294,
+      "second": 2,
+      "distance": 4,
+      "before": true,
+      "reverseBefore": false
+    }
+  ],
+  "intervalCases": [
+    {
+      "name": "empty-interval",
+      "start": 10,
+      "length": 0,
+      "value": 10,
+      "contains": false
+    },
+    {
+      "name": "start-inclusive",
+      "start": 10,
+      "length": 3,
+      "value": 10,
+      "contains": true
+    },
+    {
+      "name": "end-exclusive",
+      "start": 10,
+      "length": 3,
+      "value": 13,
+      "contains": false
+    },
+    {
+      "name": "wrapped-inside",
+      "start": 4294967294,
+      "length": 4,
+      "value": 1,
+      "contains": true
+    },
+    {
+      "name": "wrapped-end",
+      "start": 4294967294,
+      "length": 4,
+      "value": 2,
+      "contains": false
+    },
+    {
+      "name": "before-start",
+      "start": 10,
+      "length": 3,
+      "value": 9,
+      "contains": false
+    },
+    {
+      "name": "largest-short-arc",
+      "start": 0,
+      "length": 2147483647,
+      "value": 2147483646,
+      "contains": true
+    }
+  ],
+  "arcCases": [
+    {
+      "name": "ordinary-common-arc",
+      "start": 100,
+      "length": 10,
+      "points": [
+        101,
+        104,
+        108
+      ],
+      "inside": true,
+      "orderedPremise": true,
+      "orderedConclusion": true
+    },
+    {
+      "name": "wrapped-common-arc",
+      "start": 4294967292,
+      "length": 10,
+      "points": [
+        4294967293,
+        0,
+        4
+      ],
+      "inside": true,
+      "orderedPremise": true,
+      "orderedConclusion": true
+    },
+    {
+      "name": "no-global-transitivity",
+      "start": 0,
+      "length": 2147483647,
+      "points": [
+        0,
+        1610612736,
+        3221225472
+      ],
+      "inside": false,
+      "orderedPremise": true,
+      "orderedConclusion": false
+    }
+  ]
+}
