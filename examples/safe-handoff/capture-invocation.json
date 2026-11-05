@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "workingDirectory": "/Users/to1717/Documents/GitHub/Netlib",
+  "captureContainer": "netlib-safe-handoff-candidate-1",
+  "captureImageID": "sha256:0de06682f606f74cd8f67ad189e92a240077bec45928be5e91792237d8f08b10",
+  "captureStartedAt": "2026-11-05T04:55:33.896379504Z",
+  "captureCompletedAt": "2026-11-05T04:55:42.758157733Z",
+  "actualBuildCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "build",
+    "--network",
+    "none",
+    "-t",
+    "netlib-safe-handoff-capture:dev",
+    "examples/safe-handoff"
+  ],
+  "actualCreateCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "create",
+    "--name",
+    "netlib-safe-handoff-candidate-1",
+    "--network",
+    "none",
+    "--cap-add",
+    "NET_ADMIN",
+    "--cap-add",
+    "SYS_ADMIN",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--security-opt",
+    "apparmor=unconfined",
+    "netlib-safe-handoff-capture:dev"
+  ],
+  "actualCaptureCommand": [
+    "docker",
+    "--host",
+    "unix:///Users/to1717/.colima/default/docker.sock",
+    "--config",
+    "/private/tmp/netlib-docker-config",
+    "start",
+    "-a",
+    "netlib-safe-handoff-candidate-1"
+  ],
+  "recipeNote": "The retained run used the development tag. The packaged recipe builds the same source with tag1; its independent smoke run produced the identical image ID."
+}

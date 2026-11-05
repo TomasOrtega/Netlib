@@ -1,0 +1,38 @@
+trace id 62da2e59 ip replication_observe ingress packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 46930 ip length 50 udp sport 41000 udp dport 8080 udp length 30 udp checksum 8051 
+trace id 62da2e59 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 62da2e59 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 62da2e59 ip replication_observe ingress policy accept 
+trace id 62da2e59 ip sync_untracked prerouting packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 46930 ip length 50 udp sport 41000 udp dport 8080 udp length 30 udp checksum 8051 
+trace id 62da2e59 ip sync_untracked prerouting policy accept 
+trace id 62da2e59 ip replication_observe tracked packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 46930 ip length 50 udp sport 41000 udp dport 8080 udp length 30 udp checksum 8051 
+trace id 62da2e59 ip replication_observe tracked rule udp dport != 3780 ct state new counter packets 0 bytes 0 comment "NEW" (verdict continue)
+trace id 62da2e59 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 62da2e59 ip replication_observe tracked policy accept 
+trace id 62da2e59 ip netlib_nat prerouting packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 46930 ip length 50 udp sport 41000 udp dport 8080 udp length 30 udp checksum 8051 
+trace id 62da2e59 ip netlib_nat prerouting rule ip daddr 203.0.113.2 udp dport 8080 dnat to 198.51.100.2:9000 (verdict accept)
+trace id 62da2e59 ip netlib forward packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 46930 ip length 50 udp sport 41000 udp dport 9000 udp length 30 udp checksum 11688 
+trace id 62da2e59 ip netlib forward rule ip saddr 192.0.2.2 ip daddr 198.51.100.2 udp sport 41000 udp dport 9000 ct state established,new accept (verdict accept)
+trace id 62da2e59 ip netlib_nat postrouting packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 46930 ip length 50 udp sport 41000 udp dport 9000 udp length 30 udp checksum 11688 
+trace id 62da2e59 ip netlib_nat postrouting rule ip saddr 192.0.2.2 ip daddr 198.51.100.2 udp sport 41000 udp dport 9000 snat to 203.0.113.1:40000 (verdict accept)
+trace id 62da2e59 ip netlib_late late packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 46930 ip length 50 udp sport 40000 udp dport 9000 udp length 30 udp checksum 46992 
+trace id 62da2e59 ip netlib_late late policy accept 
+trace id 62da2e59 ip replication_observe egress packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 46930 ip length 50 udp sport 40000 udp dport 9000 udp length 30 udp checksum 46992 
+trace id 62da2e59 ip replication_observe egress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 62da2e59 ip replication_observe egress policy accept 
+trace id 9506e0e7 ip replication_observe ingress packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 47324 ip length 53 udp sport 41000 udp dport 8080 udp length 33 udp checksum 22054 
+trace id 9506e0e7 ip replication_observe ingress rule udp dport != 3780 meta nftrace set 1 (verdict continue)
+trace id 9506e0e7 ip replication_observe ingress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "INGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 9506e0e7 ip replication_observe ingress policy accept 
+trace id 9506e0e7 ip sync_untracked prerouting packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 47324 ip length 53 udp sport 41000 udp dport 8080 udp length 33 udp checksum 22054 
+trace id 9506e0e7 ip sync_untracked prerouting policy accept 
+trace id 9506e0e7 ip replication_observe tracked packet: iif "car" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 203.0.113.2 ip dscp cs0 ip ecn not-ect ip ttl 64 ip id 47324 ip length 53 udp sport 41000 udp dport 8080 udp length 33 udp checksum 22054 
+trace id 9506e0e7 ip replication_observe tracked rule udp dport != 3780 ct state new counter packets 0 bytes 0 comment "NEW" (verdict continue)
+trace id 9506e0e7 ip replication_observe tracked rule udp dport != 3780 counter packets 0 bytes 0 log prefix "TRACKED" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 9506e0e7 ip replication_observe tracked policy accept 
+trace id 9506e0e7 ip netlib forward packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 192.0.2.2 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 47324 ip length 53 udp sport 41000 udp dport 9000 udp length 33 udp checksum 25691 
+trace id 9506e0e7 ip netlib forward rule ip saddr 192.0.2.2 ip daddr 198.51.100.2 udp sport 41000 udp dport 9000 ct state established,new accept (verdict accept)
+trace id 9506e0e7 ip netlib_late late packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 47324 ip length 53 udp sport 40000 udp dport 9000 udp length 33 udp checksum 60995 
+trace id 9506e0e7 ip netlib_late late policy accept 
+trace id 9506e0e7 ip replication_observe egress packet: iif "car" oif "sar" ether saddr 02:00:00:10:00:00 ether daddr 02:00:00:10:00:01 ip saddr 203.0.113.1 ip daddr 198.51.100.2 ip dscp cs0 ip ecn not-ect ip ttl 63 ip id 47324 ip length 53 udp sport 40000 udp dport 9000 udp length 33 udp checksum 60995 
+trace id 9506e0e7 ip replication_observe egress rule udp dport != 3780 counter packets 0 bytes 0 log prefix "EGRESS" group 42 snaplen 65531 queue-threshold 1 (verdict continue)
+trace id 9506e0e7 ip replication_observe egress policy accept 

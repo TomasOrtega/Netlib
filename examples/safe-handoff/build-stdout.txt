@@ -1,0 +1,14 @@
+Sending build context to Docker daemon  23.55kB
+Step 1/4 : FROM netlib-replication-capture:1
+ ---> 2e4db031fbbd
+Step 2/4 : RUN echo 'b39ac6a76f8299968408d3f2948ea59d9502b299d3e0c78c93658b65df3be5be  /tmp/iproute2.tar.gz' | sha256sum -c -     && make -C /tmp/iproute2-6.19.0 -j2 SUBDIRS='lib tc'     && install /tmp/iproute2-6.19.0/tc/tc /opt/netlib/sbin/tc
+ ---> Using cache
+ ---> 16abe9bbed81
+Step 3/4 : COPY exercise.py capture.sh /task/safe-handoff/
+ ---> 9ce8c348d4ce
+Step 4/4 : CMD ["sh", "/task/safe-handoff/capture.sh"]
+ ---> Running in 6f6d229f5b6b
+ ---> Removed intermediate container 6f6d229f5b6b
+ ---> 0de06682f606
+Successfully built 0de06682f606
+Successfully tagged netlib-safe-handoff-capture:dev

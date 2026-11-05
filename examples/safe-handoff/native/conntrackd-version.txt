@@ -1,0 +1,2 @@
+Connection tracking userspace daemon v1.4.9. Licensed under GPLv2.
+(C) 2006-2009 Pablo Neira Ayuso <pablo@netfilter.org>

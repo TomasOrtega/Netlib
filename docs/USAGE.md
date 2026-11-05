@@ -4,6 +4,23 @@ Run commands from the repository root after the [local setup](TOOLING.md#local-b
 The [README](../README.md) gives the first demo command.
 The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication, commitment, route handoff, and current packet policy.
 
+## Safe gateway handoff
+
+```sh
+lake exe netlib wire-safe-handoff examples/safe-handoff/replay.json --json
+```
+
+The [safe handoff guide](SAFE_HANDOFF.md) separates route assignment from later processing at the assigned gateway.
+Lean calls these operations `assign` and `serve`; JSON retains the event type `admit` for assignment.
+Every served ticket retains its actual earlier admission bytes and route assignment.
+Processing evaluates the assigned gateway's current installed configuration.
+
+The proofs cover arbitrary admissible interleavings and construct successful next steps from conditions on the preceding state.
+A finite drain uses exactly the initial outstanding count of selected processing operations.
+It establishes no time bound, fair scheduling, or physical queue correspondence.
+The native example records 20 operations, seven datagrams, and six protected tickets without a native EAP claim.
+Current-session enforcement separately requires installation of the matching certified policy at processing.
+
 ## Named-service commands
 
 ```sh
@@ -126,6 +143,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).
+- [Safe gateway handoff with outstanding assignments](SAFE_HANDOFF.md).
 - [Tracked forwarding and stateful filter refinement](LIFECYCLE.md).
 - [Output exclusion after a policy cutover](REVOCATION.md).
 - [Buffered cutovers and delivery after draining](BUFFERING.md).

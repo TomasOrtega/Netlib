@@ -109,6 +109,12 @@ import NetlibTest.EAPDeployment
 import NetlibTest.ConntrackReplication
 import NetlibTest.StatefulFailover
 
+import NetlibTest.TrackedFlow
+import NetlibTest.Outstanding
+
+import NetlibTest.SafeHandoff
+import NetlibTest.SafeHandoffDeployment
+
 open Netlib
 
 def main : IO Unit := do
@@ -216,4 +222,8 @@ def main : IO Unit := do
   NetlibTest.WireNATDeployment.run
   NetlibTest.ConntrackReplication.run
   NetlibTest.StatefulFailover.run
+  NetlibTest.TrackedFlow.run
+  NetlibTest.Outstanding.run
+  NetlibTest.SafeHandoff.run
+  NetlibTest.SafeHandoffDeployment.run
   IO.println "Netlib tests passed."

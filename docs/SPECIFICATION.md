@@ -857,6 +857,53 @@ The evidence also checks complete rulesets, routes, command fences, endpoint res
 Finite capture agreement does not establish automatic detection, reliable replication, convergence, split-brain prevention, or complete implementation refinement.
 See [stateful failover](STATEFUL_FAILOVER.md) for the selected profile and source pins.
 
+## Safe handoff with outstanding route assignments
+
+The `wire-safe-handoff` command checks a protected ordinary IPv4 UDP flow across two gateways.
+Both tables, replication cache, and outstanding work start empty.
+An actual primary packet establishes the record selected by a later stage operation.
+Collision-free commitment installs that selected binding before an endpoint route can select the standby.
+The protected binding remains live without modeled aging or deletion.
+
+Assignment records an endpoint route read and allocates a fresh ticket containing validated source bytes, gateway, direction, and operation epoch.
+Lean calls this operation `assign`; JSON uses `admit`.
+A separate `serve` operation selects an actual pending identity in arbitrary order.
+Later route changes preserve the ticket's assigned gateway and input bytes.
+Processing uses that gateway's current configuration, rather than the current endpoint route owner.
+The epoch anchors the actual model prefix; it is not a native route-version field.
+
+The protected-flow invariant requires valid tables, unique ticket identities, matching bindings, and ready, unfenced gateways for active routes and outstanding assignments.
+Table validity alone does not imply this invariant or packet availability.
+Handoff requires a ready, unfenced target.
+Fencing requires both endpoint routes elsewhere and no pending ticket assigned to the fenced gateway.
+Operation admissibility uses only conditions on the preceding state.
+Progress constructs an actual successful step and proves preservation without assuming an accepted step or safe result.
+Universal trace results cover every modeled admissible packet direction, repetition, retirement order, and control interleaving.
+
+Both gateways may retain different seen-reply knowledge for the same binding.
+An associated denied reply can update that local knowledge before an older ticket is processed.
+Routing, live TTL, and current forward and late permits establish actual emission with the protected NAT target, unchanged payload, and one TTL decrement.
+Policy denial instead preserves structural safety while withholding service.
+Current-session conclusions require the assigned gateway's installed configuration to match the current certified session policy.
+The separate synthetic EAP test demonstrates Logoff denial and the limit of a stale installed policy.
+
+Every served ticket has an actual earlier assignment-prefix witness with exact stored bytes, identity, direction, gateway, and operation epoch.
+Matched gateway input must equal those stored bytes.
+Matched Ethernet output inherits their payload and TTL guarantees under the current policies.
+Observed inputs, outputs, and table snapshots cannot replace computed state.
+Successful commits likewise identify an earlier stage from an actual computed primary prefix.
+
+The finite drain constructs exactly the initial target count of successful processing operations, including computed drops.
+After both routes change, that sequence permits the final fence without a global FIFO assumption.
+It proves no time bound, fairness, physical queue correspondence, or eventual delivery.
+Route reads, processing steps, and configuration changes still require the declared linearization and stable packet hooks.
+Native installation coherence, lifetime stability, observation completeness, and implementation refinement remain external premises.
+
+The saved native example records 20 operations, seven datagrams, and six protected ticket identities.
+It demonstrates old-route processing after both routes change, standby overtaking, current-policy denial, and fencing after selected work completes.
+It supplies no native EAP enforcement claim.
+See [safe handoff](SAFE_HANDOFF.md) for the schema, command, proof endpoints, and evidence boundaries.
+
 ## Requirement language
 
 The text interface accepts one requirement per line:
@@ -1088,6 +1135,7 @@ The received-error extension adds confirmed association and connected UDP host P
 Input reassembly, broader transport behavior, concurrency, and kernel refinement remain separate work.
 Processors support ordered stateful composition with explicit stores.
 Network-wide concurrent execution, distributed replication protocols, and native implementation correspondence remain future work.
+The handoff extension covers arbitrary selected operation interleavings under explicit lifetime, installation, observation, and linearization premises.
 Extensions need semantics, proofs, and rules that connect their input to those semantics.
 
 The executable analysis has no fixed atom limit.
