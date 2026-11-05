@@ -339,6 +339,28 @@ The main-table route context and exclusive captured NAT/filter hook sequence mus
 Faithful observations and complete selected-traffic coverage remain assumptions.
 The [lifecycle guide](LIFECYCLE.md) defines the schema, producer versions, and native evidence boundary.
 
+## TCP framing and sequence foundations
+
+The `tcp-segment` command does a check of all TCP segment bytes against supplied IPv4 pseudoheader addresses.
+The `tcp-wire` command derives those addresses from checked untagged Ethernet and whole IHL-five IPv4 bytes.
+The two commands use mandatory TCP checksum verification. A received zero word also requires verification.
+Accepted bytes preserve received reserved bits, all eight flags, options, and the checksum word exactly.
+Data Offset and structural option validation bound the header to twenty through sixty bytes.
+Unknown well-formed TLVs remain unchanged.
+The report gives the MSS placement result separately from structural acceptance.
+
+The selected serial comparison uses unsigned forward distance strictly between zero and `2^31`.
+Equality and exact half-space differences are incomparable.
+The opaque sequence type has no global ordering instance.
+Transitivity requires an explicit short span or a common bounded arc.
+SYN and FIN each contribute one sequence position independently of later transport-state interpretation.
+
+Certified rewriting keeps the transport control fields and payload. It uses the declared tuple and caller TTL and computes the two checksums again.
+The reassembly byte adapter connects a supplied completed IPv4 packet to the checked TCP segment.
+Fragment provenance remains a separate arrival and output-validity obligation.
+These results establish no handshake, receive-window acceptance, acknowledgment validity, retransmission behavior, or native TCP classification.
+The [TCP guide](TCP.md) states the commands, proofs, static evidence, and remaining transport obligations.
+
 ## Byte-derived NAT and TTL forwarding
 
 The `wire-forward` command extends the selected IPv4 UDP wire profile with tracked forwarding.

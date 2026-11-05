@@ -4,6 +4,18 @@ Run commands from the repository root after the [local setup](TOOLING.md#local-b
 The [README](../README.md) gives the first demo command.
 The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication, commitment, route handoff, and current packet policy.
 
+## TCP framing and sequence arithmetic
+
+```sh
+lake exe netlib tcp-segment examples/tcp/segment.json --json
+lake exe netlib tcp-wire examples/tcp/frame.json --json
+lake exe netlib tcp-sequence examples/tcp/sequence.json --json
+```
+
+The [TCP guide](TCP.md) describes input fields, mandatory checksum validation, preserved options, and bounded serial-order laws.
+Byte validity does not establish a connection or acceptable acknowledgment.
+The report gives the MSS placement result separately from structural acceptance.
+
 ## Interface-bound campus admission
 
 ```sh

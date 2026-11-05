@@ -1553,6 +1553,65 @@ The new library component has pure Lean and passive Python checks.
 Its new Linux capture, joint campus runtime integration, and complete implementation correspondence remain open.
 All seven research programs remain OPEN.
 
+# TCP framing and circular sequences
+%%%
+tag := "tcp-foundations"
+file := "tcp-foundations"
+%%%
+
+The TCP codec does a check of all segment bytes and the mandatory IPv4 pseudoheader checksum.
+A received zero word has no omission meaning.
+The two codec directions preserve accepted bytes. These bytes include reserved bits and options.
+Fresh endpoint generation zeros reserved bits; tuple rewriting retains the received fields.
+Neither operation establishes a valid connection state.
+
+Data Offset selects twenty through sixty header bytes.
+Option framing includes checks of EOL padding, NOP, bounded TLV lengths, and MSS length.
+Unknown well-formed option bodies remain unchanged.
+MSS placement outside SYN is a separate selected semantic check.
+Other option interpretation and transport-state rules remain open.
+
+The IPv4 wrapper derives all bytes of the actual TCP payload and protocol six.
+External Ethernet padding stays outside that payload.
+The completed-reassembly adapter supplies the same checked transport interface.
+Earlier fragment provenance still requires the separate reassembly arrival proofs.
+
+Circular sequence numbers have no global order.
+The serial comparison uses a forward distance strictly between zero and half the sequence space.
+Its asymmetry follows directly:
+
+```lean
+open Netlib.Protocol.TCP in
+example (first second : Seq)
+    (ordered : Seq.Before first second) :
+    ¬Seq.Before second first :=
+  Seq.before_asymm first second ordered
+```
+
+An exact half-space difference is incomparable.
+Unrestricted transitivity is false.
+Common-arc transitivity requires an explicit interval shorter than half the sequence space.
+Payload, SYN, and FIN accounting supplies the next modular sequence value.
+It does not prove freshness after sequence reuse.
+
+Certified tuple rewriting keeps the payload and transport control fields. It computes the two checksums again:
+
+```lean
+open Netlib.Protocol in
+example (input : TCP.DecodedIPv4)
+    (target : Netlib.Packet.Header) (ttl : UInt8)
+    (result : TCPRewrite.Certified input target ttl) :
+    result.packet.segment.payload =
+      input.segment.payload :=
+  result.payload
+```
+
+The CLI exposes `tcp-segment`, `tcp-wire`, and `tcp-sequence` checks.
+Independent constructed fixtures exercise mandatory zero checksums, option bounds, padding, circular comparisons, and malformed framing.
+These are static model checks, without native capture claims.
+Connection transitions, acknowledgment validity, receive windows, timers, negotiated options, and full TCP implementation refinement remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"

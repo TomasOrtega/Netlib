@@ -27,6 +27,8 @@ import Netlib.Check.StatefulFailover
 import Netlib.Check.SafeHandoff
 import Netlib.Check.CampusDeployment
 import Netlib.Check.AttachmentCampusJson
+import Netlib.Check.TCP
+import Netlib.Check.WireTCP
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -52,6 +54,9 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib compile-session TRACE.json INTENT.json [--after N] [--budget N]\n\
   netlib session-firewall BUNDLE.json [--budget N] [--json]\n\
   netlib wire FRAME.json [--json]\n\
+  netlib tcp-segment SEGMENT.json [--json]\n\
+  netlib tcp-wire FRAME.json [--json]\n\
+  netlib tcp-sequence QUERY.json [--json]\n\
   netlib wire-forward TRACE.json [--json]\n\
   netlib wire-mtu TRACE.json [--json]\n\
   netlib wire-icmp TRACE.json [--json]\n\
@@ -213,6 +218,23 @@ private def wire (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.Wire.Input.parse (← IO.FS.readFile path))
   let checked ← unwrap input.check
   IO.println (if json then checked.renderJson.pretty else checked.render)
+  return 0
+
+private def tcpSegment (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.TCP.Input.parse (← IO.FS.readFile path))
+  let checked ← unwrap input.check
+  IO.println (if json then checked.renderJson.pretty else checked.render)
+  return 0
+
+private def tcpWire (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.WireTCP.Input.parse (← IO.FS.readFile path))
+  let checked ← unwrap input.check
+  IO.println (if json then checked.renderJson.pretty else checked.render)
+  return 0
+
+private def tcpSequence (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.TCP.SequenceInput.parse (← IO.FS.readFile path))
+  IO.println ((if json then "" else "TCP SERIAL ARITHMETIC\n") ++ input.renderJson.pretty)
   return 0
 
 private def wireForward (path : String) (json : Bool) : IO UInt32 := do
@@ -504,6 +526,12 @@ private def run (args : List String) : IO UInt32 := do
     sessionFirewall path (← budgetValue budget) true
   | ["wire", path] => wire path false
   | ["wire", path, "--json"] => wire path true
+  | ["tcp-segment", path] => tcpSegment path false
+  | ["tcp-segment", path, "--json"] => tcpSegment path true
+  | ["tcp-wire", path] => tcpWire path false
+  | ["tcp-wire", path, "--json"] => tcpWire path true
+  | ["tcp-sequence", path] => tcpSequence path false
+  | ["tcp-sequence", path, "--json"] => tcpSequence path true
   | ["wire-forward", path] => wireForward path false
   | ["wire-forward", path, "--json"] => wireForward path true
   | ["wire-mtu", path] => wireMTU path false
