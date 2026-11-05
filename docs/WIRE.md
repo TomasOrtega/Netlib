@@ -65,9 +65,9 @@ The text hex parser has runtime tests; its general correctness remains unproved.
 The deployment example connects this decoded header to the checked native [session firewall](SESSION_FIREWALL.md) and tracked forwarding output.
 The header must describe the actual modeled forward stage after destination NAT and before source NAT.
 That association and principal-to-header binding remain deployment assumptions.
-The model does not yet prove checksum updates through native NAT.
-The lifecycle tracks header fields; it does not prove payload preservation or TTL updates during forwarding.
-The payload reconstruction theorem concerns the decoded capture.
+The original lifecycle tracks header fields.
+The [wire-forwarding layer](WIRE_FORWARDING.md) now adds payload preservation, TTL processing, and checksum updates through modeled NAT.
+Native implementation refinement retains the separate evidence and assumptions in that guide.
 
 ## Native capture and offload
 

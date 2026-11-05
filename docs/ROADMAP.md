@@ -14,7 +14,7 @@ It does not establish completion of the goal.
 | Goal | Evidence now | Work still required |
 | --- | --- | --- |
 | Mathematical foundations | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
-| Connected protocol stacks | Binary IPv4/UDP framing and checksum synthesis connect decoded headers to session-gated forwarding. EAP/EAPOL framing and guarded method results connect to session admission and campus paths. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
+| Connected protocol stacks | IPv4 UDP forwarding preserves payload through tracked NAT, regenerates checksums, and decrements TTL. Checked EAP evidence and credentials control the selected packet classes. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
 | Complete architectures | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
 | Verified implementations and compilers | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
@@ -92,11 +92,20 @@ The [wire layer](WIRE.md) now derives policy headers from selected Ethernet, IPv
 Generic Internet checksum synthesis and exact codec reconstruction have proofs.
 Fresh native UDP captures supply completed checksums and separate gateway forwarding from final transport reception.
 The decoded packet theorem composes with the current session firewall and tracked output.
-Fragmentation, options, full transport behavior, native NAT checksum updates, and complete stack refinement remain open.
+
+The [wire forwarding extension](WIRE_FORWARDING.md) now preserves complete UDP payloads through tracked destination and source NAT.
+It regenerates present checksums, preserves omission, and decrements the emitted TTL.
+Routing precedes TTL expiry; expired replies retain tracking updates while fresh expired candidates remain unconfirmed.
+Compliant replay transfers observed output to payload equality and TTL decrement.
+The checked native session policy supplies the matching scope and current EAP readiness.
+Native evidence covers 17 IP frames, including 14 UDP frames and three ICMP frames.
+The selected payload, TTL, and NAT checksum model closes the earlier header-only forwarding gap.
+MTU handling, ICMP semantics, fragmentation, options, full transport behavior, concurrency, and complete kernel refinement remain open.
+Principal-to-tuple ownership and global policy-installation timing also need stronger evidence.
 
 ## Next implementation work
 
-1. Extend ordinary packet lifecycles through transport validation, expiry, concurrency, and additional hooks and routing scopes.
+1. Extend byte-derived forwarding through MTU handling, ICMP, fragmentation, transport validation, expiry, concurrency, and additional hooks and routing scopes.
 2. Connect stateful failover to native processing, replication behavior, and routing convergence.
 3. Refine EAP method evidence with cryptographic semantics, wireless key installation, and trusted link/session attribution.
 4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.

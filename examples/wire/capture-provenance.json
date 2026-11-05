@@ -232,7 +232,7 @@
     "scripts/test_check_wire_capture.py": "643fd78d450146c93b945b0394a1dce0d5a189029c88e14b3b41500edb620247"
   },
   "projectionSHA256": {
-    "docs/WIRE.md": "287eaca5e8675b247467358c52131f95c661a4f1dffda5eb3fc01e659a721403",
+    "docs/WIRE.md": "1b518792174dc0970235930f341174ac72172203de0ea00e3987944d7e39cdf9",
     "docs/research/IPV4_UDP_WIRE.md": "4a030a5d8110876150c19f3d1796a59f40b6637dd323f06774ee21e7a3bebeb8",
     "examples/wire/Dockerfile": "e4a1b2b7f10f931bfd397f10062642e7cdb9793da7012b316d182702e6f2d109",
     "examples/wire/README.md": "9957a528cc23fe75926ae2a2054cbb3f1c1a9662a73f27c6daf32d4f71303028",
@@ -270,5 +270,9 @@
     "separateProbes": "Five raw probes run under an explicit permit policy after the admission episode; they make no additional current-session authorization claim.",
     "checksumOmission": "A zero UDP checksum remains omitted rather than verified.",
     "oldEvidence": "Old admission native artifacts and generated reports/traces remain unchanged; only the shared projection implementation hash is updated with an explicit provenance note."
+  },
+  "offlineDocumentationUpdate": {
+    "reason": "Link the completed selected wire-forwarding layer and replace its former open payload/TTL/NAT limitation.",
+    "evidence": "Native artifacts and all four generated evidence, authentication, bundle, and frame documents are unchanged."
   }
 }
