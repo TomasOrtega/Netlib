@@ -113,6 +113,80 @@ class HandshakeTests(unittest.TestCase):
             self.assertLessEqual(40 + local.effective_mss, limit)
         self.assertFalse(replace(self.active, ip_send_limit=40).valid)
 
+    def test_directional_mss_uses_actual_syn_and_syn_ack(self):
+        active = reference.Local.from_dict(
+            {
+                **self.active.to_dict(),
+                "ipSendLimit": 1000,
+                "receiveMSS": {"ipReceiveLimit": 1240, "value": 1200},
+            }
+        )
+        passive = reference.Local.from_dict(
+            {
+                **self.passive.to_dict(),
+                "ipSendLimit": 1500,
+                "receiveMSS": {"ipReceiveLimit": 840, "value": 800},
+            }
+        )
+        value = copy.deepcopy(self.value)
+        value.update(active=active.to_dict(), passive=passive.to_dict())
+        outputs = (
+            reference.control_output(active, passive.socket, 1000, 0, 2),
+            reference.control_output(passive, active.socket, 5000, 1001, 18),
+            reference.control_output(active, passive.socket, 1001, 5001, 16),
+        )
+        for index, output in enumerate(outputs, 1):
+            value["events"][index] = self.event(value["events"][index]["kind"], output)
+        report = reference.replay(value)
+        self.assertEqual(report["final"]["activeSeed"]["effectiveMSS"], 800)
+        self.assertEqual(report["final"]["passiveSeed"]["effectiveMSS"], 1200)
+        self.assertEqual([len(bytes.fromhex(o["rawIPv4Hex"])) for o in outputs], [44, 44, 40])
+        self.assertEqual(outputs[0]["decoded"]["segment"]["mssValues"], [1200])
+        self.assertEqual(outputs[1]["decoded"]["segment"]["mssValues"], [800])
+
+    def test_positive_mss_receipt_still_requires_actual_output_options(self):
+        value = copy.deepcopy(self.value)
+        value["events"][1] = self.packet_event(
+            "listenSyn", 1000, 0, 2, options=bytes.fromhex("02040320")
+        )
+        with self.assertRaises(ValueError):
+            reference.replay(value)
+
+    def test_receive_evidence_and_control_limit_have_separate_bounds(self):
+        local = reference.Local.from_dict(
+            {
+                **self.active.to_dict(),
+                "ipSendLimit": 44,
+                "receiveMSS": {"ipReceiveLimit": 1240, "value": 1200},
+            }
+        )
+        self.assertTrue(local.valid)
+        self.assertEqual(local.send_mss(800), 4)
+        self.assertFalse(replace(local, ip_send_limit=43).valid)
+        self.assertTrue(replace(local, capacity=0).valid)
+        for receive, value in ((575, 1), (65536, 1), (1240, 0), (1239, 1200)):
+            self.assertFalse(replace(local, receive_mss=reference.ReceiveMSS(receive, value)).valid)
+
+    def test_option_selection_keeps_absence_zero_and_duplicates_distinct(self):
+        for options, expected in (
+            ("", None),
+            ("00000000", None),
+            ("01010101", None),
+            ("02040001", 1),
+            ("010204ffff000000", 65535),
+        ):
+            self.assertEqual(reference.startup_mss(bytes.fromhex(options)), expected)
+        for options in ("02040000", "0204032002040320", "02030000", "03030000"):
+            with self.assertRaises(ValueError):
+                reference.startup_mss(bytes.fromhex(options))
+
+    def test_mss_fixtures_remain_independent(self):
+        import check_tcp_mss_examples as comparison
+
+        counts = comparison.check_static()
+        self.assertGreater(counts["handshakes"], 15)
+        self.assertGreater(counts["campus"], 5)
+
     def test_output_flags_fields_and_checksums_are_exact(self):
         for output, sequence, acknowledgment, flags, window in (
             (self.syn, 1000, 0, 2, 8),
@@ -204,7 +278,9 @@ class HandshakeTests(unittest.TestCase):
             )
 
     def test_profile_options_precede_data_and_flags(self):
-        event = self.packet_event("listenSyn", 1000, 0, 4, payload=b"x", options=bytes(4))
+        event = self.packet_event(
+            "listenSyn", 1000, 0, 4, payload=b"x", options=bytes.fromhex("03030000")
+        )
         value = copy.deepcopy(self.value)
         value["events"][1] = event
         report = reference.replay(value)

@@ -213,6 +213,26 @@ def admission_json(admission):
         result.update(serverISS=admission.server_iss, serverWindow=admission.server_window)
     if admission.phase == "data":
         result.update(original=lane_json(admission.original), reply=lane_json(admission.reply))
+    if admission.client_mss is not None or admission.server_mss is not None:
+
+        def offer(value):
+            return {"kind": "absent"} if value is None else {"kind": "present", "value": value}
+
+        result.update(
+            clientMSS=offer(admission.client_mss),
+            replyMSS=(
+                base.handshake.DEFAULT_MSS if admission.client_mss is None else admission.client_mss
+            ),
+        )
+        if admission.phase in ("synAck", "data"):
+            result.update(
+                serverMSS=offer(admission.server_mss),
+                originalMSS=(
+                    base.handshake.DEFAULT_MSS
+                    if admission.server_mss is None
+                    else admission.server_mss
+                ),
+            )
     return result
 
 

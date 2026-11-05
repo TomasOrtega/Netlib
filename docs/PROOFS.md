@@ -112,7 +112,7 @@ The [application guide](TCP_APPLICATION.md) states the proof contract and comman
 
 `TCP.ControlOutput` proves exact empty SYN, SYN,ACK, and ACK packets without an established-state premise.
 `TCP.Handshake` separates pending SYN control positions from application byte buffers.
-Its successful operations derive application cursors, windows, empty storage, and the default MSS from checked startup messages.
+Its successful operations derive application cursors, windows, empty storage, and directional MSS from checked startup messages.
 
 `TCP.HandshakeExchange.Complete` retains actual successful operation equations, exact selected byte paths, and strictly ordered event times.
 It derives complementary cursors and valid endpoint states without caller-supplied seed or cursor proofs.
@@ -122,6 +122,15 @@ Supported continuation, future delivery history, bounded epochs, a quiet boundar
 `Check.TCPHandshake.Report` retains the actual computed prefix, exact event indices, and the unprocessed suffix.
 A passive seed is absent before final ACK receipt.
 The [startup guide](TCP_HANDSHAKE.md) states the selected interpretation and remaining protocol obligations.
+
+`TCP.MSS` distinguishes absent, positive, zero, duplicate, and malformed option input.
+Its effective-size arithmetic deducts actual option overhead after the peer/IP minimum and states positive-budget conditions.
+Local advertisement evidence uses a separate IP receive/reassembly limit.
+Control output proves exact option bytes, control sizes, SYN-only placement, and checksums.
+Startup derives each peer limit from the correct actual message.
+`TCP.AdmissionMSSFacts` connects observed offers to actual directional data admission and commitment.
+Checkpoint image equality retains raw offers, including absent versus explicit 536.
+The [MSS guide](TCP_MSS.md) gives the asymmetric campus witness and remaining scope.
 
 ## Authenticated campus TCP path
 

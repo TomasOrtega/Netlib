@@ -1761,7 +1761,7 @@ example (a p : Netlib.Protocol.TCP.Handshake.Local)
   state.passive_seed_before_ack pending
 ```
 
-The history also derives empty buffers, peer windows, window-history fields, and default MSS.
+The history also derives empty buffers, peer windows, window-history fields, and directional MSS.
 The active window initialization selects the explicit RFC 1122 interpretation.
 The application theorem uses these derived states without supplied cursor or empty-buffer assumptions.
 It requires supported continuation, future delivery history, finite epochs, a quiet boundary, and explicit connection-instance conditions.
@@ -1772,9 +1772,66 @@ It reports phases, actual outputs, selected source indices, and derived applicat
 Its trace proof establishes exact event indices and the unprocessed suffix.
 Unsupported phases or omitted RFC actions stop replay before later transport decoding.
 
-This first profile uses no startup data or options.
+This profile uses no startup data and supports selected MSS, NOP, and EOL option semantics.
 It does not declare other valid TCP startup features invalid.
 Broader startup, resets, timers, retransmission, congestion control, native refinement, and full campus integration remain open.
+All seven research programs remain OPEN.
+
+# Directional TCP MSS
+%%%
+tag := "tcp-mss"
+file := "tcp-mss"
+%%%
+
+An MSS option advertises its sender's receive capability.
+It constrains data in the opposite direction.
+The active sender learns its peer limit from actual SYN,ACK bytes.
+The passive sender retains the initial SYN's offer when the final ACK arrives.
+An absent offer selects 536 independently in each direction.
+Zero and duplicate offers remain explicit unsupported semantics.
+
+Optional local receive evidence justifies a generated advertisement:
+
+```lean
+open Netlib.Protocol.TCP.MSS in
+example (advertised : Advertisement) :
+    readStartup advertised.options = .ok advertised.offer :=
+  advertised.read
+```
+
+That evidence uses a separate finite IP receive/reassembly limit.
+The receive window and IP send limit do not supply it.
+The raw control constructor proves framing, placement, lengths, and checksums.
+The composed local configuration supplies the receive-capability bound.
+An MSS control packet has 44 bytes and must fit the actual local send limit.
+Omitting the advertisement preserves the existing 40-byte control output.
+
+Data sizing accounts for actual options after the peer/IP minimum:
+
+```lean
+open Netlib.Protocol.TCP.MSS in
+example (peer : Offer) (limit ipOpts tcpOpts : Nat)
+    (fit : 40 ≤ limit) :
+    effective peer limit ipOpts tcpOpts =
+      min (peer.limit + 20) (limit - 20) -
+        (20 + tcpOpts) - ipOpts :=
+  effective_rfc peer limit ipOpts tcpOpts fit
+```
+
+The MSS option on SYN does not permanently reduce later data by four bytes.
+The current data path uses no TCP or IPv4 options.
+Its endpoint bound is the smaller of the peer MSS and the local IP send allowance.
+Gateway admission uses the actual observed peer offer in each direction.
+ACK/window updates and exact checkpoint installation preserve those offers.
+Absent MSS and explicit MSS 536 remain different copied state.
+
+The connected example uses 800-byte client and 1200-byte server segments through the primary and standby.
+The deferred ACK acknowledges 1201 transferred server bytes.
+The same application histories read 1600 and 2401 bytes, with actual permission at service time.
+The final proofs retain startup provenance, exact checkpoint ancestry, and current Logoff denial.
+
+Other options, retransmission, timers, congestion control, native correspondence, and the full campus demonstration remain open.
+A non-SYN option stop is selected unsupported scope, not an RFC-mandated drop or reset.
 All seven research programs remain OPEN.
 
 # An authenticated campus TCP path

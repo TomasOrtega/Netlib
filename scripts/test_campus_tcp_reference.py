@@ -189,6 +189,45 @@ class ComponentTests(unittest.TestCase):
         self.assertEqual((state.original.peer_window, state.reply.peer_window), (8, 8))
         self.assertTrue(records[0].seen_reply)
 
+    def test_directional_mss_changes_only_the_peer_lane_data_bound(self):
+        h = reference.handshake
+        self.client = h.Local.from_dict(
+            {
+                **self.client.to_dict(),
+                "capacity": 4096,
+                "ipSendLimit": 1000,
+                "receiveMSS": {"ipReceiveLimit": 1240, "value": 1200},
+            }
+        )
+        self.server = h.Local.from_dict(
+            {
+                **self.server.to_dict(),
+                "capacity": 4096,
+                "ipSendLimit": 1500,
+                "receiveMSS": {"ipReceiveLimit": 840, "value": 800},
+            }
+        )
+        self.syn = h.control_output(self.client, self.public, 1000, 0, 2)
+        state, _ = self.startup()
+        segment = reference.wire.decode_packet(
+            h.control_output(self.client, self.public, 1001, 5001, 16)["rawIPv4Hex"]
+        ).segment
+        accepted, reason = reference.data_admission(
+            state.original, state.reply, reference.replace(segment, payload=bytes(800))
+        )
+        self.assertIsNone(reason)
+        self.assertEqual(accepted[0].observed, 800)
+        _, reason = reference.data_admission(
+            state.original, state.reply, reference.replace(segment, payload=bytes(801))
+        )
+        self.assertEqual(reason, "data")
+        reply = reference.replace(segment, sequence=5001, acknowledgment=1001)
+        accepted, reason = reference.data_admission(
+            state.reply, state.original, reference.replace(reply, payload=bytes(1200))
+        )
+        self.assertIsNone(reason)
+        self.assertEqual(accepted[0].observed, 1200)
+
     def test_admission_missing_syn_history_does_not_create_a_data_lane(self):
         state, records = self.startup()
         raw = state.observations[-1][1].hex()

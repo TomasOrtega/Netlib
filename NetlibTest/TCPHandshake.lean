@@ -1,4 +1,4 @@
-import Netlib.Protocol.TCP.Handshake
+import Netlib.Protocol.TCP.HandshakeExchange
 
 namespace NetlibTest.TCPHandshake
 
@@ -22,7 +22,7 @@ private def failure (result : Except Handshake.Failure α) (expected : Handshake
 
 private def config (address : Packet.Address) (port : Packet.Port) (iss capacity : Nat)
     (ipLimit : Nat := 1500) : Handshake.Local :=
-  ⟨⟨address, port⟩, Seq.ofNat iss, capacity, 8, ipLimit⟩
+  ⟨⟨address, port⟩, Seq.ofNat iss, capacity, 8, ipLimit, none⟩
 
 private def checked (header : Packet.Header) (sequence acknowledgment : Seq) (flags : UInt8)
     (window : InternetChecksum.Word := 65535) (options payload : List UInt8 := []) : IO EstablishedReceive.Input := do
@@ -97,10 +97,15 @@ private def rejectedInputs : IO Unit := do
   for (flags, options, payload, reason) in [
       (4, [], [], Handshake.Unsupported.flags),
       (2, [], [], .flags),
-      (18, [1, 1, 1, 1], [], .options),
+      (18, [30, 4, 5, 180], [], .options),
       (18, [], [42], .data)] do
     let packet ← checked inbound passive.iss (active.iss.add 1) flags 0 options payload
     failure (Handshake.synSentSynAck pendingActive packet true) (.unsupported reason)
+  for options in [[2, 4, 3, 32], [1, 1, 1, 1], [0, 0, 0, 0]] do
+    let withData ← checked inbound passive.iss (active.iss.add 1) 18 0 options [42]
+    failure (Handshake.synSentSynAck pendingActive withData true) (.unsupported .data)
+    let wrongFlags ← checked inbound passive.iss (active.iss.add 1) 2 0 options
+    failure (Handshake.synSentSynAck pendingActive wrongFlags true) (.unsupported .flags)
   let synData ← checked (Handshake.outbound active passive.socket) active.iss (Seq.ofNat 0) 2 0 [] [42]
   failure (Handshake.listenSyn passive synData true) (.unsupported .data)
   let activeResult ← transition (Handshake.synSentSynAck pendingActive pendingPassive.output true)
@@ -130,12 +135,86 @@ private def passiveWindowSource : IO Unit := do
   let optionAck ← checked (Handshake.outbound active passive.socket) (active.iss.add 1) (passive.iss.add 1) 16 3 [2, 4, 5, 180]
   failure (Handshake.synReceivedAck pendingPassive optionAck) (.unsupported .options)
 
+private def advertisement (receiveLimit value : Nat) : IO MSS.Advertisement := do
+  let value ← match MSS.Value.ofNat value with
+    | .ok value => pure value
+    | .error reason => throw (IO.userError reason.message)
+  match MSS.Advertisement.make receiveLimit value with
+  | .ok evidence => pure evidence
+  | .error reason => throw (IO.userError reason.message)
+
+private def directionalMSS : IO Unit := do
+  let clientReceive ← advertisement 1240 1200
+  let serverReceive ← advertisement 840 800
+  let active := { config 3221225985 41000 99 0 1000 with receiveMSS := some clientReceive }
+  let passive := { config 3325256706 8080 199 0 1500 with receiveMSS := some serverReceive }
+  let opened ← transition (Handshake.activeOpen active passive.socket true)
+  let listened ← transition (Handshake.listenSyn passive opened.output true)
+  let established ← transition (Handshake.synSentSynAck opened listened.output true)
+  let accepted ← transition (Handshake.synReceivedAck listened established.output)
+  ensure (opened.output.bytes.length == 44 && listened.output.bytes.length == 44 && established.output.bytes.length == 40 &&
+    established.output.packet.segment.options.isEmpty &&
+    established.seed.effectiveMSS == 800 && accepted.seed.effectiveMSS == 1200 &&
+    established.peerMSS.limit == 800 && listened.peerMSS.limit == 1200 &&
+    established.seed.core.capacity == 0 && accepted.seed.core.capacity == 0)
+    "Each endpoint must send at the peer's actual MSS, independent of its own receive capability and window."
+  let finalAck ← checked (Handshake.outbound active passive.socket) (active.iss.add 1) (passive.iss.add 1) 16 3
+  let passiveUpdated ← transition (Handshake.synReceivedAck listened finalAck)
+  ensure (passiveUpdated.seed.sendWindow == 3 && passiveUpdated.seed.effectiveMSS == 1200)
+    "The final ACK must update the passive peer window while retaining MSS from the initial SYN."
+  let forward : Packet.Header := { (Handshake.outbound active passive.socket) with source := 3405803777, sourcePort := 40000 }
+  let syn := HandshakeExchange.Delivery.rewritten opened.output forward 63 rfl
+  let rewrittenPassive ← transition (Handshake.listenSyn passive syn.input true)
+  let synAck := HandshakeExchange.Delivery.rewritten rewrittenPassive.output (Handshake.inbound active passive.socket) 63 rfl
+  let rewrittenActive ← transition (Handshake.synSentSynAck opened synAck.input true)
+  let ack := HandshakeExchange.Delivery.rewritten rewrittenActive.output forward 63 rfl
+  let input : HandshakeExchange.Input := {
+    active, remote := passive.socket, passive, openPolicy := true, synPolicy := true, synAckPolicy := true
+    syn := ⟨syn.input.bytes, [⟨forward, 63⟩]⟩
+    synAck := ⟨synAck.input.bytes, [⟨Handshake.inbound active passive.socket, 63⟩]⟩
+    ack := ⟨ack.input.bytes, [⟨forward, 63⟩]⟩
+    times := ⟨0, 1, 2, 3⟩ }
+  let complete ← load input.check
+  let _ := complete.directional_mss
+  ensure (complete.activeSeed.effectiveMSS == 800 && complete.passiveSeed.effectiveMSS == 1200 &&
+    complete.activeSeed.Valid && complete.passiveSeed.Valid)
+    "The actual rewritten exchange must derive directional MSS and valid endpoint seeds from its earlier outputs."
+  failure (Handshake.activeOpen { active with ipSendLimit := 43 } passive.socket true) (.reject .invalidConfig)
+  let exact ← transition (Handshake.activeOpen { active with ipSendLimit := 44 } passive.socket true)
+  ensure (exact.output.bytes.length == 44) "The complete MSS-bearing startup packet must fit the local IP send limit."
+  for packet in [opened.output, listened.output] do
+    ensure (checksumAccepts packet.packet.ip.packet.source packet.packet.ip.packet.destination packet.packet.segment)
+      "MSS-bearing startup output must have a valid TCP checksum."
+  for (clientOffer, serverOffer, activeLimit, passiveLimit) in
+      [(none, some serverReceive, 800, 536), (some clientReceive, none, 536, 1200)] do
+    let client := { active with receiveMSS := clientOffer }
+    let server := { passive with receiveMSS := serverOffer }
+    let first ← transition (Handshake.activeOpen client server.socket true)
+    let second ← transition (Handshake.listenSyn server first.output true)
+    let third ← transition (Handshake.synSentSynAck first second.output true)
+    let fourth ← transition (Handshake.synReceivedAck second third.output)
+    ensure (third.seed.effectiveMSS == activeLimit && fourth.seed.effectiveMSS == passiveLimit)
+      "An absent offer must select 536 only for the endpoint that received that absent offer."
+  let silent := config 3221225985 41000 99 8
+  let silentOpen ← transition (Handshake.activeOpen silent passive.socket true)
+  for (options, limit) in [([2, 4, 3, 32], 800), ([1, 1, 2, 4, 3, 32, 0, 0], 800), ([1, 1, 1, 1], 536)] do
+    let input ← checked (Handshake.inbound silent passive.socket) passive.iss (silent.iss.add 1) 18 0 options
+    let result ← transition (Handshake.synSentSynAck silentOpen input true)
+    ensure (result.seed.effectiveMSS == limit)
+      "Incoming positive MSS and selected padding must work without a local advertisement."
+  for options in [[2, 4, 0, 0], [2, 4, 3, 32, 2, 4, 3, 32]] do
+    let input ← checked (Handshake.inbound silent passive.socket) passive.iss (silent.iss.add 1) 18 0 options
+    failure (Handshake.synSentSynAck silentOpen input true) (.unsupported .options)
+    let syn ← checked (Handshake.outbound silent passive.socket) silent.iss (Seq.ofNat 0) 2 0 options
+    failure (Handshake.listenSyn passive syn true) (.unsupported .options)
+
 def run : IO Unit := do
   for (activeISS, passiveISS) in [(0, 0), (4294967295, 0), (0, 4294967295), (4294967295, 4294967295)] do
     for (activeCapacity, passiveCapacity, ipLimit) in [(0, 0, 41), (8, 4, 576), (65535, 65535, 65535)] do
       exchange activeISS passiveISS activeCapacity passiveCapacity ipLimit
   rejectedInputs
   passiveWindowSource
+  directionalMSS
   IO.println "Checked TCP startup tests passed."
 
 end NetlibTest.TCPHandshake

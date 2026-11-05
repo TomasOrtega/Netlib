@@ -21495,776 +21495,6 @@
       }
     },
     {
-      "name": "options-1-eol",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005f36000000000000",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 4,
-        "evaluatedEvents": 2,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005f36000000000000",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "00000000",
-                "payloadHex": "",
-                "checksum": 24374,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "options-1-nop",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005d34000001010101",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 4,
-        "evaluatedEvents": 2,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005d34000001010101",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "01010101",
-                "payloadHex": "",
-                "checksum": 23860,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "options-1-mss",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e80000000060022000577e0000020405b4",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 4,
-        "evaluatedEvents": 2,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e80000000060022000577e0000020405b4",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "020405b4",
-                "payloadHex": "",
-                "checksum": 22398,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [
-                  1460
-                ],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
       "name": "options-1-zero-mss",
       "input": {
         "schema": 1,
@@ -23481,7 +22711,7 @@
             },
             "decision": {
               "kind": "unsupported",
-              "reason": "options"
+              "reason": "data"
             },
             "output": null,
             "decodedInput": {
@@ -27153,1124 +26383,6 @@
       }
     },
     {
-      "name": "options-2-eol",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e9601220004b9d000000000000",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 5,
-        "evaluatedEvents": 3,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "listenSyn"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c6336402c00002010050303900001388000003e9501200067b9b0000",
-              "decoded": {
-                "header": {
-                  "source": "198.51.100.2",
-                  "destination": "192.0.2.1",
-                  "protocol": 6,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "segment": {
-                  "sequence": 5000,
-                  "acknowledgment": 1001,
-                  "flags": 18,
-                  "window": 6,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 31643,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "ACK",
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "",
-                "payloadHex": "",
-                "checksum": 36658,
-                "sequenceSpaceLength": 1,
-                "headerLength": 20,
-                "dataOffset": 5,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 0,
-              "identification": 0,
-              "dontFragment": true,
-              "ipv4Checksum": 20121
-            },
-            "delivery": {
-              "sourceIndex": 0,
-              "path": "direct"
-            }
-          },
-          {
-            "index": 2,
-            "event": {
-              "kind": "synSentSynAck",
-              "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e9601220004b9d000000000000",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "198.51.100.2",
-                "destination": "192.0.2.1",
-                "protocol": 6,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "segment": {
-                "sequence": 5000,
-                "acknowledgment": 1001,
-                "flags": 18,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "00000000",
-                "payloadHex": "",
-                "checksum": 19357,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "ACK",
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "SYN-RECEIVED",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "options-2-nop",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e960122000499b000001010101",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 5,
-        "evaluatedEvents": 3,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "listenSyn"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c6336402c00002010050303900001388000003e9501200067b9b0000",
-              "decoded": {
-                "header": {
-                  "source": "198.51.100.2",
-                  "destination": "192.0.2.1",
-                  "protocol": 6,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "segment": {
-                  "sequence": 5000,
-                  "acknowledgment": 1001,
-                  "flags": 18,
-                  "window": 6,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 31643,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "ACK",
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "",
-                "payloadHex": "",
-                "checksum": 36658,
-                "sequenceSpaceLength": 1,
-                "headerLength": 20,
-                "dataOffset": 5,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 0,
-              "identification": 0,
-              "dontFragment": true,
-              "ipv4Checksum": 20121
-            },
-            "delivery": {
-              "sourceIndex": 0,
-              "path": "direct"
-            }
-          },
-          {
-            "index": 2,
-            "event": {
-              "kind": "synSentSynAck",
-              "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e960122000499b000001010101",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "198.51.100.2",
-                "destination": "192.0.2.1",
-                "protocol": 6,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "segment": {
-                "sequence": 5000,
-                "acknowledgment": 1001,
-                "flags": 18,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "01010101",
-                "payloadHex": "",
-                "checksum": 18843,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "ACK",
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "SYN-RECEIVED",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
-      "name": "options-2-mss",
-      "input": {
-        "schema": 1,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "events": [
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          },
-          {
-            "kind": "listenSyn",
-            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e96012200043e50000020405b4",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "ABCD",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      },
-      "expected": {
-        "scope": "tcp-startup-projection",
-        "supported": false,
-        "exchangeComplete": false,
-        "inputEvents": 5,
-        "evaluatedEvents": 3,
-        "active": {
-          "socket": {
-            "address": "192.0.2.1",
-            "port": 12345
-          },
-          "iss": 1000,
-          "capacity": 8,
-          "pendingLimit": 8,
-          "ipSendLimit": 576
-        },
-        "passive": {
-          "socket": {
-            "address": "198.51.100.2",
-            "port": 80
-          },
-          "iss": 5000,
-          "capacity": 6,
-          "pendingLimit": 8,
-          "ipSendLimit": 1500
-        },
-        "initial": {
-          "activePhase": "CLOSED",
-          "passivePhase": "LISTEN",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "steps": [
-          {
-            "index": 0,
-            "event": {
-              "kind": "activeOpen",
-              "remote": {
-                "address": "198.51.100.2",
-                "port": 80
-              },
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "CLOSED",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "activeOpen"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "decoded": {
-                "header": {
-                  "source": "192.0.2.1",
-                  "destination": "198.51.100.2",
-                  "protocol": 6,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "segment": {
-                  "sequence": 1000,
-                  "acknowledgment": 0,
-                  "flags": 2,
-                  "window": 8,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 36658,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 12345,
-                  "destinationPort": 80
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": null,
-            "delivery": null
-          },
-          {
-            "index": 1,
-            "event": {
-              "kind": "listenSyn",
-              "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "LISTEN",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "accepted",
-              "operation": "listenSyn"
-            },
-            "output": {
-              "rawIPv4Hex": "450000280000400040064e99c6336402c00002010050303900001388000003e9501200067b9b0000",
-              "decoded": {
-                "header": {
-                  "source": "198.51.100.2",
-                  "destination": "192.0.2.1",
-                  "protocol": 6,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "segment": {
-                  "sequence": 5000,
-                  "acknowledgment": 1001,
-                  "flags": 18,
-                  "window": 6,
-                  "reserved": 0,
-                  "urgentPointer": 0,
-                  "optionsHex": "",
-                  "payloadHex": "",
-                  "checksum": 31643,
-                  "sequenceSpaceLength": 1,
-                  "headerLength": 20,
-                  "dataOffset": 5,
-                  "flagNames": [
-                    "ACK",
-                    "SYN"
-                  ],
-                  "mssValues": [],
-                  "selectedOptionSemantics": true,
-                  "sourcePort": 80,
-                  "destinationPort": 12345
-                },
-                "ipv4PaddingHex": "",
-                "ttl": 64,
-                "tos": 0,
-                "identification": 0,
-                "dontFragment": true,
-                "ipv4Checksum": 20121
-              }
-            },
-            "decodedInput": {
-              "header": {
-                "source": "192.0.2.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "segment": {
-                "sequence": 1000,
-                "acknowledgment": 0,
-                "flags": 2,
-                "window": 8,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "",
-                "payloadHex": "",
-                "checksum": 36658,
-                "sequenceSpaceLength": 1,
-                "headerLength": 20,
-                "dataOffset": 5,
-                "flagNames": [
-                  "SYN"
-                ],
-                "mssValues": [],
-                "selectedOptionSemantics": true,
-                "sourcePort": 12345,
-                "destinationPort": 80
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 0,
-              "identification": 0,
-              "dontFragment": true,
-              "ipv4Checksum": 20121
-            },
-            "delivery": {
-              "sourceIndex": 0,
-              "path": "direct"
-            }
-          },
-          {
-            "index": 2,
-            "event": {
-              "kind": "synSentSynAck",
-              "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e96012200043e50000020405b4",
-              "path": "direct",
-              "policyPermitted": true
-            },
-            "before": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "state": {
-              "activePhase": "SYN-SENT",
-              "passivePhase": "SYN-RECEIVED",
-              "activeSeed": null,
-              "passiveSeed": null,
-              "activeEstablishedAt": null,
-              "passiveEstablishedAt": null
-            },
-            "decision": {
-              "kind": "unsupported",
-              "reason": "options"
-            },
-            "output": null,
-            "decodedInput": {
-              "header": {
-                "source": "198.51.100.2",
-                "destination": "192.0.2.1",
-                "protocol": 6,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "segment": {
-                "sequence": 5000,
-                "acknowledgment": 1001,
-                "flags": 18,
-                "window": 8192,
-                "reserved": 0,
-                "urgentPointer": 0,
-                "optionsHex": "020405b4",
-                "payloadHex": "",
-                "checksum": 17381,
-                "sequenceSpaceLength": 1,
-                "headerLength": 24,
-                "dataOffset": 6,
-                "flagNames": [
-                  "ACK",
-                  "SYN"
-                ],
-                "mssValues": [
-                  1460
-                ],
-                "selectedOptionSemantics": true,
-                "sourcePort": 80,
-                "destinationPort": 12345
-              },
-              "ipv4PaddingHex": "",
-              "ttl": 64,
-              "tos": 40,
-              "identification": 17185,
-              "dontFragment": true,
-              "ipv4Checksum": 2892
-            },
-            "delivery": null
-          }
-        ],
-        "final": {
-          "activePhase": "SYN-SENT",
-          "passivePhase": "SYN-RECEIVED",
-          "activeSeed": null,
-          "passiveSeed": null,
-          "activeEstablishedAt": null,
-          "passiveEstablishedAt": null
-        },
-        "remainingEvents": [
-          {
-            "kind": "synSentSynAck",
-            "rawIPv4Hex": "abcd",
-            "path": "direct",
-            "policyPermitted": true
-          },
-          {
-            "kind": "activeOpen",
-            "remote": {
-              "address": "198.51.100.2",
-              "port": 80
-            },
-            "policyPermitted": true
-          }
-        ]
-      }
-    },
-    {
       "name": "options-2-zero-mss",
       "input": {
         "schema": 1,
@@ -30066,7 +28178,7 @@
             },
             "decision": {
               "kind": "unsupported",
-              "reason": "options"
+              "reason": "data"
             },
             "output": null,
             "decodedInput": {
@@ -53175,6 +51287,360 @@
             "kind": "synReceivedAck",
             "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e900001389501000087b9a0000",
             "path": "direct"
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-1-eol-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005f36000000000000",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-1-nop-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e800000000600220005d34000001010101",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-1-mss-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "4528002c4321400040060b4cc0000201c633640230390050000003e80000000060022000577e0000020405b4",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-2-eol-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e9601220004b9d000000000000",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-2-nop-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e960122000499b000001010101",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "options-2-mss-unmatched-source",
+      "input": {
+        "schema": 1,
+        "active": {
+          "socket": {
+            "address": "192.0.2.1",
+            "port": 12345
+          },
+          "iss": 1000,
+          "capacity": 8,
+          "pendingLimit": 8,
+          "ipSendLimit": 576
+        },
+        "passive": {
+          "socket": {
+            "address": "198.51.100.2",
+            "port": 80
+          },
+          "iss": 5000,
+          "capacity": 6,
+          "pendingLimit": 8,
+          "ipSendLimit": 1500
+        },
+        "events": [
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
+          },
+          {
+            "kind": "listenSyn",
+            "rawIPv4Hex": "450000280000400040064e99c0000201c633640230390050000003e800000000500200088f320000",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "4528002c4321400040060b4cc6336402c00002010050303900001388000003e96012200043e50000020405b4",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "synSentSynAck",
+            "rawIPv4Hex": "ABCD",
+            "path": "direct",
+            "policyPermitted": true
+          },
+          {
+            "kind": "activeOpen",
+            "remote": {
+              "address": "198.51.100.2",
+              "port": 80
+            },
+            "policyPermitted": true
           }
         ]
       }

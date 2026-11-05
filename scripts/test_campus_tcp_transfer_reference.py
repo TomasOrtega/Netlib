@@ -55,6 +55,33 @@ class ComponentTests(unittest.TestCase):
                 {"kind": "installCheckpoint"}, 12, processed_drop, self.initial, False
             )
 
+    def test_a_changed_mss_offer_invalidates_the_exact_source_image(self):
+        changed = replace(
+            self.source,
+            admission=replace(
+                self.source.admission,
+                server_mss=800,
+                original=replace(self.source.admission.original, peer_mss=800),
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "stale"):
+            self.transfer.control({"kind": "installCheckpoint"}, 11, changed, self.initial, False)
+        self.assertEqual(self.transfer.cache.image.admission.server_mss, None)
+
+    def test_present_default_is_distinct_from_absent_in_the_checkpoint(self):
+        absent = self.source.admission
+        present = replace(absent, server_mss=536, original=replace(absent.original, peer_mss=536))
+        self.assertEqual(absent.original.data_limit, present.original.data_limit)
+        self.assertNotEqual(absent, present)
+        with self.assertRaisesRegex(ValueError, "stale"):
+            self.transfer.control(
+                {"kind": "installCheckpoint"},
+                11,
+                replace(self.source, admission=present),
+                self.initial,
+                False,
+            )
+
     def test_policy_changes_and_early_drop_do_not_change_the_transport_cut(self):
         _, installed = self.transfer.control(
             {"kind": "installCheckpoint"}, 12, self.source, self.initial, False

@@ -2,6 +2,7 @@
 
 The planned transfer keeps one connection and its actual application history across two modeled gateways.
 It copies the confirmed NAT state and the full learned TCP admission state.
+The [directional MSS extension](TCP_MSS.md) also retains the actual peer offers and data bounds.
 Existing endpoint states and sequence cursors continue without another SYN or supplied replacement seed.
 
 ```sh
@@ -122,7 +123,7 @@ No new native capture or traffic experiment supplies this evidence.
 An empty pending set is tested against actual stored work.
 This does not prove that every TCP queue has a supported drain order.
 The example exhibits one successful drain.
-General scheduling, loss recovery, retransmission, timers, congestion control, options, close processing, and long sequence reuse remain open.
+General scheduling, loss recovery, retransmission, timers, congestion control, other options, close processing, and long sequence reuse remain open.
 
 The model has fixed declared gateway lifetimes.
 It does not establish dynamic namespace replacement or native tracker reconstruction.

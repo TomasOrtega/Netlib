@@ -406,14 +406,17 @@ Every successful receipt must match an earlier output and its selected direct or
 The active seed becomes available on valid SYN,ACK receipt.
 The passive seed becomes available only on valid final ACK receipt.
 
-The three selected messages have no options or application data.
-Their absence derives default peer MSS 536, bounded by the explicit local IP send limit.
+The three selected messages have no application data.
+SYN and SYN,ACK support selected MSS/NOP/EOL semantics; the final ACK has no options.
+An absent MSS option derives peer default 536.
+Actual positive offers determine directional limits, bounded separately by the local IP send limit.
 Window-history fields come from the accepted startup messages.
 The active initialization selects the explicit RFC 1122 interpretation.
 
 Unsupported phases or omitted RFC actions stop replay.
 The command distinguishes supported partial histories from a completed model exchange.
 The [startup guide](TCP_HANDSHAKE.md) gives the event schema, byte-history conditions, and connection to the application theorem.
+The [MSS guide](TCP_MSS.md) states receive-capability evidence, automatic peer selection, and exact gateway/checkpoint preservation.
 
 ## Authenticated campus TCP execution
 

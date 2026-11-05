@@ -27,12 +27,12 @@ private def permit : ConntrackLifecycle.Pipeline := {
   forward := [], forwardDefault := .permit }
 
 private def packet (header : Header) (sequence acknowledgment : Nat) (flags : UInt8)
-    (payload : List UInt8 := []) (window : InternetChecksum.Word := 8) : IO EstablishedReceive.Input := do
+    (payload : List UInt8 := []) (window : InternetChecksum.Word := 8) (options : List UInt8 := []) : IO EstablishedReceive.Input := do
   let segment := computed header.source header.destination {
     sourcePort := header.sourcePort, destinationPort := header.destinationPort,
     sequence := Seq.ofNat sequence, acknowledgment := Seq.ofNat acknowledgment,
     reserved := 0, flags := flags, window := window, checksum := 0, urgentPointer := 0,
-    options := [], payload := payload }
+    options := options, payload := payload }
   let bytes ← load (IPv4.encode ⟨0, 0, true, 64, Packet.Protocol.tcp, header.source, header.destination, segment.encodeBytes⟩)
   load (EstablishedReceive.input bytes)
 
@@ -123,6 +123,10 @@ private def continuingBytes : IO Unit := do
     tracker := ⟨snapshot.source.tracker.records.map (fun record => { record with seenReply := false })⟩ }
   ensure (!changedRecord.same snapshot.source)
     "The exact source comparison must detect a changed reply observation."
+  let explicitDefault : CP.Gateway := ⟨snapshot.source.tracker, {
+    snapshot.source.admission with phase := .data { source with clientMSS := .present ⟨536, by decide⟩ } }⟩
+  ensure (source.clientMSS.limit == 536 && !explicitDefault.same snapshot.source)
+    "An explicit MSS of 536 must remain different from the absent source offer."
 
 private def droppedReply : IO Unit := do
   let ready ← startup
@@ -142,10 +146,71 @@ private def droppedReply : IO Unit := do
   ensure (resumed.outcome.output.isSome && (← session resumed.after).original.observed == 3)
     "Continuation must use the state derived from the dropped reply."
 
+private def mssValue (number : Nat) : IO MSS.Value :=
+  match MSS.Value.ofNat number with
+  | .ok value => pure value
+  | .error reason => throw (IO.userError reason.message)
+
+private def startupMSS (client server : MSS.Value) : IO Reached := do
+  let first ← advance initial (← packet original 1000 0 2 [] 2048 (MSS.encode client)) (some entry)
+  let second ← advance first (← packet translated.reverse 5000 1001 18 [] 2048 (MSS.encode server))
+  advance second (← packet original 1001 5001 16 [] 2048)
+
+private def directionalMSS : IO Unit := do
+  let clientMSS ← mssValue 700
+  let serverMSS ← mssValue 1200
+  let ready ← startupMSS clientMSS serverMSS
+  let learned ← session ready.gateway
+  ensure (learned.clientMSS == .present clientMSS && learned.serverMSS == .present serverMSS &&
+      (learned.peerMSS .original).limit == 1200 && (learned.peerMSS .reply).limit == 700)
+    "The gateway must learn each direction's limit from the opposite peer advertisement."
+  let first ← advance ready (← packet original 1001 5001 24 (List.replicate 600 97) 2048)
+  let acknowledged ← advance first (← packet translated.reverse 5001 1601 16 [] 2048)
+  let sent ← advance acknowledged (← packet translated.reverse 5001 1601 24 (List.replicate 600 120) 2048)
+  let snapshot ← checked (CP.capture sent.history)
+  let installed ← checked (CP.install snapshot sent.history .initial)
+  match sourcePhase : snapshot.source.admission.phase with
+  | .data source =>
+    let _ := installed.mss source sourcePhase
+    let copied ← session installed.state
+    ensure (copied.clientMSS == source.clientMSS && copied.serverMSS == source.serverMSS)
+      "The installed checkpoint must retain the two actual learned MSS offers."
+    let changedClient ← mssValue 701
+    let changed : CP.Gateway := ⟨snapshot.source.tracker, {
+      snapshot.source.admission with phase := .data { source with clientMSS := .present changedClient } }⟩
+    let altered ← session changed
+    ensure (changed.tracker == snapshot.source.tracker &&
+        changed.admission.observations == snapshot.source.admission.observations &&
+        altered.original == source.original && altered.reply == source.reply && !changed.same snapshot.source)
+      "Changing only an MSS offer must invalidate the exact source image."
+    let changedServer ← mssValue 1201
+    let other : CP.Gateway := ⟨snapshot.source.tracker, {
+      snapshot.source.admission with phase := .data { source with serverMSS := .present changedServer } }⟩
+    ensure (!other.same snapshot.source)
+      "The exact source image must retain the raw MSS offer from the server."
+  | _ => throw (IO.userError "The MSS checkpoint must retain established source history.")
+  let alternate ← startupMSS (← mssValue 701) serverMSS
+  let old ← checked (CP.capture ready.history)
+  rejected (CP.install old alternate.history .initial) .staleSource
+  let deferred ← packet original 1601 5601 16 [] 2048
+  let continued ← checked (CP.run installed.state permit ⟨deferred, 0, none⟩)
+  let restored : Reached := ⟨continued.after, .advance installed.history continued⟩
+  let larger ← advance restored (← packet original 1601 5601 24 (List.replicate 800 100) 2048)
+  let returned ← advance larger (← packet translated.reverse 5601 2401 24 (List.replicate 700 121) 2048)
+  let final ← session returned.gateway
+  ensure (final.original.observed == 1400 && final.reply.observed == 1300 &&
+      final.clientMSS == .present clientMSS && final.serverMSS == .present serverMSS)
+    "Continuation above the absent-option default must retain the copied directional MSS limits."
+  rejected (CP.run returned.gateway permit ⟨← packet original 2401 6301 24 (List.replicate 1201 1) 2048, 0, none⟩)
+    (.admission (.unsupported .data))
+  rejected (CP.run returned.gateway permit ⟨← packet translated.reverse 6301 2401 24 (List.replicate 701 1) 2048, 0, none⟩)
+    (.admission (.unsupported .data))
+
 def run : IO Unit := do
   rejected (CP.capture (Checkpoint.History.initial)) .notEstablished
   continuingBytes
   droppedReply
+  directionalMSS
   IO.println "Reachable TCP checkpoint tests passed."
 
 end NetlibTest.TCPCheckpoint

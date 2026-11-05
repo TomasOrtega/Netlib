@@ -8,7 +8,8 @@ Successful receipts must match earlier model outputs through exact checked byte 
 lake exe netlib tcp-handshake examples/tcp-handshake/trace.json --json
 ```
 
-The selected exchange uses empty SYN, SYN,ACK, and final ACK messages without options.
+The selected exchange uses empty SYN, SYN,ACK, and final ACK messages.
+SYN and SYN,ACK support [directional MSS](TCP_MSS.md), NOP, and EOL padding; the final ACK remains option-free.
 SYN occupies one sequence position and contributes no application byte.
 The active endpoint enters ESTABLISHED when it accepts SYN,ACK.
 The passive endpoint enters ESTABLISHED when it accepts the final ACK.
@@ -26,9 +27,11 @@ Each local configuration has these fields:
 | `capacity` | Local receive capacity, at most 65535 bytes. |
 | `pendingLimit` | Application pending-storage limit, at most 65535 bytes. |
 | `ipSendLimit` | Local IP size limit, between 41 and 65535 bytes. |
+| `receiveMSS` | Optional `{ipReceiveLimit, value}` evidence for an advertised receive MSS. |
 
 The local sequence choice does not prove randomness, uniqueness, or security.
-The caller supplies local configuration and lower-layer IP size evidence.
+The caller supplies local configuration and separate lower-layer IP send and receive evidence.
+A generated control packet with MSS must fit its 44-byte size within the local send limit.
 The passive endpoint derives its remote socket from the checked SYN.
 
 Use these event forms:
@@ -98,18 +101,19 @@ The new pending, outstanding, and receive buffers are empty.
 The active peer window, `SND.WL1`, and `SND.WL2` come from the checked SYN,ACK.
 This initialization uses the explicit interpretation in RFC 1122, section 4.2.2.20(c).
 The passive fields come from the checked final ACK.
-Its default peer MSS comes from the earlier checked SYN, not the final ACK.
+Its peer MSS comes from the earlier checked SYN, not the final ACK.
 
-The absence of startup options gives default IPv4 peer MSS 536.
-The effective MSS is `min 536 (ipSendLimit - 40)` for later output without options.
+An absent MSS option gives the IPv4 peer default 536 independently in each direction.
+The effective MSS is `min peerMSS (ipSendLimit - 40)` for later output without options.
 The proofs derive the positive MSS and IP bounds required by `Endpoint.State.Valid`.
 They preserve the distinction between local receive capacity and the peer window.
-The [source investigation](research/TCP_HANDSHAKE.md) records the selected RFC clauses and initialization interpretation.
+The [historical startup investigation](research/TCP_HANDSHAKE.md) records the RFC clauses and initialization interpretation.
+The [MSS investigation](research/TCP_MSS.md) records the current option extension and fixture counts.
 
 ## Composition and limits
 
 `HandshakeExchange.Complete` stores actual successful transition equations and the three checked delivery paths.
-It derives valid endpoint states, empty buffers, complementary cursors, peer-window sources, and default MSS.
+It derives valid endpoint states, empty buffers, complementary cursors, peer-window sources, and directional MSS.
 Its application theorem uses these states in the existing [application prefix proof](TCP_APPLICATION.md).
 The [campus extension](CAMPUS_TCP.md) derives the byte paths from current authenticated gateway execution.
 The caller supplies supported application traces, future delivery history, and finite sequence epochs.
@@ -127,8 +131,8 @@ All event syntax is parsed first, but later transport contents remain unevaluate
 The command returns zero for supported replay, including rejection and an unfinished exchange.
 It returns two for unsupported replay or an input error.
 
-SYN data, simultaneous open, and startup options are valid TCP features outside this first profile.
-Full MSS sending and receipt support also remains open.
+SYN data, simultaneous open, and other option interactions are valid TCP features outside this profile.
+Zero, duplicate, and non-SYN MSS input remain selected unsupported semantics; they are not claimed normative drop rules.
 Reset handling, retransmission, timers, close processing, congestion control, and long sequence reuse remain open.
 Native refinement, authentication, failover continuity, and eventual delivery require further evidence.
 All seven [research programs](ROADMAP.md) and the full campus demonstration remain OPEN.

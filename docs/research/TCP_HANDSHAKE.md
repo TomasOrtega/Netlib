@@ -1,5 +1,9 @@
 # A selected TCP handshake
 
+This note records the startup baseline before directional MSS support, at source commit `96ed34e`.
+Its option limits and fixture counts describe that historical version.
+The [MSS investigation](TCP_MSS.md) gives the current option semantics and fixture counts.
+
 This note records the source rules for ordinary active and passive startup.
 The Python oracle constructs static byte strings.
 It does not import or execute Lean, send packets, or collect captures.

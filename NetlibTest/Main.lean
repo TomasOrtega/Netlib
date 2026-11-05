@@ -129,6 +129,8 @@ import NetlibTest.TCPEndpoint
 import NetlibTest.TCPEndpointCheck
 import NetlibTest.TCPApplicationTrace
 import NetlibTest.TCPHandshake
+import NetlibTest.TCPMSS
+import NetlibTest.TCPMSSCampus
 import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
 import NetlibTest.TCPWireForwarding
@@ -289,6 +291,8 @@ def main : IO Unit := do
   NetlibTest.TCPEndpoint.run
   NetlibTest.TCPEndpointCheck.run
   NetlibTest.TCPHandshake.run
+  NetlibTest.TCPMSS.run
+  NetlibTest.TCPMSSCampus.run
   NetlibTest.TCPHandshakeCheck.run
   NetlibTest.TCPWireForwarding.run
   NetlibTest.TCPAdmission.run

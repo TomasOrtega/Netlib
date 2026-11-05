@@ -456,6 +456,11 @@ class Lane:
     peer_window: int
     window_sequence: int
     window_acknowledgment: int
+    peer_mss: int | None = None
+
+    @property
+    def data_limit(self):
+        return handshake.DEFAULT_MSS if self.peer_mss is None else self.peer_mss
 
     @property
     def next(self):
@@ -485,6 +490,8 @@ class Admission:
     original: Lane | None = None
     reply: Lane | None = None
     observations: tuple = ()
+    client_mss: int | None = None
+    server_mss: int | None = None
 
 
 def same_binding(left, right):
@@ -496,7 +503,12 @@ def same_binding(left, right):
 
 
 def startup_failure(segment, flags):
-    if segment.options:
+    try:
+        if flags & 2:
+            handshake.startup_mss(segment.options)
+        elif segment.options:
+            raise ValueError("The final ACK options exceed the selected scope.")
+    except ValueError:
         return "options"
     if segment.flags != flags:
         return "flags"
@@ -512,7 +524,7 @@ def data_admission(sender, peer, segment):
         return None, "flags"
     if segment.sequence != sender.next:
         return None, "sequence"
-    if len(segment.payload) > 536:
+    if len(segment.payload) > sender.data_limit:
         return None, "data"
     offset = endpoint.signed_offset(peer.base, segment.acknowledgment)
     if not 0 <= offset <= peer.observed or peer.acknowledged - offset > 65535:
@@ -550,6 +562,7 @@ def admit(before, record, direction, fresh, raw):
             record=record,
             client_iss=segment.sequence,
             client_window=segment.window,
+            client_mss=handshake.startup_mss(segment.options),
         )
     else:
         if fresh or not same_binding(before.record, record):
@@ -568,6 +581,7 @@ def admit(before, record, direction, fresh, raw):
                     phase="synAck",
                     server_iss=segment.sequence,
                     server_window=segment.window,
+                    server_mss=handshake.startup_mss(segment.options),
                 )
             else:
                 if segment.sequence != (before.client_iss + 1) % wire.MODULUS:
@@ -581,6 +595,7 @@ def admit(before, record, direction, fresh, raw):
                     before.server_window,
                     before.server_iss,
                     (before.client_iss + 1) % wire.MODULUS,
+                    before.server_mss,
                 )
                 reply = Lane(
                     (before.server_iss + 1) % wire.MODULUS,
@@ -589,6 +604,7 @@ def admit(before, record, direction, fresh, raw):
                     segment.window,
                     segment.sequence,
                     segment.acknowledgment,
+                    before.client_mss,
                 )
                 after = replace(before, phase="data", original=original, reply=reply)
         else:
