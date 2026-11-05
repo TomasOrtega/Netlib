@@ -67,6 +67,9 @@ import Netlib.Import.NftablesStateful
 import Netlib.Import.NftablesNAT
 import Netlib.Check.ConntrackLifecycle
 import Netlib.Check.StatefulRefinement
+import Netlib.Check.StatefulExclusion
+import Netlib.Protocol.Revocation
+import Netlib.Check.ConntrackRevocation
 import Netlib.Check.Transfer
 import Netlib.Check.NATTrace
 import Netlib.Import.PacketFields

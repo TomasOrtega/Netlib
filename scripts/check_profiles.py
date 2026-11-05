@@ -318,12 +318,96 @@ def lifecycle_checks():
         invoke("lifecycle", path, code=2)
 
 
+def revocation_checks():
+    from build_revocation_example import build
+    from check_lifecycle_capture import selected_rule
+
+    directory = ROOT / "examples/revocation"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    for relative, digest in provenance["files"].items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, replay, forbidden, start = build()
+    for name, expected in [
+        ("checked-evidence", evidence),
+        ("replay", replay),
+        ("forbidden", forbidden),
+    ]:
+        assert expected == json.loads((directory / (name + ".json")).read_text())
+    assert start == 3 and evidence["traceCount"] == 6 and evidence["snapshotCount"] == 7
+    selection = directory / "forbidden.json"
+    trace = directory / "replay.json"
+    args = ["lifecycle-blocks", trace, selection]
+    report = json.loads(invoke(*args, "--from", str(start), "--json"))
+    assert report["compliant"] and report["barrierCertified"] and report["observationsAgree"]
+    assert report["scope"] == "post-cutover-output-exclusion" and len(report["barriers"]) == 3
+    findings = report["replay"]["findings"]
+    assert len(findings) == 7 and all(finding["stateObserved"] for finding in findings)
+    assert findings[2]["expected"]["output"]["destinationPort"] == 9000
+    assert findings[3]["expected"]["classification"] == "established"
+    assert not findings[3]["expected"]["fresh"] and findings[3]["expected"]["output"] is None
+    assert findings[3]["expectedState"] and not findings[4]["expectedState"]
+    assert findings[6]["expected"]["afterSource"]["destinationPort"] == 9003
+    cells = report["partitionCells"]
+    assert cells == sum(barrier["partitionCells"] for barrier in report["barriers"])
+    invoke(*args, "--from", str(start), "--budget", str(cells))
+    invoke(*args, "--from", str(start), "--budget", str(cells - 1), code=2)
+    for value in ["-1", "invalid", str(len(replay["events"]))]:
+        invoke(*args, "--from", value, code=2)
+    invoke(*args, "--budget", "invalid", code=2)
+    before = json.loads(invoke(*args, "--json", code=1))
+    assert before["observationsAgree"] and not before["barrierCertified"]
+    with tempfile.TemporaryDirectory(prefix="netlib-revocation-") as folder:
+        path = Path(folder) / "changed.json"
+        altered = json.loads(json.dumps(replay))
+        hidden = json.loads(json.dumps(altered["configs"][2]))
+        hidden["id"] = "unsafe-hidden-context"
+        hidden["late"] = altered["configs"][0]["late"]
+        altered["configs"].append(hidden)
+        altered["events"][5]["config"] = hidden["id"]
+        path.write_text(json.dumps(altered))
+        failed = json.loads(
+            invoke("lifecycle-blocks", path, selection, "--from", str(start), "--json", code=1)
+        )
+        assert failed["observationsAgree"] and not failed["barrierCertified"]
+        unsafe = next(barrier for barrier in failed["barriers"] if not barrier["blocks"])
+        witness = unsafe["counterexample"]
+        assert witness["packet"]["destination"] == "198.51.100.2"
+        assert witness["packet"]["protocol"] == 17
+        chain = next(item["chain"] for item in hidden["late"]["nftables"] if "chain" in item)
+        assert selected_rule(
+            hidden["late"], chain["table"], chain["name"], witness["state"], witness["packet"]
+        )[1] == {"accept": None}
+        altered = json.loads(json.dumps(replay))
+        altered["events"][0]["observed"]["fresh"] = False
+        path.write_text(json.dumps(altered))
+        failed = json.loads(
+            invoke("lifecycle-blocks", path, selection, "--from", str(start), "--json", code=1)
+        )
+        assert failed["barrierCertified"] and not failed["observationsAgree"]
+        assert failed["replay"]["findings"][3]["matched"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"][3]["observed"]["output"] = altered["events"][2]["observed"]["output"]
+        path.write_text(json.dumps(altered))
+        failed = json.loads(
+            invoke("lifecycle-blocks", path, selection, "--from", str(start), "--json", code=1)
+        )
+        assert failed["barrierCertified"] and not failed["observationsAgree"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"] = altered["events"][:5]
+        path.write_text(json.dumps(altered))
+        invoke("lifecycle-blocks", path, selection, "--from", "4", code=2)
+        malformed = Path(folder) / "selection.json"
+        malformed.write_text(json.dumps({**forbidden, "ignored": True}))
+        invoke("lifecycle-blocks", trace, malformed, "--from", str(start), code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
     stateful_checks()
     conntrack_checks()
     lifecycle_checks()
+    revocation_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -381,7 +465,7 @@ def main():
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
     print(
-        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, and lifecycle commands."
+        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, conntrack, lifecycle, and revocation commands."
     )
 
 

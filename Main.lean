@@ -11,6 +11,7 @@ import Netlib.Check.NATTrace
 import Netlib.Check.Conntrack
 import Netlib.Check.ConntrackLifecycle
 import Netlib.Check.StatefulRefinement
+import Netlib.Check.ConntrackRevocation
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -30,6 +31,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib conntrack SNAPSHOT INTENT.json [--budget N] [--json]\n\
   netlib conntrack-map RAW.json ZONE HEADER.json [--json]\n\
   netlib lifecycle TRACE.json [--json]\n\
+  netlib lifecycle-blocks TRACE.json MATCH.json [--from N] [--budget N] [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -216,6 +218,52 @@ private def statefulRefines (strongerPath weakerPath : String) (budget : Nat) (j
     IO.println result.pretty
   return if passed then 0 else 1
 
+private def lifecycleBlocks (path selectionPath : String) (start budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.ConntrackLifecycle.Input.parse (← IO.FS.readFile path))
+  let selectionText ← IO.FS.readFile selectionPath
+  let selectionSource ← unwrap (Import.Json.parse selectionText)
+  let forbidden ← unwrap (DataPlane.Config.parseTrafficSelection selectionText)
+  if start ≥ input.events.length then throw (IO.userError "The cutover index must select a nonempty event suffix.")
+  let suffix := input.events.drop start
+  if !(suffix.any (·.event.isPacket)) then throw (IO.userError "The cutover suffix must include a packet event.")
+  let cells := (suffix.map fun observation => match observation.event with
+    | .packet config .. => Check.StatefulExclusion.cellCount config.late forbidden
+    | .erase .. => 0).sum
+  if cells > budget then throw (IO.userError "Revocation checking exceeds the total state/header cell budget.")
+  let mut barriers := []
+  for observation in suffix do
+    match observation.event with
+    | .erase .. => pure ()
+    | .packet config .. =>
+      let passed := Check.StatefulExclusion.check config.late forbidden
+      let witness := if passed then none else Check.StatefulExclusion.counterexample config.late forbidden
+      if !passed && witness.isNone then throw (IO.userError "Stateful exclusion lost its counterexample.")
+      barriers := barriers ++ [Lean.Json.mkObj [
+        ("source", Lean.toJson s!"/events/{observation.index}"), ("config", Lean.toJson config.id),
+        ("hook", Lean.toJson config.late.hook), ("priority", Lean.toJson config.late.priority),
+        ("partitionCells", Lean.toJson (Check.StatefulExclusion.cellCount config.late forbidden)),
+        ("blocks", Lean.toJson passed), ("counterexample", (witness.map fun context => Lean.Json.mkObj [
+          ("state", Lean.toJson (stateText context.state)),
+          ("packet", Import.PacketFields.headerJson context.header)]).getD .null)]]
+  let report ← unwrap input.check
+  let certified := Check.ConntrackRevocation.blocksFrom input.events start forbidden
+  let passed := certified && report.compliant
+  let result := Lean.Json.mkObj [
+    ("compliant", Lean.toJson passed), ("scope", Lean.toJson "post-cutover-output-exclusion"),
+    ("from", Lean.toJson start), ("selection", selectionSource), ("partitionCells", Lean.toJson cells),
+    ("barrierCertified", Lean.toJson certified), ("observationsAgree", Lean.toJson report.compliant),
+    ("barriers", Lean.toJson barriers), ("replay", report.renderJson),
+    ("assumptions", Lean.toJson (Check.ConntrackLifecycle.Report.assumptions ++ [
+      "The cutover is after effective barrier installation; packets already beyond that hook require a separate drain boundary.",
+      "Every selected post-cutover packet uses a certified configuration without hook bypass or barrier removal.",
+      "The forbidden class describes headers after NAT; it does not itself identify a user, session, or both traffic directions."]))]
+  if json then IO.println result.pretty
+  else
+    IO.println (if passed then "OUTPUT EXCLUSION CERTIFIED" else "OUTPUT EXCLUSION NOT CERTIFIED")
+    IO.println "Scope: selected outputs after the declared event cutover, with all state/header contexts checked at the late filter."
+    IO.println result.pretty
+  return if passed then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -235,6 +283,11 @@ private def budgetValue (text : String) : IO Nat :=
   match text.toNat? with
   | some budget => pure budget
   | none => throw (IO.userError "Use a natural number for the budget.")
+
+private def cutoverValue (text : String) : IO Nat :=
+  match text.toNat? with
+  | some index => pure index
+  | none => throw (IO.userError "Use a natural number for the cutover index.")
 
 private def run (args : List String) : IO UInt32 := do
   match args with
@@ -278,6 +331,20 @@ private def run (args : List String) : IO UInt32 := do
   | ["conntrack-map", path, zone, header, "--json"] => conntrackMap path zone header true
   | ["lifecycle", path] => lifecycle path false
   | ["lifecycle", path, "--json"] => lifecycle path true
+  | ["lifecycle-blocks", path, selection] => lifecycleBlocks path selection 0 100000 false
+  | ["lifecycle-blocks", path, selection, "--json"] => lifecycleBlocks path selection 0 100000 true
+  | ["lifecycle-blocks", path, selection, "--from", start] =>
+    lifecycleBlocks path selection (← cutoverValue start) 100000 false
+  | ["lifecycle-blocks", path, selection, "--from", start, "--json"] =>
+    lifecycleBlocks path selection (← cutoverValue start) 100000 true
+  | ["lifecycle-blocks", path, selection, "--budget", budget] =>
+    lifecycleBlocks path selection 0 (← budgetValue budget) false
+  | ["lifecycle-blocks", path, selection, "--budget", budget, "--json"] =>
+    lifecycleBlocks path selection 0 (← budgetValue budget) true
+  | ["lifecycle-blocks", path, selection, "--from", start, "--budget", budget] =>
+    lifecycleBlocks path selection (← cutoverValue start) (← budgetValue budget) false
+  | ["lifecycle-blocks", path, selection, "--from", start, "--budget", budget, "--json"] =>
+    lifecycleBlocks path selection (← cutoverValue start) (← budgetValue budget) true
   | ["stateful-refines", stronger, weaker] => statefulRefines stronger weaker 100000 false
   | ["stateful-refines", stronger, weaker, "--json"] => statefulRefines stronger weaker 100000 true
   | ["stateful-refines", stronger, weaker, "--budget", budget] =>

@@ -60,7 +60,7 @@
     "examples/lifecycle/capture.sh": "c1bae52c93134c1ee8cba42f203db1926f9543cd968b68e016714afab43107fd",
     "examples/lifecycle/exercise.py": "5e0390d963c4cd7007fb4f62be53262256fc89d7a4151a6d7c642265a70b81c5",
     "scripts/capture_conntrack.py": "e07e5ff4ec933decc784e6b36d2e8ae3f96ce76486829444782813dd13e1b61c",
-    "scripts/check_lifecycle_capture.py": "2a662a787f433721c431c21d6ac7e2ef3f83e9f401200bb0a3174ae055040347",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
     "scripts/build_lifecycle_example.py": "29b31c12fd43e69b825f3f214ad38d7babee741a8d3447a37b55b47bed126548",
     "examples/lifecycle/checked-evidence.json": "237b38dc08206ef06f094c17eeabdc98faade34d0157de5b8d5802dc85f22d7f",
     "examples/lifecycle/replay.json": "b0a631eab94976713ef1f804dd4783b9c9d0e906c51634021b364c53cba19d1a",
@@ -92,5 +92,13 @@
     "examples/lifecycle/native/trace.txt": "cf2632c3839a7e33cb578594b08a3c0c3bfdf4f9611c30cadd621094caa5d25d",
     "examples/lifecycle/native/unreplied-updated-state.json": "2c97eda468923280a9e6d2cbf341aa753bab189f8ea85a541135226ee84e7ab7",
     "examples/lifecycle/native/updated-state.json": "fc61beb9cd241cf559e9fbd3790fc73d259a4d0ab07d6a6a8e867202de98b96c"
+  },
+  "offlineVerification": {
+    "checkedAt": "2026-11-04T22:05:08.864171+00:00",
+    "previousVerifierSHA256": "2a662a787f433721c431c21d6ac7e2ef3f83e9f401200bb0a3174ae055040347",
+    "verifierSHA256": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "change": "Check exact exported rule text, selected handles, NAT targets, stage inputs, and trace instrumentation instead of comment-only agreement.",
+    "nativeArtifactsChanged": false,
+    "derivedEvidenceChanged": false
   }
 }

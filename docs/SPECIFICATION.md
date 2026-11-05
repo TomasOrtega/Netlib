@@ -356,6 +356,39 @@ It does not compare routing, NAT tables, allocations, stored bindings, or execut
 It does not prove revocation of old flows or a complete network upgrade contract.
 Those claims require the relevant state transitions and intermediate-state obligations.
 
+## Operational output exclusion
+
+A late-filter barrier denies every header in a forbidden class for every modeled state label.
+Its exact certificate includes policy and selection boundaries and preserves first-match order and explicit chain defaults.
+A failed certificate has a concrete selected state/header context that the filter permits.
+It need not be a packet in the supplied replay.
+
+Every forwarded lifecycle output passed the late filter after both NAT stages.
+The barrier therefore excludes the forbidden output class for fresh and cached bindings alike.
+The theorem covers original and reply attachments without requiring deletion or a changed NAT allocation.
+Ordered operations retain the result through packet calls and record deletion.
+Certified upgrade snapshots supply the same contract when each packet pipeline selects one of those snapshots.
+
+`lifecycle-blocks TRACE.json MATCH.json --from N` checks the complete replay and a selected event suffix.
+`N` is a zero-based list position, including deletion events.
+The suffix starts with the state produced by the full preceding replay.
+The CLI requires at least one packet event in the suffix and rejects out-of-range positions.
+It checks every late filter selected by suffix packet events; unused configurations are outside that check.
+The default budget covers 100,000 partition cells across those events and all five state labels.
+Repeated configurations are charged for every packet event.
+
+The result separates the barrier certificate from replay agreement.
+Success requires both.
+The report proof then excludes the forbidden class from every supplied suffix output observation.
+Prefix observation failures still prevent success.
+The model exclusion theorem only needs the barrier certificate.
+
+The forbidden class describes output headers after NAT.
+It does not automatically describe a credential, user, session, or both directions of a connection.
+Cutover follows effective barrier installation; packets already beyond the hook need a separate drain boundary.
+The checker does not prove native install completion, barrier retention between observations, or absence of unreported configuration changes.
+The [output exclusion guide](REVOCATION.md) states those obligations and the inherited lifecycle assumptions.
+
 ## Stateful processing and shared execution
 
 `Netlib/Packet/Processor.lean` models ordered packet processing with a shared store.
@@ -635,6 +668,7 @@ Their current theorems do not connect those models to native NAT implementations
 The conntrack adapter adds checked visible tuples and status-aware endpoint algebra.
 The separate lifecycle checker proves agreement with an explicit sequence of modeled route, filter, NAT, and deletion operations.
 Its structural invariant does not establish transport validity or an arbitrary security contract.
+The separate barrier proof establishes selected output exclusion through that sequence under its certified late-filter contract.
 Collectors and native experiments supply evidence without proving kernel C refinement, complete kernel state, or historical admission beyond the supplied observations.
 
 Lean verifies the theorem statements and proofs with the pinned toolchain.
@@ -704,6 +738,7 @@ that compile it indirectly. Documentation CI validates and deploys saved HTML.
 12. The alias-reuse theorem identifies packet freshness that the current invariant cannot establish.
 13. Lifecycle tests distinguish fresh preconfirmation drops, cached unreplied bindings, dropped-reply state updates, explicit deletion, and observation mismatch.
 14. Static stateful refinement covers all five labels and every modeled header, with checked counterexamples and budget errors.
+15. Output exclusion covers cached bindings, rule order, deletion, suffix state retention, unsafe unobserved contexts, and observation mismatch.
 
 ## Scope limits
 

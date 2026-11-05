@@ -118,6 +118,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Linux forwarding snapshots](LINUX.md).
 - [Native conntrack records](CONNTRACK.md).
 - [Tracked forwarding and stateful filter refinement](LIFECYCLE.md).
+- [Output exclusion after a policy cutover](REVOCATION.md).
 - [Packet requirement compilation](COMPILER.md).
 - [Packet rewrites and timed flow authorization](STATEFUL.md).
 - [5G admission traces](FIVEG.md).

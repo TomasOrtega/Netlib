@@ -1,0 +1,119 @@
+[
+  {
+    "phase": "first-original",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "first-original"
+    },
+    "received": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "first-original"
+    },
+    "state": "opened-state"
+  },
+  {
+    "phase": "first-reply",
+    "sent": {
+      "packet": {
+        "source": "198.51.100.2",
+        "destination": "203.0.113.1",
+        "protocol": 17,
+        "sourcePort": 9000,
+        "destinationPort": 40000
+      },
+      "payload": "first-reply"
+    },
+    "received": {
+      "packet": {
+        "source": "203.0.113.2",
+        "destination": "192.0.2.2",
+        "protocol": 17,
+        "sourcePort": 8080,
+        "destinationPort": 31000
+      },
+      "payload": "first-reply"
+    },
+    "state": "replied-state"
+  },
+  {
+    "phase": "cached-after-update",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "cached-after-update"
+    },
+    "received": {
+      "packet": {
+        "source": "203.0.113.1",
+        "destination": "198.51.100.2",
+        "protocol": 17,
+        "sourcePort": 40000,
+        "destinationPort": 9000
+      },
+      "payload": "cached-after-update"
+    },
+    "state": "retained-state"
+  },
+  {
+    "phase": "cached-after-barrier",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "cached-after-barrier"
+    },
+    "received": null,
+    "state": "barrier-state"
+  },
+  {
+    "phase": "fresh-after-delete",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31000,
+        "destinationPort": 8080
+      },
+      "payload": "fresh-after-delete"
+    },
+    "received": null,
+    "state": "fresh-denied-state"
+  },
+  {
+    "phase": "fresh-through-barrier",
+    "sent": {
+      "packet": {
+        "source": "192.0.2.2",
+        "destination": "203.0.113.2",
+        "protocol": 17,
+        "sourcePort": 31001,
+        "destinationPort": 8080
+      },
+      "payload": "fresh-through-barrier"
+    },
+    "received": null,
+    "state": "fresh-barrier-state"
+  }
+]

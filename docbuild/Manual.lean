@@ -815,6 +815,52 @@ TCP reopening, tracker replacement, expiry, concurrent changes, helper expectati
 The native experiment supplies no TCP transport-state evidence.
 The proofs establish the modeled lifecycle and structural invariants, without kernel C refinement or a complete upgrade contract.
 
+# Output exclusion after a cutover
+%%%
+tag := "revocation"
+file := "revocation"
+%%%
+
+A late-filter barrier denies a selected output-header class for every modeled state label.
+Its exact certificate checks policy and selection boundaries, including rule order and the explicit chain default.
+
+```lean
+open Netlib.Check.StatefulExclusion in
+example (snapshot : Netlib.Import.NftablesStateful.Snapshot)
+    (forbidden : Netlib.Packet.Match) :
+    check snapshot forbidden = true ↔
+      Blocks snapshot forbidden :=
+  check_correct snapshot forbidden
+```
+
+Every forwarded lifecycle output passed that late filter after both NAT stages.
+A valid barrier therefore excludes its forbidden class even for cached established bindings.
+Deleting the stored binding is not necessary for this exclusion argument.
+An established-only forward filter can still permit that cached traffic.
+
+The ordered proof covers packets and explicit record deletion.
+It also connects to certified upgrade snapshots when every selected packet pipeline comes from a safe snapshot.
+The replay suffix retains the state produced by its full prefix.
+A compliant report transfers model exclusion to every supplied suffix output observation.
+
+```
+lake exe netlib lifecycle-blocks TRACE.json MATCH.json --from N --json
+```
+
+The cutover is a zero-based event position, including deletion events.
+The CLI requires a nonempty suffix containing a packet.
+It certifies each selected late filter across all five labels and every selected header.
+The total budget charges partition cells for every suffix packet event, including repeated configurations.
+A failed barrier has a concrete permitted state/header counterexample, even if that context was never observed.
+Success also requires agreement with all supplied observations in the complete replay.
+
+The class describes headers after NAT.
+A destination-only class can exclude requests while allowing replies in the opposite direction.
+Users must connect translated endpoints to their intended restriction.
+Native installation, barrier retention, hook traversal, and packets already beyond the hook need separate evidence.
+The declared event position does not prove a physical drain or credential revocation.
+All ordinary lifecycle transport and native correspondence assumptions still apply.
+
 # Documentation process
 %%%
 tag := "documentation"

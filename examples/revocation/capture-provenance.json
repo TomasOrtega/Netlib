@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T21:56:32+00:00",
+  "timestampSource": "Latest file mtime in the original successful capture archive.",
+  "captureArchiveSHA256": "9a21ae608f502fd0d99263bcb6bba4fe893a0354cd60a71ecc938e0c6e8de4b7",
+  "kernel": "6.8.0-117-generic",
+  "producers": {
+    "conntrack-tools": {
+      "version": "1.4.9",
+      "url": "https://www.netfilter.org/projects/conntrack-tools/files/conntrack-tools-1.4.9.tar.xz",
+      "sha256": "c15afe488a8d408c9d6d61e97dbd19f3c591942f62c13df6453a961ca4231cae"
+    },
+    "libnetfilter_conntrack": {
+      "version": "1.1.1",
+      "url": "https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.1.1.tar.xz",
+      "sha256": "769d3eaf57fa4fbdb05dd12873b6cb9a5be7844d8937e222b647381d44284820"
+    },
+    "nftables": {
+      "version": "1.1.3",
+      "sha256": "9c8a64b59c90b0825e540a9b8fcb9d2d942c636f81ba50199f068fde44f34ed8",
+      "url": "https://netfilter.org/projects/nftables/files/nftables-1.1.3.tar.xz"
+    },
+    "iproute2": {
+      "version": "6.19.0",
+      "url": "https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.19.0.tar.gz",
+      "sha256": "b39ac6a76f8299968408d3f2948ea59d9502b299d3e0c78c93658b65df3be5be"
+    }
+  },
+  "container": {
+    "image": "netlib-lifecycle-capture:6.19.0",
+    "imageID": "sha256:566c6af8672a432d7b9db65593d54e5d6d5f0fd5e98e644979f9adefedc0bebd",
+    "instanceID": "4c9115a517a501beda6cc4977718ec62fdc475f12837ba6cd1f664096887ab5c",
+    "exitCode": 0,
+    "network": "none",
+    "capabilities": [
+      "NET_ADMIN",
+      "SYS_ADMIN"
+    ],
+    "seccomp": "unconfined",
+    "apparmor": "unconfined",
+    "privileged": false,
+    "hostMounts": false,
+    "hostNetworking": false,
+    "privateNetworkNamespaces": [
+      "client",
+      "router",
+      "server"
+    ],
+    "privateProcfs": true
+  },
+  "commands": {
+    "create": [
+      "docker",
+      "--host",
+      "unix:///Users/to1717/.colima/default/docker.sock",
+      "--config",
+      "/private/tmp/netlib-docker-config",
+      "create",
+      "--name",
+      "netlib-revocation-capture-20261104-02",
+      "--network",
+      "none",
+      "--cap-add",
+      "NET_ADMIN",
+      "--cap-add",
+      "SYS_ADMIN",
+      "--security-opt",
+      "seccomp=unconfined",
+      "--security-opt",
+      "apparmor=unconfined",
+      "sha256:566c6af8672a432d7b9db65593d54e5d6d5f0fd5e98e644979f9adefedc0bebd",
+      "sh",
+      "/task/examples/revocation/capture.sh"
+    ],
+    "copy": [
+      "docker",
+      "--host",
+      "unix:///Users/to1717/.colima/default/docker.sock",
+      "--config",
+      "/private/tmp/netlib-docker-config",
+      "cp",
+      "/private/tmp/netlib-revocation-task",
+      "netlib-revocation-capture-20261104-02:/task"
+    ],
+    "run": [
+      "docker",
+      "--host",
+      "unix:///Users/to1717/.colima/default/docker.sock",
+      "--config",
+      "/private/tmp/netlib-docker-config",
+      "start",
+      "--attach",
+      "netlib-revocation-capture-20261104-02"
+    ],
+    "stdout": "/private/tmp/netlib-revocation-capture-20261104-02.tar",
+    "stderr": "/private/tmp/netlib-revocation-capture-20261104-02.stderr",
+    "insideContainer": "examples/revocation/native/commands.json",
+    "namespaceSetup": "examples/revocation/capture.sh"
+  },
+  "evidence": {
+    "packetTraces": 6,
+    "chainVisits": 22,
+    "stateSnapshots": 7,
+    "replayOperations": 7,
+    "barrierCutover": 3
+  },
+  "scope": "Retained UDP socket, trace, policy, and visible-table evidence. Late output selection covers the backend address at all UDP ports. Classification and freshness require ordinary accepted attachments and complete selected traffic. No kernel C refinement, capture authenticity, hidden-state absence, atomic live cutover, or in-flight drain bound.",
+  "files": {
+    "examples/conntrack/Dockerfile": "beea89a2d62f294cf8a563bf971a251955226a9e40619053dd23e30c44ece1e7",
+    "examples/lifecycle/Dockerfile": "e3fa6fbc3bb165b01c390a37a3bfb64cb993c3c50949135f3e875bdafd8a0661",
+    "examples/lifecycle/exercise.py": "5e0390d963c4cd7007fb4f62be53262256fc89d7a4151a6d7c642265a70b81c5",
+    "scripts/capture_conntrack.py": "e07e5ff4ec933decc784e6b36d2e8ae3f96ce76486829444782813dd13e1b61c",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "scripts/check_revocation_capture.py": "f7bfdb4b988fa012f7918313893f43339421b2fc23c4c41a59ceff183941ad9d",
+    "scripts/test_check_revocation_capture.py": "479d854d7936a322f8445b18d50b42b1985036f7aede0936b4421af4271b29e4",
+    "scripts/build_revocation_example.py": "086df2ee96acfd5417769d773a29c8985fd310574cfc2cb6b90ce41570885296",
+    "examples/revocation/README.md": "47a92496f4d761c60555d768a4879f44045662014c604c9cb3709a6dc8b3d620",
+    "examples/revocation/capture-stderr.txt": "8da3253851575bb02db2ab74ef8eacc316812ecf6e65000d8d307800fa47cba8",
+    "examples/revocation/capture.sh": "ce2a7924bca201f2656dc7842e65e1d60cdef01dff9075b995eedc2a029bc87a",
+    "examples/revocation/checked-evidence.json": "717fac5730eccdd370faa9b4824ef4eb28242f39f95fc6317cf398e5d52a3027",
+    "examples/revocation/exercise.py": "700bf907e49d340761329613585f7476f713945d6778f8c16728610b4935b67f",
+    "examples/revocation/forbidden.json": "f34fbcf0b8abd4a6009f36b102536a8cd60dd2b6d9762ac8adde1a37ddf2c24c",
+    "examples/revocation/native/allow-fresh.nft": "ca13b09c43f7d1cdf535da29ce42e77b63f5b2b6200cf37d1571cfddf972e1b4",
+    "examples/revocation/native/barrier-closed.json": "33fbd2feb61b1a308c3e307a565a0e3015181b1ee7339c8e196817975b232710",
+    "examples/revocation/native/barrier-open.json": "237537be173f93d7a2afda17363d787687dba74364bf35948565574b73ce5cb3",
+    "examples/revocation/native/barrier-state.json": "3bf2dfb1dcb88a4bb06b9213f0fbe3fb32e7892914e29eba43de29fa106029c4",
+    "examples/revocation/native/commands.json": "5e08f0256597b05a79a3aa0bd1091a37c2e087d76c9d6a8fd2d82ff3ec67d2ab",
+    "examples/revocation/native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "examples/revocation/native/deleted-state.json": "576cce5cace34e426b802c8ed43dfd2914a41815c8d67eb707d89f0b724f3ee9",
+    "examples/revocation/native/forward-established-only.json": "58acb14c3387de156d1b40fbff6d1cd9d879c3f2bab580cef8fb44d1b325ebf1",
+    "examples/revocation/native/forward-fresh-allowed.json": "81451d028fd694fe310cd550a076628a44c27f8e66e77317d339712547ca3245",
+    "examples/revocation/native/forward-initial.json": "c5633c8a7f4e4547b8c7d703a86928cb4992104aa970ffa42ff7dc1fdd537206",
+    "examples/revocation/native/fresh-barrier-state.json": "2984d311c6a2cce12611708764cb15ee88b01ceae8a4ef70dd62978569220e9d",
+    "examples/revocation/native/fresh-denied-state.json": "5aa10c2f06918bb0d99fdaa92f804f8501b5d2a11e26fe793f27bc490997d184",
+    "examples/revocation/native/install-barrier.nft": "496556699a695417229a7010e06c2f87e9dde8c36c15ecb6036d695e4de21567",
+    "examples/revocation/native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "examples/revocation/native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "examples/revocation/native/library-version.txt": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
+    "examples/revocation/native/nat-changed.json": "b9c98fb8c7610de6157c6814c96ced55ad3eaf5a02809af77e4859cb608d3347",
+    "examples/revocation/native/nat-initial.json": "98b221c8ac073f2fac8040dda840aed8ec007d2f0b1a548cece7d929abc5a1ab",
+    "examples/revocation/native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "examples/revocation/native/observations.json": "e42981ab250c463b62db342b31388e45808580b8956a5cc50ec1521d5b7c875f",
+    "examples/revocation/native/opened-state.json": "4500f76b49dd041632f4d110cf2e2e5e30eb819d0acc5a6d09fc07a9ac40756e",
+    "examples/revocation/native/packages.txt": "8f0d64787547ea554f058feda17152952c714892cc284913f97e63afeb8f39a6",
+    "examples/revocation/native/replied-state.json": "d3ee644e6089b1facca657b4b73efd9ab2ceb953a8b7df809647bd8a5ecc7cdf",
+    "examples/revocation/native/retained-state.json": "20bb4bd24ba971c2e05af5d3a1f62743532fc1e8257f9426a61270be53e1c9cd",
+    "examples/revocation/native/routes.json": "25bb0297461506c2eb0075527ced39c065bd622f9f88b1ea0c06d7e0ea0c570e",
+    "examples/revocation/native/setup.nft": "aec5b24790b053093789de1e1bf12ff0da7e1cf1776a7e0ccb6820a00d7c8873",
+    "examples/revocation/native/tighten-and-change-nat.nft": "591911421013447331d066d0bce56664f58f3860a70ea5ea16d4fd8b462c5ac7",
+    "examples/revocation/native/trace-errors.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/revocation/native/trace.txt": "11d7f47464a2f667ddd12924091b663f391c23b963d53d24ee4ab457cf6b4fb7",
+    "examples/revocation/replay.json": "9246861be50a6d47900e92fc1e92684ec52bb61bfc83cb9d2c9ed1f6a55b7cb6",
+    "scripts/test_check_lifecycle_capture.py": "4535543f7e6eb4fca7449e82579ab31211d272e1cd55ae22fc02af050bd92949"
+  },
+  "offlineVerification": {
+    "scope": "Independent native text trace, exported policy, raw Netlink, and socket consistency checks; not Lean output generation or kernel C refinement.",
+    "note": "Offline trace checks were tightened after capture to reject contradictory predicates, NAT targets, rule/policy verdict kinds, instrumentation, and NAT input headers. Captured producer sources and native artifacts were unchanged.",
+    "verifier": "scripts/check_revocation_capture.py",
+    "sharedDecoder": "scripts/check_lifecycle_capture.py",
+    "tests": "scripts/test_check_revocation_capture.py",
+    "regressionTests": 17
+  }
+}

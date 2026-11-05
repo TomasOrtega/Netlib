@@ -1,0 +1,1 @@
+add rule ip netlib_barrier barrier ip daddr 198.51.100.2 meta l4proto udp drop comment "QUARANTINE_BACKEND"
