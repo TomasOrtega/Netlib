@@ -60,7 +60,7 @@ The source tree separates the library into these parts:
  * `Netlib.Security` defines request policy and gateway enforcement.
  * `Netlib.Protocol` defines sessions, timed flow grants, and NAT state.
  * `Netlib.Standards` records sources and selected standards profiles.
- * `Netlib.Import` reads strict hostapd, Linux route, and nftables inputs.
+ * `Netlib.Import` reads strict hostapd, route, firewall, and conntrack inputs.
  * `Netlib.Compile` translates packet intent to certified firewall policies.
  * `Netlib.Model` defines configuration data.
  * `Netlib.Policy` connects requirement text and network observations.
@@ -675,6 +675,71 @@ example (store : Store) (safe : store.1.Safe) :
 Preserving both clocks also requires equal logical clocks.
 The example does not prove a replication protocol, routing convergence, or live delivery.
 Stale copies, replication delay, revocation propagation, and packet freshness require additional models.
+
+# Conntrack snapshots and native evidence
+%%%
+tag := "conntrack"
+file := "conntrack"
+%%%
+
+The native flow model uses original and reply tuples with effective direction zones.
+Its lookup keys include the complete five-tuple.
+Different remote peers can therefore share a public address and port.
+This differs from the stronger endpoint-independent mapping invariant in the local timed NAPT model.
+
+The XML importer reads the conntrack-tools 1.4.9 snapshot format with `libnetfilter_conntrack` 1.1.1.
+It preserves fields, visible markers, source lines, and exact XML spans.
+It rejects unsupported syntax and ambiguous keys.
+XML does not expose the complete native status mask.
+Its tuple pairs alone do not establish active NAT or policy authority.
+
+The separate collector reads raw Netlink messages and retains full reported status.
+It checks framing, sender, sequence, errors, loss signals, and successful dump completion.
+The Lean importer validates the structured fields and the supported status conditions.
+It retains raw bytes without proving that they decode to the supplied structured fields.
+Collector behavior and capture authenticity remain evidence assumptions.
+
+NAT selections determine which endpoints change.
+Reply processing reverses those selections.
+The status-compatible rewrite agrees with the tuple projection:
+
+```lean
+open Netlib.Protocol in
+example (entry : NetfilterNAT.Entry)
+    (valid : entry.Compatible)
+    (direction : FlowNAT.Direction) :
+    (entry.rewrite direction).apply
+      (entry.flow.input direction) =
+        entry.flow.output direction :=
+  entry.rewrite_correct valid direction
+```
+
+The policy auditor checks every reported original tuple against certified packet intent.
+Its result covers the supplied records in their original order.
+This establishes permission under that intent, not how a native flow was created.
+
+```
+lake exe netlib conntrack examples/conntrack/native/conntrack.xml examples/conntrack/intent.json --json
+lake exe netlib conntrack-map examples/conntrack/native/netlink.json 0 examples/conntrack/original.json --json
+```
+
+The second command requires full-status capture JSON.
+A lookup miss means unassociated.
+It does not mean that Linux denied a packet.
+The commands do not extend the stateless Linux deployment adapter into a complete hook execution model.
+
+The repository retains a real isolated capture from kernel 6.8.0-117-generic.
+Pinned conntrack, formatter, and nftables sources produced its configuration and table evidence.
+Two TCP and two UDP records share one public endpoint across two remote peers.
+Six socket roundtrips agree with the tuple projection.
+The joined reply tuples reverse server-observed wire tuples; they are not independent pre-NAT reply captures.
+Original bytes, observations, versions, and source hashes remain available for review.
+
+Normal dumps can omit tentative or hidden NAT-clash objects.
+Timeout zero can represent a remaining fraction of a second.
+The frozen model does not evolve a clock or establish state completeness.
+Status checks reject the explicit-helper bit but do not identify every automatic helper attachment.
+Transport acceptance, hook ordering, checksums, payload effects, kernel refinement, and live delivery need further arguments.
 
 # Documentation process
 %%%

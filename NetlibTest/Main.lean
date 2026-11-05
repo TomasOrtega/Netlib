@@ -36,6 +36,11 @@ import NetlibTest.Stateful
 import NetlibTest.StatefulTrace
 import NetlibTest.NATPipeline
 import NetlibTest.CampusNAT
+import NetlibTest.FlowNAT
+import NetlibTest.NetfilterNAT
+import NetlibTest.ConntrackImport
+import NetlibTest.ConntrackNetlink
+import NetlibTest.ConntrackAudit
 
 open Netlib
 
@@ -73,4 +78,9 @@ def main : IO Unit := do
   NetlibTest.StatefulTrace.run
   NetlibTest.NATPipeline.run
   NetlibTest.CampusNAT.run
+  NetlibTest.FlowNAT.run
+  NetlibTest.NetfilterNAT.run
+  NetlibTest.ConntrackImport.run
+  NetlibTest.ConntrackNetlink.run
+  NetlibTest.ConntrackAudit.run
   IO.println "Netlib tests passed."

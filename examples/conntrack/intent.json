@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "requirements": [
+    {
+      "id": "TCP9000",
+      "action": "permit",
+      "match": {
+        "source": {
+          "address": 3221225984,
+          "length": 24
+        },
+        "destination": {
+          "address": 3325256704,
+          "length": 24
+        },
+        "protocol": 6,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 9000,
+          "last": 9000
+        }
+      }
+    },
+    {
+      "id": "UDP9000",
+      "action": "permit",
+      "match": {
+        "source": {
+          "address": 3221225984,
+          "length": 24
+        },
+        "destination": {
+          "address": 3325256704,
+          "length": 24
+        },
+        "protocol": 17,
+        "sourcePorts": null,
+        "destinationPorts": {
+          "first": 9000,
+          "last": 9000
+        }
+      }
+    }
+  ]
+}

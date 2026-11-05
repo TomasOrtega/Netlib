@@ -8,6 +8,7 @@ import Netlib.Compile.Policy
 import Netlib.Compile.Nftables
 import Netlib.Import.TransferConfig
 import Netlib.Check.NATTrace
+import Netlib.Check.Conntrack
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -24,12 +25,14 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib compile-acl INTENT.json [--budget N]\n\
   netlib transfer CONFIG.json [--budget N] [--json]\n\
   netlib nat-trace TRACE.json [--budget N] [--json]\n\
+  netlib conntrack SNAPSHOT INTENT.json [--budget N] [--json]\n\
+  netlib conntrack-map RAW.json ZONE HEADER.json [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
   netlib wifi AP.conf [DEPLOYMENT.json] [--json]\n\
   netlib wifi-coverage [--json]\n\
   netlib demo\n\n\
-Exit codes: 0 = compliant / sufficient consistent policy; 1 = violation / policy gaps; 2 = input, resource, or internal error."
+Exit codes: 0 = success / associated tuple; 1 = violation / policy gaps / unassociated tuple; 2 = input, resource, or internal error."
 
 private def unwrap (result : Except String α) : IO α :=
   match result with
@@ -159,6 +162,26 @@ private def natTrace (path : String) (budget : Nat) (json : Bool) : IO UInt32 :=
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.compliant then 0 else 1
 
+private def conntrack (path policy : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.Conntrack.Input.parse (← IO.FS.readFile path) (← IO.FS.readFile policy) budget)
+  let report := input.check
+  IO.println (if json then (Check.Conntrack.renderJson input report).pretty
+    else Check.Conntrack.render input report)
+  return if report.compliant then 0 else 1
+
+private def conntrackMap (path zoneText headerPath : String) (json : Bool) : IO UInt32 := do
+  let zone ← match zoneText.toNat? with
+    | some zone => pure zone
+    | none => throw (IO.userError "Use a natural number for the conntrack zone.")
+  let packet ← unwrap (Import.PacketFields.header (← unwrap (Import.Json.parse (← IO.FS.readFile headerPath))))
+  let (associated, result) ← unwrap (Check.Conntrack.mapPacket (← IO.FS.readFile path) zone packet)
+  if json then IO.println result.pretty
+  else
+    IO.println (if associated then "ASSOCIATED" else "UNASSOCIATED")
+    IO.println "Scope: frozen full-status tuple projection; no packet-admission conclusion."
+    IO.println result.pretty
+  return if associated then 0 else 1
+
 private def wifi (path : String) (model : Option String) (json : Bool) : IO UInt32 := do
   let ap ← IO.FS.readFile path
   let report ← match model with
@@ -213,6 +236,12 @@ private def run (args : List String) : IO UInt32 := do
   | ["nat-trace", path, "--json"] => natTrace path 100000 true
   | ["nat-trace", path, "--budget", budget] => natTrace path (← budgetValue budget) false
   | ["nat-trace", path, "--budget", budget, "--json"] => natTrace path (← budgetValue budget) true
+  | ["conntrack", path, policy] => conntrack path policy 100000 false
+  | ["conntrack", path, policy, "--json"] => conntrack path policy 100000 true
+  | ["conntrack", path, policy, "--budget", budget] => conntrack path policy (← budgetValue budget) false
+  | ["conntrack", path, policy, "--budget", budget, "--json"] => conntrack path policy (← budgetValue budget) true
+  | ["conntrack-map", path, zone, header] => conntrackMap path zone header false
+  | ["conntrack-map", path, zone, header, "--json"] => conntrackMap path zone header true
   | ["fiveg", path] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) false
   | ["fiveg", path, "--json"] => standardsReport (← unwrap (FiveG.run (← IO.FS.readFile path))) true
   | ["fiveg-coverage"] => standardsReport FiveG.coverage false

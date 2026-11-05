@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-04T21:01:18+00:00",
+  "kernel": "6.8.0-117-generic",
+  "producers": {
+    "conntrack-tools": {
+      "version": "1.4.9",
+      "url": "https://www.netfilter.org/projects/conntrack-tools/files/conntrack-tools-1.4.9.tar.xz",
+      "sha256": "c15afe488a8d408c9d6d61e97dbd19f3c591942f62c13df6453a961ca4231cae"
+    },
+    "libnetfilter_conntrack": {
+      "version": "1.1.1",
+      "url": "https://www.netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.1.1.tar.xz",
+      "sha256": "769d3eaf57fa4fbdb05dd12873b6cb9a5be7844d8937e222b647381d44284820"
+    },
+    "nftables": {
+      "version": "1.1.3",
+      "sha256": "9c8a64b59c90b0825e540a9b8fcb9d2d942c636f81ba50199f068fde44f34ed8"
+    }
+  },
+  "container": {
+    "base": "alpine@sha256:ff7f0c727dd796aa36787bfcd9a64bf35a6ce72a73451b3359fde849b6703d63",
+    "capabilities": [
+      "NET_ADMIN",
+      "SYS_ADMIN"
+    ],
+    "seccomp": "unconfined",
+    "apparmor": "unconfined",
+    "hostMounts": false,
+    "hostNetworking": false,
+    "privateNetworkNamespaces": [
+      "client",
+      "router",
+      "server"
+    ],
+    "privateProcfs": true
+  },
+  "scope": "Socket observations and supported visible conntrack records. No kernel C refinement, capture authenticity, or complete-state claim.",
+  "files": {
+    "examples/conntrack/Dockerfile": "beea89a2d62f294cf8a563bf971a251955226a9e40619053dd23e30c44ece1e7",
+    "examples/conntrack/capture.sh": "4d15fcf26dd771ff41273fab46d805a794b2090c64b5c15d9b35bf4cdbed5f3a",
+    "examples/conntrack/exercise.py": "171546ff73a3a8ba033cc2ce0a991b5202a3471837cb8fe911978b854704286e",
+    "scripts/capture_conntrack.py": "e07e5ff4ec933decc784e6b36d2e8ae3f96ce76486829444782813dd13e1b61c",
+    "examples/conntrack/native/client.json": "de3d39463e10d3393c59cff5c255aea9e5ad61897287db97100ec38a29005d07",
+    "examples/conntrack/native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "examples/conntrack/native/conntrack.xml": "6d497dec741744d7e44f47ed94353bd14300c880649bf422bb409210cd686daa",
+    "examples/conntrack/native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "examples/conntrack/native/library-version.txt": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
+    "examples/conntrack/native/netlink.json": "381b364c99ebd5206019ae857d45a83bfdeff8b205423aac4e80d60514e8daf0",
+    "examples/conntrack/native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "examples/conntrack/native/packages.txt": "7c71bbdfabf05f7a048ef9197e19b2ba236aa62b701c1c86e498337103bed4e0",
+    "examples/conntrack/native/packets.json": "fbe6196e0011c4e9daff3618c167feb2297a2559bb3f127198b7061b6fc6be39",
+    "examples/conntrack/native/rules.json": "78b21dab2c7081243853cd355c614f3dac0e88285cde6bdcf4524a1f8fc5db8f",
+    "examples/conntrack/native/rules.nft": "90a9bad182a47ef6ee92c5173a0cdd1433db7608929a8b2a597fd4182062c6d1",
+    "examples/conntrack/native/server.json": "aa5f507908d3aec4692f13210686e17545e789805d436230749ed6c89f27a6e4"
+  }
+}

@@ -1,5 +1,6 @@
 """Check the compiled standards and data-plane commands locally."""
 
+import hashlib
 import json
 import tempfile
 from pathlib import Path
@@ -187,10 +188,84 @@ def stateful_checks():
         invoke("transfer", path, code=2)
 
 
+def conntrack_checks():
+    directory = ROOT / "examples/conntrack"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    for relative, digest in provenance["files"].items():
+        assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    for name in ["conntrack.xml", "netlink.json"]:
+        snapshot = directory / "native" / name
+        report = json.loads(invoke("conntrack", snapshot, directory / "intent.json", "--json"))
+        assert report["compliant"] and report["entryCount"] == 4
+        assert report["scope"] == "reported-original-flow-policy"
+        assert len({finding["source"] for finding in report["findings"]}) == 4
+        assert all(finding["permittedByIntent"] for finding in report["findings"])
+        denied = json.loads(
+            invoke("conntrack", snapshot, directory / "tcp-only.json", "--json", code=1)
+        )
+        assert sum(not finding["permittedByIntent"] for finding in denied["findings"]) == 2
+    invoke(
+        "conntrack",
+        directory / "native/netlink.json",
+        directory / "intent.json",
+        "--budget",
+        "0",
+        code=2,
+    )
+    invoke(
+        "conntrack-map",
+        directory / "native/conntrack.xml",
+        "0",
+        directory / "original.json",
+        code=2,
+    )
+    invoke(
+        "conntrack-map",
+        directory / "native/netlink.json",
+        "65536",
+        directory / "original.json",
+        code=2,
+    )
+    invoke(
+        "conntrack-map",
+        directory / "native/netlink.json",
+        "invalid",
+        directory / "original.json",
+        code=2,
+    )
+    observations = json.loads((directory / "native/packets.json").read_text())
+    assert observations["replyTupleOrigin"] == "reverse-of-observed-server-wire-tuple"
+    assert observations["noReply"] == ["collision", "postrouting-drop"]
+    with tempfile.TemporaryDirectory(prefix="netlib-conntrack-") as folder:
+        header = Path(folder) / "header.json"
+        for packet in observations["packets"]:
+            for direction, output in [("original", "wire"), ("reply", "restored")]:
+                header.write_text(json.dumps(packet[direction]))
+                result = json.loads(
+                    invoke(
+                        "conntrack-map", directory / "native/netlink.json", "0", header, "--json"
+                    )
+                )
+                assert result["associated"] and result["direction"] == direction
+                assert result["output"] == packet[output] and result["nativeStatus"] is not None
+        result = json.loads(
+            invoke(
+                "conntrack-map", directory / "native/netlink.json", "1", header, "--json", code=1
+            )
+        )
+        assert not result["associated"] and result["output"] is None
+        raw = json.loads((directory / "native/netlink.json").read_text())
+        raw["entries"][0]["status"] &= ~16
+        invalid = Path(folder) / "bad-status.json"
+        invalid.write_text(json.dumps(raw))
+        invoke("conntrack-map", invalid, "0", header, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
     stateful_checks()
+    conntrack_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"
@@ -247,7 +322,9 @@ def main():
         invoke("analyze", policy, "--budget", "0", code=2)
         invoke("analyze", policy, goals, "--budget", "1", code=2)
         invoke("analyze", policy, "--budget", "invalid", code=2)
-    print(f"Profile CLI checks passed for {count} fixtures and extended packet/stateful commands.")
+    print(
+        f"Profile CLI checks passed for {count} fixtures and extended packet, stateful, and conntrack commands."
+    )
 
 
 if __name__ == "__main__":

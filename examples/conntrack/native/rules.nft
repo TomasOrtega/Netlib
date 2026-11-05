@@ -1,0 +1,15 @@
+table ip netlib_capture {
+  chain forward {
+    type filter hook forward priority 0; policy drop;
+    ct state established accept
+    ip saddr 192.0.2.0/24 meta l4proto { tcp, udp } th dport { 9000, 9001 } accept
+  }
+  chain source_nat {
+    type nat hook postrouting priority 100; policy accept;
+    ip saddr 192.0.2.0/24 meta l4proto { tcp, udp } snat to 203.0.113.1:40000
+  }
+  chain late_drop {
+    type filter hook postrouting priority 200; policy accept;
+    udp dport 9001 drop
+  }
+}

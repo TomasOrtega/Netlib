@@ -116,6 +116,7 @@ Use the dedicated guides for their input formats and model assumptions:
 - [Packet, route, and request checks](DATAPLANE.md).
 - [Whole traffic classes](TRAFFIC.md).
 - [Linux forwarding snapshots](LINUX.md).
+- [Native conntrack records](CONNTRACK.md).
 - [Packet requirement compilation](COMPILER.md).
 - [Packet rewrites and timed flow authorization](STATEFUL.md).
 - [5G admission traces](FIVEG.md).
