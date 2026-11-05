@@ -1,0 +1,4 @@
+ec722ba382a44f795db94ea2f511668d9d8753c3d102535a949a090ebbeb0f1d  /usr/local/bin/hostapd
+67333c3172f2a421c0ded107a315c1c11b06150e0907edb1ab8b5ae5b4c85737  /usr/local/bin/wpa_supplicant
+786af87a13ba9aef4fc97690607d2e02a3809ca0709b678b93684bf50915df2c  /opt/netlib/sbin/nft
+35bb74e680d3fee813fc281cedf5516e1e3156394dd40b2c173dee4e50ecfe55  /opt/netlib/sbin/ip

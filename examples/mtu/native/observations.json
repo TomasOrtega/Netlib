@@ -1,0 +1,2326 @@
+{
+  "schema": 1,
+  "scope": "mtu-fragment-forwarding",
+  "initial": {
+    "file": "initial-conntrack.json",
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "python3",
+        "/task/capture_conntrack.py",
+        "--output",
+        "/tmp/netlib-admission/initial-conntrack.json"
+      ],
+      "startNs": 60834307718556,
+      "endNs": 60834372820617,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "networkExports": {
+    "peer-links": {
+      "file": "network-peer-links.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "peer",
+          "-j",
+          "link",
+          "show"
+        ],
+        "startNs": 60833977718961,
+        "endNs": 60833978029877,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+        "stderr": ""
+      }
+    },
+    "peer-addresses": {
+      "file": "network-peer-addresses.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "peer",
+          "-j",
+          "address",
+          "show"
+        ],
+        "startNs": 60833978110377,
+        "endNs": 60833978527835,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1,\"addr_info\":[{\"family\":\"inet\",\"local\":\"192.0.2.2\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"peer0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      }
+    },
+    "peer-routes": {
+      "file": "network-peer-routes.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "peer",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "table",
+          "main"
+        ],
+        "startNs": 60833978556960,
+        "endNs": 60833978875835,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"default\",\"gateway\":\"192.0.2.1\",\"dev\":\"peer0\",\"flags\":[]},{\"dst\":\"192.0.2.0/24\",\"dev\":\"peer0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"192.0.2.2\",\"flags\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    "peer-neighbors": {
+      "file": "network-peer-neighbors.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "peer",
+          "-j",
+          "neigh",
+          "show"
+        ],
+        "startNs": 60833978899501,
+        "endNs": 60833979227668,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"192.0.2.1\",\"dev\":\"peer0\",\"lladdr\":\"02:00:00:00:ea:01\",\"state\":[\"PERMANENT\"]}]\n",
+        "stderr": ""
+      }
+    },
+    "auth-links": {
+      "file": "network-auth-links.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "auth",
+          "-j",
+          "link",
+          "show"
+        ],
+        "startNs": 60833979250751,
+        "endNs": 60833979583209,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+        "stderr": ""
+      }
+    },
+    "auth-addresses": {
+      "file": "network-auth-addresses.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "auth",
+          "-j",
+          "address",
+          "show"
+        ],
+        "startNs": 60833979636917,
+        "endNs": 60833980183875,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"192.0.2.1\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"auth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2,\"addr_info\":[{\"family\":\"inet\",\"local\":\"198.51.100.1\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"service0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet\",\"local\":\"203.0.113.1\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"service0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295},{\"family\":\"inet\",\"local\":\"203.0.113.2\",\"prefixlen\":32,\"scope\":\"global\",\"label\":\"service0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      }
+    },
+    "auth-routes": {
+      "file": "network-auth-routes.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "auth",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "table",
+          "main"
+        ],
+        "startNs": 60833980208625,
+        "endNs": 60833980542000,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"192.0.2.0/24\",\"dev\":\"auth0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"192.0.2.1\",\"flags\":[]},{\"dst\":\"198.51.100.0/24\",\"dev\":\"service0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"198.51.100.1\",\"flags\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    "auth-neighbors": {
+      "file": "network-auth-neighbors.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "auth",
+          "-j",
+          "neigh",
+          "show"
+        ],
+        "startNs": 60833980564916,
+        "endNs": 60833980858333,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"192.0.2.2\",\"dev\":\"auth0\",\"lladdr\":\"02:00:00:00:ea:02\",\"state\":[\"PERMANENT\"]},{\"dst\":\"198.51.100.2\",\"dev\":\"service0\",\"lladdr\":\"02:00:00:00:eb:02\",\"state\":[\"PERMANENT\"]}]\n",
+        "stderr": ""
+      }
+    },
+    "server-links": {
+      "file": "network-server-links.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "server",
+          "-j",
+          "link",
+          "show"
+        ],
+        "startNs": 60833980881916,
+        "endNs": 60833981216833,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+        "stderr": ""
+      }
+    },
+    "server-addresses": {
+      "file": "network-server-addresses.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "server",
+          "-j",
+          "address",
+          "show"
+        ],
+        "startNs": 60833981241249,
+        "endNs": 60833981582291,
+        "returncode": 0,
+        "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0,\"addr_info\":[{\"family\":\"inet\",\"local\":\"198.51.100.2\",\"prefixlen\":24,\"scope\":\"global\",\"label\":\"server0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+        "stderr": ""
+      }
+    },
+    "server-routes": {
+      "file": "network-server-routes.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "server",
+          "-j",
+          "-4",
+          "route",
+          "show",
+          "table",
+          "main"
+        ],
+        "startNs": 60833981604665,
+        "endNs": 60833981932457,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"192.0.2.0/24\",\"gateway\":\"198.51.100.1\",\"dev\":\"server0\",\"flags\":[]},{\"dst\":\"198.51.100.0/24\",\"dev\":\"server0\",\"protocol\":\"kernel\",\"scope\":\"link\",\"prefsrc\":\"198.51.100.2\",\"flags\":[]},{\"dst\":\"203.0.113.0/24\",\"gateway\":\"198.51.100.1\",\"dev\":\"server0\",\"flags\":[]}]\n",
+        "stderr": ""
+      }
+    },
+    "server-neighbors": {
+      "file": "network-server-neighbors.json",
+      "command": {
+        "command": [
+          "ip",
+          "-n",
+          "server",
+          "-j",
+          "neigh",
+          "show"
+        ],
+        "startNs": 60833981955623,
+        "endNs": 60833982342831,
+        "returncode": 0,
+        "stdout": "[{\"dst\":\"198.51.100.1\",\"dev\":\"server0\",\"lladdr\":\"02:00:00:00:eb:01\",\"state\":[\"PERMANENT\"]}]\n",
+        "stderr": ""
+      }
+    }
+  },
+  "traceCommand": [
+    "ip",
+    "netns",
+    "exec",
+    "auth",
+    "nft",
+    "monitor",
+    "trace"
+  ],
+  "stages": [
+    {
+      "stage": "unauthenticated",
+      "policy": "deny",
+      "startNs": 60834374694116,
+      "endNs": 60834963714250,
+      "sent": {
+        "startNs": 60834376745364,
+        "endNs": 60834376798572,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "203.0.113.2",
+          "destinationPort": 8080,
+          "payload": "mtu:unauthenticated-request|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "ttl": 64,
+          "mtuDiscover": 0,
+          "bytesSent": 1200
+        }
+      },
+      "requestLinks": {
+        "peer": {
+          "file": "unauthenticated-request-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60834374695157,
+            "endNs": 60834375525948,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "unauthenticated-request-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60834375581698,
+            "endNs": 60834376119281,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "unauthenticated-request-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60834376160864,
+            "endNs": 60834376648405,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      },
+      "replyLinks": null,
+      "server": {
+        "startNs": 60834377348071,
+        "endNs": 60834635137653,
+        "result": null
+      },
+      "lowTTLReply": null,
+      "reply": null,
+      "client": {
+        "startNs": 60834635747444,
+        "endNs": 60834890336821,
+        "result": null
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/unauthenticated-load.json"
+        ],
+        "startNs": 60834372984784,
+        "endNs": 60834374687907,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/deny.json",
+        "batch": "unauthenticated-load.json"
+      },
+      "exports": {
+        "firewall": {
+          "file": "unauthenticated-firewall.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib"
+            ],
+            "startNs": 60834890748488,
+            "endNs": 60834896226191,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "nat": {
+          "file": "unauthenticated-nat.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_nat"
+            ],
+            "startNs": 60834896572982,
+            "endNs": 60834902072518,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}]}\n",
+            "stderr": ""
+          }
+        },
+        "late": {
+          "file": "unauthenticated-late.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_late"
+            ],
+            "startNs": 60834902379435,
+            "endNs": 60834907027347,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "ruleset": {
+          "file": "unauthenticated-ruleset.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "ruleset"
+            ],
+            "startNs": 60834907293888,
+            "endNs": 60834912576466,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 1, \"bytes\": 1228}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_trace\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"before\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -301, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterDestination\", \"handle\": 2, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"beforeSource\", \"handle\": 3, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterSource\", \"handle\": 4, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 110, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"chain\": \"before\", \"handle\": 5, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"meta\": {\"key\": \"l4proto\"}}, \"right\": 17}}, {\"mangle\": {\"key\": {\"meta\": {\"key\": \"nftrace\"}}, \"value\": 1}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        }
+      },
+      "state": {
+        "file": "unauthenticated-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/unauthenticated-conntrack.json"
+          ],
+          "startNs": 60834912870508,
+          "endNs": 60834963711375,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "stage": "authenticated-only",
+      "policy": "deny",
+      "startNs": 60837053019090,
+      "endNs": 60837645909888,
+      "sent": {
+        "startNs": 60837059609542,
+        "endNs": 60837059794792,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "203.0.113.2",
+          "destinationPort": 8080,
+          "payload": "mtu:authenticated-only-request|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "ttl": 64,
+          "mtuDiscover": 0,
+          "bytesSent": 1200
+        }
+      },
+      "requestLinks": {
+        "peer": {
+          "file": "authenticated-only-request-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837053022257,
+            "endNs": 60837055964546,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "authenticated-only-request-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837056207379,
+            "endNs": 60837057659086,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "authenticated-only-request-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837057804377,
+            "endNs": 60837059316251,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      },
+      "replyLinks": null,
+      "server": {
+        "startNs": 60837060070708,
+        "endNs": 60837318483707,
+        "result": null
+      },
+      "lowTTLReply": null,
+      "reply": null,
+      "client": {
+        "startNs": 60837318917248,
+        "endNs": 60837577936621,
+        "result": null
+      },
+      "load": null,
+      "exports": {
+        "firewall": {
+          "file": "authenticated-only-firewall.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib"
+            ],
+            "startNs": 60837578210621,
+            "endNs": 60837583786824,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "nat": {
+          "file": "authenticated-only-nat.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_nat"
+            ],
+            "startNs": 60837584128115,
+            "endNs": 60837589114069,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}]}\n",
+            "stderr": ""
+          }
+        },
+        "late": {
+          "file": "authenticated-only-late.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_late"
+            ],
+            "startNs": 60837589297777,
+            "endNs": 60837592607649,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "ruleset": {
+          "file": "authenticated-only-ruleset.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "ruleset"
+            ],
+            "startNs": 60837592740982,
+            "endNs": 60837596990728,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 2, \"bytes\": 2456}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_trace\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"before\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -301, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterDestination\", \"handle\": 2, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"beforeSource\", \"handle\": 3, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterSource\", \"handle\": 4, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 110, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"chain\": \"before\", \"handle\": 5, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"meta\": {\"key\": \"l4proto\"}}, \"right\": 17}}, {\"mangle\": {\"key\": {\"meta\": {\"key\": \"nftrace\"}}, \"value\": 1}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 5}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        }
+      },
+      "state": {
+        "file": "authenticated-only-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/authenticated-only-conntrack.json"
+          ],
+          "startNs": 60837597303269,
+          "endNs": 60837645906722,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "stage": "credential-permitted",
+      "policy": "permit",
+      "startNs": 60837657642335,
+      "endNs": 60838054198408,
+      "sent": {
+        "startNs": 60837659949791,
+        "endNs": 60837660752416,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "203.0.113.2",
+          "destinationPort": 8080,
+          "payload": "mtu:credential-permitted-request|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "ttl": 64,
+          "mtuDiscover": 0,
+          "bytesSent": 1200
+        }
+      },
+      "requestLinks": {
+        "peer": {
+          "file": "credential-permitted-request-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837657643419,
+            "endNs": 60837658772876,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "credential-permitted-request-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837658832417,
+            "endNs": 60837659326042,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "credential-permitted-request-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60837659369167,
+            "endNs": 60837659853750,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      },
+      "replyLinks": {
+        "peer": {
+          "file": "credential-permitted-reply-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838017090569,
+            "endNs": 60838017820527,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "credential-permitted-reply-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838017896652,
+            "endNs": 60838018511276,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "credential-permitted-reply-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838018560609,
+            "endNs": 60838019085817,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      },
+      "server": {
+        "startNs": 60837660874249,
+        "endNs": 60837660888874,
+        "result": {
+          "source": "203.0.113.1",
+          "sourcePort": 40000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "mtu:credential-permitted-request|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "lowTTLReply": {
+        "sent": {
+          "startNs": 60837692078927,
+          "endNs": 60837692115427,
+          "result": {
+            "source": "198.51.100.2",
+            "sourcePort": 9000,
+            "destination": "203.0.113.1",
+            "destinationPort": 40000,
+            "payload": "mtu:credential-permitted:ttl-one-reply",
+            "ttl": 1,
+            "mtuDiscover": 0,
+            "bytesSent": 38
+          }
+        },
+        "client": {
+          "startNs": 60837692213260,
+          "endNs": 60837952422674,
+          "result": null
+        },
+        "before": {
+          "file": "before-ttl-one-reply-conntrack.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "python3",
+              "/task/capture_conntrack.py",
+              "--output",
+              "/tmp/netlib-admission/before-ttl-one-reply-conntrack.json"
+            ],
+            "startNs": 60837660953624,
+            "endNs": 60837690763470,
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        },
+        "after": {
+          "file": "after-ttl-one-reply-conntrack.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "python3",
+              "/task/capture_conntrack.py",
+              "--output",
+              "/tmp/netlib-admission/after-ttl-one-reply-conntrack.json"
+            ],
+            "startNs": 60837952952965,
+            "endNs": 60838017085777,
+            "returncode": 0,
+            "stdout": "",
+            "stderr": ""
+          }
+        },
+        "links": {
+          "peer": {
+            "file": "cached-ttl-one-reply-peer-links.json",
+            "command": {
+              "command": [
+                "ip",
+                "-n",
+                "peer",
+                "-j",
+                "link",
+                "show"
+              ],
+              "startNs": 60837690765303,
+              "endNs": 60837691189428,
+              "returncode": 0,
+              "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+              "stderr": ""
+            }
+          },
+          "auth": {
+            "file": "cached-ttl-one-reply-auth-links.json",
+            "command": {
+              "command": [
+                "ip",
+                "-n",
+                "auth",
+                "-j",
+                "link",
+                "show"
+              ],
+              "startNs": 60837691231886,
+              "endNs": 60837691626677,
+              "returncode": 0,
+              "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+              "stderr": ""
+            }
+          },
+          "server": {
+            "file": "cached-ttl-one-reply-server-links.json",
+            "command": {
+              "command": [
+                "ip",
+                "-n",
+                "server",
+                "-j",
+                "link",
+                "show"
+              ],
+              "startNs": 60837691657052,
+              "endNs": 60837692021719,
+              "returncode": 0,
+              "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+              "stderr": ""
+            }
+          }
+        }
+      },
+      "reply": {
+        "startNs": 60838019179859,
+        "endNs": 60838019244734,
+        "result": {
+          "source": "198.51.100.2",
+          "sourcePort": 9000,
+          "destination": "203.0.113.1",
+          "destinationPort": 40000,
+          "payload": "mtu:credential-permitted:reply",
+          "ttl": 64,
+          "mtuDiscover": 0,
+          "bytesSent": 30
+        }
+      },
+      "client": {
+        "startNs": 60838019810733,
+        "endNs": 60838019821941,
+        "result": {
+          "source": "203.0.113.2",
+          "sourcePort": 8080,
+          "destination": "192.0.2.2",
+          "destinationPort": 41000,
+          "payload": "mtu:credential-permitted:reply"
+        }
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/credential-permitted-load.json"
+        ],
+        "startNs": 60837646753888,
+        "endNs": 60837657633752,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/permit.json",
+        "batch": "credential-permitted-load.json"
+      },
+      "exports": {
+        "firewall": {
+          "file": "credential-permitted-firewall.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib"
+            ],
+            "startNs": 60838019884483,
+            "endNs": 60838021360190,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 6}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+            "stderr": ""
+          }
+        },
+        "nat": {
+          "file": "credential-permitted-nat.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_nat"
+            ],
+            "startNs": 60838021408273,
+            "endNs": 60838022535355,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}]}\n",
+            "stderr": ""
+          }
+        },
+        "late": {
+          "file": "credential-permitted-late.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_late"
+            ],
+            "startNs": 60838022577355,
+            "endNs": 60838023634146,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "ruleset": {
+          "file": "credential-permitted-ruleset.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "ruleset"
+            ],
+            "startNs": 60838023676563,
+            "endNs": 60838025385269,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 5, \"bytes\": 3808}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_trace\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"before\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -301, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterDestination\", \"handle\": 2, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"beforeSource\", \"handle\": 3, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterSource\", \"handle\": 4, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 110, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"chain\": \"before\", \"handle\": 5, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"meta\": {\"key\": \"l4proto\"}}, \"right\": 17}}, {\"mangle\": {\"key\": {\"meta\": {\"key\": \"nftrace\"}}, \"value\": 1}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 6}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+            "stderr": ""
+          }
+        }
+      },
+      "state": {
+        "file": "credential-permitted-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/credential-permitted-conntrack.json"
+          ],
+          "startNs": 60838025462853,
+          "endNs": 60838054196908,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "stage": "logged-off-cached",
+      "policy": "deny",
+      "startNs": 60838089535457,
+      "endNs": 60838683460338,
+      "sent": {
+        "startNs": 60838091184455,
+        "endNs": 60838091223497,
+        "result": {
+          "source": "192.0.2.2",
+          "sourcePort": 41000,
+          "destination": "203.0.113.2",
+          "destinationPort": 8080,
+          "payload": "mtu:logged-off-cached-request|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "ttl": 64,
+          "mtuDiscover": 0,
+          "bytesSent": 1200
+        }
+      },
+      "requestLinks": {
+        "peer": {
+          "file": "logged-off-cached-request-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838089536290,
+            "endNs": 60838090080040,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "logged-off-cached-request-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838090122165,
+            "endNs": 60838090581706,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "logged-off-cached-request-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838090626622,
+            "endNs": 60838091104580,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      },
+      "replyLinks": null,
+      "server": {
+        "startNs": 60838091364372,
+        "endNs": 60838347203206,
+        "result": null
+      },
+      "lowTTLReply": null,
+      "reply": null,
+      "client": {
+        "startNs": 60838348205580,
+        "endNs": 60838605770497,
+        "result": null
+      },
+      "load": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-f",
+          "/tmp/netlib-admission/logged-off-cached-load.json"
+        ],
+        "startNs": 60838082094589,
+        "endNs": 60838089530707,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "input": "input/deny.json",
+        "batch": "logged-off-cached-load.json"
+      },
+      "exports": {
+        "firewall": {
+          "file": "logged-off-cached-firewall.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib"
+            ],
+            "startNs": 60838606321621,
+            "endNs": 60838613901405,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 7}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "nat": {
+          "file": "logged-off-cached-nat.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_nat"
+            ],
+            "startNs": 60838614467238,
+            "endNs": 60838620863774,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}]}\n",
+            "stderr": ""
+          }
+        },
+        "late": {
+          "file": "logged-off-cached-late.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "table",
+              "ip",
+              "netlib_late"
+            ],
+            "startNs": 60838621186232,
+            "endNs": 60838625295311,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}]}\n",
+            "stderr": ""
+          }
+        },
+        "ruleset": {
+          "file": "logged-off-cached-ruleset.json",
+          "command": {
+            "command": [
+              "ip",
+              "netns",
+              "exec",
+              "auth",
+              "nft",
+              "-j",
+              "-nn",
+              "list",
+              "ruleset"
+            ],
+            "startNs": 60838625524103,
+            "endNs": 60838630779722,
+            "returncode": 0,
+            "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 6, \"bytes\": 5036}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_trace\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"before\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -301, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterDestination\", \"handle\": 2, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"beforeSource\", \"handle\": 3, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterSource\", \"handle\": 4, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 110, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"chain\": \"before\", \"handle\": 5, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"meta\": {\"key\": \"l4proto\"}}, \"right\": 17}}, {\"mangle\": {\"key\": {\"meta\": {\"key\": \"nftrace\"}}, \"value\": 1}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 7}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}]}\n",
+            "stderr": ""
+          }
+        }
+      },
+      "state": {
+        "file": "logged-off-cached-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/logged-off-cached-conntrack.json"
+          ],
+          "startNs": 60838631086222,
+          "endNs": 60838683457921,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      }
+    }
+  ],
+  "credentialInstall": {
+    "command": [
+      "install",
+      "-m",
+      "0644",
+      "/task/admission/input/demo-credential.json",
+      "/run/netlib-admission/demo-credential.json"
+    ],
+    "startNs": 60837645949305,
+    "endNs": 60837646397680,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "logoff": {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_cli",
+      "-p",
+      "/run/netlib-eap/supplicant",
+      "-i",
+      "peer0",
+      "logoff"
+    ],
+    "startNs": 60838054200325,
+    "endNs": 60838054863282,
+    "returncode": 0,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  "erase": {
+    "command": {
+      "command": [
+        "ip",
+        "netns",
+        "exec",
+        "auth",
+        "conntrack",
+        "-D",
+        "-f",
+        "ipv4",
+        "-p",
+        "udp",
+        "--orig-src",
+        "192.0.2.2",
+        "--orig-dst",
+        "203.0.113.2",
+        "--sport",
+        "41000",
+        "--dport",
+        "8080",
+        "--zone",
+        "0"
+      ],
+      "startNs": 60839125821324,
+      "endNs": 60839127937322,
+      "returncode": 0,
+      "stdout": "udp      17 29 src=192.0.2.2 dst=203.0.113.2 sport=41000 dport=8080 src=198.51.100.2 dst=203.0.113.1 sport=9000 dport=40000 mark=0 use=1\n",
+      "stderr": "conntrack v1.4.9 (conntrack-tools): 1 flow entries have been deleted.\n"
+    },
+    "state": {
+      "file": "erased-conntrack.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/capture_conntrack.py",
+          "--output",
+          "/tmp/netlib-admission/erased-conntrack.json"
+        ],
+        "startNs": 60839127981031,
+        "endNs": 60839166053994,
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    }
+  },
+  "probeLoad": {
+    "command": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "nft",
+      "-j",
+      "-f",
+      "/tmp/netlib-admission/mtu-probes-load.json"
+    ],
+    "startNs": 60838683778213,
+    "endNs": 60838694580285,
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "",
+    "input": "input/permit.json",
+    "batch": "mtu-probes-load.json"
+  },
+  "probeExports": {
+    "firewall": {
+      "file": "mtu-probes-firewall.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "table",
+          "ip",
+          "netlib"
+        ],
+        "startNs": 60838694588119,
+        "endNs": 60838695765368,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 8}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+        "stderr": ""
+      }
+    },
+    "nat": {
+      "file": "mtu-probes-nat.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "table",
+          "ip",
+          "netlib_nat"
+        ],
+        "startNs": 60838695827492,
+        "endNs": 60838696997991,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}]}\n",
+        "stderr": ""
+      }
+    },
+    "late": {
+      "file": "mtu-probes-late.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "table",
+          "ip",
+          "netlib_late"
+        ],
+        "startNs": 60838697059950,
+        "endNs": 60838698148115,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}]}\n",
+        "stderr": ""
+      }
+    },
+    "ruleset": {
+      "file": "mtu-probes-ruleset.json",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "nft",
+          "-j",
+          "-nn",
+          "list",
+          "ruleset"
+        ],
+        "startNs": 60838698195740,
+        "endNs": 60838699817364,
+        "returncode": 0,
+        "stdout": "{\"nftables\": [{\"metainfo\": {\"version\": \"1.1.3\", \"release_name\": \"Commodore Bullmoose #4\", \"json_schema_version\": 1}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_tracking\", \"handle\": 1}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"name\": \"prerouting\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -199, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_tracking\", \"chain\": \"prerouting\", \"handle\": 3, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"ct\": {\"key\": \"state\"}}, \"right\": {\"set\": [2, 8]}}}, {\"counter\": {\"packets\": 6, \"bytes\": 5036}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_nat\", \"handle\": 2}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"destination\", \"handle\": 1, \"type\": \"nat\", \"hook\": \"prerouting\", \"prio\": -100, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"name\": \"source\", \"handle\": 2, \"type\": \"nat\", \"hook\": \"postrouting\", \"prio\": 100, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"destination\", \"handle\": 3, \"comment\": \"DNAT_SERVICE\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"203.0.113.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 8080}}, {\"dnat\": {\"addr\": \"198.51.100.2\", \"port\": 9000}}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_nat\", \"chain\": \"source\", \"handle\": 4, \"comment\": \"SNAT_PEER\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": {\"prefix\": {\"addr\": \"192.0.2.0\", \"len\": 24}}}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"snat\": {\"addr\": \"203.0.113.1\", \"port\": 40000}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_late\", \"handle\": 3}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_late\", \"name\": \"late\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 200, \"policy\": \"accept\"}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib_trace\", \"handle\": 4}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"before\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -301, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterDestination\", \"handle\": 2, \"type\": \"filter\", \"hook\": \"prerouting\", \"prio\": -90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"beforeSource\", \"handle\": 3, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 90, \"policy\": \"accept\"}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"name\": \"afterSource\", \"handle\": 4, \"type\": \"filter\", \"hook\": \"postrouting\", \"prio\": 110, \"policy\": \"accept\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib_trace\", \"chain\": \"before\", \"handle\": 5, \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"meta\": {\"key\": \"l4proto\"}}, \"right\": 17}}, {\"mangle\": {\"key\": {\"meta\": {\"key\": \"nftrace\"}}, \"value\": 1}}]}}, {\"table\": {\"family\": \"ip\", \"name\": \"netlib\", \"handle\": 8}}, {\"chain\": {\"family\": \"ip\", \"table\": \"netlib\", \"name\": \"forward\", \"handle\": 1, \"type\": \"filter\", \"hook\": \"forward\", \"prio\": 0, \"policy\": \"drop\"}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 2, \"comment\": \"REQUEST\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 41000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 9000}}, {\"accept\": null}]}}, {\"rule\": {\"family\": \"ip\", \"table\": \"netlib\", \"chain\": \"forward\", \"handle\": 3, \"comment\": \"REPLY\", \"expr\": [{\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"saddr\"}}, \"right\": \"198.51.100.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"ip\", \"field\": \"daddr\"}}, \"right\": \"192.0.2.2\"}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"sport\"}}, \"right\": 9000}}, {\"match\": {\"op\": \"==\", \"left\": {\"payload\": {\"protocol\": \"udp\", \"field\": \"dport\"}}, \"right\": 41000}}, {\"accept\": null}]}}]}\n",
+        "stderr": ""
+      }
+    }
+  },
+  "mtuProbes": [
+    {
+      "name": "cached-df-oversize",
+      "ttl": 64,
+      "df": true,
+      "payloadBytes": 1200,
+      "startNs": 60838699870989,
+      "endNs": 60839125811074,
+      "input": "cached-df-oversize-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/cached-df-oversize-input.json"
+        ],
+        "startNs": 60838730520667,
+        "endNs": 60838765091008,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60838756412642, \"endNs\": 60838756574892, \"raw\": \"02000000ea0102000000ea020800450004ccfd00400040113b1bc0000202cb007102a0281f9004b8a26c6d74753a6361636865642d64662d6f76657273697a657c78787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 1242}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60838765146508,
+        "endNs": 60839016801972,
+        "result": null
+      },
+      "before": {
+        "file": "cached-df-oversize-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/cached-df-oversize-before-conntrack.json"
+          ],
+          "startNs": 60838699879614,
+          "endNs": 60838729070669,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "cached-df-oversize-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/cached-df-oversize-after-conntrack.json"
+          ],
+          "startNs": 60839017381722,
+          "endNs": 60839086236196,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "cached-df-oversize-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838729072627,
+            "endNs": 60838729494793,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "cached-df-oversize-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838729537876,
+            "endNs": 60838729981043,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "cached-df-oversize-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60838730023001,
+            "endNs": 60838730384709,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "fresh-df-oversize",
+      "ttl": 64,
+      "df": true,
+      "payloadBytes": 1200,
+      "startNs": 60839166057744,
+      "endNs": 60839588264959,
+      "input": "fresh-df-oversize-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/fresh-df-oversize-input.json"
+        ],
+        "startNs": 60839194159966,
+        "endNs": 60839231257472,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60839222401481, \"endNs\": 60839222487397, \"raw\": \"02000000ea0102000000ea020800450004ccfd01400040113b1ac0000202cb007102a0281f9004b8ab2b6d74753a66726573682d64662d6f76657273697a657c7878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 1242}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60839231316472,
+        "endNs": 60839483958893,
+        "result": null
+      },
+      "before": {
+        "file": "fresh-df-oversize-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/fresh-df-oversize-before-conntrack.json"
+          ],
+          "startNs": 60839166077577,
+          "endNs": 60839192784343,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "fresh-df-oversize-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/fresh-df-oversize-after-conntrack.json"
+          ],
+          "startNs": 60839484494768,
+          "endNs": 60839551200120,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "fresh-df-oversize-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839192786593,
+            "endNs": 60839193218717,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "fresh-df-oversize-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839193264092,
+            "endNs": 60839193658384,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "fresh-df-oversize-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839193690467,
+            "endNs": 60839194052467,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "ttl-one-df-oversize",
+      "ttl": 1,
+      "df": true,
+      "payloadBytes": 1200,
+      "startNs": 60839588271917,
+      "endNs": 60840019160332,
+      "input": "ttl-one-df-oversize-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/ttl-one-df-oversize-input.json"
+        ],
+        "startNs": 60839626665671,
+        "endNs": 60839667269299,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60839654364561, \"endNs\": 60839654456436, \"raw\": \"02000000ea0102000000ea020800450004ccfd02400001117a19c0000202cb007102a0281f9004b8a2796d74753a74746c2d6f6e652d64662d6f76657273697a657c787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 1242}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60839667326673,
+        "endNs": 60839919806595,
+        "result": null
+      },
+      "before": {
+        "file": "ttl-one-df-oversize-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/ttl-one-df-oversize-before-conntrack.json"
+          ],
+          "startNs": 60839588332959,
+          "endNs": 60839625022048,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "ttl-one-df-oversize-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/ttl-one-df-oversize-after-conntrack.json"
+          ],
+          "startNs": 60839920307969,
+          "endNs": 60839987977529,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "ttl-one-df-oversize-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839625024298,
+            "endNs": 60839625529756,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "ttl-one-df-oversize-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839625588131,
+            "endNs": 60839626061797,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "ttl-one-df-oversize-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60839626127672,
+            "endNs": 60839626547296,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "exact-mtu-df",
+      "ttl": 64,
+      "df": true,
+      "payloadBytes": 572,
+      "startNs": 60840019168540,
+      "endNs": 60840157802489,
+      "input": "exact-mtu-df-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/exact-mtu-df-input.json"
+        ],
+        "startNs": 60840057365795,
+        "endNs": 60840092113177,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60840083404936, \"endNs\": 60840083476144, \"raw\": \"02000000ea0102000000ea02080045000258fd03400040113d8cc0000202cb007102a0281f90024402156d74753a65786163742d6d74752d64667c787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 614}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60840092168636,
+        "endNs": 60840092178511,
+        "result": {
+          "source": "203.0.113.1",
+          "sourcePort": 40000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "mtu:exact-mtu-df|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "before": {
+        "file": "exact-mtu-df-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/exact-mtu-df-before-conntrack.json"
+          ],
+          "startNs": 60840019231707,
+          "endNs": 60840055460421,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "exact-mtu-df-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/exact-mtu-df-after-conntrack.json"
+          ],
+          "startNs": 60840092237802,
+          "endNs": 60840117709361,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "exact-mtu-df-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840055462838,
+            "endNs": 60840056021713,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "exact-mtu-df-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840056083587,
+            "endNs": 60840056555254,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "exact-mtu-df-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840056593962,
+            "endNs": 60840057065378,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "oversize-df-clear",
+      "ttl": 64,
+      "df": false,
+      "payloadBytes": 1200,
+      "startNs": 60840157810489,
+      "endNs": 60840283245867,
+      "input": "oversize-df-clear-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/oversize-df-clear-input.json"
+        ],
+        "startNs": 60840186248836,
+        "endNs": 60840222148760,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60840212419019, \"endNs\": 60840212492436, \"raw\": \"02000000ea0102000000ea020800450004ccfd04000040117b17c0000202cb007102a0281f9004b897506d74753a6f76657273697a652d64662d636c6561727c7878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 1242}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60840222211051,
+        "endNs": 60840222223176,
+        "result": {
+          "source": "203.0.113.1",
+          "sourcePort": 40000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "mtu:oversize-df-clear|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "before": {
+        "file": "oversize-df-clear-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/oversize-df-clear-before-conntrack.json"
+          ],
+          "startNs": 60840157866322,
+          "endNs": 60840184761212,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "oversize-df-clear-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/oversize-df-clear-after-conntrack.json"
+          ],
+          "startNs": 60840222290509,
+          "endNs": 60840247868485,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "oversize-df-clear-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840184763046,
+            "endNs": 60840185208629,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "oversize-df-clear-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840185250712,
+            "endNs": 60840185617920,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "oversize-df-clear-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840185659712,
+            "endNs": 60840186122378,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "udp-zero-fragments",
+      "ttl": 64,
+      "df": false,
+      "payloadBytes": 1200,
+      "startNs": 60840283252784,
+      "endNs": 60840410491243,
+      "input": "udp-zero-fragments-input.json",
+      "sent": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "raw-send",
+          "/tmp/netlib-admission/udp-zero-fragments-input.json"
+        ],
+        "startNs": 60840311258548,
+        "endNs": 60840348122179,
+        "returncode": 0,
+        "stdout": "{\"startNs\": 60840339351062, \"endNs\": 60840339419312, \"raw\": \"02000000ea0102000000ea020800450004ccfd05000040117b16c0000202cb007102a0281f9004b800006d74753a7564702d7a65726f2d667261676d656e74737c78787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878787878\", \"bytesSent\": 1242}\n",
+        "stderr": ""
+      },
+      "server": {
+        "startNs": 60840348177471,
+        "endNs": 60840348187512,
+        "result": {
+          "source": "203.0.113.1",
+          "sourcePort": 40000,
+          "destination": "198.51.100.2",
+          "destinationPort": 9000,
+          "payload": "mtu:udp-zero-fragments|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "before": {
+        "file": "udp-zero-fragments-before-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/udp-zero-fragments-before-conntrack.json"
+          ],
+          "startNs": 60840283317908,
+          "endNs": 60840309752716,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "after": {
+        "file": "udp-zero-fragments-after-conntrack.json",
+        "command": {
+          "command": [
+            "ip",
+            "netns",
+            "exec",
+            "auth",
+            "python3",
+            "/task/capture_conntrack.py",
+            "--output",
+            "/tmp/netlib-admission/udp-zero-fragments-after-conntrack.json"
+          ],
+          "startNs": 60840348248679,
+          "endNs": 60840374026320,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      },
+      "links": {
+        "peer": {
+          "file": "udp-zero-fragments-peer-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "peer",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840309754591,
+            "endNs": 60840310194966,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":2,\"link_index\":3,\"ifname\":\"peer0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":1}]\n",
+            "stderr": ""
+          }
+        },
+        "auth": {
+          "file": "udp-zero-fragments-auth-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "auth",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840310241841,
+            "endNs": 60840310627507,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":3,\"link_index\":2,\"ifname\":\"auth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":4096,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:ea:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0},{\"ifindex\":5,\"link_index\":4,\"ifname\":\"service0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:01\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":2}]\n",
+            "stderr": ""
+          }
+        },
+        "server": {
+          "file": "udp-zero-fragments-server-links.json",
+          "command": {
+            "command": [
+              "ip",
+              "-n",
+              "server",
+              "-j",
+              "link",
+              "show"
+            ],
+            "startNs": 60840310677257,
+            "endNs": 60840311139131,
+            "returncode": 0,
+            "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\"},{\"ifindex\":4,\"link_index\":5,\"ifname\":\"server0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":600,\"qdisc\":\"noqueue\",\"operstate\":\"UP\",\"linkmode\":\"DEFAULT\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:00:00:00:eb:02\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"link_netnsid\":0}]\n",
+            "stderr": ""
+          }
+        }
+      }
+    }
+  ],
+  "eap": {
+    "name": "success",
+    "phaseId": 1,
+    "startNs": 60834055281052,
+    "endNs": 60840820914553,
+    "authenticatorCommand": [
+      "ip",
+      "netns",
+      "exec",
+      "auth",
+      "hostapd",
+      "-dd",
+      "/tmp/netlib-admission/eap/hostapd.conf"
+    ],
+    "supplicantCommand": [
+      "ip",
+      "netns",
+      "exec",
+      "peer",
+      "wpa_supplicant",
+      "-dd",
+      "-D",
+      "wired",
+      "-i",
+      "peer0",
+      "-c",
+      "/tmp/netlib-admission/eap/success-supplicant.conf"
+    ]
+  }
+}

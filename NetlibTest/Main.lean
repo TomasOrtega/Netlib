@@ -70,6 +70,12 @@ import NetlibTest.WireSessionDeployment
 import NetlibTest.UDPRewrite
 import NetlibTest.WireForwarding
 import NetlibTest.WireForwardingCheck
+import NetlibTest.Replay
+import NetlibTest.IPv4Fragment
+import NetlibTest.IPv4Fragmentation
+import NetlibTest.MTUForwarding
+import NetlibTest.MTUForwardingCheck
+import NetlibTest.MTUDeployment
 import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
 import NetlibTest.EAPDeployment
@@ -146,5 +152,11 @@ def main : IO Unit := do
   NetlibTest.UDPRewrite.run
   NetlibTest.WireForwarding.run
   NetlibTest.WireForwardingCheck.run
+  NetlibTest.Replay.run
+  NetlibTest.IPv4Fragment.run
+  NetlibTest.IPv4Fragmentation.run
+  NetlibTest.MTUForwarding.run
+  NetlibTest.MTUForwardingCheck.run
+  NetlibTest.MTUDeployment.run
   NetlibTest.WireNATDeployment.run
   IO.println "Netlib tests passed."

@@ -1,0 +1,452 @@
+{
+  "schema": 1,
+  "authentication": {
+    "schema": 1,
+    "context": {
+      "consumer": "alice@campus.example.test",
+      "producer": "campus-application",
+      "issuer": "campus-authority"
+    },
+    "link": {
+      "authenticator": "02:00:00:00:ea:01",
+      "peer": "02:00:00:00:ea:02"
+    },
+    "events": [
+      {
+        "type": "begin",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02010000",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e020000050101000501",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e020000220201002201616e6f6e796d6f75734063616d7075732e6578616d706c652e74657374",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e02000006010200060d20",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02000580020205800dc00000059516030105900100058c030306b1113eaff185d250f2484cb2feae38702aa5f876901a10a89730786e65c71d0000061302130313010100055dff01000100000b000403000102000a0012001011ec001d0017001e00180019010001010005000501000000000016000000170000000d002a002809050906090404030503060308070808081a081b081c0809080a080b080408050806040105010601002b0003020304002d00020101003304ea04e811ec04c0e9ab45cef4b1599b77630cd06aa123931b2a4e0a16a06887451978edd66d7aec3d543acb89b3a701538c80249fb8b8369198a07ee52ad36547f1559b6da19a4f656d04e9b615002e9604974df09119687bde4753dea18f535b8cfa5bb5c2c55ff42bc0d9fc508ec28f663a991b07852566a0fb68b0d35068f1929b830ab3d092aed379172993418422547a7c297f2987ef3b595ee787e3a54cf3398124b524fd5601bcc01cf76965e9fa9f1a2baa38daac3e22505ac484669a8ff2805e5858cb84ac208222709e372199c3ca39503b0f51751db599475a2293a89cd8aa80fb304d64530f4ad8a0ee163baa9a5360520862e96db8622c10336590e961c30b1a0135cbb878bb04a10e3836568377409aab7a3e4b576fa2685a508ebc23646ae0933ccc6a2a0cc93dc48ee0245f49d1006c723c080075e2dc32f8cb598b986cc175adc39390c450965ce535ec6bbc7391747f20a76b160f82e702e6506ca4059d00825214d245c4ba8bc185381d18a079f39526db5a2a756eb66c5740357d0770cf86c32b4549aaf7490dcc14bfd2849b21b3699acb3b20ba487fa7243d438536b241feea858826a0dbe01af3f91cf31368451000ed89a6c63177e275650290acd0345a0ca03cb95197c6118e8ac206f3bc0642cb86627a3abf4bcb68d06a2a513e4158cd10852d8968af8858a0729a275689372c8b943daccada3322e2334f4b12807dbb3470da7fd0f6c1f083703dd3119e7814c96c8f15d275729384b4912a2dc9c4a4e58770e6180121801e9a1f45b3bcfcbc0a7be984b70312efd2b770a8427e6615b48053cba4b3ed835c62a9ca7bf9019e88bfc7217a0c365c453831a51c620f4a870c50280143b10d41cbfc0b6a14c7b1fcf2a19e50a73b3659fcb36f86d7b1a1737877e9ca19370e156053a0965981a15d8df644ced3b44a0b4196b3289c665f57592779c8c86b74917b37659f9431da30668cd5aecaf14252774ed5740de599a37aa8141a1043b8571469238cb297a134cb7d51d96bff76c728603a5c33b09c8b8d5df94f3ac92bdb2ac1e166753aaaa1d3015b6a65c3a085bf31a7afa2fa10b6598ba500c0ac1114334864a9f07e3a70a99960c0b084337057863c7a2d18da235c4a3fb764842eb7c23f46a211ea49781541d9e7b5ca97073a2869a272421f14c14984b5e7226584897e83323f254276f058b6b1aa8eaf7165b85a1c7259bbbd908e075031bd5205d2441ccbcbc0ef88c3194705514c6717311e2c034599b27b6f497fa8978255162dbffb56c935afea42c6ded014435c5a90539015f46aeedba1bd3bb1dfb35d594cb05f49800b85798eb0489f672de9230d51c47249799a13387c5a919863cab11677caa9835e52b215e86a954b481fab20b3647b7cf115872d7109c88c571a166cb69a9ce7db4d323a637f795b62a3271734bcd7e21c2b244497aa00ec70384d2118d2e121ad98cdb6a477fe377d2db04bbb69b187633bab5763761c9235b558ddc1472511777ed36c8433ad37324172d2042e026376e667cce818e425a0e77c3a3ce2207aebcd3a0ba2f833b273464f939c9b40019a0d355b1b779e425cadd2dc223f30ce15a83f4dd5c70fa083c6a34cb96b38f948e26f4d22909d19d910b3df5c984e3321e97453195bda8734ba9b4e903d80b3a53cbea0b0cebc9173fbea677e0faf8f36e154a436de73386dc90513731b39001d002008",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e02000006010300060d00",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02000025020300250d00b04ca344b3ca6dbfe911c345a2103f297ec600b518a3ef314a568cac36f04a",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e0200057b0104057b0dc000000ca5160303049a020004960303dfaf4a702c5c82f784d6d1588a9998176520a8a4ee9ac79721b94e7765c430f000130200046e002b000203040033046411ec04602a372f4b20395782658cb9a39fba4d7abff57bc734c198def50dc7b6526c40f456b66490519767aa7fbc79017bd193073a5c7bacfe485fec7953078add80584c2764f9f89d245bef6623eb8f662f1166bcbcaef25e21103138aa5fd27999444c24a8062d340bfa37b5d4e93c314f5ae9521792a1a745617171e2460bef271750a4d5e556c2871c1323bb4ec4082a7f02558bfa731b90a56dd356b57b4de85422fd8f6610b78bc62a72eef324fc0b85c4c169907b1e0edb11a95246a6c99d9772e54713ae824c8aa877b82fb00decd1d7615c07f91809d4ac01c0a3021ffc04779f7ae529d323cce1f66f1e33c288d3c152682ac513c4aebfa7fc76d1fad2cd932991b90ac7c6fa36102e52e73f914ccc5e8065f06fbc07fb4b6f27669c7c76963e4fc4eb2a29a741f16d41d5140fa0d20f68fce083cdb413ae322ffa8e76b1928508d86fd3201abd4a11a49b2b133cc2b05b0d6dc66aa1c54beaa8bce7adbe20332f8e0444c1f59287e9484f08a911112c2c1d1e435e38ba9dad85871348e122872eee74c7a6aa1b70dc2c6369a7bb340929d181e62c8ccbe358d27f204af4b68ae8cfb656f4b29a37152a0b3fac6e6b884ee997eb2ebcb90c35849607f667c4e58f15a30a1e2aceb1558ae1574dda2273e68bd3e1bc6cbea82460982ce88b1a12d868532ce2d953b01a97344825bec05996659bf017c16137ead4c17692509053057715ed25469e1f6c3001d998604d4a67e4b9d0eaa423c76d49e815113a1a42758ab606bd5bb9727bd31ba409492fedd3deafd88fecb82d7f2c8a213fb436b4b0d4cb30df09ef86959904b686d2eb1088837bc14d1b5fd1caa137734090cf7c17866422a02c0fdc1b9872417fdfd08420b28777848f97cd5b5aaed88b4876d408dc2551e9fe7f820228a5b3afda418adb58340b0c6f2d1ed1e2f7e7ce2fe88fa2f314af4b5aa241fb4421803776f96d2ee460b4b83f948531f741485f9711522aa335818322d39e30a4dfbdb239db60e614696a7c9293d6d8f815a0b54816d8997b5abb6af2f5dd8dcd417071871a04558a3121be8b16ac50f4c6ccd3763601501344a640841e0a875a982045d5dd323fd8c3ccbf936a164b87fa24046115fe50d10e58276ebc2e2d1b611a6bba02fb4fe9cc2bf6a3adb374411196ba0ef79420d4d180401a4d46f1d4129830e440b66858f2b6a006a984819a64fb4c48d0a2dd5f0c477d2525d345a402b1ba57152aec7e20a8c0d7cd8158ad30d8ccce13b945f7549abf1ef5b1a0d47a0fff5b04eb318a674ffcb4a1d0f938f54eb8959c37a265db22b1f1178f80037ddaf8f27384e77b594321c6fa6d3bccb735494c99491f98683a17bed778aa99187ede1c97c5af97c6d8fd097fe864c92321423b448412d73200d1726cd94ff105aa5ba4c63378ee323238ab77e691758b4904dd29fdb292c1e7c01794e572ebfee61c7b17a51c8b74e213a79319f85bf21645bbfa1739a30adce30313da0750694a054f59cc1dcbbd684a8db5ffbdbc370034c1e4f9e95751b06ced582c944e3cf6710e9bece18710542a4ded71b9b9b456f34c051703030017e4fc23596215c80856fb9d54c7b21f767c36de20d62b7217030300755eb0230f79761680b61d794cb022d5ce67639eddfa7b6775aef7947142d0c14589f9be239ee51c4d2fdf4c6671746ae6f52c296e00128f3d6a5fb4d2324ab0c8e34ffd376ba3ae6d7d62070d1674e5f9a583bae8d905035689660a5d9eb5d117314bcaf645b32040a339534c949388bb190373145017030306bd2c67415a8211da5df8a74e471b86fa3ba79199e496087555e77b03e330de955d9bc46820204e8caf356c3c11b82d2839111aaefc7170dc",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02000006020400060d00",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e0200057b0105057b0d408fef8c2f59ebda698234bbb49136919403c3aa013d56ad9051a7ce962f3aaed40077bbd8e089a7df60beabf7dc78664559c6000c8198e3a16d675576f9b5a329f40cfc622f9962bdc48f01f03d1b5cf4b7d8f63e9ded5088ee59a5937eea540cb461b58e010af05f02b2269a17ea3fb248ce68639dda67130da75bb0174bddf8172c1c8640a7779526b2916ffbc8c16506821816cc6a0b517902b82bbdbf4459c7cb4e4da2dcfd373237ae4fce97aec45b8cc95690e2fe1dda6d810d63fc4057316fc855fb38e487b792cd010fecc65cc1e87dc306f8f1e047d5105cb01df57bab7393e15446897d2d60e1f30885a81824e663bc17cc80009ac50942ed18bc92390ad3841064b9285f230316801d3fd38df396dee7cc632d1777fe58f43c8f6d902f20a789d3734aedb4f263435054acccc44381fadc5aa138e22a45b3ecc43a37aaf20d25b0315b55d8c09e9f98ab8606dec40d9f97fec4329bf3f0183f2eb93fc557f92ea479309b43ab48b46b96cb2bbaa19d143a2a15282243106975e7221f95457a02747b7f9a75a1ae72bfb99729b0ce5837213e2c8e4546b31e93f6698ed18cac768d2ea81f69103798bf1e257de1a8cd1e1c17e9ad4a4a587666c6b04c94752c5f9914f8bb0a79dcf9db5484acdb3a7d73baa9ef4fcdb4ea34d3aa7de7ae4569687664e925650669e6e94595910abc911911b79abfaf6a6b41ff74cb777a62ffb641a32ed5b1d847c35532b5c3c6672152594499ffe1d23e2199042703b3c5bd8505b6f589f9ea3f855ee77aa62879668d7ebe8e585d9d8c5047a69a0c3363bcdd4d225fff9f51571f18986f1106801dc8e3726a884691f8f3aad06e6fbe67f1965a20c88d7e07ac0c569fd454a42cf689756c019d299e964240ba8869acc8c04a61a0540eb8563a523b3dcaa2514064e1ed3ebbc229e81d7939d28f8f5314dfe2c18d49d7968f06acdfa75e69f889f1e449b63a14692c430c1bfecfdf4bf2a2f922a25ff06dca9e4fae837a37ce7ff12fc5f6eeb1c3d4a82bf2079fb2713f2fe551ae9958c3452ab200c014c243056137fc64c0566e1981e6f5bf6263dd46b4ede09ccbb5cb82e2a4363b0053d75c56f0cea596f0913e4369ac995abb9423052952fdf27b4a254693976518a6cb99526dc9d36a12e7dc610a5bce16dd886687b3d1d284a9b289a38d5c2e2759fe7a386456f0410ecd3c90524f0e2a7d16de224331217893516bda230ba031d0fab6a7960949d7b754c4bf2632480941395a360e68f36e671fa553010104151f6b90ec406a42eb7b5b94349fdda9aae88716ddda56d32fac13151a0608367d8e9a53ec5ebd265adda3b1500c06910c6d3d7e276bc0b82a89cddd8ff0235d54d7f32fac3f957e4a7780a26bea47a8d12cf4b14a23328f6e84c3aa23913a42a913630d32ea1db555c9146080091f67da1a8c8bfc763f3347757da758345885a520ed48841d97f8086afbf192995e17900da1a591803359c0a353384682377f5871fa1f61b0cb422c1d07de8907e30a8b5a6f604469c74ea107aaca73c03d0302f39e789763c8494c2e405df7ed11d6a6bd1e68c790152cf805394c6e072a013a113848e676f5c87882b5dee680428df15bbdd0005c2e779a8302d514223eb01b22294158b31357411cb07a504cd47d0187fd603accc73bdee3bb630dd7d0bd0a8ef50edfcdb074a70e86ea94303c1358dc5bdc6eb839e26fe43607792859687475d1f5911d942a4080d686d5381ba91a521153b55afa339033395e0c979f73efecb0b265ce2edcd4a406b530f3875d2e7c75244240dba45531f064b55e5f865d2183d7d918acdfad4e6f88b0d9a018127b788773decc41b8f48efae0b092e22df87b9947e533c7fb2ad5c36cd53e0a9adee175568e9d514c53a640310b3fc0f6a432816ac2f1143397165e6de4acfe4620c3313256e238539eb3ade1e8a6a862fe9fe32531",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02000006020500060d00",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e020001c5010601c50d006e5955a4b93f2ec06668649e7b4265b783f28700317ae83a1a5ee0a24a10319aeb8f228cabb1d9b3bc94a3b9d9994bcc93d8494ecc0046affa7ab42fffc4fc1b7918749b78b68a1e7b0f78d8cec0b54f85235af31084d47a75b90e6c3820e031b78957b31f2af58179029805ee5a1f7f719716f34ff903932162a225af3fff9b63b393b6e2357a88f4f0bad5ccace5df8ed6823caa71e11a3e5be2db42b3b39a3328cc2a5fe53309f4b0d7a24be092cac400b7018f2e0a216d5b5ece42d180b94d3cb353c32ae01a263b3742f4a560ad9c2a99622e182d8f3b754134532da74602ca41b8e5606717bbb19e19a6d2585e3ef141f2bfa1fb7141642ffae82d580af6c0e2630ef29c91fa8da48d0a951d4d48170303005f2119494324b332cfa375cfde3a66093f757f316aee52e7c2b8b87fb08f055f8665332fd3553c88b27b4b059a4874ed26df7e7b6410c778dd99e8dd44eb2e46f68cffed15c36b520871ef5f6e3a2f29bd269e6964008bf5cbaab0cdb21da0ce17030300454575107bfc683a844d62fc73c40a73a43df45b001f3b1d5a211f26e976889e01a3df394833550c5b5e9c4714dfd155954c8171d73a698c50ed634646cc5c8ccac9461a84e1",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e0200046d0206046d0d0017030303b25b89b08757f844b148b4bd742fe8015505e2940848d38ce1519a8652e6c1dffab7b0ec7b887ab9260494fb95195fedd01abb4c0aaf0cb9b505dfc62bd7ca4a2799b2729a03cd68c92a8ce5b97a17b05b65010bc57741ced7a154138d9bc6fdcaacc4bb6ae14053222d8dc5fe28c4bd459f3f438124f00d2637c30adae5fe86f7c1f136ade15e80ec6bae1ff3223dfebbee2c93ccd499a86df5cc0d10913e0a680a20aae0ff5a7f1d325ae3096bb7c1da073074122d734f7892708f187f664bf01bcb227ec147d083dca48fd9b69f1c82e76866f97769314ab27a98fb32a73a54d13b6fd5fd4a2234bce335c78758ff7e41c7f58b3dd986bb72fd10fa7d39a8820850eae389e357b0db76c46c3ead4d63836332d6283d196f6c7d26af15c6438a5b93ee0be14032aa318d562193c4d4b227f0f329f279f3df5d0653ae25030057d2baa37eae69cb93a5c97b2159d48f4d668884fe26e37a87844b470b1fbfd6a288f37e91fb213edb37f7176540d93fbc9c41c4f9a597fde0336fe9826fbf4bc6c60a784d280d6d7e7190b26566c9b8cf11bccff945c3932a8337143a5adf52beda4c45037a102b2cda71f485325b09c140c5f79a483f19b6a7b497a28d75fb61cd9a00c0ed6dfb9c62d230f6290609116d1818b48d9b8569ef29fc0436b0004aab8ba4beaf43a18317bac95eaed7370e5967b837f064903b8f1f41837d3d859f293de746ce8d502d5f60a122e980dda8d1f144cf5024c7b4b876c88dd616e23931f5595bc0ca3c9734336b606ccc9b10e638e156f718b324262f4590f7027daf65a6013e80bce3a53d5e18d0613a5b6f4ff893137b86a8f4da372035398f774b2f1de89a7fd5d90538a5a6a31b61fce739096a7062e2923305b688aa4bb868b2c4040821c72fd25bb2547d45fc6f20bfa619e8ff946c860d1c1b0cd3138211b0d5d8758ba3a8138231671d5e7f81c8387ca2ad4594c0bfaa3e4acbf021b4409fa301a1707f86218bfd03e285509c9360e2d78370c404278a03ff71bfee8c59beabe911df1e0d4d3b953849254f816afe1a1082457b562a81ace5a9e7df24890947ffd709be90aaa82fb06206280d7d809998c1c91ed0816766476d887f336539db579ea171d47bab937e42d823ef0491009bc467cfea4f0413f73300d9f271a007c077c2b685da28ad2878a7596aa9230fc0390483a61e44db3cfb65c840ac2e59d83fb832c27d087db5b88a99a2e057512286e39e796df6456c586371a11e94758dd79b7706f5235d5e3d5c261c24c985394ac887867b78ab6c6e74cd23f8e61adad579c72ec05681a9f6818719ddc20b651703030061c6e48143b809e78cc79ee99e2897847fb13b721a9d9e39d6f7a53bbc6bf324e2600f086891b7563ed98bda394339e87c7f698e4e99a886e4c60aafb3129894e0308e839c25080ea97fe097bcdabbe58caa449b05308901dd757edc097251e9905c1703030045d89e7f8eab450040453f9dc446f653c406f54963b21eb73b7953d8374ae3c17a80f12c53390fbd5e188fa82caf6c5047158b1ff7bd594a8cfb15ddee8e24175d1d0486b5d4",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e0200001d0107001d0d0017030300123dc1456ad6f0f12185e1d01be27afd98e343",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02000006020700060d00",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e0200000403070004",
+        "authorized": null
+      },
+      {
+        "type": "method",
+        "round": 2,
+        "subject": "alice@campus.example.test",
+        "method": 13,
+        "accepted": true,
+        "source": "native/eap/success-authenticator.jsonl:138; native/eap/success-supplicant.jsonl:138; native/eap/success-authenticator.jsonl:425; native/eap/success-authenticator.jsonl:462; native/eap/success-authenticator.jsonl:485; native/eap/success-supplicant.jsonl:551; native/eap/success-authenticator.jsonl:492; native/eap/success-supplicant.jsonl:576",
+        "authorized": true
+      },
+      {
+        "type": "install",
+        "credential": {
+          "issuer": "campus-authority",
+          "subject": "alice@campus.example.test",
+          "audience": "campus-application",
+          "scopes": [
+            {
+              "resource": "campus-application",
+              "operation": "use"
+            }
+          ],
+          "expiresAt": 100,
+          "integrity": true
+        },
+        "authorized": true
+      },
+      {
+        "type": "frame",
+        "raw": "0180c200000302000000ea02888e02020000",
+        "authorized": null
+      },
+      {
+        "type": "frame",
+        "raw": "02000000ea0202000000ea01888e020000050116000501",
+        "authorized": false
+      }
+    ]
+  },
+  "intent": {
+    "schema": 1,
+    "requirements": [
+      {
+        "id": "REQUEST",
+        "scope": {
+          "resource": "campus-application",
+          "operation": "use"
+        },
+        "match": {
+          "source": {
+            "address": 3221225986,
+            "length": 32
+          },
+          "destination": {
+            "address": 3325256706,
+            "length": 32
+          },
+          "protocol": 17,
+          "sourcePorts": {
+            "first": 41000,
+            "last": 41000
+          },
+          "destinationPorts": {
+            "first": 9000,
+            "last": 9000
+          }
+        }
+      },
+      {
+        "id": "REPLY",
+        "scope": {
+          "resource": "campus-application",
+          "operation": "use"
+        },
+        "match": {
+          "source": {
+            "address": 3325256706,
+            "length": 32
+          },
+          "destination": {
+            "address": 3221225986,
+            "length": 32
+          },
+          "protocol": 17,
+          "sourcePorts": {
+            "first": 9000,
+            "last": 9000
+          },
+          "destinationPorts": {
+            "first": 41000,
+            "last": 41000
+          }
+        }
+      }
+    ]
+  },
+  "snapshots": [
+    {
+      "after": 1,
+      "firewall": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 5
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "after": 18,
+      "firewall": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 5
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "after": 19,
+      "firewall": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 6
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 2,
+              "comment": "REQUEST",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          },
+          {
+            "rule": {
+              "family": "ip",
+              "table": "netlib",
+              "chain": "forward",
+              "handle": 3,
+              "comment": "REPLY",
+              "expr": [
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "saddr"
+                      }
+                    },
+                    "right": "198.51.100.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "ip",
+                        "field": "daddr"
+                      }
+                    },
+                    "right": "192.0.2.2"
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "sport"
+                      }
+                    },
+                    "right": 9000
+                  }
+                },
+                {
+                  "match": {
+                    "op": "==",
+                    "left": {
+                      "payload": {
+                        "protocol": "udp",
+                        "field": "dport"
+                      }
+                    },
+                    "right": 41000
+                  }
+                },
+                {
+                  "accept": null
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "after": 21,
+      "firewall": {
+        "nftables": [
+          {
+            "metainfo": {
+              "version": "1.1.3",
+              "release_name": "Commodore Bullmoose #4",
+              "json_schema_version": 1
+            }
+          },
+          {
+            "table": {
+              "family": "ip",
+              "name": "netlib",
+              "handle": 7
+            }
+          },
+          {
+            "chain": {
+              "family": "ip",
+              "table": "netlib",
+              "name": "forward",
+              "handle": 1,
+              "type": "filter",
+              "hook": "forward",
+              "prio": 0,
+              "policy": "drop"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

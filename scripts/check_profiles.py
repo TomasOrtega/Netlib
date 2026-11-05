@@ -909,6 +909,208 @@ def wire_forwarding_checks():
         invoke("wire-forward", path, code=2)
 
 
+def mtu_boundary_checks(replay):
+    import copy
+    import ipaddress
+
+    from check_wire_capture import folded_sum
+
+    source = replay["events"][2]
+    ingress = bytes.fromhex(source["raw"])
+    output_link = bytes.fromhex(source["observed"]["output"][0])[:14]
+
+    def ip_frame(header, payload, link):
+        header = bytearray(header)
+        header[2:4] = (20 + len(payload)).to_bytes(2, "big")
+        header[10:12] = bytes(2)
+        header[10:12] = (65535 - folded_sum(header)).to_bytes(2, "big")
+        return (link + header + payload).hex()
+
+    def udp_payload(header, ports, data):
+        transport = ports + (8 + len(data)).to_bytes(2, "big") + bytes(2) + data
+        pseudo = header[12:20] + bytes([0, 17]) + len(transport).to_bytes(2, "big")
+        checksum = 65535 - folded_sum(pseudo + transport)
+        return transport[:6] + (checksum or 65535).to_bytes(2, "big") + data
+
+    with tempfile.TemporaryDirectory(prefix="netlib-mtu-boundary-") as folder:
+        path = Path(folder) / "synthetic.json"
+        for mtu in [68, 69, 75, 76, 77, 599, 600, 601, 607, 608, 1500]:
+            limit, aligned = mtu - 20, (mtu - 20) // 8 * 8
+            lengths = {limit, limit + 1, 2 * aligned, 2 * aligned + 1, 2 * aligned + limit}
+            lengths.update(aligned + last for last in range(aligned + 1, limit + 1))
+            lengths.update(2 * aligned + last for last in range(aligned + 1, limit + 1))
+            for length in sorted(lengths):
+                data = bytes((index * 37 + 9) % 256 for index in range(length - 8))
+                input_header = bytearray(ingress[14:34])
+                input_payload = udp_payload(input_header, ingress[34:38], data)
+                incoming = ip_frame(input_header, input_payload, ingress[:14])
+                translated = bytearray(input_header)
+                translated[8] -= 1
+                translated[12:16] = ipaddress.IPv4Address("203.0.113.1").packed
+                translated[16:20] = ipaddress.IPv4Address("198.51.100.2").packed
+                ports = (40000).to_bytes(2, "big") + (9000).to_bytes(2, "big")
+                remaining = udp_payload(translated, ports, data)
+                output, offset = [], 0
+                while remaining:
+                    more = len(remaining) > limit
+                    size = aligned if more else len(remaining)
+                    part = translated.copy()
+                    part[6:8] = ((8192 if more else 0) | (offset // 8)).to_bytes(2, "big")
+                    output.append(ip_frame(part, remaining[:size], output_link))
+                    remaining, offset = remaining[size:], offset + size
+                altered = copy.deepcopy(replay)
+                altered["events"] = [copy.deepcopy(source)]
+                event = altered["events"][0]
+                event["raw"], event["state"] = incoming, None
+                event["observed"]["output"], event["observed"]["mtu"] = output, mtu
+                for binding in altered["mtus"]:
+                    if binding["nextHop"] == "service":
+                        binding["mtu"] = mtu
+                path.write_text(json.dumps(altered))
+                report = json.loads(invoke("wire-mtu", path, "--json"))
+                assert report["compliant"], (mtu, length)
+                computed = report["findings"][0]["expected"]["output"]["fragments"]
+                assert len(computed) == len(output), (mtu, length)
+
+
+def mtu_checks():
+    from build_mtu_examples import build
+
+    directory = ROOT / "examples/mtu"
+    provenance = json.loads((directory / "capture-provenance.json").read_text())
+    assert set(provenance["artifactSHA256"]) == {
+        path.relative_to(directory).as_posix()
+        for path in (directory / "native").rglob("*")
+        if path.is_file()
+    }
+    for relative, digest in provenance["artifactSHA256"].items():
+        assert hashlib.sha256((directory / relative).read_bytes()).hexdigest() == digest, relative
+    for group in ["verifierSHA256", "projectionSHA256"]:
+        for relative, digest in provenance[group].items():
+            assert hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == digest, relative
+    evidence, authentication, session, replay = build()
+    for name, value in [
+        ("checked-evidence", evidence),
+        ("authentication", authentication),
+        ("session", session),
+        ("replay", replay),
+    ]:
+        assert value == json.loads((directory / f"{name}.json").read_text())
+    assert evidence["frameCount"] == 27 and evidence["udpFragmentCount"] == 23
+    assert evidence["icmpFrameCount"] == 4 and len(evidence["packetSamples"]) == 12
+    assert replay["initial"] is not None
+    report = json.loads(invoke("wire-mtu", directory / "replay.json", "--json"))
+    assert report["compliant"] and report["eventCount"] == 13
+    assert report["scope"] == "mtu-aware-ipv4-udp-tracked-forwarding" and report["assumptions"]
+    assert all(
+        finding["matched"] and finding["stateObserved"] and finding["stateMatched"]
+        for finding in report["findings"]
+    )
+    assert [
+        finding["expected"]["disposition"] if finding["expected"] else "erased"
+        for finding in report["findings"]
+    ] == [
+        "forwardDrop",
+        "forwardDrop",
+        "forwarded",
+        "ttlExpired",
+        "forwarded",
+        "forwardDrop",
+        "mtuExceeded",
+        "erased",
+        "mtuExceeded",
+        "ttlExpired",
+        "forwarded",
+        "forwarded",
+        "forwarded",
+    ]
+    findings = report["findings"]
+    assert not findings[2]["expectedState"][0]["seenReply"]
+    assert findings[3]["expectedState"][0]["seenReply"]
+    assert findings[6]["expectedState"] == findings[5]["expectedState"]
+    assert (
+        findings[7]["expectedState"]
+        == findings[8]["expectedState"]
+        == findings[9]["expectedState"]
+        == []
+    )
+    assert findings[3]["expected"]["mtu"] is None and findings[9]["expected"]["mtu"] is None
+    assert findings[6]["expected"]["mtu"] == findings[8]["expected"]["mtu"] == 600
+    for event, finding in zip(replay["events"], findings, strict=True):
+        if event["type"] == "erase":
+            continue
+        expected = finding["expected"]["output"]
+        native = event["observed"]["output"]
+        if not native:
+            assert expected is None
+            continue
+        assert len(native) == len(expected["rawIPv4"])
+        for raw, computed in zip(native, expected["rawIPv4"], strict=True):
+            data = bytes.fromhex(raw)
+            size = int.from_bytes(data[16:18], "big")
+            assert data[14 : 14 + size].hex() == computed
+        sample = next(
+            sample for sample in evidence["packetSamples"] if sample["raw"] == event["raw"]
+        )
+        family = sample["outputFamily"]
+        assert family["derivedByReassembly"] and expected["header"] == family["header"]
+        assert expected["payloadHex"] == family["payloadHex"] and expected["ttl"] == family["ttl"]
+        assert expected["udpChecksum"] == family["udpChecksum"]["value"]
+        assert all(
+            part["wireLength"] <= finding["expected"]["mtu"] for part in expected["fragments"]
+        )
+    for index in [2, 11, 12]:
+        output = findings[index]["expected"]["output"]
+        assert [part["wireLength"] for part in output["fragments"]] == [596, 596, 76]
+        assert [part["offsetBytes"] for part in output["fragments"]] == [0, 576, 1152]
+        assert [part["moreFragments"] for part in output["fragments"]] == [True, True, False]
+        assert len(bytes.fromhex(output["payloadHex"])) == 1200
+    assert findings[10]["expected"]["output"]["fragments"][0]["wireLength"] == 600
+    assert findings[10]["expected"]["output"]["fragments"][0]["dontFragment"]
+    assert findings[12]["expected"]["output"]["udpChecksum"] == 0
+    mtu_boundary_checks(replay)
+    assert json.loads(invoke("session-firewall", directory / "session.json", "--json"))["compliant"]
+    assert json.loads(
+        invoke(
+            "compile-session",
+            directory / "authentication.json",
+            directory / "requirements.json",
+            "--after",
+            "19",
+        )
+    ) == json.loads((directory / "permit.json").read_text())
+    with tempfile.TemporaryDirectory(prefix="netlib-wire-mtu-") as folder:
+        path = Path(folder) / "changed.json"
+        altered = json.loads(json.dumps(replay))
+        altered["events"][2]["observed"]["output"].reverse()
+        path.write_text(json.dumps(altered))
+        assert json.loads(invoke("wire-mtu", path, "--json"))["compliant"]
+        altered["events"][2]["observed"]["output"] = []
+        path.write_text(json.dumps(altered))
+        mismatch = json.loads(invoke("wire-mtu", path, "--json", code=1))
+        assert not mismatch["findings"][2]["matched"]
+        assert all(finding["matched"] for finding in mismatch["findings"][3:])
+        assert mismatch["final"] == report["final"]
+        altered = json.loads(json.dumps(replay))
+        altered["events"][8]["observed"]["disposition"] = "forwarded"
+        path.write_text(json.dumps(altered))
+        assert not json.loads(invoke("wire-mtu", path, "--json", code=1))["findings"][8]["matched"]
+        for output in [
+            replay["events"][2]["observed"]["output"][:-1],
+            replay["events"][2]["observed"]["output"] * 2,
+            None,
+        ]:
+            altered = json.loads(json.dumps(replay))
+            altered["events"][2]["observed"]["output"] = output
+            path.write_text(json.dumps(altered))
+            invoke("wire-mtu", path, code=2)
+        for mtus in [[], replay["mtus"] * 2, [{"nextHop": "service", "mtu": 67}]]:
+            altered = json.loads(json.dumps(replay))
+            altered["mtus"] = mtus
+            path.write_text(json.dumps(altered))
+            invoke("wire-mtu", path, code=2)
+
+
 def main():
     traffic_checks()
     linux_checks()
@@ -921,6 +1123,7 @@ def main():
     admission_checks()
     wire_checks()
     wire_forwarding_checks()
+    mtu_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

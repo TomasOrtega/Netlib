@@ -1,0 +1,828 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-11-05T00:30:50.67796259Z",
+  "completedAt": "2026-11-05T00:30:57.712739579Z",
+  "kernel": "6.8.0-117-generic",
+  "container": {
+    "parentImage": "netlib-wire-nat-capture:1",
+    "parentImageID": "sha256:b5aaf7b42f0562107f2a7580a2407adf482ace71c2ebf5c5e662f5096e99f673",
+    "image": "netlib-mtu-capture:1",
+    "imageID": "sha256:5339283b9b4b22088fccf90e4730e7d841b0f2ab2e42901fa539c6ba99c63b59",
+    "network": "none",
+    "hostMounts": false,
+    "capabilities": [
+      "CAP_NET_ADMIN",
+      "CAP_SYS_ADMIN"
+    ],
+    "securityOptions": [
+      "seccomp=unconfined",
+      "apparmor=unconfined"
+    ],
+    "privateNetworkNamespaces": [
+      "peer",
+      "auth",
+      "server"
+    ],
+    "command": [
+      "sh",
+      "/task/mtu/capture.sh"
+    ],
+    "exitCode": 0
+  },
+  "evidence": {
+    "ipv4Frames": 27,
+    "udpFragmentFrames": 23,
+    "icmpFrames": 4,
+    "eapolFrames": 18,
+    "packetEpisodes": 12,
+    "initialSnapshot": "initial-conntrack.json",
+    "mainNATBindingID": 2955369551,
+    "beforeFirstReplyStatus": 440,
+    "afterTTLExpiredFirstReplyStatus": 442,
+    "mainBindingRetainedAfterLogoff": true,
+    "freshBindingAfterTargetedErase": 245590887
+  },
+  "mtus": {
+    "peer0": 4096,
+    "auth0": 4096,
+    "service0": 600,
+    "server0": 600
+  },
+  "fragmentation": {
+    "normalSocketPMTUDiscover": 0,
+    "normalRequestPayloadBytes": 1200,
+    "ingressIPLength": 1228,
+    "egressIPLengths": [
+      596,
+      596,
+      76
+    ],
+    "egressByteOffsets": [
+      0,
+      576,
+      1152
+    ],
+    "outputPayloadBytes": 1200,
+    "inputUnfragmented": true,
+    "udpValidation": "UDP length and nonzero pseudoheader checksums are validated only after complete strict fragment-family reassembly. Zero explicitly denotes omission."
+  },
+  "nat": {
+    "original": {
+      "source": "192.0.2.2",
+      "destination": "203.0.113.2",
+      "protocol": 17,
+      "sourcePort": 41000,
+      "destinationPort": 8080
+    },
+    "requestEgress": {
+      "source": "203.0.113.1",
+      "destination": "198.51.100.2",
+      "protocol": 17,
+      "sourcePort": 40000,
+      "destinationPort": 9000
+    },
+    "replyIngress": {
+      "source": "198.51.100.2",
+      "destination": "203.0.113.1",
+      "protocol": 17,
+      "sourcePort": 9000,
+      "destinationPort": 40000
+    }
+  },
+  "probeOutcomes": [
+    {
+      "name": "cached-df-oversize",
+      "disposition": "mtuExceeded",
+      "outputFrames": 0,
+      "icmp": [
+        [
+          3,
+          4,
+          600
+        ]
+      ]
+    },
+    {
+      "name": "fresh-df-oversize",
+      "disposition": "mtuExceeded",
+      "outputFrames": 0,
+      "icmp": [
+        [
+          3,
+          4,
+          600
+        ]
+      ]
+    },
+    {
+      "name": "ttl-one-df-oversize",
+      "disposition": "ttlExpired",
+      "outputFrames": 0,
+      "icmp": [
+        [
+          11,
+          0,
+          null
+        ]
+      ]
+    },
+    {
+      "name": "exact-mtu-df",
+      "disposition": "forwarded",
+      "outputFrames": 1,
+      "icmp": []
+    },
+    {
+      "name": "oversize-df-clear",
+      "disposition": "forwarded",
+      "outputFrames": 3,
+      "icmp": []
+    },
+    {
+      "name": "udp-zero-fragments",
+      "disposition": "forwarded",
+      "outputFrames": 3,
+      "icmp": []
+    }
+  ],
+  "offloads": [
+    {
+      "namespace": "peer",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "peer",
+          "python3",
+          "/task/wire/exercise.py",
+          "offload",
+          "peer0"
+        ],
+        "startNs": 60833982367998,
+        "endNs": 60834000168356,
+        "returncode": 0,
+        "stdout": "{\"interface\": \"peer0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 60833997497317, \"endNs\": 60833997504067}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 60833997507275, \"endNs\": 60833997519650}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 60833997521400, \"endNs\": 60833997523025}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60833997525067, \"endNs\": 60833997526442}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 60833997527317, \"endNs\": 60833997528483}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60833997529275, \"endNs\": 60833997530192}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 60833997530983, \"endNs\": 60833997531858}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 60833997532483, \"endNs\": 60833997535692}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 60833997536525, \"endNs\": 60833997537608}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60833997538400, \"endNs\": 60833997539275}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 60833997539858, \"endNs\": 60833997540775}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60833997541400, \"endNs\": 60833997542275}]}\n",
+        "stderr": ""
+      },
+      "interface": "peer0",
+      "before": {
+        "txChecksum": 1,
+        "tso": 0,
+        "gso": 1,
+        "gro": 0
+      },
+      "after": {
+        "txChecksum": 0,
+        "tso": 0,
+        "gso": 0,
+        "gro": 0
+      },
+      "operations": [
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60833997497317,
+          "endNs": 60833997504067
+        },
+        {
+          "command": 23,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997507275,
+          "endNs": 60833997519650
+        },
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997521400,
+          "endNs": 60833997523025
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997525067,
+          "endNs": 60833997526442
+        },
+        {
+          "command": 31,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997527317,
+          "endNs": 60833997528483
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997529275,
+          "endNs": 60833997530192
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60833997530983,
+          "endNs": 60833997531858
+        },
+        {
+          "command": 36,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997532483,
+          "endNs": 60833997535692
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997536525,
+          "endNs": 60833997537608
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997538400,
+          "endNs": 60833997539275
+        },
+        {
+          "command": 44,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997539858,
+          "endNs": 60833997540775
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60833997541400,
+          "endNs": 60833997542275
+        }
+      ]
+    },
+    {
+      "namespace": "auth",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/wire/exercise.py",
+          "offload",
+          "auth0"
+        ],
+        "startNs": 60834000191939,
+        "endNs": 60834018947879,
+        "returncode": 0,
+        "stdout": "{\"interface\": \"auth0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 60834016249590, \"endNs\": 60834016255340}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 60834016258673, \"endNs\": 60834016271882}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 60834016273590, \"endNs\": 60834016275257}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834016277090, \"endNs\": 60834016278423}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 60834016279382, \"endNs\": 60834016280632}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834016281465, \"endNs\": 60834016282423}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 60834016283340, \"endNs\": 60834016284298}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 60834016284923, \"endNs\": 60834016288257}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 60834016289257, \"endNs\": 60834016290298}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834016291132, \"endNs\": 60834016292007}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 60834016292673, \"endNs\": 60834016293590}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834016294215, \"endNs\": 60834016295173}]}\n",
+        "stderr": ""
+      },
+      "interface": "auth0",
+      "before": {
+        "txChecksum": 1,
+        "tso": 0,
+        "gso": 1,
+        "gro": 0
+      },
+      "after": {
+        "txChecksum": 0,
+        "tso": 0,
+        "gso": 0,
+        "gro": 0
+      },
+      "operations": [
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834016249590,
+          "endNs": 60834016255340
+        },
+        {
+          "command": 23,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016258673,
+          "endNs": 60834016271882
+        },
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016273590,
+          "endNs": 60834016275257
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016277090,
+          "endNs": 60834016278423
+        },
+        {
+          "command": 31,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016279382,
+          "endNs": 60834016280632
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016281465,
+          "endNs": 60834016282423
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834016283340,
+          "endNs": 60834016284298
+        },
+        {
+          "command": 36,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016284923,
+          "endNs": 60834016288257
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016289257,
+          "endNs": 60834016290298
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016291132,
+          "endNs": 60834016292007
+        },
+        {
+          "command": 44,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016292673,
+          "endNs": 60834016293590
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834016294215,
+          "endNs": 60834016295173
+        }
+      ]
+    },
+    {
+      "namespace": "auth",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "auth",
+          "python3",
+          "/task/wire/exercise.py",
+          "offload",
+          "service0"
+        ],
+        "startNs": 60834018965962,
+        "endNs": 60834036272362,
+        "returncode": 0,
+        "stdout": "{\"interface\": \"service0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 60834033592156, \"endNs\": 60834033596906}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 60834033600073, \"endNs\": 60834033610406}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 60834033612156, \"endNs\": 60834033613740}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834033615698, \"endNs\": 60834033616906}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 60834033617865, \"endNs\": 60834033619031}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834033619906, \"endNs\": 60834033621073}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 60834033621990, \"endNs\": 60834033622948}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 60834033623615, \"endNs\": 60834033626448}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 60834033627281, \"endNs\": 60834033628323}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834033629115, \"endNs\": 60834033630031}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 60834033630698, \"endNs\": 60834033631656}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834033632323, \"endNs\": 60834033633240}]}\n",
+        "stderr": ""
+      },
+      "interface": "service0",
+      "before": {
+        "txChecksum": 1,
+        "tso": 0,
+        "gso": 1,
+        "gro": 0
+      },
+      "after": {
+        "txChecksum": 0,
+        "tso": 0,
+        "gso": 0,
+        "gro": 0
+      },
+      "operations": [
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834033592156,
+          "endNs": 60834033596906
+        },
+        {
+          "command": 23,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033600073,
+          "endNs": 60834033610406
+        },
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033612156,
+          "endNs": 60834033613740
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033615698,
+          "endNs": 60834033616906
+        },
+        {
+          "command": 31,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033617865,
+          "endNs": 60834033619031
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033619906,
+          "endNs": 60834033621073
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834033621990,
+          "endNs": 60834033622948
+        },
+        {
+          "command": 36,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033623615,
+          "endNs": 60834033626448
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033627281,
+          "endNs": 60834033628323
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033629115,
+          "endNs": 60834033630031
+        },
+        {
+          "command": 44,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033630698,
+          "endNs": 60834033631656
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834033632323,
+          "endNs": 60834033633240
+        }
+      ]
+    },
+    {
+      "namespace": "server",
+      "command": {
+        "command": [
+          "ip",
+          "netns",
+          "exec",
+          "server",
+          "python3",
+          "/task/wire/exercise.py",
+          "offload",
+          "server0"
+        ],
+        "startNs": 60834036286570,
+        "endNs": 60834053502262,
+        "returncode": 0,
+        "stdout": "{\"interface\": \"server0\", \"before\": {\"txChecksum\": 1, \"tso\": 0, \"gso\": 1, \"gro\": 0}, \"after\": {\"txChecksum\": 0, \"tso\": 0, \"gso\": 0, \"gro\": 0}, \"operations\": [{\"command\": 22, \"requested\": 0, \"result\": 1, \"startNs\": 60834050856473, \"endNs\": 60834050861056}, {\"command\": 23, \"requested\": 0, \"result\": 0, \"startNs\": 60834050864390, \"endNs\": 60834050874848}, {\"command\": 22, \"requested\": 0, \"result\": 0, \"startNs\": 60834050876556, \"endNs\": 60834050878181}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834050880098, \"endNs\": 60834050881431}, {\"command\": 31, \"requested\": 0, \"result\": 0, \"startNs\": 60834050882348, \"endNs\": 60834050883556}, {\"command\": 30, \"requested\": 0, \"result\": 0, \"startNs\": 60834050884348, \"endNs\": 60834050885306}, {\"command\": 35, \"requested\": 0, \"result\": 1, \"startNs\": 60834050886140, \"endNs\": 60834050887098}, {\"command\": 36, \"requested\": 0, \"result\": 0, \"startNs\": 60834050887723, \"endNs\": 60834050890681}, {\"command\": 35, \"requested\": 0, \"result\": 0, \"startNs\": 60834050891556, \"endNs\": 60834050892598}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834050893348, \"endNs\": 60834050894223}, {\"command\": 44, \"requested\": 0, \"result\": 0, \"startNs\": 60834050894848, \"endNs\": 60834050895765}, {\"command\": 43, \"requested\": 0, \"result\": 0, \"startNs\": 60834050896473, \"endNs\": 60834050897348}]}\n",
+        "stderr": ""
+      },
+      "interface": "server0",
+      "before": {
+        "txChecksum": 1,
+        "tso": 0,
+        "gso": 1,
+        "gro": 0
+      },
+      "after": {
+        "txChecksum": 0,
+        "tso": 0,
+        "gso": 0,
+        "gro": 0
+      },
+      "operations": [
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834050856473,
+          "endNs": 60834050861056
+        },
+        {
+          "command": 23,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050864390,
+          "endNs": 60834050874848
+        },
+        {
+          "command": 22,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050876556,
+          "endNs": 60834050878181
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050880098,
+          "endNs": 60834050881431
+        },
+        {
+          "command": 31,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050882348,
+          "endNs": 60834050883556
+        },
+        {
+          "command": 30,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050884348,
+          "endNs": 60834050885306
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 1,
+          "startNs": 60834050886140,
+          "endNs": 60834050887098
+        },
+        {
+          "command": 36,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050887723,
+          "endNs": 60834050890681
+        },
+        {
+          "command": 35,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050891556,
+          "endNs": 60834050892598
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050893348,
+          "endNs": 60834050894223
+        },
+        {
+          "command": 44,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050894848,
+          "endNs": 60834050895765
+        },
+        {
+          "command": 43,
+          "requested": 0,
+          "result": 0,
+          "startNs": 60834050896473,
+          "endNs": 60834050897348
+        }
+      ]
+    }
+  ],
+  "trace": "Native whole-packet hook checkpoints precede output fragmentation. Trace episodes are split at ingress and joined by complete input header, IPv4 ID, lengths, and UDP checksum. Intermediate raw Ethernet packets are not manufactured.",
+  "icmp": "Each separately captured error has a valid checksum, expected type/code, matching ingress interface and observation interval, and an exact quoted prefix of the original ingress IPv4 packet. Fragmentation Needed advertises MTU 600; ICMP implementation remains outside the Lean UDP model.",
+  "timing": "AF_PACKET timestamps record userspace reads. Selected input, output, and ICMP observations must precede their post-step snapshot. These measured fences do not prove kernel-internal event order.",
+  "credential": "The supplied demo credential is declared local controller input, not a signed network credential.",
+  "redactions": "Inherited EAP helper removes private keys and redacts derived-key log lines before export. Captured Ethernet bytes are unchanged.",
+  "scope": "Finite isolated wired NAT transit with gateway-unfragmented input, measured MTU, ordinary output fragmentation, and native UDP socket reassembly. Current configuration, authentication correlation, visible-table scope, and capture provenance remain assumptions. No Linux C refinement, TLS cryptographic proof, capture authenticity, input reassembly, full ICMP, anti-spoofing, or instantaneous policy-update proof.",
+  "artifactSHA256": {
+    "native/after-ttl-one-reply-conntrack.json": "ebcb3a5c5c7e45a42be419fbc075da9c199f632658501e137e2afd6037a41f64",
+    "native/auth-addresses.json": "ea644ea42d6760b4cded4eb35080a5c9c6ff3848a64013b2366fc54e98dab773",
+    "native/auth-links.json": "fe1ec1cab9a2e31a8faef778218d5e93f6489c8e560c8342c1a8ae3ed489dc7e",
+    "native/auth-neighbors.json": "618d50bfaf58a0ad54a15c4dcf8df58c894e1df93937a0ebf4bc785da43a1333",
+    "native/auth-routes.json": "41c15099d26eb8c24f25ebb8450d2343e20381f81e2757fc12cdf056bdb0fcda",
+    "native/auth-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/authenticated-only-conntrack.json": "1ecb804370934bc31ec219d043bec1503f541161c2f3c814f07ba1633258a774",
+    "native/authenticated-only-firewall.json": "6ba8fa3535b2af786cf838bf753ebe9d19499e0dc39b3398c32a72cbfd51fe13",
+    "native/authenticated-only-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/authenticated-only-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/authenticated-only-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/authenticated-only-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/authenticated-only-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/authenticated-only-ruleset.json": "e287c81e36c47df75ccdbc99e00ae28a88e566f96da510b01c68620e0c95bfb9",
+    "native/before-ttl-one-reply-conntrack.json": "d486740699a680f30484ab08a7bf7c6f8677c16afa7545fcbf27fbf33b810c75",
+    "native/cached-df-oversize-after-conntrack.json": "230937828049d3363202fc227c3fdd1134b77266d9d7ceaddbf80d1a0240727c",
+    "native/cached-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/cached-df-oversize-before-conntrack.json": "bc76ee5049836a0b554db810bdf0bd0302841d30155833529fdf22f0173cbdf8",
+    "native/cached-df-oversize-input.json": "65bc7a375c78a97c189431ce9128935cf27b63554cc65377f55788694297b0d1",
+    "native/cached-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/cached-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/cached-ttl-one-reply-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/cached-ttl-one-reply-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/cached-ttl-one-reply-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/commands.json": "ec4c7f0aa132677e744b795f0caa26b923a83897bb5dc8a2a374fe0bcb7a2fd9",
+    "native/conntrack-version.txt": "e5a30e5d2d2cf83758a777ea49ff443209ac9098c0c109cea0e4cf6b68ae32a4",
+    "native/credential-permitted-conntrack.json": "570cd77eab18540e68cd7cc24d3263e36c9ae04f083f1f1abfb80bc823c353e6",
+    "native/credential-permitted-firewall.json": "ced64c9a6b08800b9c8ef26a1750ead042dd9402df52df67c6f7f2fd7e76a99d",
+    "native/credential-permitted-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/credential-permitted-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/credential-permitted-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/credential-permitted-reply-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/credential-permitted-reply-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/credential-permitted-reply-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/credential-permitted-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/credential-permitted-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/credential-permitted-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/credential-permitted-ruleset.json": "3cf9d5bc4ecbe834d88fe099cc3c133d89ad7d8e4f8a51d4c6e9a30fbb2c2382",
+    "native/eap/auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/eap/authorized-station.txt": "41b458940b618e95dade18ebca5b70e4c5d10e217962563666b1e2905eca52fd",
+    "native/eap/bad-server-supplicant.conf": "0268a3c7c1663b5c3edc9a0be02d53effd957338e5c95817ca9029d6c5548bc7",
+    "native/eap/ca-certificate.txt": "474f11bf062526e3118471f9a1edc28f03a813f36401c299703b801a0fbb27db",
+    "native/eap/ca-chain.pem": "16eb646a4ac05a6c647c10b76155160e37bbaed7ead7d641cf0b982569c8994f",
+    "native/eap/ca.crl.pem": "9fc09899c5c8c76e61726d2c0cc834af1fa11242753c06e1f59d317d3c5f8f14",
+    "native/eap/ca.pem": "38e7cb5dad86feba4c6536ca0a76d509adeda4840f71832726eae76be114a99c",
+    "native/eap/client-certificate.txt": "a9b2a656942c7405ed0cc0997c2b8794aad6c594cc1500b95925307395388e97",
+    "native/eap/client.pem": "5443b5af53dd160e4055fa05f70a003f63215b2357e9fdc90bc33230bf8c80d8",
+    "native/eap/commands.json": "ffdb869bccdfd0ac63b2b12fe49939fd7678b09a2d33ce8fee956b6d221edce7",
+    "native/eap/hostapd.conf": "3943b8e7deae951a6ae0dc060707d5aa44d9837c66ea83183d9dea443fd5f1f7",
+    "native/eap/logged-off-station.txt": "b5f737487abd11e8ce877634baf67e5b56a76d44bef8e5a5f02add615ff6caa7",
+    "native/eap/peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/eap/server-certificate.txt": "15bed612ba7763918d8dd2dd5b2045523e99f2a5d82290202bcc5e51fd1bb941",
+    "native/eap/server.ocsp.der": "a4a7d8c12cf5ad4d74b4aadea522724e3c4810640808b56659be2da61daf7067",
+    "native/eap/server.pem": "a5ff531c6c6eefe289d7485a918400bc9832797b81e07dbeef5dbdcd7b108a34",
+    "native/eap/success-authenticator.jsonl": "3255ba1b15df69949d717d8de5f946f82135d558c9e2a3546aecee6ba918f26c",
+    "native/eap/success-frames.jsonl": "be3cb3720270c9c6add655294fe416fc1ef65ce40b0dbf72b2edec7017416731",
+    "native/eap/success-supplicant.conf": "59d0cc7f5d28d8847a62e10c4f3580672896ee363976b08269de524e06ddd1f9",
+    "native/eap/success-supplicant.jsonl": "7ba13cf8f68cd7f727791881cf2623f29af29a65e035b0589b57b2adb523e2af",
+    "native/eap/supplicant-status.txt": "6f3af214ba8f6b42535ce50eeed211bf6afee1d4449f48884058b96a75d32174",
+    "native/eap/users": "f8b1102070fa116a9eb09ecc69b4198ce819d52e74a0859df18eae0825d1e38d",
+    "native/erased-conntrack.json": "15aa2c288739da353c88040c9fd540140bd35e48c655baf2d5aebc10039ca969",
+    "native/exact-mtu-df-after-conntrack.json": "ad60da8504f6f3c65b005bcfd40154d482d131f490a9386fddecf0d602d91f84",
+    "native/exact-mtu-df-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/exact-mtu-df-before-conntrack.json": "ca2fa294d5288f7b9b6f2e36fb13633eb123c12b326aae6282427af11405dccc",
+    "native/exact-mtu-df-input.json": "bca1b1fdf510a4620abf685d778259f943bccfee142355ca0f4e11a734661088",
+    "native/exact-mtu-df-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/exact-mtu-df-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/frames.jsonl": "2ce336e1958780905545012bae036c50082df8c19ac37e09520188ca37d6e390",
+    "native/fresh-df-oversize-after-conntrack.json": "6d2cde9bb91782f783c54505cf1c532af8d063b3bdb68f163127128f5c37ba77",
+    "native/fresh-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/fresh-df-oversize-before-conntrack.json": "ee43f50b363b19049d4f6e4d136a71c6a99ebd0c5492e7512e1b5e02d7ced9ca",
+    "native/fresh-df-oversize-input.json": "565877faa13503e79db7fb8918990cb392de91d7dd6a258acd8e77b576c5e35a",
+    "native/fresh-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/fresh-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/helper-sha256.txt": "cd0e493ee4932e77b33a3d51ff248afc163cd390fbd824385ab273d258bf89fc",
+    "native/hostapd-version.txt": "df543fbc99883a1ee0f9bda917b8e13f37b8d57192c233101c82310cf3c8ff8e",
+    "native/initial-conntrack.json": "91843c21bb0877f4a82d45527cd00f498757960fea8b0a4e271fdad02f5bb2b6",
+    "native/input/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/input/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "native/input/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "native/input/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "native/installed-demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "native/iproute2-version.txt": "fcb352550ced62f96291fb0b9ab2d5ac323537ca4469e33cc17822bc9ef961b7",
+    "native/kernel.txt": "81ca7896e556633c1b77c21ac8b64ca7ccc7b1e03d3b5e435f07879e617d4afd",
+    "native/logged-off-cached-conntrack.json": "73e698197faf14c9641628b3fcd72a8d5c06c95a49aa756e392008e7fee966a3",
+    "native/logged-off-cached-firewall.json": "7715e7b3f122f1ac49c026909394ea1af89cc3a035b6e0e13463d0be801d948c",
+    "native/logged-off-cached-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/logged-off-cached-load.json": "c7d8db7f6d7e68b0e84b5f88c52b7dc03f4e8789236afc2005de1126e5aadc4e",
+    "native/logged-off-cached-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/logged-off-cached-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/logged-off-cached-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/logged-off-cached-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/logged-off-cached-ruleset.json": "fe8b4c94507e8818dc8b22fcef3afb78d08c1e8ded0843c239a2469ae3ebd1c6",
+    "native/mtu-probes-firewall.json": "01d16fae9eb532ede2e89d68443a1f17d2ddca2d55a5e648e05795530115a398",
+    "native/mtu-probes-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/mtu-probes-load.json": "801f3e2233bc2145e6213f40b1fedf69ff57b7747595d1cccef42659a482a12d",
+    "native/mtu-probes-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/mtu-probes-ruleset.json": "72b0c629374d44555c8b7657abc18f96cad3137cd03705f0bff3843e87520751",
+    "native/nat-and-trace.nft": "e7f51930845dd1dd486218e691124a78caa031a696834527735270df95767092",
+    "native/network-auth-addresses.json": "30a4809a27cf92f8e17e3ea8106119db6d859149bee9b598f7850f9024e8a3c6",
+    "native/network-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/network-auth-neighbors.json": "618d50bfaf58a0ad54a15c4dcf8df58c894e1df93937a0ebf4bc785da43a1333",
+    "native/network-auth-routes.json": "41c15099d26eb8c24f25ebb8450d2343e20381f81e2757fc12cdf056bdb0fcda",
+    "native/network-peer-addresses.json": "072ed87c61141472cf2f31ada79ca18a279d0812865219bfd6a13c1e991aaed4",
+    "native/network-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/network-peer-neighbors.json": "743cbc449a22ded843a088d89a2d5fd61c87470f1439041d6ee70a4019251bb3",
+    "native/network-peer-routes.json": "9769d3305544599195ae752d7c3a83e2f52b70c6987b64e88399d5e43041f6ff",
+    "native/network-server-addresses.json": "5ce631f151db907eadde97ec4b36310a3e5a3261af438f6ff294943ed1848778",
+    "native/network-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/network-server-neighbors.json": "243d7df725028db85bfa9782f11ce043174ecba39745f8faf3cddf7d0c4faf8f",
+    "native/network-server-routes.json": "3e630174592d206c4862bf7e99507cab124d08417dd0cd91cb3d9b4be4e3c820",
+    "native/nftables-version.txt": "8731fe5ddefd32a5ea07dd5e896e263aa63871fc2dc9e0117357e34ea01dc329",
+    "native/observations.json": "97c38d49ab969a3b533a0152b6abfc1ea1a11fc8d557af5e2b2f7611307face7",
+    "native/offloads.json": "21a11aa03690e24b7183180ebaeace5f44b7341fa12827bce8e03d77e6b1a2a6",
+    "native/openssl-version.txt": "99009aa0848eaa01ceea26381659dc525e4ce21a4c90ca255b3c58b0089f8f8a",
+    "native/oversize-df-clear-after-conntrack.json": "dcca484f65faf2c5ee7bcf46059a09c5a436fb8e8dd37a1d526e83e5764074d4",
+    "native/oversize-df-clear-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/oversize-df-clear-before-conntrack.json": "ed96d2fdb2e852790026180a4e47b47424bca0b1a513f746a7f174bd0f49a19f",
+    "native/oversize-df-clear-input.json": "64876601cfb94cc65dfe73312c11f3665372addf307cf948c376c9e2ee39511d",
+    "native/oversize-df-clear-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/oversize-df-clear-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/packages.txt": "336c612cd12b21f83ac95f019e43187dca868a17cb5089d770ae4534260ce59e",
+    "native/peer-addresses.json": "1ea0f2cc6bfd1697139c52dc2e918522f685d31db0637718cdc075f10d812b78",
+    "native/peer-links.json": "f44ad5f0089964f8c2ae54b721c4bc5d6a2ddaed5338754a2d9f28fd7a527d5b",
+    "native/peer-neighbors.json": "743cbc449a22ded843a088d89a2d5fd61c87470f1439041d6ee70a4019251bb3",
+    "native/peer-routes.json": "9769d3305544599195ae752d7c3a83e2f52b70c6987b64e88399d5e43041f6ff",
+    "native/peer-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/producer-sha256.txt": "8661f96d16885236ec3b592f8b83cdde8165941cf557a3e259b89b8a11c3373f",
+    "native/server-addresses.json": "9141bb17a2c71730824a314fe15c0ca51edb4e5b03d59a36c50002de6ea60563",
+    "native/server-links.json": "64e8b6d962649adc24fc56da22d20817571a97586687edeaa46710fd9f8d1c77",
+    "native/server-neighbors.json": "243d7df725028db85bfa9782f11ce043174ecba39745f8faf3cddf7d0c4faf8f",
+    "native/server-routes.json": "1ce2e6ce46923b5b9ccf1f23a4bac8d66a0a41b764eb76f6d09a1015e528bd92",
+    "native/server-settings.txt": "c4ec087dd8548bc3c4ac58c0c03b0793f4efb08920c935fa89f77434e2b17971",
+    "native/supplicant-version.txt": "320a976c97614caa812c6fd36087e15634922ed7766d08fb98477f0c6312c265",
+    "native/trace-errors.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native/trace.txt": "e8c409b9964701156fa8c7780365c29356284899b90044a17c119f80a8dadaca",
+    "native/tracking.nft": "a5308947709169d1e91dac4fd83e8747c295550b35963a59efcb6c36bdb985ed",
+    "native/ttl-one-df-oversize-after-conntrack.json": "56eefc30aed110c362239ca73ea28a6af9f477cd4a214eb872a737b0570f10e8",
+    "native/ttl-one-df-oversize-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/ttl-one-df-oversize-before-conntrack.json": "e2def85cd5f59647d2e2a10ea08d64ebe3c25d93fc1ef8ae9899f023f802a103",
+    "native/ttl-one-df-oversize-input.json": "28a915118fef520aece23f341135c43b399d94c3457b0617bc82933c2f2ecd8a",
+    "native/ttl-one-df-oversize-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/ttl-one-df-oversize-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/udp-zero-fragments-after-conntrack.json": "14a8a65a011154878d4309cd7d61085eac8eef50a637a7a4babdec584f5ba7a0",
+    "native/udp-zero-fragments-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/udp-zero-fragments-before-conntrack.json": "2a129a986ed46edcd3e865d43816dc9e4ab1ee34c1e931858a733553f3627d5d",
+    "native/udp-zero-fragments-input.json": "55a9e0a2876e456d6e37448d186120aeab962f7e3af035e59d663234900dd34c",
+    "native/udp-zero-fragments-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/udp-zero-fragments-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/unauthenticated-conntrack.json": "620e1a08e960fddb893d86b8e0a7bea61f4f0125d9bfa142523a37e6782f87e4",
+    "native/unauthenticated-firewall.json": "6ba8fa3535b2af786cf838bf753ebe9d19499e0dc39b3398c32a72cbfd51fe13",
+    "native/unauthenticated-late.json": "f5df57bdbd4abffecb38382234ef0b32f6d63346f601ea55e136e8e44b300050",
+    "native/unauthenticated-load.json": "758ae26fe104eb85986e9037bfd31be09948092c83e5c9d4511bc398f233bbd9",
+    "native/unauthenticated-nat.json": "3a8235ff9ec95abf400111ed53315db688737bcfb39b9506438703f836bb524a",
+    "native/unauthenticated-request-auth-links.json": "c8b081c3e24d0a232bf9abaf2908b8fec6bd96ece258f396ee5fcd1936252d40",
+    "native/unauthenticated-request-peer-links.json": "c73eb2282d4252f74b692c5f60a09809b3c0ce59916d20e6ab438d9cba78020a",
+    "native/unauthenticated-request-server-links.json": "f362988cf2d0bd59c54e7e1c4b03ecef23c424c2f401099875246603276a6555",
+    "native/unauthenticated-ruleset.json": "f17ee57589d20377d48c4c45f79274c2898059b3e75a72e994202219e628330a"
+  },
+  "verifierSHA256": {
+    "scripts/check_admission_capture.py": "53121c7c8254c6b3ba98c72729732f4dc1706ecacef5645ea34b8a6578cb0c4b",
+    "scripts/check_eap_capture.py": "9d94275e903a2911dc042141097832049dc688917bf96a888c7bb90b5b6544df",
+    "scripts/check_lifecycle_capture.py": "a5db7242668b7fb7ce05fd1f80a3520e9cba2b517972dac1aaa48cf13d7e5d11",
+    "scripts/check_wire_capture.py": "5482e3f410de6cc5f4ee8fd3c208e831bf49940dfac3228f8032e688f0036d29",
+    "scripts/check_wire_nat_capture.py": "fa2e516fa276ed55935870ea8e5efff0b381155cf7baeb479e103717c4ca77c4",
+    "scripts/check_mtu_capture.py": "ce47fb0f128e0beb363e2a10e8edb28847359966bcd30b416512a81e23662454",
+    "scripts/test_check_mtu_capture.py": "2123a1be0672ef0b788dcf409bc5bf2a6c281c13ac47f423f3f335776fb666e8"
+  },
+  "projection": "The independent native verifier projects captured fragment bytes and producer observations into checked-evidence. Shared EAP/session projection and the MTU builder produce authentication, session, and replay inputs. Lean output is never used to construct native observations. Synthetic CLI boundary cases remain separate tests.",
+  "projectionSHA256": {
+    "docs/MTU.md": "9716d761108834a51edd8b80a659b8bccee77e0ea53999984c0b8735d5890484",
+    "docs/research/MTU_FRAGMENTATION.md": "555ffcb4441f006c72aa7715f6e6e6a37d9eef508ae8a5113ffde7a51a6e693b",
+    "examples/mtu/Dockerfile": "d978876a6e388efc518b60a7213c3f2c6ed8475775cf26b00bf1da200c9b1a7e",
+    "examples/mtu/README.md": "7150844a7cf76f78647703188eb0d44d154c077d11f50ae9d905953fadbe5aa3",
+    "examples/mtu/authentication.json": "d0225c0c6384e3dc4d5792750c7d8a798955632e9ad98d52c912196991a4078e",
+    "examples/mtu/build-stderr.txt": "d86cb49dd44ce17a9da506b4e732433d5755f98bac9a709da0462523638defc5",
+    "examples/mtu/build-stdout.txt": "7c105b3208597dc053718aeb3d32458efb83d44108abf6f6c497ed29e8754e49",
+    "examples/mtu/capture-invocation.json": "7bab4b0b2b400679fe7e26c5bfe44231d974e486ff64f24245f59efb60947a50",
+    "examples/mtu/capture-stderr.txt": "2d6d9c9e6400fad65b029e57396715833a2f2e6bd5ca82c564015de8040d0378",
+    "examples/mtu/capture-stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "examples/mtu/capture.sh": "2b96fb05bf3c12ae147caa2151a22b7fe62e3c20b83186ddd1df0c65fc2083c8",
+    "examples/mtu/checked-evidence.json": "0a7dfacb6f671b8df16e4dd4bb45201770d72b929c3766c5fe4db2757c20c053",
+    "examples/mtu/container-inspect.json": "8d517df9413fe150f68c54acc2a8acbd26232bdfa92865387f65a62f7735fecb",
+    "examples/mtu/demo-credential.json": "0f7ceccdccfd65db38eadaaf43942c3b76b2ee60a656971d35a55cc933d45494",
+    "examples/mtu/deny.json": "62900fe16ac2794713034b26e135acd8490c57640af88bfaaa472d0ded4eff51",
+    "examples/mtu/exercise.py": "6d7e91e214c1ba63c343c3f87d2e9aef75941a34f6b8be6c02f66dd58bccac6b",
+    "examples/mtu/image-id.txt": "8b5b3e3b13915bb289e000046aa622c1d85c6fc60d485584db0f18d93e81f27c",
+    "examples/mtu/permit.json": "f596de5638055fa72f5a9eb9f71052acd0ed890a6e65ea8b59e24eea37cbf282",
+    "examples/mtu/recapture.sh": "dadeed80792c481fb1446967b6931b9bbc3a30c0386eb3c44efef7e2696a95d1",
+    "examples/mtu/replay.json": "43838eee2fed46f760da5d5137e25d8787cbc274c70e1e5baf3e4e3ab120589a",
+    "examples/mtu/requirements.json": "358080b0db2e29264d455ffbfd4a1f23463c07744892643d14987d3b04a9bebc",
+    "examples/mtu/session.json": "3e5685e0ced9ee0b0538cec3d4b07db7a6c7e047c2314b2adfc2720cc4b97bcc",
+    "scripts/build_admission_examples.py": "b41f6f78d83e76dbb8b238aad959e2af65d49c8cc9bd5b91fed6e2c206703603",
+    "scripts/build_mtu_examples.py": "8b5fc8658422febac861cc3119440a67c603cedb2d25cb9a9c095e36b826af45"
+  }
+}
