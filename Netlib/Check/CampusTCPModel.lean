@@ -1,4 +1,4 @@
-import Netlib.Check.CampusTCPService
+import Netlib.Check.CampusTCPHistory
 import Netlib.Check.TCPHandshake
 import Netlib.Protocol.TCP.ApplicationTraceFacts
 import Netlib.Theory.Outstanding
@@ -15,6 +15,7 @@ Receiver inputs come from actual earlier gateway emissions.
 namespace Netlib.Check.CampusTCPModel
 
 open Packet Protocol
+abbrev Gateway := StatefulFailover.Gateway
 namespace T
 export Netlib.Protocol.TCP.ApplicationTrace (Step Event Chain OutputOrigin OutputAt)
 end T
@@ -38,6 +39,7 @@ inductive Actor where
 def Actor.other : Actor → Actor | .client => .server | .server => .client
 def Actor.direction : Actor → FlowNAT.Direction | .client => .original | .server => .reply
 def Actor.nextHop : Actor → String | .client => "server" | .server => "client"
+def Actor.leg : Actor → StatefulFailover.Leg | .client => .client | .server => .server
 
 structure Specification where
   id : String
@@ -48,6 +50,17 @@ structure Specification where
 structure Guard where
   id : String
   source : Import.NftablesIngress.Snapshot
+
+structure Deployment where
+  routing : Import.LinuxRoute.Snapshot
+  configs : List Check.ConntrackLifecycle.Config
+  executionNS : I.NamespaceRef
+  initialConfig : Check.ConntrackLifecycle.Config
+  initialGuard : Guard
+  guards : List Guard
+  specifications : List Specification
+  authenticationPort : I.InterfaceRef
+  live : List I.InterfaceRef
 
 structure Input where
   context : CampusTCPService.Context
@@ -62,6 +75,34 @@ structure Input where
   active : TCP.Handshake.Local
   passive : TCP.Handshake.Local
   zone : Nat
+  standby : Option Deployment := none
+
+def Input.primary (input : Input) : Deployment :=
+  ⟨input.context.routing, input.context.configs, input.context.executionNS, input.initialConfig,
+    input.initialGuard, input.guards, input.specifications, input.authenticationPort, input.live⟩
+
+def Input.deployment (input : Input) : Gateway → Deployment
+  | .primary => input.primary
+  | .standby => input.standby.getD input.primary
+
+def Input.configured (input : Input) : Gateway → Bool
+  | .primary => true
+  | .standby => input.standby.isSome
+
+def Input.contextFor (input : Input) : Gateway → CampusTCPService.Context
+  | .primary => input.context
+  | .standby =>
+    let deployment := input.deployment .standby
+    { input.context with routing := deployment.routing, configs := deployment.configs, executionNS := deployment.executionNS }
+
+@[simp] theorem Input.contextFor_authentication (input : Input) (gateway : Gateway) :
+    (input.contextFor gateway).authentication = input.context.authentication := by cases gateway <;> rfl
+
+@[simp] theorem Input.contextFor_requirements (input : Input) (gateway : Gateway) :
+    (input.contextFor gateway).requirements = input.context.requirements := by cases gateway <;> rfl
+
+@[simp] theorem Input.contextFor_application (input : Input) (gateway : Gateway) :
+    (input.contextFor gateway).application = input.context.application := by cases gateway <;> rfl
 
 structure Cursor (seed : TCP.Endpoint.State) where
   current : TCP.Endpoint.State
@@ -132,6 +173,8 @@ structure Ticket (active passive : TCP.Handshake.Local) where
   outputIndex : Nat
   produced : Produced active passive
   ingress : I.InterfaceRef
+  gateway : Gateway
+  routeEpoch : Nat
 
 def Ticket.source (value : Ticket active passive) : W.Source := value.produced.source
 
@@ -139,12 +182,37 @@ structure Staged where
   specification : String
   value : I.ExpectedAttachment
 
+structure Local where
+  configuration : Check.ConntrackLifecycle.Config
+  guard : Guard
+  live : List I.InterfaceRef
+  attachments : List Staged := []
+  transport : TCP.Checkpoint.Gateway
+  history : TCP.Checkpoint.History transport
+
+def Local.initial (deployment : Deployment) : Local :=
+  ⟨deployment.initialConfig, deployment.initialGuard, deployment.live, [], .initial, .initial⟩
+
+structure CachedCheckpoint where
+  id : Nat
+  time : Nat
+  snapshot : TCP.Checkpoint.Snapshot
+
+structure InstalledCheckpoint where
+  time : Nat
+  checkpoint : CachedCheckpoint
+  source : TCP.Checkpoint.Gateway
+  history : TCP.Checkpoint.History source
+  target : TCP.Checkpoint.Gateway
+  installed : TCP.Checkpoint.Installation checkpoint.snapshot history target
+  computed : TCP.Checkpoint.install checkpoint.snapshot history target = .ok installed
+
 structure Served (input : Input) where
   time : Nat
   ticket : Work.Item (Ticket input.active input.passive)
   before : CampusTCPService.Before
-  evidence : CampusTCPService.Evidence input.context before ticket.value.source input.zone ticket.value.ingress
-  computed : CampusTCPService.run input.context before ticket.value.source input.zone ticket.value.ingress = .ok evidence
+  evidence : CampusTCPService.Evidence (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress
+  computed : CampusTCPService.run (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress = .ok evidence
   observed : Bool
 
 def Served.routeMatched (value : Served input) : Bool :=
@@ -176,12 +244,16 @@ theorem Receipt.bytePath (value : Receipt input) :
 structure State (input : Input) where
   time : Nat := 0
   authentication : Nat := 0
-  configuration : Check.ConntrackLifecycle.Config
-  guard : Guard
-  live : List I.InterfaceRef
-  attachments : List Staged := []
-  tracker : Protocol.ConntrackLifecycle.State := .initial
-  admission : TCP.Admission.State := .initial
+  primary : Local
+  standby : Local
+  owners : StatefulFailover.Owners := {}
+  routeEpoch : Nat := 0
+  assignmentPaused : Bool := false
+  primarySealed : Bool := false
+  primaryFenced : Bool := false
+  checkpoints : List CachedCheckpoint := []
+  cache : Option CachedCheckpoint := none
+  installation : Option InstalledCheckpoint := none
   connection : Connection input.active input.passive := .startup .idle rfl
   outputs : List (Produced input.active input.passive) := []
   work : Work.State (Ticket input.active input.passive) := .initial
@@ -189,17 +261,52 @@ structure State (input : Input) where
   receipts : List (Receipt input) := []
 
 def Input.initial (input : Input) : State input :=
-  { configuration := input.initialConfig, guard := input.initialGuard, live := input.live }
+  { primary := Local.initial input.primary, standby := Local.initial (input.deployment .standby) }
 
-def beforeService (input : Input) (before : State input) : CampusTCPService.Before :=
-  ⟨before.authentication, before.configuration, before.guard.source, before.live,
-    before.attachments.map (·.value), before.tracker, before.admission⟩
+def State.resident (state : State input) : Gateway → Local
+  | .primary => state.primary
+  | .standby => state.standby
+
+def State.write (state : State input) (gateway : Gateway) (resident : Local) : State input :=
+  match gateway with
+  | .primary => { state with primary := resident }
+  | .standby => { state with standby := resident }
+
+@[simp] theorem State.resident_write (state : State input) (gateway : Gateway) (resident : Local) :
+    (state.write gateway resident).resident gateway = resident := by cases gateway <;> rfl
+
+def State.configuration (state : State input) := state.primary.configuration
+def State.guard (state : State input) := state.primary.guard
+def State.live (state : State input) := state.primary.live
+def State.attachments (state : State input) := state.primary.attachments
+def State.tracker (state : State input) := state.primary.transport.tracker
+def State.admission (state : State input) := state.primary.transport.admission
+def State.owner (state : State input) (actor : Actor) := state.owners.get actor.leg
+def State.outstanding (state : State input) (gateway : Gateway) : Nat :=
+  (state.work.pending.filter (fun item => decide (item.value.gateway = gateway))).length
+
+def beforeService (input : Input) (before : State input) (gateway : Gateway := .primary) : CampusTCPService.Before :=
+  let resident := before.resident gateway
+  ⟨before.authentication, resident.configuration, resident.guard.source, resident.live,
+    resident.attachments.map (·.value), resident.transport.tracker, resident.transport.admission⟩
+
+@[simp] theorem beforeService_after (input : Input) (before : State input) (gateway : Gateway) :
+    (beforeService input before gateway).after = before.authentication := rfl
 
 inductive Event where
   | authentication (index : Nat)
   | install (configuration : String)
   | stage (specification : String)
   | installGuard (guard : String)
+  | installAt (gateway : Gateway) (configuration : String)
+  | stageAt (gateway : Gateway) (specification : String)
+  | installGuardAt (gateway : Gateway) (guard : String)
+  | pause
+  | stageCheckpoint
+  | installCheckpoint (executionNS : I.NamespaceRef)
+  | switchRoute (actor : Actor) (gateway : Gateway)
+  | fencePrimary
+  | resume
   | open (remote : TCP.Handshake.Socket) (policy : Bool)
   | write (actor : Actor) (bytes : List UInt8)
   | send (actor : Actor) (count : Nat) (policy : Bool)
@@ -232,6 +339,8 @@ structure Effect (input : Input) where
   startup : Option (TCPHandshake.Step input.active input.passive) := none
   application : Option (Actor × T.Step) := none
   read : List UInt8 := []
+  checkpoint : Option CachedCheckpoint := none
+  installation : Option InstalledCheckpoint := none
 
 def get (values : List α) (index : Nat) (message : String) : Except Error α :=
   match values[index]? with | none => .error (.input message) | some value => .ok value
@@ -296,6 +405,92 @@ def observe (seen : Option (List UInt8 × Option (List UInt8))) (source : W.Sour
   | none => true
   | some (bytes, after) => decide (bytes = source.bytes) && decide (after = output.map (·.bytes))
 
+def installConfiguration (input : Input) (before : State input) (gateway : Gateway) (id : String) :
+    Except Error (Effect input) := do
+  if !input.configured gateway then throw (.input "The selected gateway has no deployment.")
+  let context := input.contextFor gateway
+  let some configuration := context.configs.find? (·.id == id) | throw (.input "The configuration is unknown.")
+  let certificate ← parsed (SessionInstallation.check context.authentication context.requirements
+    before.authentication ⟨configuration.id, configuration.pipeline context.routing⟩ context.configs)
+  return { state := before.write gateway { before.resident gateway with configuration }, passed := certificate.passed }
+
+def stageAttachment (input : Input) (before : State input) (gateway : Gateway) (id : String) :
+    Except Error (Effect input) := do
+  if !input.configured gateway then throw (.input "The selected gateway has no deployment.")
+  let deployment := input.deployment gateway
+  let some specification := deployment.specifications.find? (·.id == id) | throw (.input "The ingress specification is unknown.")
+  let context := input.contextFor gateway
+  let now := CampusTCPService.current context (beforeService input before gateway)
+  let attachment ← (IngressAttachment.stage now (CampusTCPService.current_safe _ _) deployment.authenticationPort
+    specification.ingress specification.direction input.application specification.traffic).mapError (fun reason => .input reason.describe)
+  let resident := before.resident gateway
+  return { state := before.write gateway { resident with attachments := resident.attachments ++ [⟨id, attachment⟩] } }
+
+def installIngress (input : Input) (before : State input) (gateway : Gateway) (id : String) :
+    Except Error (Effect input) := do
+  if !input.configured gateway then throw (.input "The selected gateway has no deployment.")
+  let some guard := (input.deployment gateway).guards.find? (·.id == id) | throw (.input "The ingress guard is unknown.")
+  let context := input.contextFor gateway
+  let resident := before.resident gateway
+  let now := CampusTCPService.current context (beforeService input before gateway)
+  let checked ← parsed (IngressGuard.check now context.executionNS (resident.attachments.map (·.value)) [] context.application guard.source)
+  return { state := before.write gateway { resident with guard }, passed := checked.passed }
+
+def transferControl (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
+  if !input.configured .standby then throw (.input "Declare a standby deployment before planned transfer.")
+  match event with
+  | .pause =>
+    if before.assignmentPaused || before.primarySealed || before.primaryFenced then
+      throw (.input "Pause assignments before the selected transfer starts.")
+    return { state := { before with assignmentPaused := true } }
+  | .stageCheckpoint =>
+    if before.primarySealed || before.primaryFenced then throw (.input "The source is sealed against new checkpoints.")
+    match before.connection with
+    | .startup .. => throw (.input "Finish the startup exchange before checkpoint staging.")
+    | .application .. =>
+      let snapshot ← (TCP.Checkpoint.capture before.primary.history).mapError (fun reason => .input reason.message)
+      let checkpoint : CachedCheckpoint := ⟨before.checkpoints.length, before.time, snapshot⟩
+      return { state := { before with checkpoints := before.checkpoints ++ [checkpoint], cache := some checkpoint }, checkpoint := some checkpoint }
+  | .installCheckpoint executionNS =>
+    if !before.assignmentPaused then throw (.input "Pause new assignments before checkpoint installation.")
+    if before.primarySealed || before.primaryFenced then throw (.input "The source transfer is already sealed.")
+    if before.outstanding .primary != 0 then throw (.input "Process all primary tickets before checkpoint installation.")
+    if executionNS != (input.deployment .standby).executionNS || before.standby.guard.source.ns != executionNS then
+      throw (.input "The target namespace lifetime differs from the declared standby installation.")
+    let some checkpoint := before.cache | throw (.input "Stage an actual source checkpoint before installation.")
+    match computed : TCP.Checkpoint.install checkpoint.snapshot before.primary.history before.standby.transport with
+    | .error reason => throw (.input reason.message)
+    | .ok copied =>
+      let installed : InstalledCheckpoint :=
+        ⟨before.time, checkpoint, before.primary.transport, before.primary.history, before.standby.transport, copied, computed⟩
+      let standby := { before.standby with transport := copied.state, history := copied.history }
+      return { state := { before with standby, primarySealed := true, installation := some installed }, installation := some installed }
+  | .switchRoute actor gateway =>
+    if !before.assignmentPaused || !before.primarySealed then throw (.input "Pause and install the checkpoint before changing route ownership.")
+    if gateway != .standby then throw (.input "The selected transfer moves endpoint routes to the standby.")
+    let some installed := before.installation | throw (.input "The standby has no installed checkpoint.")
+    if !before.primary.transport.same installed.checkpoint.snapshot.source ||
+        !before.standby.transport.same installed.installed.state then
+      throw (.input "The source or target transport state changed before route transfer.")
+    return { state := { before with owners := before.owners.set actor.leg gateway, routeEpoch := before.routeEpoch + 1 } }
+  | .fencePrimary =>
+    if !before.assignmentPaused || !before.primarySealed || before.installation.isNone then
+      throw (.input "Pause and install the checkpoint before primary fencing.")
+    if before.owners.client != .standby || before.owners.server != .standby then
+      throw (.input "Move the two endpoint routes to the standby before primary fencing.")
+    if before.outstanding .primary != 0 then throw (.input "Process all primary tickets before primary fencing.")
+    return { state := { before with primaryFenced := true } }
+  | .resume =>
+    if !before.assignmentPaused || !before.primaryFenced then throw (.input "Fence the primary before resuming assignments.")
+    if before.owners.client != .standby || before.owners.server != .standby then
+      throw (.input "The two endpoint routes must select the standby before assignments resume.")
+    let some installed := before.installation | throw (.input "The standby has no installed checkpoint.")
+    if !before.primary.transport.same installed.checkpoint.snapshot.source ||
+        !before.standby.transport.same installed.installed.state then
+      throw (.input "The source or target transport state changed before assignments resume.")
+    return { state := { before with assignmentPaused := false } }
+  | _ => throw (.input "The event is not a planned transfer control.")
+
 def process (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
   match event with
   | .authentication index =>
@@ -305,45 +500,47 @@ def process (input : Input) (before : State input) (event : Event) : Except Erro
       let finding := Check.EAP.finding source (SessionInstallation.current input.context.authentication (before.authentication + 1))
       return { state := { before with authentication := before.authentication + 1 }, passed := finding.passed }
     else throw (.input "No authentication observation remains.")
-  | .install id =>
-    let some configuration := input.context.configs.find? (·.id == id) | throw (.input "The configuration is unknown.")
-    let certificate ← parsed (SessionInstallation.check input.context.authentication input.context.requirements
-      before.authentication ⟨configuration.id, configuration.pipeline input.context.routing⟩ input.context.configs)
-    return { state := { before with configuration }, passed := certificate.passed }
-  | .stage id =>
-    let some specification := input.specifications.find? (·.id == id) | throw (.input "The ingress specification is unknown.")
-    let now := CampusTCPService.current input.context (beforeService input before)
-    let attachment ← (IngressAttachment.stage now (CampusTCPService.current_safe _ _) input.authenticationPort
-      specification.ingress specification.direction input.application specification.traffic).mapError (fun reason => .input reason.describe)
-    return { state := { before with attachments := before.attachments ++ [⟨id, attachment⟩] } }
-  | .installGuard id =>
-    let some guard := input.guards.find? (·.id == id) | throw (.input "The ingress guard is unknown.")
-    let now := CampusTCPService.current input.context (beforeService input before)
-    let checked ← parsed (IngressGuard.check now input.context.executionNS (before.attachments.map (·.value)) []
-      input.context.application guard.source)
-    return { state := { before with guard }, passed := checked.passed }
+  | .install id => installConfiguration input before .primary id
+  | .stage id => stageAttachment input before .primary id
+  | .installGuard id => installIngress input before .primary id
+  | .installAt gateway id => installConfiguration input before gateway id
+  | .stageAt gateway id => stageAttachment input before gateway id
+  | .installGuardAt gateway id => installIngress input before gateway id
+  | .pause | .stageCheckpoint | .installCheckpoint _ | .switchRoute .. | .fencePrimary | .resume =>
+    transferControl input before event
   | .open remote policy => startup input before (.activeOpen remote policy)
   | .write actor bytes => applyApplication input before actor (.write bytes)
   | .send actor count policy => applyApplication input before actor (.send count policy)
   | .read actor count => applyApplication input before actor (.read count)
   | .emitAck actor policy => applyApplication input before actor (.emitAck policy)
   | .assign index ingress =>
+    if before.assignmentPaused then throw (.input "New assignments are paused for the selected transfer.")
     let produced ← get before.outputs index "The endpoint output reference is missing."
-    let ticket : Ticket input.active input.passive := ⟨index, produced, ingress⟩
+    let gateway := before.owner produced.actor
+    if !input.configured gateway then throw (.input "The route owner has no declared gateway deployment.")
+    if gateway == .primary && (before.primarySealed || before.primaryFenced) then
+      throw (.input "The selected primary is sealed or fenced.")
+    if gateway == .standby && before.installation.isNone then throw (.input "The standby has no installed TCP checkpoint.")
+    let ticket : Ticket input.active input.passive := ⟨index, produced, ingress, gateway, before.routeEpoch⟩
     return { state := { before with work := Work.enqueue before.work ticket } }
   | .serve id observed =>
     let completed ← (Work.complete before.work id).mapError (fun reason => .input reason.describe)
-    let origin := beforeService input before
-    match computed : CampusTCPService.run input.context origin completed.item.value.source input.zone completed.item.value.ingress with
+    let gateway := completed.item.value.gateway
+    if gateway == .primary && (before.primarySealed || before.primaryFenced) then
+      throw (.input "The selected primary cannot process tickets after sealing or fencing.")
+    if gateway == .standby && (before.assignmentPaused || before.installation.isNone) then
+      throw (.input "Resume the installed standby before packet service.")
+    let origin := beforeService input before gateway
+    let resident := before.resident gateway
+    match computed : CampusTCPService.run (input.contextFor gateway) origin completed.item.value.source input.zone completed.item.value.ingress with
     | .error (.input reason) => throw (.input reason)
     | .error (.unsupported reason) => return unsupported before (admissionReason reason)
     | .ok evidence =>
       let served : Served input := ⟨before.time, completed.item, origin, evidence, computed,
         observe observed completed.item.value.source evidence.output⟩
-      let after := { before with
+      let next := { resident with transport := ⟨evidence.tracker, evidence.admission⟩, history := evidence.history resident.history }
+      let after := { before.write gateway next with
         work := completed.state
-        tracker := evidence.tracker
-        admission := evidence.admission
         services := before.services ++ [served] }
       return { state := after, passed := served.passed, service := some served }
   | .deliver index bytes policy =>

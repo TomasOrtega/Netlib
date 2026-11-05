@@ -428,9 +428,18 @@ They never replace the actual installed policy decision.
 Logoff followed by current denial prevents later gateway output, including with a cached binding.
 Previously received bytes remain available to the application.
 
-The selected path has one live modeled gateway and one bounded ordinary TCP connection.
-TCP replication and native tracker refinement remain separate obligations.
+The base path has one live modeled gateway and one bounded ordinary TCP connection.
+Native TCP replication and tracker refinement remain separate obligations.
 The [campus TCP guide](CAMPUS_TCP.md) gives the timeline schema, assurance contract, and static evidence.
+
+An optional standby deployment adds [planned TCP transfer](CAMPUS_TCP_TRANSFER.md) to the same command and global timeline.
+Gateway-specific installation and ingress operations use local configurations and interface lifetimes.
+Assignments derive an immutable gateway selection from the output producer's current route owner.
+Checkpoint installation requires an actual reachable source cut, paused assignments, no pending primary work, and an empty target pair.
+The target namespace lifetime must match the declared standby and its current guard.
+Separate route, fence, and resume operations retain the existing endpoint states.
+The final application proof uses actual service through each selected gateway.
+This is modeled planned transfer; native migration and automatic recovery remain open.
 
 ## Byte-derived NAT and TTL forwarding
 

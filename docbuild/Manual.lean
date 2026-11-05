@@ -1840,6 +1840,67 @@ Native Linux TCP tracker refinement, physical delivery, interface interpretation
 TCP replication, failure recovery, and the full campus demonstration remain open.
 All seven research programs remain OPEN.
 
+# Planned TCP gateway transfer
+%%%
+tag := "campus-tcp-transfer"
+file := "campus-tcp-transfer"
+%%%
+
+The transfer extension keeps the same endpoint chains across two declared gateways.
+Each gateway has its own current configuration, ingress attachments, tracker, and TCP admission state.
+An immutable ticket retains the gateway selected by its producer's route owner.
+A later route change cannot replace that selection.
+
+The checkpoint history starts empty and advances through actual checked transport computations.
+It retains the learned control positions, byte epochs, ACK counts, peer windows, and window coordinates.
+The executable comparison tests the exact full pair:
+
+```lean
+open Netlib.Protocol.TCP.Checkpoint in
+example (left right : Gateway) :
+    left.same right = true ↔ left = right :=
+  Gateway.same_correct left right
+```
+
+Staging stores an actual source cut.
+It can precede the assignment pause when that cut stays unchanged.
+The source can change while earlier tickets are processed, so staging alone does not establish readiness.
+Installation requires paused assignments, no pending primary ticket, an unchanged source cut, and an empty target.
+The target namespace lifetime must match the declared standby and its current guard.
+The source is then sealed against further packet processing.
+
+The copied checkpoint preserves the selected mapping in each direction:
+
+```lean
+open Netlib.Protocol.TCP.Checkpoint in
+example (checkpoint : Snapshot)
+    (direction : Netlib.Protocol.FlowNAT.Direction) :
+    checkpoint.source.tracker.model.lookup
+        (checkpoint.record.entry.flow.zone direction)
+        (checkpoint.record.entry.flow.input direction) =
+      some ⟨checkpoint.record.entry.flow, direction⟩ :=
+  checkpoint.lookup direction
+```
+
+The two endpoint routes change separately while assignments remain paused.
+Primary fencing requires the two routes elsewhere and no pending primary work.
+Assignments resume through the installed standby, with the existing endpoint states.
+The target still uses its own current policy and authentication prefix.
+Source permission is not target permission.
+
+The example drains an actual queued primary packet before installation.
+The standby processes a deferred ACK against the copied nonzero byte epoch.
+Later reads contain bytes from service at each gateway.
+The existing application theorem proves the read prefixes from this combined history.
+Transfer assurance separately requires the actual installation, route, fence, and resume history.
+Partial control sequences remain pending even when the application prefix proof is available.
+Logoff with current standby denial blocks later output while retaining the copied binding.
+
+This is modeled planned transfer with fixed declared gateway lifetimes.
+It does not establish native migration, physical fencing, reliable synchronization, unexpected failure recovery, or general TCP drain progress.
+Options, retransmission, congestion control, timers, and the full campus demonstration remain open.
+All seven research programs remain OPEN.
+
 # Documentation process
 %%%
 tag := "documentation"

@@ -9,6 +9,7 @@ lake exe netlib campus-tcp examples/campus-tcp/trace.json --json
 ```
 
 The example uses constructed unfragmented IPv4 bytes and one live modeled gateway.
+The [planned transfer extension](CAMPUS_TCP_TRANSFER.md) continues the same endpoint history through a declared standby.
 It is a step toward the full campus demonstration.
 It does not complete that demonstration or any of the seven research programs.
 
@@ -165,7 +166,7 @@ EAP method acceptance and credential integrity remain supplied evidence.
 TLS cryptography, authentic capture, faithful native installation, physical delivery, and real Wi-Fi enforcement require separate arguments.
 The interface/node interpretation and principal/header ownership also remain deployment assumptions.
 
-The selected path has one gateway and one bounded ordinary TCP connection.
+The base example has one gateway and one bounded ordinary TCP connection.
 It does not extend the UDP-only replication profile to TCP.
-TCP replication, failure recovery, safe upgrade, reordering, retransmission, options, timers, and long sequence reuse remain open.
+Native TCP replication, automatic failure recovery, safe upgrade, reordering, retransmission, options, timers, and long sequence reuse remain open.
 All seven [research programs](ROADMAP.md) and the full campus demonstration remain OPEN.

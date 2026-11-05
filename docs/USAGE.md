@@ -30,6 +30,11 @@ lake exe netlib campus-tcp examples/campus-tcp/trace.json --json
 
 The [campus TCP guide](CAMPUS_TCP.md) joins endpoint outputs, immutable work, current authentication policy, gateway execution, and application reads.
 It distinguishes current denial from stale installed allow rules and preserves the actual computed outcome.
+The [planned transfer guide](CAMPUS_TCP_TRANSFER.md) adds a standby deployment and checked pause, state copy, route, fence, and resume operations.
+
+```sh
+lake exe netlib campus-tcp examples/campus-tcp-transfer/trace.json --json
+```
 
 ## Interface-bound campus admission
 

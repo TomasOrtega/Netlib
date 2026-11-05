@@ -1,4 +1,5 @@
 import Netlib.Check.CampusTCPFacts
+import Netlib.Check.CampusTCPTransferFacts
 
 /-!
 # Imported campus TCP execution
@@ -20,6 +21,10 @@ structure Input where
 
 private def require (condition : Bool) (message : String) : Except String Unit :=
   if condition then .ok () else .error message
+
+private def fieldsWithOptional (json : Lean.Json) (required optional : List String) : Except String Unit :=
+  Import.PacketFields.fields json (required ++ optional.filter fun name =>
+    match json.getObjVal? name with | .ok _ => true | .error _ => false)
 
 def namespaceFromJson (json : Lean.Json) : Except String IngressAttachment.NamespaceRef := do
   Import.PacketFields.fields json ["id", "birth"]
@@ -44,6 +49,12 @@ private def actorFromJson (json : Lean.Json) : Except String Actor := do
   | "client" => return .client
   | "server" => return .server
   | _ => throw "Use client or server as the endpoint actor."
+
+private def gatewayFromJson (json : Lean.Json) : Except String Gateway := do
+  match ← json.getStr? with
+  | "primary" => return .primary
+  | "standby" => return .standby
+  | _ => throw "Use primary or standby as the gateway."
 
 private def scopeFromJson (json : Lean.Json) : Except String Scope := do
   Import.PacketFields.fields json ["resource", "operation"]
@@ -84,20 +95,67 @@ private def observationFromJson (json : Lean.Json) : Except String (Option (List
       | value => some <$> hex value
     return some (input, output)
 
+private def deploymentFromJson (json : Lean.Json) : Except String Deployment := do
+  Import.PacketFields.fields json ["namespace", "routing", "configs", "initialConfig", "authenticationPort", "live",
+    "specifications", "guards", "initialGuard"]
+  let executionNS ← namespaceFromJson (← json.getObjVal? "namespace")
+  let routing ← Check.ConntrackLifecycle.routingFromJson (← json.getObjVal? "routing")
+  let configs ← (← (← json.getObjVal? "configs").getArr?).toList.zipIdx.mapM fun (value, index) =>
+    Check.ConntrackLifecycle.Config.fromJson value index
+  require (decide (configs.map (·.id)).Nodup) "Configuration identities must be unique."
+  let initialConfigName ← (← json.getObjVal? "initialConfig").getStr?
+  let some initialConfig := configs.find? (·.id == initialConfigName) | throw "The initial configuration is unknown."
+  let authenticationPort ← interfaceFromJson (← json.getObjVal? "authenticationPort")
+  let live ← (← (← json.getObjVal? "live").getArr?).toList.mapM interfaceFromJson
+  let specifications ← (← (← json.getObjVal? "specifications").getArr?).toList.mapM specificationFromJson
+  require (decide (specifications.map (·.id)).Nodup) "Ingress specification identities must be unique."
+  let guards ← (← (← json.getObjVal? "guards").getArr?).toList.mapM guardFromJson
+  require (decide (guards.map (·.id)).Nodup) "Ingress guard identities must be unique."
+  let initialGuardName ← (← json.getObjVal? "initialGuard").getStr?
+  let some initialGuard := guards.find? (·.id == initialGuardName) | throw "The initial ingress guard is unknown."
+  return ⟨routing, configs, executionNS, initialConfig, initialGuard, guards, specifications, authenticationPort, live⟩
+
 private def eventFromJson (json : Lean.Json) : Except String Event := do
   match ← (← json.getObjVal? "kind").getStr? with
   | "authentication" =>
     Import.PacketFields.fields json ["kind", "index"]
     return .authentication (← (← json.getObjVal? "index").getNat?)
   | "install" =>
-    Import.PacketFields.fields json ["kind", "configuration"]
-    return .install (← (← json.getObjVal? "configuration").getStr?)
+    fieldsWithOptional json ["kind", "configuration"] ["gateway"]
+    let id ← (← json.getObjVal? "configuration").getStr?
+    match json.getObjVal? "gateway" with
+    | .error _ => return .install id
+    | .ok gateway => return .installAt (← gatewayFromJson gateway) id
   | "stage" =>
-    Import.PacketFields.fields json ["kind", "specification"]
-    return .stage (← (← json.getObjVal? "specification").getStr?)
+    fieldsWithOptional json ["kind", "specification"] ["gateway"]
+    let id ← (← json.getObjVal? "specification").getStr?
+    match json.getObjVal? "gateway" with
+    | .error _ => return .stage id
+    | .ok gateway => return .stageAt (← gatewayFromJson gateway) id
   | "installGuard" =>
-    Import.PacketFields.fields json ["kind", "guard"]
-    return .installGuard (← (← json.getObjVal? "guard").getStr?)
+    fieldsWithOptional json ["kind", "guard"] ["gateway"]
+    let id ← (← json.getObjVal? "guard").getStr?
+    match json.getObjVal? "gateway" with
+    | .error _ => return .installGuard id
+    | .ok gateway => return .installGuardAt (← gatewayFromJson gateway) id
+  | "pause" =>
+    Import.PacketFields.fields json ["kind"]
+    return .pause
+  | "stageCheckpoint" =>
+    Import.PacketFields.fields json ["kind"]
+    return .stageCheckpoint
+  | "installCheckpoint" =>
+    Import.PacketFields.fields json ["kind", "namespace"]
+    return .installCheckpoint (← namespaceFromJson (← json.getObjVal? "namespace"))
+  | "switchRoute" =>
+    Import.PacketFields.fields json ["kind", "actor", "gateway"]
+    return .switchRoute (← actorFromJson (← json.getObjVal? "actor")) (← gatewayFromJson (← json.getObjVal? "gateway"))
+  | "fencePrimary" =>
+    Import.PacketFields.fields json ["kind"]
+    return .fencePrimary
+  | "resume" =>
+    Import.PacketFields.fields json ["kind"]
+    return .resume
   | "open" =>
     Import.PacketFields.fields json ["kind", "remote", "policyPermitted"]
     return .open (← TCPHandshake.socketFromJson (← json.getObjVal? "remote"))
@@ -128,8 +186,8 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
   | _ => throw "The campus TCP event kind is unknown."
 
 def Input.fromJson (json : Lean.Json) : Except String Input := do
-  Import.PacketFields.fields json ["schema", "authentication", "application", "intent", "routing", "configs", "initialConfig",
-    "namespace", "authenticationPort", "live", "specifications", "guards", "initialGuard", "active", "passive", "zone", "events"]
+  fieldsWithOptional json ["schema", "authentication", "application", "intent", "routing", "configs", "initialConfig",
+    "namespace", "authenticationPort", "live", "specifications", "guards", "initialGuard", "active", "passive", "zone", "events"] ["standby"]
   require ((← (← json.getObjVal? "schema").getNat?) == 1) "Use campus TCP schema 1."
   let authentication ← Check.EAP.Input.fromJson (← json.getObjVal? "authentication")
   let application ← scopeFromJson (← json.getObjVal? "application")
@@ -155,9 +213,14 @@ def Input.fromJson (json : Lean.Json) : Except String Input := do
     let zone ← (← json.getObjVal? "zone").getNat?
     require (zone == 0) "The selected campus path uses zone zero."
     let events ← (← (← json.getObjVal? "events").getArr?).toList.mapM eventFromJson
+    let standby ← match json.getObjVal? "standby" with
+      | .error _ => pure none
+      | .ok value => some <$> deploymentFromJson value
+    if let some deployment := standby then
+      require (decide (deployment.executionNS ≠ executionNS)) "The two gateway namespace lifetimes must be distinct."
     let context : CampusTCPService.Context := ⟨authentication, requirements, routing, configs, executionNS, specifications.map (·.traffic)⟩
     let model : CampusTCPModel.Input := ⟨context, application, by simpa [List.all_eq_true] using scopes,
-      initialConfig, initialGuard, guards, specifications, authenticationPort, live, active, passive, zone⟩
+      initialConfig, initialGuard, guards, specifications, authenticationPort, live, active, passive, zone, standby⟩
     return ⟨model, events⟩
   else throw "Every application intent must use the declared campus scope."
 
@@ -196,6 +259,44 @@ def ApplicationStatus.json : ApplicationStatus report → Lean.Json
     ("serverReceives", Lean.toJson (value.endpoints.server.steps.filter fun step =>
       match step.event with | .receive _ => true | _ => false).length)]
 
+def completedTransfer (report : CampusTCPModel.Report input events) : Bool :=
+  report.final.primaryFenced && !report.final.assignmentPaused &&
+    decide (report.final.owners.client = .standby) && decide (report.final.owners.server = .standby)
+
+inductive TransferStatus (report : CampusTCPModel.Report input events) where
+  | disabled (absent : input.standby.isSome = false)
+  | pending (incomplete : completedTransfer report = false)
+  | failed (reason : String)
+  | checked (value : CampusTCPTransferFacts.Assurance report)
+
+def transferStatus (report : CampusTCPModel.Report input events) : TransferStatus report :=
+  match declared : input.standby with
+  | none => .disabled (by rw [declared]; rfl)
+  | some _ =>
+    if report.compliant then
+      if completed : completedTransfer report = true then
+        match CampusTCPTransferFacts.assure report with
+        | .error reason => .failed reason
+        | .ok value => .checked value
+      else .pending (by cases actual : completedTransfer report <;> simp_all)
+    else .failed "The actual joint replay is not compliant."
+
+def TransferStatus.passed : TransferStatus report → Bool
+  | .disabled _ | .pending _ | .checked _ => true
+  | .failed _ => false
+
+def TransferStatus.json : TransferStatus report → Lean.Json
+  | .disabled _ => Lean.Json.mkObj [("status", Lean.toJson "disabled")]
+  | .pending _ => Lean.Json.mkObj [("status", Lean.toJson "pending")]
+  | .failed reason => Lean.Json.mkObj [("status", Lean.toJson "failed"), ("reason", Lean.toJson reason)]
+  | .checked value => Lean.Json.mkObj [
+    ("status", Lean.toJson "checked"), ("pausedAt", Lean.toJson value.pause.step.before.time),
+    ("stagedAt", Lean.toJson value.staging.step.before.time), ("installedAt", Lean.toJson value.step.before.time),
+    ("clientRouteAt", Lean.toJson value.clientRoute.step.before.time), ("serverRouteAt", Lean.toJson value.serverRoute.step.before.time),
+    ("fencedAt", Lean.toJson value.fence.step.before.time), ("resumedAt", Lean.toJson value.resume.step.before.time),
+    ("historyTransitions", Lean.toJson value.installation.history.length),
+    ("sourcePreserved", Lean.toJson (report.final.primary.transport.same value.installation.checkpoint.snapshot.source))]
+
 def namespaceJson (value : IngressAttachment.NamespaceRef) : Lean.Json :=
   Lean.Json.mkObj [("id", Lean.toJson value.id), ("birth", Lean.toJson value.birth)]
 
@@ -204,9 +305,13 @@ def interfaceJson (value : IngressAttachment.InterfaceRef) : Lean.Json := Lean.J
 
 def actorName : Actor → String | .client => "client" | .server => "server"
 def directionName : FlowNAT.Direction → String | .original => "original" | .reply => "reply"
+def gatewayName : Gateway → String | .primary => "primary" | .standby => "standby"
 
 def eventKind : Event → String
   | .authentication _ => "authentication" | .install _ => "install" | .stage _ => "stage" | .installGuard _ => "installGuard"
+  | .installAt .. => "install" | .stageAt .. => "stage" | .installGuardAt .. => "installGuard"
+  | .pause => "pause" | .stageCheckpoint => "stageCheckpoint" | .installCheckpoint _ => "installCheckpoint"
+  | .switchRoute .. => "switchRoute" | .fencePrimary => "fencePrimary" | .resume => "resume"
   | .open .. => "open" | .write .. => "write" | .send .. => "send" | .read .. => "read" | .emitAck .. => "emitAck"
   | .assign .. => "assign" | .serve .. => "serve" | .deliver .. => "deliver"
 
@@ -216,6 +321,12 @@ def eventJson (event : Event) : Lean.Json :=
     | .install id => [("configuration", Lean.toJson id)]
     | .stage id => [("specification", Lean.toJson id)]
     | .installGuard id => [("guard", Lean.toJson id)]
+    | .installAt gateway id => [("configuration", Lean.toJson id), ("gateway", Lean.toJson (gatewayName gateway))]
+    | .stageAt gateway id => [("specification", Lean.toJson id), ("gateway", Lean.toJson (gatewayName gateway))]
+    | .installGuardAt gateway id => [("guard", Lean.toJson id), ("gateway", Lean.toJson (gatewayName gateway))]
+    | .pause | .stageCheckpoint | .fencePrimary | .resume => []
+    | .installCheckpoint executionNS => [("namespace", namespaceJson executionNS)]
+    | .switchRoute actor gateway => [("actor", Lean.toJson (actorName actor)), ("gateway", Lean.toJson (gatewayName gateway))]
     | .open remote policy => [("remote", TCPHandshake.socketJson remote), ("policyPermitted", Lean.toJson policy)]
     | .write actor bytes => [("actor", Lean.toJson (actorName actor)), ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex bytes))]
     | .send actor count policy => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
@@ -244,20 +355,80 @@ def serverState : Connection active passive → Option TCP.Endpoint.State
 private def field (json : Lean.Json) (name : String) : Lean.Json := match json.getObjVal? name with
   | .ok value => value | .error _ => .null
 
+def recordsJson (state : Protocol.ConntrackLifecycle.State) : Lean.Json :=
+  Lean.toJson (state.records.map fun record => Lean.Json.mkObj [
+    ("zone", Lean.toJson record.entry.flow.originalZone), ("original", Import.PacketFields.headerJson record.entry.flow.original),
+    ("translated", Import.PacketFields.headerJson (record.entry.flow.output .original)), ("seenReply", Lean.toJson record.seenReply)])
+
+def entryJson (entry : NetfilterNAT.Entry) : Lean.Json := Lean.Json.mkObj [
+  ("original", Import.PacketFields.headerJson entry.flow.original), ("reply", Import.PacketFields.headerJson entry.flow.reply),
+  ("originalZone", Lean.toJson entry.flow.originalZone), ("replyZone", Lean.toJson entry.flow.replyZone),
+  ("sourceNAT", Lean.toJson entry.sourceNAT), ("destinationNAT", Lean.toJson entry.destinationNAT)]
+
+def laneJson (lane : Protocol.TCP.Admission.Lane) : Lean.Json := Lean.Json.mkObj [
+  ("base", Lean.toJson lane.base.val), ("observed", Lean.toJson lane.observed), ("acknowledged", Lean.toJson lane.acknowledged),
+  ("peerWindow", Lean.toJson lane.peerWindow.val), ("windowSequence", Lean.toJson lane.windowSequence.val),
+  ("windowAcknowledgment", Lean.toJson lane.windowAcknowledgment.val)]
+
+def seenJson (seen : Protocol.TCP.Admission.Seen) : Lean.Json := Lean.Json.mkObj [
+  ("zone", Lean.toJson seen.zone), ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex seen.bytes)),
+  ("header", Import.PacketFields.headerJson seen.header), ("segment", Check.TCP.segmentJson seen.segment),
+  ("entry", entryJson seen.attachment.entry), ("direction", Lean.toJson (directionName seen.attachment.direction)),
+  ("classification", Lean.toJson (match seen.attachment.classification with
+    | .new => "new" | .established => "established" | .related => "related" | .invalid => "invalid" | .untracked => "untracked")),
+  ("fresh", Lean.toJson seen.attachment.fresh)]
+
+def admissionJson (state : Protocol.TCP.Admission.State) : Lean.Json :=
+  let initialWindow (flags : UInt8) := ((state.observations.find? (·.segment.flags == flags)).map (·.segment.window.val)).getD 0
+  Lean.Json.mkObj ([
+    ("phase", Lean.toJson state.phase.name), ("observations", Lean.toJson state.observations.length),
+    ("sourcePackets", Lean.toJson (state.observations.map seenJson))] ++ match state.phase with
+    | .empty => []
+    | .syn entry iss window => [
+      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val)]
+    | .synAck entry iss window serverISS serverWindow => [
+      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val),
+      ("serverISS", Lean.toJson serverISS.val), ("serverWindow", Lean.toJson serverWindow.val)]
+    | .data session => [
+      ("entry", entryJson session.entry), ("clientISS", Lean.toJson session.original.controlOrigin.val),
+      ("clientWindow", Lean.toJson (initialWindow 2)), ("serverISS", Lean.toJson session.reply.controlOrigin.val),
+      ("serverWindow", Lean.toJson (initialWindow 18)), ("original", laneJson session.original), ("reply", laneJson session.reply)])
+
+def transportFields (transport : Protocol.TCP.Checkpoint.Gateway) (transitions : Nat) : List (String × Lean.Json) := [
+  ("records", recordsJson transport.tracker), ("confirmed", Check.ConntrackLifecycle.stateJson transport.tracker),
+  ("admission", admissionJson transport.admission), ("historyTransitions", Lean.toJson transitions)]
+
+def residentJson (resident : CampusTCPModel.Local) : Lean.Json :=
+  Lean.Json.mkObj ([("configuration", Lean.toJson resident.configuration.id), ("guard", Lean.toJson resident.guard.id)] ++
+    transportFields resident.transport resident.history.length)
+
+def checkpointJson (checkpoint : CachedCheckpoint) : Lean.Json :=
+  Lean.Json.mkObj ([("id", Lean.toJson checkpoint.id), ("stagedAt", Lean.toJson checkpoint.time)] ++
+    transportFields checkpoint.snapshot.source checkpoint.snapshot.cut)
+
+def transferJson (state : State input) : Lean.Json := Lean.Json.mkObj [
+  ("paused", Lean.toJson state.assignmentPaused), ("installed", Lean.toJson state.installation.isSome),
+  ("primarySealed", Lean.toJson state.primarySealed), ("primaryFenced", Lean.toJson state.primaryFenced),
+  ("owners", Lean.Json.mkObj [("client", Lean.toJson (gatewayName state.owners.client)), ("server", Lean.toJson (gatewayName state.owners.server))]),
+  ("routeEpoch", Lean.toJson state.routeEpoch), ("cache", (state.cache.map checkpointJson).getD .null),
+  ("installation", (state.installation.map fun installed => Lean.Json.mkObj [
+    ("index", Lean.toJson installed.time), ("checkpoint", Lean.toJson installed.checkpoint.id),
+    ("stagedAt", Lean.toJson installed.checkpoint.time), ("historyTransitions", Lean.toJson installed.history.length)]).getD .null)]
+
 def stateJson (state : State input) : Lean.Json :=
   let stage := (connectionStage state.connection).json
-  Lean.Json.mkObj [
+  Lean.Json.mkObj ([
     ("after", Lean.toJson state.authentication), ("configuration", Lean.toJson state.configuration.id), ("guard", Lean.toJson state.guard.id),
     ("activePhase", field stage "activePhase"), ("passivePhase", field stage "passivePhase"),
     ("activeEstablishedAt", field stage "activeEstablishedAt"), ("passiveEstablishedAt", field stage "passiveEstablishedAt"),
     ("client", ((clientState state.connection).map TCPEndpoint.stateJson).getD .null),
     ("server", ((serverState state.connection).map TCPEndpoint.stateJson).getD .null),
     ("admissionPhase", Lean.toJson state.admission.phase.name), ("admissionObservations", Lean.toJson state.admission.observations.length),
-    ("records", Lean.toJson (state.tracker.records.map fun record => Lean.Json.mkObj [
-      ("zone", Lean.toJson record.entry.flow.originalZone), ("original", Import.PacketFields.headerJson record.entry.flow.original),
-      ("translated", Import.PacketFields.headerJson (record.entry.flow.output .original)), ("seenReply", Lean.toJson record.seenReply)])),
+    ("records", recordsJson state.tracker),
     ("outputs", Lean.toJson state.outputs.length), ("pendingTickets", Lean.toJson (state.work.pending.map (·.id))),
-    ("services", Lean.toJson state.services.length)]
+    ("services", Lean.toJson state.services.length)] ++ if input.standby.isSome then [
+      ("gateways", Lean.Json.mkObj [("primary", residentJson state.primary), ("standby", residentJson state.standby)]),
+      ("transfer", transferJson state)] else [])
 
 def producedKind : Produced active passive → String
   | .startup step _ _ => match step.event with | .activeOpen .. => "open" | _ => "startup"
@@ -277,7 +448,7 @@ def disposition : TCP.WireForwarding.Disposition → String
   | .forwardDrop => "forwardDrop" | .lateDrop => "lateDrop"
 
 def servedJson (value : Served input) (id : Nat) : Lean.Json :=
-  Lean.Json.mkObj [
+  Lean.Json.mkObj ([
     ("id", Lean.toJson id), ("index", Lean.toJson value.time), ("ticket", Lean.toJson value.ticket.id),
     ("outputID", Lean.toJson value.ticket.value.outputIndex), ("actor", Lean.toJson (actorName value.ticket.value.produced.actor)),
     ("sourceKind", Lean.toJson (producedKind value.ticket.value.produced)), ("inputHex", Lean.toJson (Import.EAPOL.bytesToHex value.ticket.value.source.bytes)),
@@ -287,7 +458,9 @@ def servedJson (value : Served input) (id : Nat) : Lean.Json :=
     ("nextHop", Lean.toJson (value.evidence.processing.bind (fun p => p.outcome.nextHop))),
     ("checks", Lean.Json.mkObj [("forward", Lean.toJson value.evidence.checks.forward.passed),
       ("ingress", Lean.toJson value.evidence.checks.guard.passed), ("coverage", Lean.toJson (CampusTCPService.coverage input.context value.ticket.value.source))]),
-    ("observationsMatch", Lean.toJson value.observed), ("routeRoleMatch", Lean.toJson value.routeMatched)]
+    ("observationsMatch", Lean.toJson value.observed), ("routeRoleMatch", Lean.toJson value.routeMatched)] ++
+    if input.standby.isSome then [("gateway", Lean.toJson (gatewayName value.ticket.value.gateway)),
+      ("routeEpoch", Lean.toJson value.ticket.value.routeEpoch)] else [])
 
 def decisionJson (step : CampusTCPModel.Step input) : Lean.Json :=
   match step.result.application, step.result.startup with
@@ -315,7 +488,7 @@ def assumptions : List String := [
   "The selected TCP history excludes options, retransmission, replacement, close processing, and unbounded sequence reuse.",
   "Actual gateway output supplies receiver bytes in the modeled timeline. Physical delivery and connection-instance identity remain external.",
   "Logoff and checked denial prevent later gateway output. They do not erase bytes already received or buffered.",
-  "TCP replication, failover, native Wi-Fi enforcement, and the full campus demonstration remain open."]
+  "Native TCP migration, automatic failure recovery, native Wi-Fi enforcement, and the full campus demonstration remain open."]
 
 def sources : List Standards.Source := [
   ⟨"Transmission Control Protocol", "RFC 9293", "3.4 and 3.10.7", "https://www.rfc-editor.org/rfc/rfc9293.html#section-3.10.7"⟩,
@@ -324,7 +497,8 @@ def sources : List Standards.Source := [
   ⟨"Linux connection tracking", "v6.8", "ordinary attachment and confirmation", Protocol.ConntrackLifecycle.sourceURL⟩]
 
 def renderJson (report : CampusTCPModel.Report input events)
-    (application : ApplicationStatus report := applicationStatus report) : Lean.Json := Lean.Json.mkObj [
+    (application : ApplicationStatus report := applicationStatus report)
+    (transfer : TransferStatus report := transferStatus report) : Lean.Json := Lean.Json.mkObj ([
   ("scope", Lean.toJson "campus-tcp-application-path"), ("supported", Lean.toJson report.supported),
   ("compliant", Lean.toJson report.compliant), ("inputEvents", Lean.toJson events.length), ("evaluatedEvents", Lean.toJson report.steps.length),
   ("applicationAssurance", application.json),
@@ -340,11 +514,13 @@ def renderJson (report : CampusTCPModel.Report input events)
   ("remainingEvents", Lean.toJson (report.remaining.map eventJson)), ("assumptions", Lean.toJson assumptions),
   ("sources", Lean.toJson (sources.map fun source => Lean.Json.mkObj [
     ("document", Lean.toJson source.document), ("version", Lean.toJson source.version),
-    ("clause", Lean.toJson source.clause), ("url", Lean.toJson source.url)]))]
+    ("clause", Lean.toJson source.clause), ("url", Lean.toJson source.url)]))] ++
+    if input.standby.isSome then [("transferAssurance", transfer.json)] else [])
 
 def render (report : CampusTCPModel.Report input events)
-    (application : ApplicationStatus report := applicationStatus report) : String :=
+    (application : ApplicationStatus report := applicationStatus report)
+    (transfer : TransferStatus report := transferStatus report) : String :=
   (if report.compliant then "CAMPUS TCP MODEL COMPLIANT\n" else "CAMPUS TCP MODEL NOT COMPLIANT\n") ++
-    (renderJson report application).pretty
+    (renderJson report application transfer).pretty
 
 end Netlib.Check.CampusTCP

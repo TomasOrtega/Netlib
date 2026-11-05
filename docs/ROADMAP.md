@@ -116,7 +116,9 @@ Its composed theorem removes caller-supplied seeds and cursor equalities from th
 The [campus TCP path](CAMPUS_TCP.md) connects those endpoint operations to actual current-policy, NAT, route, and filtering execution.
 Immutable assignments and exact gateway emissions supply the application delivery history.
 The revocation result prevents later gateway output and preserves the actual outcome of stale allow rules.
-Broader startup features, congestion control, timers, retransmission, native correspondence, and TCP failover continuity remain open.
+The [planned TCP transfer](CAMPUS_TCP_TRANSFER.md) preserves a reachable tracker and admission pair across two modeled gateways.
+Actual pause, drain, installation, route, and fence operations retain the existing endpoint histories and application byte provenance.
+Broader startup features, congestion control, timers, retransmission, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.

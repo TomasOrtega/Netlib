@@ -1,0 +1,36 @@
+{
+  "version": "6.19.0",
+  "bindings": [
+    {
+      "device": "client0",
+      "nextNode": "client",
+      "gateway": null
+    },
+    {
+      "device": "server0",
+      "nextNode": "server",
+      "gateway": null
+    }
+  ],
+  "routes": [
+    {
+      "dst": "192.0.2.0/24",
+      "dev": "client0",
+      "protocol": "static",
+      "scope": "link",
+      "flags": []
+    },
+    {
+      "dst": "198.51.100.0/24",
+      "dev": "server0",
+      "protocol": "static",
+      "scope": "link",
+      "flags": []
+    },
+    {
+      "dst": "203.0.113.0/24",
+      "type": "blackhole",
+      "flags": []
+    }
+  ]
+}

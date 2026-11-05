@@ -17,6 +17,13 @@ namespace O
 export Theory.Outstanding (Item newItem)
 end O
 
+@[simp] private theorem write_outputs (before : M.State input) (gateway) (resident) :
+    (before.write gateway resident).outputs = before.outputs := by cases gateway <;> rfl
+@[simp] private theorem write_services (before : M.State input) (gateway) (resident) :
+    (before.write gateway resident).services = before.services := by cases gateway <;> rfl
+@[simp] private theorem write_work (before : M.State input) (gateway) (resident) :
+    (before.write gateway resident).work = before.work := by cases gateway <;> rfl
+
 private def Produces (before : M.State input) (effect : M.Effect input) : Prop :=
   effect.state.outputs = before.outputs ++ effect.output.toList ∧
     effect.state.services = before.services ∧ effect.state.work = before.work ∧
@@ -85,7 +92,7 @@ def Assignment (before : M.State input) (event : M.Event)
     (item : O.Item (M.Ticket input.active input.passive)) : Prop :=
   ∃ index ingress produced, event = .assign index ingress ∧
     before.outputs[index]? = some produced ∧
-    item = O.newItem before.work ⟨index, produced, ingress⟩
+    item = O.newItem before.work ⟨index, produced, ingress, before.owner produced.actor, before.routeEpoch⟩
 
 private structure Changes (before : M.State input) (event : M.Event) (effect : M.Effect input) : Prop where
   outputs : effect.state.outputs = before.outputs ++ effect.output.toList
@@ -96,7 +103,7 @@ private structure Changes (before : M.State input) (event : M.Event) (effect : M
   serviceOrigin : ∀ served, effect.service = some served →
     ∃ id observed, ∃ completed : Theory.Outstanding.Completed before.work id,
       event = .serve id observed ∧ Theory.Outstanding.complete before.work id = .ok completed ∧
-      served.ticket = completed.item ∧ served.before = Check.CampusTCPModel.beforeService input before ∧
+      served.ticket = completed.item ∧ served.before = Check.CampusTCPModel.beforeService input before served.ticket.value.gateway ∧
       served.time = before.time
 
 private theorem produces_changes (event : M.Event) (produces : Produces before effect) : Changes before event effect := by
@@ -129,39 +136,55 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
         cases accepted
         exact produces_changes _ (by simp [Produces])
       · cases accepted
-  | install id | stage id | installGuard id =>
-    simp only [Check.CampusTCPModel.process] at accepted
+  | install id | stage id | installGuard id | installAt gateway id | stageAt gateway id | installGuardAt gateway id =>
+    simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.installConfiguration,
+      Check.CampusTCPModel.stageAttachment, Check.CampusTCPModel.installIngress] at accepted
+    repeat' first
+      | (solve | apply produces_changes; simp [Produces])
+      | (solve | apply produces_changes; simp [Produces])
+      | (cases accepted)
+      | (split at accepted)
+      | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+  | pause | stageCheckpoint | installCheckpoint ns | switchRoute actor gateway | fencePrimary | resume =>
+    simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at accepted
     repeat' first
       | (solve | apply produces_changes; simp [Produces])
       | (cases accepted)
       | (split at accepted)
-      | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw] at accepted)
+      | (dsimp only [Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
   | assign index ingress =>
     simp only [Check.CampusTCPModel.process] at accepted
-    cases found : before.outputs[index]? with
-    | none => simp [Check.CampusTCPModel.get, found, bind, Except.bind] at accepted
-    | some produced =>
-      simp only [Check.CampusTCPModel.get, found, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at accepted
-      cases accepted
-      refine ⟨by simp, by simp, ?_, by simp, by simp, by simp⟩
-      intro item member
-      rcases List.mem_append.mp member with old | fresh
-      · exact .inl old
-      · exact .inr ⟨index, ingress, produced, rfl, found, List.mem_singleton.mp fresh⟩
+    split at accepted
+    · simp [throw, bind, Except.bind] at accepted
+    · cases found : before.outputs[index]? with
+      | none => simp [Check.CampusTCPModel.get, found, bind, Except.bind] at accepted
+      | some produced =>
+        simp only [Check.CampusTCPModel.get, found, bind, Except.bind, pure, Except.pure] at accepted
+        repeat' first
+          | (cases accepted)
+          | (split at accepted)
+          | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+        all_goals
+          refine ⟨by simp, by simp, ?_, by simp, by simp, by simp⟩
+          intro item member
+          rcases List.mem_append.mp member with old | fresh
+          · exact .inl old
+          · exact .inr ⟨index, ingress, produced, rfl, found, List.mem_singleton.mp fresh⟩
   | serve id observed =>
     simp only [Check.CampusTCPModel.process] at accepted
     cases completed : Theory.Outstanding.complete before.work id with
     | error reason => simp [completed, Except.mapError, bind, Except.bind] at accepted
     | ok work =>
       simp only [completed, Except.mapError, bind, Except.bind] at accepted
-      split at accepted
-      · cases accepted
-      · simp only [pure, Except.pure, Except.ok.injEq] at accepted
-        cases accepted
-        exact produces_changes _ (by simp [Produces, Check.CampusTCPModel.unsupported])
-      · simp only [pure, Except.pure, Except.ok.injEq] at accepted
-        cases accepted
-        refine ⟨by simp, rfl, ?_, by simp, ?_, ?_⟩
+      repeat' first
+        | (solve | apply produces_changes; simp [Produces, Check.CampusTCPModel.unsupported])
+        | (cases accepted)
+        | (split at accepted)
+        | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+      all_goals
+        refine ⟨?_, ?_, ?_, by simp, ?_, ?_⟩
+        · simp only [write_outputs, Option.toList_none, List.append_nil]
+        · rfl
         · intro item member
           exact .inl (work.pendingPerm.mem_iff.mpr (List.mem_cons_of_mem _ member))
         · intro served present
@@ -181,7 +204,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
         | (solve | apply produces_changes; simpa only [Produces] using (application_produces input before _ _ _ (by assumption)))
         | (cases accepted)
         | (split at accepted)
-        | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw] at accepted)
+        | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
 
 private theorem step_changes (step : M.Step input) : Changes step.before step.event step.result := by
   obtain ⟨effect, computed, same⟩ := step.processed
@@ -193,20 +216,20 @@ theorem service_origin (step : M.Step input) (served : M.Served input)
     (present : step.result.service = some served) :
     ∃ id observed, ∃ completed : Theory.Outstanding.Completed step.before.work id,
       step.event = .serve id observed ∧ Theory.Outstanding.complete step.before.work id = .ok completed ∧
-      served.ticket = completed.item ∧ served.before = Check.CampusTCPModel.beforeService input step.before ∧
+      served.ticket = completed.item ∧ served.before = Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway ∧
       served.time = step.before.time :=
   (step_changes step).serviceOrigin served present
 
 theorem service_run (step : M.Step input) (served : M.Served input)
     (present : step.result.service = some served) :
-    ∃ evidence : Check.CampusTCPService.Evidence input.context
-        (Check.CampusTCPModel.beforeService input step.before) served.ticket.value.source input.zone served.ticket.value.ingress,
-      Check.CampusTCPService.run input.context (Check.CampusTCPModel.beforeService input step.before)
+    ∃ evidence : Check.CampusTCPService.Evidence (input.contextFor served.ticket.value.gateway)
+        (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway) served.ticket.value.source input.zone served.ticket.value.ingress,
+      Check.CampusTCPService.run (input.contextFor served.ticket.value.gateway) (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway)
         served.ticket.value.source input.zone served.ticket.value.ingress = .ok evidence := by
   obtain ⟨id, observed, completed, event, finished, ticket, before, time⟩ := service_origin step served present
-  have computed : ∃ evidence : Check.CampusTCPService.Evidence input.context served.before
+  have computed : ∃ evidence : Check.CampusTCPService.Evidence (input.contextFor served.ticket.value.gateway) served.before
       served.ticket.value.source input.zone served.ticket.value.ingress,
-      Check.CampusTCPService.run input.context served.before served.ticket.value.source input.zone
+      Check.CampusTCPService.run (input.contextFor served.ticket.value.gateway) served.before served.ticket.value.source input.zone
         served.ticket.value.ingress = .ok evidence := ⟨served.evidence, served.computed⟩
   rw [← before]
   exact computed
@@ -269,7 +292,7 @@ theorem pending_origin (trace : M.Trace input initial events steps final remaini
     (item : O.Item (M.Ticket input.active input.passive)) (member : item ∈ final.work.pending) :
     item ∈ initial.work.pending ∨ ∃ step index ingress produced, step ∈ steps ∧
       step.event = .assign index ingress ∧ step.before.outputs[index]? = some produced ∧
-      item = O.newItem step.before.work ⟨index, produced, ingress⟩ ∧ step.before.time < final.time := by
+      item = O.newItem step.before.work ⟨index, produced, ingress, step.before.owner produced.actor, step.before.routeEpoch⟩ ∧ step.before.time < final.time := by
   induction trace with
   | done state => exact .inl member
   | stop head blocked tail =>
@@ -314,7 +337,7 @@ theorem pending_origin (report : M.Report input events)
     (item : O.Item (M.Ticket input.active input.passive)) (member : item ∈ report.final.work.pending) :
     ∃ step index ingress produced, step ∈ report.steps ∧
       step.event = .assign index ingress ∧ step.before.outputs[index]? = some produced ∧
-      item = O.newItem step.before.work ⟨index, produced, ingress⟩ ∧ step.before.time < report.final.time := by
+      item = O.newItem step.before.work ⟨index, produced, ingress, step.before.owner produced.actor, step.before.routeEpoch⟩ ∧ step.before.time < report.final.time := by
   rcases Trace.pending_origin report.trace item member with initial | origin
   · simp [Check.CampusTCPModel.Input.initial, Theory.Outstanding.State.initial] at initial
   · exact origin

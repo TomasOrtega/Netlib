@@ -64,7 +64,7 @@ theorem serve_origin (step : M.Step input) (id : Nat) (observed : Option (List U
     (event : step.event = .serve id observed) (served : M.Served input) (present : step.result.service = some served) :
     ∃ completed : Theory.Outstanding.Completed step.before.work id,
       Theory.Outstanding.complete step.before.work id = .ok completed ∧ served.ticket = completed.item ∧
-      served.before = Check.CampusTCPModel.beforeService input step.before ∧ served.time = step.before.time ∧
+      served.before = Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway ∧ served.time = step.before.time ∧
       step.result.passed = served.passed := by
   obtain ⟨effect, computed, result⟩ := step.processed
   have selected : effect.service = some served := by simpa only [result] using present
@@ -74,32 +74,48 @@ theorem serve_origin (step : M.Step input) (id : Nat) (observed : Option (List U
   | error reason => simp [completed, Except.mapError, bind, Except.bind] at computed
   | ok work =>
     simp only [completed, Except.mapError, bind, Except.bind] at computed
-    split at computed
-    · simp only [throw] at computed
-      cases computed
-    · simp only [pure, Except.pure, Except.ok.injEq] at computed
-      subst effect
-      cases selected
-    · rename_i evidence accepted
-      simp only [pure, Except.pure, Except.ok.injEq] at computed
-      subst effect
-      simp only at selected
-      cases selected
-      exact ⟨work, rfl, rfl, rfl, rfl, by rw [result]⟩
+    repeat' first
+      | (cases computed <;> simp [Check.CampusTCPModel.unsupported] at selected <;> cases selected <;>
+          exact ⟨work, rfl, rfl, rfl, rfl, by rw [result]⟩)
+      | (split at computed)
+      | (dsimp only [bind, Except.bind, pure, Except.pure, throw] at computed)
+
+theorem serve_live (step : M.Step input) (id : Nat) (observed : Option (List UInt8 × Option (List UInt8)))
+    (event : step.event = .serve id observed) (served : M.Served input) (present : step.result.service = some served) :
+    step.before.primaryFenced = false ∨ served.ticket.value.gateway = .standby := by
+  obtain ⟨work, completed, ticket, _, _, _⟩ := serve_origin step id observed event served present
+  obtain ⟨effect, computed, result⟩ := step.processed
+  rw [event] at computed
+  simp only [Check.CampusTCPModel.process, completed, Except.mapError, bind, Except.bind] at computed
+  split at computed
+  · simp [throw] at computed
+  · rename_i allowed
+    rw [ticket]
+    cases gateway : work.item.value.gateway with
+    | primary =>
+      left
+      cases fenced : step.before.primaryFenced with
+      | false => rfl
+      | true => simp [gateway, fenced] at allowed <;> cases allowed
+    | standby => exact .inr rfl
 
 theorem assign_origin (step : M.Step input) (index : Nat) (ingress : IngressAttachment.InterfaceRef)
     (event : step.event = .assign index ingress) :
     ∃ produced, step.before.outputs[index]? = some produced ∧
-      step.result.state.work = Theory.Outstanding.enqueue step.before.work ⟨index, produced, ingress⟩ := by
+      step.result.state.work = Theory.Outstanding.enqueue step.before.work ⟨index, produced, ingress, step.before.owner produced.actor, step.before.routeEpoch⟩ := by
   obtain ⟨effect, computed, result⟩ := step.processed
   rw [event] at computed
   simp only [Check.CampusTCPModel.process] at computed
   cases found : step.before.outputs[index]? with
-  | none => simp [Check.CampusTCPModel.get, found, bind, Except.bind] at computed
+  | none =>
+    simp only [Check.CampusTCPModel.get, found, bind, Except.bind, throw] at computed
+    repeat' first | (solve | cases computed) | (split at computed)
   | some produced =>
-    simp only [Check.CampusTCPModel.get, found, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at computed
-    subst effect
-    exact ⟨produced, rfl, by rw [result]⟩
+    simp only [Check.CampusTCPModel.get, found, bind, Except.bind, pure, Except.pure, throw] at computed
+    repeat' first
+      | (solve | cases computed; exact ⟨produced, rfl, by rw [result]⟩)
+      | (solve | cases computed)
+      | (split at computed)
 
 private theorem input_bytes (packet : PacketInput) (accepted : TCP.EstablishedReceive.input bytes = .ok packet) :
     packet.bytes = bytes := by
@@ -281,7 +297,7 @@ structure GatewayService {input : M.Input} {events : List Check.CampusTCPModel.E
   completed : Theory.Outstanding.Completed joint.step.before.work id
   computed : Theory.Outstanding.complete joint.step.before.work id = .ok completed
   ticket : value.receipt.served.ticket = completed.item
-  before : value.receipt.served.before = Check.CampusTCPModel.beforeService input joint.step.before
+  before : value.receipt.served.before = Check.CampusTCPModel.beforeService input joint.step.before value.receipt.served.ticket.value.gateway
   passed : joint.step.result.passed = value.receipt.served.passed
   earlier : value.receipt.served.time < value.receipt.time
 
@@ -298,7 +314,7 @@ def gatewayService (value : DeliveryAt report time actor) : Except String (Gatew
     | .error _ => throw "The referenced service has no actual completed work item."
     | .ok completed =>
       have facts : value.receipt.served.ticket = completed.item ∧
-          value.receipt.served.before = Check.CampusTCPModel.beforeService _ joint.step.before ∧
+          value.receipt.served.before = Check.CampusTCPModel.beforeService _ joint.step.before value.receipt.served.ticket.value.gateway ∧
           joint.step.result.passed = value.receipt.served.passed := by
         obtain ⟨work, accepted, ticket, before, time, passed⟩ :=
           serve_origin joint.step id observed event value.receipt.served actual
@@ -319,7 +335,8 @@ def GatewayLineage (report : M.Report input events) (value : DeliveryAt report t
       assignment.event = .assign index ingress ∧
       assignment.before.outputs[index]? = some value.receipt.served.ticket.value.produced ∧
       value.receipt.served.ticket = Theory.Outstanding.newItem assignment.before.work
-        ⟨index, value.receipt.served.ticket.value.produced, ingress⟩ ∧
+        ⟨index, value.receipt.served.ticket.value.produced, ingress,
+          assignment.before.owner value.receipt.served.ticket.value.produced.actor, assignment.before.routeEpoch⟩ ∧
       value.receipt.served.ticket.value.produced.time = producer.before.time ∧
       producer.before.time < assignment.before.time ∧
       assignment.before.time < value.receipt.served.time ∧ value.receipt.served.time < value.receipt.time
@@ -624,16 +641,20 @@ theorem service_current_permission (report : M.Report input events) (compliant :
   have passed := service_evidence_passed report compliant step member served present
   obtain ⟨processing, selected, requirement, source, matched, valid, ready⟩ := served.evidence.current_permission passed emission emitted
   obtain ⟨id, observed, completed, event, _, _, before, _⟩ := CampusTCPOrigins.service_origin step served present
+  simp only [Check.CampusTCPModel.Input.contextFor_requirements] at source
   rw [input.scopes requirement source] at valid
   rw [before] at valid ready
+  simp only [CampusTCPService.current, Check.CampusTCPModel.Input.contextFor_authentication,
+    Check.CampusTCPModel.beforeService_after] at valid ready
   exact ⟨processing, selected, requirement, source, matched, valid, ready⟩
 
 theorem service_ingress_permission (report : M.Report input events) (compliant : report.compliant = true)
     (step : M.Step input) (member : step ∈ report.steps) (served : M.Served input)
     (present : step.result.service = some served) (emission : TCP.WireForwarding.Emission served.ticket.value.source.packet)
     (emitted : served.evidence.output = some emission) :
-    ∃ attachment ∈ step.before.attachments.map (·.value),
-      IngressAttachment.allows (CampusTCPService.current input.context (Check.CampusTCPModel.beforeService input step.before))
+    ∃ attachment ∈ (step.before.resident served.ticket.value.gateway).attachments.map (·.value),
+      IngressAttachment.allows (CampusTCPService.current (input.contextFor served.ticket.value.gateway)
+        (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway))
         attachment ⟨served.ticket.value.ingress, served.ticket.value.source.packet.header⟩ = true ∧
       Session.Valid input.context.authentication.context
         (Check.SessionFirewall.stateAt input.context.authentication step.before.authentication).session attachment.scope ∧
@@ -644,7 +665,8 @@ theorem service_ingress_permission (report : M.Report input events) (compliant :
   have permission := served.evidence.ingress_permission passed emission emitted
   obtain ⟨id, observed, completed, event, _, _, before, _⟩ := CampusTCPOrigins.service_origin step served present
   rw [before] at permission
-  exact permission
+  simpa only [Check.CampusTCPModel.beforeService, CampusTCPService.current,
+    Check.CampusTCPModel.Input.contextFor_authentication] using permission
 
 theorem service_route (report : M.Report input events) (compliant : report.compliant = true)
     (step : M.Step input) (member : step ∈ report.steps) (served : M.Served input)
@@ -668,19 +690,21 @@ theorem service_topology (report : M.Report input events) (compliant : report.co
     (∃ processing, served.evidence.processing = some processing ∧
       processing.outcome.nextHop = some served.ticket.value.produced.actor.nextHop) ∧
       Network.Walk (Examples.CampusDirect.network input.context.authentication.context
-        (Check.SessionFirewall.stateAt input.context.authentication step.before.authentication) input.application false)
+        (Check.SessionFirewall.stateAt input.context.authentication step.before.authentication) input.application step.before.primaryFenced)
         (Examples.CampusDirect.source served.ticket.value.produced.actor.direction)
         (Examples.CampusDirect.target served.ticket.value.produced.actor.direction)
-        (Examples.CampusDirect.routeTrace .primary served.ticket.value.produced.actor.direction) ∧
+        (Examples.CampusDirect.routeTrace served.ticket.value.gateway served.ticket.value.produced.actor.direction) ∧
       (Examples.CampusDirect.network input.context.authentication.context
-        (Check.SessionFirewall.stateAt input.context.authentication step.before.authentication) input.application false).Isolated
+        (Check.SessionFirewall.stateAt input.context.authentication step.before.authentication) input.application step.before.primaryFenced).Isolated
         Examples.CampusDirect.endpoints Examples.CampusDirect.managers := by
   obtain ⟨processing, selected, requirement, source, matched, valid, ready⟩ :=
     service_current_permission report compliant step member served present emission emitted
   have permitted := (Session.permits_iff _ _ _).mpr valid
+  obtain ⟨id, observed, completed, event, _, _, _, _⟩ := CampusTCPOrigins.service_origin step served present
   exact ⟨service_route report compliant step member served present emission emitted,
-    Examples.CampusDirect.selected_route _ _ _ false .primary _ permitted (.inl rfl),
-    Examples.CampusDirect.management_isolated _ _ _ false⟩
+    Examples.CampusDirect.selected_route _ _ _ step.before.primaryFenced served.ticket.value.gateway _ permitted
+      (serve_live step id observed event served present),
+    Examples.CampusDirect.management_isolated _ _ _ step.before.primaryFenced⟩
 
 theorem service_output_none_of_unauthorized (report : M.Report input events) (compliant : report.compliant = true)
     (step : M.Step input) (member : step ∈ report.steps) (served : M.Served input)
@@ -691,7 +715,8 @@ theorem service_output_none_of_unauthorized (report : M.Report input events) (co
   apply served.evidence.output_none_of_unauthorized passed
   obtain ⟨id, observed, completed, event, _, _, before, _⟩ := CampusTCPOrigins.service_origin step served present
   rw [before]
-  exact unauthorized
+  simpa only [CampusTCPService.current, Check.CampusTCPModel.Input.contextFor_authentication,
+    Check.CampusTCPModel.beforeService_after] using unauthorized
 
 theorem stale_permit_not_compliant (report : M.Report input events) (step : M.Step input)
     (member : step ∈ report.steps) (served : M.Served input) (present : step.result.service = some served)

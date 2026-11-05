@@ -267,8 +267,9 @@ private def campusTCP (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.CampusTCP.Input.parse (← IO.FS.readFile path))
   let report ← unwrap (input.check.mapError (·.message))
   let application := Check.CampusTCP.applicationStatus report
-  IO.println (if json then (Check.CampusTCP.renderJson report application).pretty else Check.CampusTCP.render report application)
-  return if !report.supported then 2 else if report.compliant && application.passed then 0 else 1
+  let transfer := Check.CampusTCP.transferStatus report
+  IO.println (if json then (Check.CampusTCP.renderJson report application transfer).pretty else Check.CampusTCP.render report application transfer)
+  return if !report.supported then 2 else if report.compliant && application.passed && transfer.passed then 0 else 1
 
 private def wireForward (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.WireForwarding.Input.parse (← IO.FS.readFile path))
