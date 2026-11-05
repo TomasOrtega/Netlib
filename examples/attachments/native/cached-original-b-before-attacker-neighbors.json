@@ -1,0 +1,1 @@
+[{"dst":"172.20.1.1","dev":"abl","lladdr":"02:00:00:20:01:01","state":["PERMANENT"]},{"dst":"172.20.0.1","dev":"aal","lladdr":"02:00:00:20:00:01","state":["PERMANENT"]}]

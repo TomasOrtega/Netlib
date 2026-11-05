@@ -4,6 +4,19 @@ Run commands from the repository root after the [local setup](TOOLING.md#local-b
 The [README](../README.md) gives the first demo command.
 The [stateful failover guide](STATEFUL_FAILOVER.md) connects native replication, commitment, route handoff, and current packet policy.
 
+## Interface-bound campus admission
+
+```sh
+lake exe netlib attachment-campus examples/attachments/bundle.json --json
+```
+
+The [ingress attachment guide](INGRESS_ATTACHMENTS.md) describes current EAP-to-interface bindings and the raw prerouting guard.
+The checker evaluates installed numeric rules before ordinary conntrack and NAT.
+Its guarded suffix follows an explicit empty-table reset after the unsafe impersonation example.
+The default equivalence budget is one million cells.
+Use `--budget N` to change that limit.
+Wrong-port rejection, historical flow ownership, and current session permission have separate checks.
+
 ## Joint campus deployment
 
 ```sh

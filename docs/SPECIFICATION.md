@@ -904,6 +904,33 @@ It demonstrates old-route processing after both routes change, standby overtakin
 It supplies no native EAP enforcement claim.
 See [safe handoff](SAFE_HANDOFF.md) for the schema, command, proof endpoints, and evidence boundaries.
 
+## Current ingress attachments
+
+The `attachment-campus` command adds explicit input-interface context to the joint campus history.
+Each attachment is derived from the actual current authentication prefix and permitted application scope.
+Its origin remains historical; current permission checks the active round, authentication port, and exact live ingress lifetime.
+The controller supplies the trusted authentication-to-data-port association.
+
+Installed numeric `iif` policies are evaluated independently of lifetime labels.
+Their equivalence with current desired attachments is checked for every numeric interface index and packet header.
+The importer requires raw prerouting priority `-300` and resolves exported names within the contemporaneous namespace inventory.
+Maintenance exceptions must be disjoint from application classes.
+
+Actual early rejection precedes ordinary conntrack and NAT.
+It preserves both modeled tables and retires any selected immutable route ticket.
+It has no fabricated ordinary classification or forwarding outcome.
+Actual acceptance executes the current ordinary pipeline even when the guard is stale.
+Such a stale policy can produce tracker changes before the report records its mismatch.
+
+Historical flow ownership requires a fresh confirmed record and a current permitted attachment.
+Replication selects the owned source record and checks the installed standby table before inheriting its origin.
+Every stored origin refers to the computed EAP state at its actual creation prefix.
+
+The unsafe impersonation prelude is separated from the guarded suffix by an explicit empty-table reset.
+The finite capture covers whole IPv4 UDP on isolated routed Ethernet links.
+It distinguishes a separate attacker port but establishes no cryptographic data provenance or protection against identical bytes on the trusted port.
+The [attachment guide](INGRESS_ATTACHMENTS.md) states the remaining lifetime, installation, observation, and implementation assumptions.
+
 ## Joint campus deployment history
 
 The `campus-deployment BUNDLE [--budget N] [--json]` command checks one authentication, policy installation, packet, handoff, and withdrawal history.

@@ -1,0 +1,1 @@
+[{"dst":"192.0.2.0/24","dev":"cal","protocol":"kernel","scope":"link","prefsrc":"192.0.2.2","flags":[]},{"dst":"192.0.3.0/24","dev":"cbl","protocol":"kernel","scope":"link","prefsrc":"192.0.3.2","flags":[]},{"dst":"203.0.113.2","gateway":"192.0.2.1","dev":"cal","prefsrc":"192.0.2.2","flags":[]}]

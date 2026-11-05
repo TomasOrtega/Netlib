@@ -5,6 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 
+from check_attachment_examples import check as attachment_checks
 from check_campus_examples import check as campus_checks
 from check_cli import ROOT, invoke
 from check_icmp_examples import check as icmp_checks
@@ -1138,6 +1139,7 @@ def main():
     replication_checks()
     safe_handoff_checks()
     campus_checks()
+    attachment_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

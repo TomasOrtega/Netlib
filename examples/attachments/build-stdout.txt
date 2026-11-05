@@ -1,0 +1,13 @@
+Sending build context to Docker daemon  67.07kB
+Step 1/4 : FROM netlib-campus-capture:1
+ ---> b17fdb28779b
+Step 2/4 : COPY exercise.py capture.sh /task/attachments/
+ ---> c6d55f4b2d88
+Step 3/4 : COPY requirements.json demo-credential.json permit.json deny.json /task/attachments/input/
+ ---> a0094af65b7d
+Step 4/4 : CMD ["sh", "/task/attachments/capture.sh"]
+ ---> Running in 1d1a3e262e99
+ ---> Removed intermediate container 1d1a3e262e99
+ ---> db2a4fe2e510
+Successfully built db2a4fe2e510
+Successfully tagged netlib-attachments-capture:1

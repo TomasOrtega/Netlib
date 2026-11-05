@@ -1,0 +1,1 @@
+[{"dst":"10.10.0.0/24","dev":"syncl","protocol":"kernel","scope":"link","prefsrc":"10.10.0.1","flags":[]},{"dst":"172.20.0.0/30","dev":"aar","protocol":"kernel","scope":"link","prefsrc":"172.20.0.1","flags":[]},{"type":"blackhole","dst":"203.0.113.1","flags":[]}]

@@ -1,0 +1,10 @@
+net.ipv4.ip_forward = 0
+net.ipv4.conf.all.rp_filter = 0
+net.ipv4.conf.default.rp_filter = 0
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.netfilter.nf_conntrack_udp_timeout = 30
+net.netfilter.nf_conntrack_udp_timeout_stream = 120
+net.netfilter.nf_conntrack_acct = 0
+net.ipv4.conf.aal.rp_filter = 0
+net.ipv4.conf.abl.rp_filter = 0

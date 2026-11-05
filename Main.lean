@@ -26,6 +26,7 @@ import Netlib.Check.ReassemblyTimeout
 import Netlib.Check.StatefulFailover
 import Netlib.Check.SafeHandoff
 import Netlib.Check.CampusDeployment
+import Netlib.Check.AttachmentCampusJson
 import Netlib.Standards.ThreeGPP.ServiceAccess
 import Netlib.Standards.IEEE80211.Deployment
 
@@ -61,6 +62,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib wire-failover TRACE.json [--json]\n\
   netlib wire-safe-handoff TRACE.json [--json]\n\
   netlib campus-deployment BUNDLE.json [--budget N] [--json]\n\
+  netlib attachment-campus BUNDLE.json [--budget N] [--json]\n\
   netlib stateful-refines STRONGER.json WEAKER.json [--budget N] [--json]\n\
   netlib fiveg TRACE.json [--json]\n\
   netlib fiveg-coverage [--json]\n\
@@ -272,6 +274,13 @@ private def campusDeployment (path : String) (budget : Nat) (json : Bool) : IO U
   let report ← unwrap (input.check budget)
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.compliant then 0 else 1
+
+private def attachmentCampus (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.AttachmentCampus.Bundle.parse (← IO.FS.readFile path))
+  let report ← unwrap (input.check budget)
+  IO.println (if json then Check.AttachmentCampus.Report.renderJson report |>.pretty
+    else Check.AttachmentCampus.Report.render report)
+  return if Check.AttachmentCampus.Report.compliant report then 0 else 1
 
 private def transfer (path : String) (budget : Nat) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Import.TransferConfig.Input.parse (← IO.FS.readFile path))
@@ -518,6 +527,10 @@ private def run (args : List String) : IO UInt32 := do
   | ["campus-deployment", path, "--json"] => campusDeployment path 100000 true
   | ["campus-deployment", path, "--budget", budget] => campusDeployment path (← budgetValue budget) false
   | ["campus-deployment", path, "--budget", budget, "--json"] => campusDeployment path (← budgetValue budget) true
+  | ["attachment-campus", path] => attachmentCampus path 1000000 false
+  | ["attachment-campus", path, "--json"] => attachmentCampus path 1000000 true
+  | ["attachment-campus", path, "--budget", budget] => attachmentCampus path (← budgetValue budget) false
+  | ["attachment-campus", path, "--budget", budget, "--json"] => attachmentCampus path (← budgetValue budget) true
   | ["transfer", path, "--json"] => transfer path 4096 true
   | ["transfer", path, "--budget", budget] => transfer path (← budgetValue budget) false
   | ["transfer", path, "--budget", budget, "--json"] => transfer path (← budgetValue budget) true

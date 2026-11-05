@@ -1,0 +1,312 @@
+{
+  "nftables": [
+    {
+      "metainfo": {
+        "json_schema_version": 1
+      }
+    },
+    {
+      "table": {
+        "family": "ip",
+        "name": "netlib_attachment"
+      }
+    },
+    {
+      "chain": {
+        "family": "ip",
+        "table": "netlib_attachment",
+        "name": "ingress",
+        "type": "filter",
+        "hook": "prerouting",
+        "prio": -300,
+        "policy": "drop"
+      }
+    },
+    {
+      "rule": {
+        "family": "ip",
+        "table": "netlib_attachment",
+        "chain": "ingress",
+        "comment": "SYNC",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": 10
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": "10.10.0.1"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "10.10.0.2"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "l4proto"
+                }
+              },
+              "right": 17
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "sport"
+                }
+              },
+              "right": 55328
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 3780
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "ip",
+        "table": "netlib_attachment",
+        "chain": "ingress",
+        "comment": "ORIGINAL",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": 4
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": "192.0.2.2"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "203.0.113.2"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "l4proto"
+                }
+              },
+              "right": 17
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "sport"
+                }
+              },
+              "right": 41000
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 8080
+            }
+          },
+          {
+            "log": {
+              "prefix": "ATTACH_ALLOW",
+              "group": 42,
+              "snaplen": 65531,
+              "queue-threshold": 1
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "ip",
+        "table": "netlib_attachment",
+        "chain": "ingress",
+        "comment": "REPLY",
+        "expr": [
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "iif"
+                }
+              },
+              "right": 8
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "saddr"
+                }
+              },
+              "right": "198.51.100.2"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "ip",
+                  "field": "daddr"
+                }
+              },
+              "right": "203.0.113.1"
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "meta": {
+                  "key": "l4proto"
+                }
+              },
+              "right": 17
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "sport"
+                }
+              },
+              "right": 9000
+            }
+          },
+          {
+            "match": {
+              "op": "==",
+              "left": {
+                "payload": {
+                  "protocol": "udp",
+                  "field": "dport"
+                }
+              },
+              "right": 40000
+            }
+          },
+          {
+            "log": {
+              "prefix": "ATTACH_ALLOW",
+              "group": 42,
+              "snaplen": 65531,
+              "queue-threshold": 1
+            }
+          },
+          {
+            "accept": null
+          }
+        ]
+      }
+    },
+    {
+      "rule": {
+        "family": "ip",
+        "table": "netlib_attachment",
+        "chain": "ingress",
+        "comment": "FALLBACK",
+        "expr": [
+          {
+            "log": {
+              "prefix": "ATTACH_DROP",
+              "group": 42,
+              "snaplen": 65531,
+              "queue-threshold": 1
+            }
+          },
+          {
+            "drop": null
+          }
+        ]
+      }
+    }
+  ]
+}

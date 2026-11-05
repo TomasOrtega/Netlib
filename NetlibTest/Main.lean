@@ -104,6 +104,12 @@ import NetlibTest.NftablesICMPControl
 import NetlibTest.ReassemblyTimeoutCheck
 import NetlibTest.WireNATDeployment
 import NetlibTest.CampusEAP
+import NetlibTest.IngressAttachment
+import NetlibTest.IngressAttachmentCompiler
+import NetlibTest.NftablesIngress
+import NetlibTest.GuardedHandoff
+import NetlibTest.IngressProbe
+import NetlibTest.AttachmentCampus
 import NetlibTest.EAPDeployment
 
 import NetlibTest.ConntrackReplication
@@ -232,4 +238,10 @@ def main : IO Unit := do
   NetlibTest.CampusWithdrawal.run
   NetlibTest.CampusDuplex.run
   NetlibTest.CampusDirect.run
+  NetlibTest.IngressAttachment.run
+  NetlibTest.IngressAttachmentCompiler.run
+  NetlibTest.NftablesIngress.run
+  NetlibTest.GuardedHandoff.run
+  NetlibTest.IngressProbe.run
+  NetlibTest.AttachmentCampus.run
   IO.println "Netlib tests passed."

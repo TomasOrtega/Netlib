@@ -1,0 +1,57 @@
+{
+  "gateway": "b",
+  "namespace": "net:[4026532562]",
+  "scope": {
+    "resource": "campus-application",
+    "operation": "use"
+  },
+  "principal": "alice@campus.example.test",
+  "authenticationEvent": "authenticate",
+  "credentialEvent": "credential",
+  "authenticationPort": {
+    "namespace": "auth",
+    "interface": "auth0",
+    "source": {
+      "file": "birth-auth-identity.json",
+      "command": 160
+    }
+  },
+  "currentAuthenticationEvent": "credential",
+  "active": true,
+  "maintenanceSource": {
+    "gateway": "a",
+    "sourcePort": 55328,
+    "socketInode": 1725070,
+    "source": {
+      "file": "start-a-sockets-0.json",
+      "command": 731
+    }
+  },
+  "roles": [
+    {
+      "role": "original",
+      "interface": "cbr",
+      "ifindex": 4
+    },
+    {
+      "role": "reply",
+      "interface": "sbr",
+      "ifindex": 8
+    },
+    {
+      "role": "maintenance",
+      "interface": "syncr",
+      "ifindex": 10
+    }
+  ],
+  "sources": {
+    "links": {
+      "file": "install-standby-attachment-links.json",
+      "command": 896
+    },
+    "identity": {
+      "file": "install-standby-attachment-identity.json",
+      "command": 897
+    }
+  }
+}

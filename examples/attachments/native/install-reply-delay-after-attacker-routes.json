@@ -1,0 +1,1 @@
+[{"dst":"172.20.0.0/30","dev":"aal","protocol":"kernel","scope":"link","prefsrc":"172.20.0.2","flags":["linkdown"]},{"dst":"172.20.1.0/30","dev":"abl","protocol":"kernel","scope":"link","prefsrc":"172.20.1.2","flags":[]}]

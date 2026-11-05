@@ -57,3 +57,17 @@ examples/campus/native/b-cache-statistics.txt -whitespace
 examples/campus/native/b-ct-statistics.txt -whitespace
 examples/campus/native/b-network-statistics.txt -whitespace
 examples/campus/native/b-runtime-statistics.txt -whitespace
+examples/attachments/build-stderr.txt -whitespace
+examples/attachments/build-stdout.txt -whitespace
+examples/attachments/native/a-cache-statistics.txt -whitespace
+examples/attachments/native/a-ct-statistics.txt -whitespace
+examples/attachments/native/a-network-statistics.txt -whitespace
+examples/attachments/native/a-runtime-statistics.txt -whitespace
+examples/attachments/native/a-trace.txt -whitespace
+examples/attachments/native/b-cache-statistics.txt -whitespace
+examples/attachments/native/b-ct-statistics.txt -whitespace
+examples/attachments/native/b-network-statistics.txt -whitespace
+examples/attachments/native/b-runtime-statistics.txt -whitespace
+examples/attachments/native/b-trace.txt -whitespace
+examples/attachments/native/start-a-runtime.txt -whitespace
+examples/attachments/native/start-b-runtime.txt -whitespace
