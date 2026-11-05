@@ -94,7 +94,9 @@ No caller-supplied validation Boolean enters this gate.
 
 Application byte positions, ACK positions, outstanding spans, peer windows, and window-history ages have explicit bounds.
 SYN uses a control position and contributes no application byte.
-The selected no-option data profile limits each payload to 536 bytes.
+The selected data profile uses no data options and limits each payload by the observed peer MSS.
+An absent peer MSS option gives default 536.
+The [directional MSS extension](TCP_MSS.md) connects actual startup offers to these bounds and exact transfer.
 Old ACKs and duplicate ACKs have distinct window-update conditions.
 
 Admission and reply observation precede routing and later filtering.
@@ -168,5 +170,5 @@ The interface/node interpretation and principal/header ownership also remain dep
 
 The base example has one gateway and one bounded ordinary TCP connection.
 It does not extend the UDP-only replication profile to TCP.
-Native TCP replication, automatic failure recovery, safe upgrade, reordering, retransmission, options, timers, and long sequence reuse remain open.
+Native TCP replication, automatic failure recovery, safe upgrade, reordering, retransmission, other options, timers, and long sequence reuse remain open.
 All seven [research programs](ROADMAP.md) and the full campus demonstration remain OPEN.

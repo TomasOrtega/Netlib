@@ -330,13 +330,23 @@ def socketFromJson (json : Lean.Json) : Except String H.Socket := do
   let value ← Import.PacketFields.endpoint json
   return ⟨value.address, value.port⟩
 
+private def receiveMSSFromJson (json : Lean.Json) : Except String Protocol.TCP.MSS.Advertisement := do
+  Import.PacketFields.fields json ["ipReceiveLimit", "value"]
+  let limit ← (← json.getObjVal? "ipReceiveLimit").getNat?
+  let value ← (Protocol.TCP.MSS.Value.ofNat (← (← json.getObjVal? "value").getNat?)).mapError (·.message)
+  (Protocol.TCP.MSS.Advertisement.make limit value).mapError (·.message)
+
 def localFromJson (json : Lean.Json) : Except String H.Local := do
-  Import.PacketFields.fields json ["socket", "iss", "capacity", "pendingLimit", "ipSendLimit"]
+  let receiveMSS ← match json.getObjVal? "receiveMSS" with
+    | .error _ => pure none
+    | .ok value => some <$> receiveMSSFromJson value
+  Import.PacketFields.fields json (["socket", "iss", "capacity", "pendingLimit", "ipSendLimit"] ++
+    if receiveMSS.isSome then ["receiveMSS"] else [])
   let config : H.Local := ⟨← socketFromJson (← json.getObjVal? "socket"),
     ← sequence (← json.getObjVal? "iss"), ← (← json.getObjVal? "capacity").getNat?,
-    ← (← json.getObjVal? "pendingLimit").getNat?, ← (← json.getObjVal? "ipSendLimit").getNat?⟩
+    ← (← json.getObjVal? "pendingLimit").getNat?, ← (← json.getObjVal? "ipSendLimit").getNat?, receiveMSS⟩
   if config.Valid then return config
-  else throw "Local capacity and storage cannot exceed 65535. The IP size limit must be between 41 and 65535."
+  else throw "Local capacity and storage cannot exceed 65535. The IP send limit must be between 41 and 65535 and fit the actual startup header."
 
 private def pathFromJson (json : Lean.Json) : Except String Path := do
   match ← json.getStr? with
@@ -375,9 +385,13 @@ def Input.parse (text : String) : Except String Input := do Input.fromJson (← 
 def socketJson (socket : H.Socket) : Lean.Json := Lean.Json.mkObj [
   ("address", Lean.toJson (Import.PacketFields.addressText socket.address)), ("port", Lean.toJson socket.port.val)]
 
-def localJson (config : H.Local) : Lean.Json := Lean.Json.mkObj [
+def localJson (config : H.Local) : Lean.Json := Lean.Json.mkObj ([
   ("socket", socketJson config.socket), ("iss", Lean.toJson config.iss.val), ("capacity", Lean.toJson config.capacity),
-  ("pendingLimit", Lean.toJson config.pendingLimit), ("ipSendLimit", Lean.toJson config.ipSendLimit)]
+  ("pendingLimit", Lean.toJson config.pendingLimit), ("ipSendLimit", Lean.toJson config.ipSendLimit)] ++
+    match config.receiveMSS with
+    | none => []
+    | some advertisement => [("receiveMSS", Lean.Json.mkObj [
+      ("ipReceiveLimit", Lean.toJson advertisement.receiveLimit), ("value", Lean.toJson advertisement.value.word.val)])])
 
 def Path.name : Path → String | .direct => "direct" | .rewrite => "rewrite"
 
@@ -435,7 +449,8 @@ def Step.json (step : Step active passive) : Lean.Json :=
 
 def assumptions : List String := [
   "The caller supplies local sockets, initial sequence choices, storage limits, and IP size evidence.",
-  "This profile uses an ordinary exchange with empty startup payloads and no options.",
+  "This profile uses an ordinary exchange with empty startup payloads and selected MSS, NOP, and EOL option semantics.",
+  "Receive advertisements use separate supplied IP receive capability, not the receive window or IP send limit.",
   "The active window initialization uses the explicit interpretation in RFC 1122, section 4.2.2.20(c).",
   "Successful receipts match earlier checked model outputs through the selected exact byte paths.",
   "Byte equality does not prove physical origin, peer identity, or the current connection instance.",

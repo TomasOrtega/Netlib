@@ -37,7 +37,8 @@ The numerical MSS bounds do not prove startup negotiation.
 The caller supplies the startup and lower-layer size evidence.
 Without a startup MSS option, the caller must use an effective MSS of at most 536.
 The seed also assumes an established connection and its initial window history.
-The [startup extension](TCP_HANDSHAKE.md) constructs these states and their default MSS from actual checked handshake events.
+The [startup extension](TCP_HANDSHAKE.md) constructs these states and their directional MSS from actual checked handshake events.
+The [MSS guide](TCP_MSS.md) distinguishes absent options, actual peer offers, and separate local IP size limits.
 The [campus extension](CAMPUS_TCP.md) connects their delivery history to actual authenticated gateway service.
 
 Each event has one of these forms:

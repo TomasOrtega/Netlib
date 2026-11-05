@@ -370,6 +370,16 @@ def laneJson (lane : Protocol.TCP.Admission.Lane) : Lean.Json := Lean.Json.mkObj
   ("peerWindow", Lean.toJson lane.peerWindow.val), ("windowSequence", Lean.toJson lane.windowSequence.val),
   ("windowAcknowledgment", Lean.toJson lane.windowAcknowledgment.val)]
 
+def mssJson : Protocol.TCP.MSS.Offer → Lean.Json
+  | .absent => Lean.Json.mkObj [("kind", Lean.toJson "absent")]
+  | .present value => Lean.Json.mkObj [("kind", Lean.toJson "present"), ("value", Lean.toJson value.word.val)]
+
+def mssFields (client server : Protocol.TCP.MSS.Offer) : List (String × Lean.Json) :=
+  match client, server with
+  | .absent, .absent => []
+  | _, _ => [("clientMSS", mssJson client), ("serverMSS", mssJson server),
+      ("originalMSS", Lean.toJson server.limit), ("replyMSS", Lean.toJson client.limit)]
+
 def seenJson (seen : Protocol.TCP.Admission.Seen) : Lean.Json := Lean.Json.mkObj [
   ("zone", Lean.toJson seen.zone), ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex seen.bytes)),
   ("header", Import.PacketFields.headerJson seen.header), ("segment", Check.TCP.segmentJson seen.segment),
@@ -384,15 +394,19 @@ def admissionJson (state : Protocol.TCP.Admission.State) : Lean.Json :=
     ("phase", Lean.toJson state.phase.name), ("observations", Lean.toJson state.observations.length),
     ("sourcePackets", Lean.toJson (state.observations.map seenJson))] ++ match state.phase with
     | .empty => []
-    | .syn entry iss window => [
-      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val)]
-    | .synAck entry iss window serverISS serverWindow => [
+    | .syn entry iss window clientMSS => [
+      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val)] ++
+      (match clientMSS with
+      | .absent => []
+      | .present _ => [("clientMSS", mssJson clientMSS), ("replyMSS", Lean.toJson clientMSS.limit)])
+    | .synAck entry iss window serverISS serverWindow clientMSS serverMSS => [
       ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val),
-      ("serverISS", Lean.toJson serverISS.val), ("serverWindow", Lean.toJson serverWindow.val)]
+      ("serverISS", Lean.toJson serverISS.val), ("serverWindow", Lean.toJson serverWindow.val)] ++ mssFields clientMSS serverMSS
     | .data session => [
       ("entry", entryJson session.entry), ("clientISS", Lean.toJson session.original.controlOrigin.val),
       ("clientWindow", Lean.toJson (initialWindow 2)), ("serverISS", Lean.toJson session.reply.controlOrigin.val),
-      ("serverWindow", Lean.toJson (initialWindow 18)), ("original", laneJson session.original), ("reply", laneJson session.reply)])
+      ("serverWindow", Lean.toJson (initialWindow 18)), ("original", laneJson session.original), ("reply", laneJson session.reply)] ++
+      mssFields session.clientMSS session.serverMSS)
 
 def transportFields (transport : Protocol.TCP.Checkpoint.Gateway) (transitions : Nat) : List (String × Lean.Json) := [
   ("records", recordsJson transport.tracker), ("confirmed", Check.ConntrackLifecycle.stateJson transport.tracker),
@@ -485,7 +499,8 @@ def assumptions : List String := [
   "EAP method acceptance and credential integrity remain supplied evidence. TLS cryptography is outside this model.",
   "Imported policy, NAT, and routing snapshots describe the exclusive selected hook sequence.",
   "The endpoint output policy is local permission. Current gateway permission comes from actual installed policy checks.",
-  "The selected TCP history excludes options, retransmission, replacement, close processing, and unbounded sequence reuse.",
+  "The selected TCP history accepts MSS, NOP, and EOL at startup; application data uses no options.",
+  "Retransmission, replacement, close processing, other options, and unbounded sequence reuse remain outside the selected history.",
   "Actual gateway output supplies receiver bytes in the modeled timeline. Physical delivery and connection-instance identity remain external.",
   "Logoff and checked denial prevent later gateway output. They do not erase bytes already received or buffered.",
   "Native TCP migration, automatic failure recovery, native Wi-Fi enforcement, and the full campus demonstration remain open."]

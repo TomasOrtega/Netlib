@@ -232,8 +232,8 @@ theorem Complete.pending_fields (value : Complete input) :
 theorem Complete.cursors (value : Complete input) :
     value.activeSeed.core.receiveNext = value.passiveSeed.core.sendNext ∧
       value.passiveSeed.core.receiveNext = value.activeSeed.core.sendNext := by
-  have synFields := ControlOutput.emit_transport _ _ _ _ _ _ value.activePending.generated
-  have synAckFields := ControlOutput.emit_transport _ _ _ _ _ _ value.passivePending.generated
+  have synFields := value.activePending.output_fields
+  have synAckFields := value.passivePending.output_fields
   have synSequence := value.syn.path.fields.2.trans synFields.2.1
   have synAckSequence := value.synAck.path.fields.2.trans synAckFields.2.1
   simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
@@ -264,12 +264,12 @@ theorem Complete.window_history (value : Complete input) :
       value.passiveSeed.sendWindow = value.ack.input.packet.segment.window.val ∧
       value.passiveSeed.sendWL1 = input.active.iss.add 1 ∧
       value.passiveSeed.sendWL2 = input.passive.iss.add 1 := by
-  have synAckFields := ControlOutput.emit_transport _ _ _ _ _ _ value.passivePending.generated
+  have synAckFields := value.passivePending.output_fields
   have synAckSequence := value.synAck.path.fields.2.trans synAckFields.2.1
   have activeACK := value.active.accepted.2.2
   have passiveSequence := value.passive.accepted.2.2.1
   have passiveACK := value.passive.accepted.2.2.2
-  have synFields := ControlOutput.emit_transport _ _ _ _ _ _ value.activePending.generated
+  have synFields := value.activePending.output_fields
   have synSequence := value.syn.path.fields.2.trans synFields.2.1
   simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
     Handshake.activeSeed, Handshake.passiveSeed, synAckSequence, activeACK, passiveSequence, passiveACK,
@@ -285,28 +285,49 @@ theorem Complete.configuration (value : Complete input) :
   simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
     Handshake.activeSeed, Handshake.passiveSeed, value.pending_fields.1, value.pending_fields.2.2.1, and_self]
 
-theorem Complete.default_mss (value : Complete input) :
+theorem Complete.directional_mss (value : Complete input) :
+    value.active.peerMSS = Handshake.receiveOffer input.passive ∧
+      value.passivePending.peerMSS = Handshake.receiveOffer input.active ∧
+      value.activeSeed.effectiveMSS = Handshake.effectiveMSS input.active (Handshake.receiveOffer input.passive) ∧
+      value.passiveSeed.effectiveMSS = Handshake.effectiveMSS input.passive (Handshake.receiveOffer input.active) := by
+  have activeSelected := value.active.peerSelected
+  rw [value.synAck.path.control_fields.2.2.2, value.passivePending.output_fields.2.2.2.2.2.1,
+    Handshake.options_selected] at activeSelected
+  have activePeer : value.active.peerMSS = Handshake.receiveOffer input.passive := by
+    rw [value.pending_fields.2.2.1] at activeSelected
+    exact (Except.ok.inj activeSelected).symm
+  have passiveSelected := value.passivePending.peerSelected
+  rw [value.pending_fields.2.2.2, value.syn.path.control_fields.2.2.2,
+    value.activePending.output_fields.2.2.2.2.2.1, Handshake.options_selected] at passiveSelected
+  have passivePeer : value.passivePending.peerMSS = Handshake.receiveOffer input.active := by
+    rw [value.pending_fields.1] at passiveSelected
+    exact (Except.ok.inj passiveSelected).symm
+  refine ⟨activePeer, passivePeer, ?_, ?_⟩
+  · simp only [Complete.activeSeed, value.active.derived, Handshake.activeSeed, activePeer, value.pending_fields.1]
+  · simp only [Complete.passiveSeed, value.passive.derived, Handshake.passiveSeed, passivePeer, value.pending_fields.2.2.1]
+
+theorem Complete.default_mss (value : Complete input)
+    (active : input.active.receiveMSS = none) (passive : input.passive.receiveMSS = none) :
     value.syn.input.packet.segment.options = [] ∧ value.synAck.input.packet.segment.options = [] ∧
       value.activeSeed.effectiveMSS = min 536 (input.active.ipSendLimit - 40) ∧
       value.passiveSeed.effectiveMSS = min 536 (input.passive.ipSendLimit - 40) ∧
       value.activeSeed.effectiveMSS ≤ 536 ∧ value.passiveSeed.effectiveMSS ≤ 536 := by
-  have synOptions := value.syn.path.control_fields.2.2.2
-  have synFields := ControlOutput.emit_transport _ _ _ _ _ _ value.activePending.generated
-  have synAckOptions := value.active.accepted.2.1.2.1
-  have activeMSS : value.activeSeed.effectiveMSS = min 536 (input.active.ipSendLimit - 40) := by
-    simp only [Complete.activeSeed, value.active.derived, Handshake.activeSeed,
-      value.pending_fields.1, Handshake.effectiveMSS]
-  have passiveMSS : value.passiveSeed.effectiveMSS = min 536 (input.passive.ipSendLimit - 40) := by
-    simp only [Complete.passiveSeed, value.passive.derived, Handshake.passiveSeed,
-      value.pending_fields.2.2.1, Handshake.effectiveMSS]
-  exact ⟨synOptions.trans synFields.2.2.2.2.2.1, synAckOptions, activeMSS, passiveMSS,
-    by rw [activeMSS]; exact Nat.min_le_left _ _, by rw [passiveMSS]; exact Nat.min_le_left _ _⟩
+  have synOptions := value.syn.path.control_fields.2.2.2.trans value.activePending.output_fields.2.2.2.2.2.1
+  have synAckOptions := value.synAck.path.control_fields.2.2.2.trans value.passivePending.output_fields.2.2.2.2.2.1
+  rw [value.pending_fields.1] at synOptions
+  rw [value.pending_fields.2.2.1] at synAckOptions
+  have mss := value.directional_mss
+  simp only [Handshake.options, Handshake.advertised, active, passive, Option.map_none,
+    ControlOutput.outputOptions] at synOptions synAckOptions
+  simp only [Handshake.receiveOffer, active, passive, Handshake.effectiveMSS, MSS.effective_default] at mss
+  exact ⟨synOptions, synAckOptions, mss.2.2.1, mss.2.2.2,
+    by rw [mss.2.2.1]; exact Nat.min_le_left _ _, by rw [mss.2.2.2]; exact Nat.min_le_left _ _⟩
 
 
 theorem Complete.peer_capacities (value : Complete input) :
     value.activeSeed.sendWindow = input.passive.capacity ∧
       value.passiveSeed.sendWindow = input.active.capacity := by
-  have synAckFields := ControlOutput.emit_transport _ _ _ _ _ _ value.passivePending.generated
+  have synAckFields := value.passivePending.output_fields
   have activeWindow : value.activeSeed.sendWindow = input.passive.capacity := by
     change value.active.seed.sendWindow = _
     rw [value.active.derived]

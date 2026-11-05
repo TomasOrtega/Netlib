@@ -21,6 +21,7 @@ The report gives the MSS placement result separately from structural acceptance.
 The [receive-state guide](TCP_RECEIVE.md) describes seeded replay, bounded ACK processing, and the stop at unsupported continuations.
 The [application guide](TCP_APPLICATION.md) adds checked sends, application reads, and peer-window updates.
 The [startup guide](TCP_HANDSHAKE.md) constructs initial application states from checked handshake histories.
+The [MSS guide](TCP_MSS.md) adds justified local advertisements and automatic directional peer limits.
 
 ## Authenticated campus TCP bytes
 
@@ -35,6 +36,8 @@ The [planned transfer guide](CAMPUS_TCP_TRANSFER.md) adds a standby deployment a
 ```sh
 lake exe netlib campus-tcp examples/campus-tcp-transfer/trace.json --json
 ```
+
+Use `examples/tcp-mss/trace.json` with the same command for asymmetric MSS and payloads above 536 bytes through the transfer.
 
 ## Interface-bound campus admission
 

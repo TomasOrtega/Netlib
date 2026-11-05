@@ -31,12 +31,30 @@ class Socket:
 
 
 @dataclass(frozen=True)
+class ReceiveMSS:
+    ip_receive_limit: int
+    value: int
+
+    @property
+    def valid(self):
+        return (
+            0 < self.value < 65536
+            and 576 <= self.ip_receive_limit <= 65535
+            and 40 + self.value <= self.ip_receive_limit
+        )
+
+    def to_dict(self):
+        return {"ipReceiveLimit": self.ip_receive_limit, "value": self.value}
+
+
+@dataclass(frozen=True)
 class Local:
     socket: Socket
     iss: int
     capacity: int
     pending_limit: int
     ip_send_limit: int
+    receive_mss: ReceiveMSS | None = None
 
     @property
     def valid(self):
@@ -45,30 +63,45 @@ class Local:
             and 0 <= self.capacity <= 65535
             and 0 <= self.pending_limit <= 65535
             and 40 < self.ip_send_limit <= 65535
+            and (self.receive_mss is None or self.receive_mss.valid and 44 <= self.ip_send_limit)
         )
 
     @property
     def effective_mss(self):
         return min(DEFAULT_MSS, self.ip_send_limit - 40)
 
+    def send_mss(self, peer_offer):
+        return min(DEFAULT_MSS if peer_offer is None else peer_offer, self.ip_send_limit - 40)
+
     @classmethod
     def from_dict(cls, value):
+        offer = value.get("receiveMSS")
+        if "receiveMSS" in value and (
+            not isinstance(offer, dict)
+            or set(offer) != {"ipReceiveLimit", "value"}
+            or any(type(offer[field]) is not int for field in ("ipReceiveLimit", "value"))
+        ):
+            raise ValueError("The local MSS advertisement is invalid.")
         return cls(
             Socket.from_dict(value["socket"]),
             value["iss"],
             value["capacity"],
             value["pendingLimit"],
             value["ipSendLimit"],
+            None if offer is None else ReceiveMSS(offer["ipReceiveLimit"], offer["value"]),
         )
 
     def to_dict(self):
-        return {
+        result = {
             "socket": self.socket.to_dict(),
             "iss": self.iss,
             "capacity": self.capacity,
             "pendingLimit": self.pending_limit,
             "ipSendLimit": self.ip_send_limit,
         }
+        if self.receive_mss is not None:
+            result["receiveMSS"] = self.receive_mss.to_dict()
+        return result
 
 
 def header(source, destination):
@@ -77,16 +110,24 @@ def header(source, destination):
 
 def control_output(local, remote, sequence, acknowledgment, flags, ttl=64):
     outbound = header(local.socket, remote)
-    blank = wire.TCP_HEADER.pack(
-        outbound.source_port,
-        outbound.destination_port,
-        sequence,
-        acknowledgment,
-        0x50,
-        flags,
-        local.capacity,
-        0,
-        0,
+    options = (
+        struct.pack("!BBH", 2, 4, local.receive_mss.value)
+        if flags & 2 and local.receive_mss is not None
+        else b""
+    )
+    blank = (
+        wire.TCP_HEADER.pack(
+            outbound.source_port,
+            outbound.destination_port,
+            sequence,
+            acknowledgment,
+            (5 + len(options) // 4) << 4,
+            flags,
+            local.capacity,
+            0,
+            0,
+        )
+        + options
     )
     tcp_crc = wire.checksum(wire.pseudoheader(outbound, len(blank)) + blank)
     tcp = blank[:16] + struct.pack("!H", tcp_crc) + blank[18:]
@@ -110,16 +151,20 @@ def control_output(local, remote, sequence, acknowledgment, flags, ttl=64):
 def rewrite_output(output, target, ttl):
     packet = wire.decode_packet(output["rawIPv4Hex"])
     segment = packet.segment
-    blank = wire.TCP_HEADER.pack(
-        target.source_port,
-        target.destination_port,
-        segment.sequence,
-        segment.acknowledgment,
-        0x50 | segment.reserved,
-        segment.flags,
-        segment.window,
-        0,
-        segment.urgent_pointer,
+    blank = (
+        wire.TCP_HEADER.pack(
+            target.source_port,
+            target.destination_port,
+            segment.sequence,
+            segment.acknowledgment,
+            (5 + len(segment.options) // 4) << 4 | segment.reserved,
+            segment.flags,
+            segment.window,
+            0,
+            segment.urgent_pointer,
+        )
+        + segment.options
+        + segment.payload
     )
     tcp_crc = wire.checksum(wire.pseudoheader(target, len(blank)) + blank)
     tcp = blank[:16] + struct.pack("!H", tcp_crc) + blank[18:]
@@ -139,7 +184,7 @@ def rewrite_output(output, target, ttl):
     return {"rawIPv4Hex": raw.hex(), "decoded": wire.decode_packet(raw).to_dict()}
 
 
-def endpoint_seed(local, remote, receive_next, window_packet):
+def endpoint_seed(local, remote, receive_next, window_packet, peer_offer=None):
     segment = window_packet.segment
     next_send = (local.iss + 1) % MODULUS
     return application.State(
@@ -157,13 +202,36 @@ def endpoint_seed(local, remote, receive_next, window_packet):
         segment.window,
         segment.sequence,
         segment.acknowledgment,
-        local.effective_mss,
+        local.send_mss(peer_offer),
         local.ip_send_limit,
     )
 
 
+def startup_mss(options):
+    values = wire.option_framing(options)
+    if len(values) > 1 or values and values[0] == 0:
+        raise ValueError("The selected MSS value is zero or duplicated.")
+    position = 0
+    while position < len(options):
+        kind = options[position]
+        if kind == 0:
+            break
+        if kind == 1:
+            position += 1
+        elif kind == 2:
+            position += 4
+        else:
+            raise ValueError("The startup options exceed the selected MSS scope.")
+    return values[0] if values else None
+
+
 def profile_failure(packet, expected_flags):
-    if packet.segment.options:
+    try:
+        if expected_flags & 2:
+            startup_mss(packet.segment.options)
+        elif packet.segment.options:
+            raise ValueError("The final ACK options exceed the selected scope.")
+    except ValueError:
         return {"kind": "unsupported", "reason": "options"}
     if packet.segment.payload:
         return {"kind": "unsupported", "reason": "data"}
@@ -306,7 +374,13 @@ def evaluate(active, passive, state, event, index):
         if not event["policyPermitted"]:
             return failure("policy", packet=packet)
         source = source_path(state.syn_ack, state.syn_ack_index, event, packet)
-        seed = endpoint_seed(active, state.remote, (segment.sequence + 1) % MODULUS, packet)
+        seed = endpoint_seed(
+            active,
+            state.remote,
+            (segment.sequence + 1) % MODULUS,
+            packet,
+            startup_mss(segment.options),
+        )
         output = control_output(
             active, state.remote, seed.core.send_next, seed.core.receive_next, 16
         )
@@ -331,7 +405,11 @@ def evaluate(active, passive, state, event, index):
     source = source_path(state.final_ack, state.final_ack_index, event, packet)
     remote = Socket(packet.header.source, packet.header.source_port)
     seed = endpoint_seed(
-        passive, remote, (state.passive_syn.segment.sequence + 1) % MODULUS, packet
+        passive,
+        remote,
+        (state.passive_syn.segment.sequence + 1) % MODULUS,
+        packet,
+        startup_mss(state.passive_syn.segment.options),
     )
     after = replace(
         state,

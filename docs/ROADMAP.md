@@ -118,6 +118,8 @@ Immutable assignments and exact gateway emissions supply the application deliver
 The revocation result prevents later gateway output and preserves the actual outcome of stale allow rules.
 The [planned TCP transfer](CAMPUS_TCP_TRANSFER.md) preserves a reachable tracker and admission pair across two modeled gateways.
 Actual pause, drain, installation, route, and fence operations retain the existing endpoint histories and application byte provenance.
+The [directional MSS extension](TCP_MSS.md) derives actual peer limits through startup, data admission, and exact checkpoint transfer.
+Its asymmetric example sends payloads above 536 bytes through each gateway while retaining current permission and read-prefix proofs.
 Broader startup features, congestion control, timers, retransmission, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

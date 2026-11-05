@@ -30,27 +30,30 @@ def Gateway.initial : Gateway := ⟨.initial, .initial⟩
 
 inductive PhaseImage where
   | empty
-  | syn (entry : NetfilterNAT.Entry) (clientISS : Seq) (clientWindow : InternetChecksum.Word)
+  | syn (entry : NetfilterNAT.Entry) (clientISS : Seq) (clientWindow : InternetChecksum.Word) (clientMSS : MSS.Offer)
   | synAck (entry : NetfilterNAT.Entry) (clientISS : Seq) (clientWindow : InternetChecksum.Word)
-      (serverISS : Seq) (serverWindow : InternetChecksum.Word)
-  | data (entry : NetfilterNAT.Entry) (original reply : A.Lane)
+      (serverISS : Seq) (serverWindow : InternetChecksum.Word) (clientMSS serverMSS : MSS.Offer)
+  | data (entry : NetfilterNAT.Entry) (original reply : A.Lane) (clientMSS serverMSS : MSS.Offer)
   deriving Repr, BEq, DecidableEq
 
 def phaseImage : A.Phase → PhaseImage
   | .empty => .empty
-  | .syn entry iss window => .syn entry iss window
-  | .synAck entry clientISS clientWindow serverISS serverWindow =>
-    .synAck entry clientISS clientWindow serverISS serverWindow
-  | .data session => .data session.entry session.original session.reply
+  | .syn entry iss window clientMSS => .syn entry iss window clientMSS
+  | .synAck entry clientISS clientWindow serverISS serverWindow clientMSS serverMSS =>
+    .synAck entry clientISS clientWindow serverISS serverWindow clientMSS serverMSS
+  | .data session => .data session.entry session.original session.reply session.clientMSS session.serverMSS
 
 private theorem session_image_injective (left right : Admission.Session)
-    (entry : left.entry = right.entry) (original : left.original = right.original) (reply : left.reply = right.reply) :
+    (entry : left.entry = right.entry) (original : left.original = right.original) (reply : left.reply = right.reply)
+    (clientMSS : left.clientMSS = right.clientMSS) (serverMSS : left.serverMSS = right.serverMSS) :
     left = right := by
   cases left
   cases right
   cases entry
   cases original
   cases reply
+  cases clientMSS
+  cases serverMSS
   rfl
 
 theorem phaseImage_injective (left right : A.Phase) (same : phaseImage left = phaseImage right) : left = right := by
@@ -58,10 +61,10 @@ theorem phaseImage_injective (left right : A.Phase) (same : phaseImage left = ph
   all_goals first
     | rfl
     | (solve | cases same)
-    | (obtain ⟨rfl, rfl, rfl⟩ := PhaseImage.syn.inj same; rfl)
-    | (obtain ⟨rfl, rfl, rfl, rfl, rfl⟩ := PhaseImage.synAck.inj same; rfl)
-    | (obtain ⟨entry, original, reply⟩ := PhaseImage.data.inj same
-       exact congrArg Admission.Phase.data (session_image_injective _ _ entry original reply))
+    | (obtain ⟨rfl, rfl, rfl, rfl⟩ := PhaseImage.syn.inj same; rfl)
+    | (obtain ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ := PhaseImage.synAck.inj same; rfl)
+    | (obtain ⟨entry, original, reply, clientMSS, serverMSS⟩ := PhaseImage.data.inj same
+       exact congrArg Admission.Phase.data (session_image_injective _ _ entry original reply clientMSS serverMSS))
 
 structure Image where
   tracker : C.State
@@ -310,6 +313,13 @@ theorem Installation.tracker (installation : Installation snapshot sourceHistory
 
 theorem Installation.admission (installation : Installation snapshot sourceHistory target) :
     installation.state.admission = snapshot.source.admission := congrArg Gateway.admission installation.copied
+
+theorem Installation.mss (installation : Installation snapshot sourceHistory target)
+    (session : Admission.Session) (selected : snapshot.source.admission.phase = .data session) :
+    ∃ copied : Admission.Session, installation.state.admission.phase = .data copied ∧
+      copied.clientMSS = session.clientMSS ∧ copied.serverMSS = session.serverMSS := by
+  rw [installation.copied]
+  exact ⟨session, selected, rfl, rfl⟩
 
 theorem Installation.record (installation : Installation snapshot sourceHistory target) :
     snapshot.record ∈ installation.state.tracker.records := by

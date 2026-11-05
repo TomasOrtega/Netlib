@@ -16,9 +16,9 @@ export Netlib.Protocol.TCP.ApplicationTrace
   (Step Event Chain DeliveryHistory OutputAt OutputOrigin BytePath)
 end A
 
-private def activeConfig : H.Local := ⟨⟨3221225985, 41000⟩, Seq.ofNat 99, 4, 4, 1500⟩
+private def activeConfig : H.Local := ⟨⟨3221225985, 41000⟩, Seq.ofNat 99, 4, 4, 1500, none⟩
 private def remote : H.Socket := ⟨3325256706, 8080⟩
-private def passiveConfig : H.Local := ⟨⟨3405803778, 8080⟩, Seq.ofNat 199, 4, 4, 1500⟩
+private def passiveConfig : H.Local := ⟨⟨3405803778, 8080⟩, Seq.ofNat 199, 4, 4, 1500, none⟩
 private def forwardTuple : Packet.Header := ⟨3325256705, 3405803778, Packet.Protocol.tcp, 40000, 8080⟩
 private def backwardTuple : Packet.Header := Handshake.inbound activeConfig remote
 
@@ -37,7 +37,7 @@ theorem ordinary_startup : Nonempty StartupWitness := by
   obtain ⟨pending, opened⟩ := Handshake.activeOpen_exists activeConfig remote activeValid
   have activeFields := Handshake.activeOpen_fields _ _ _ _ opened
   let syn := HandshakeExchange.Delivery.rewritten pending.output forwardTuple 63 rfl
-  have synFields := ControlOutput.emit_transport _ _ _ _ _ _ pending.generated
+  have synFields := pending.output_fields
   have synHeader : syn.input.packet.header = forwardTuple :=
     (TCPRewrite.rewrite pending.output.packet forwardTuple 63 pending.output.valid rfl).header rfl
   have synSequence : syn.input.packet.segment.sequence = pending.config.iss := synFields.2.1
@@ -45,19 +45,17 @@ theorem ordinary_startup : Nonempty StartupWitness := by
     unfold Handshake.destination
     rw [synHeader]
     exact ⟨rfl, rfl⟩
-  have profile : Handshake.Profile syn.input 2 :=
-    ⟨synFields.2.2.2.2.1, synFields.2.2.2.2.2.1, synFields.2.2.2.2.2.2.1⟩
+  have profile : Handshake.Profile syn.input 2 := pending.output_profile
   obtain ⟨listener, listened⟩ := Handshake.listenSyn_exists passiveConfig syn.input passiveValid destination profile
   have passiveFields := Handshake.listenSyn_fields _ _ _ _ listened
   let synAck := HandshakeExchange.Delivery.rewritten listener.output backwardTuple 63 rfl
-  have synAckFields := ControlOutput.emit_transport _ _ _ _ _ _ listener.generated
+  have synAckFields := listener.output_fields
   have synAckHeader : synAck.input.packet.header = Handshake.inbound pending.config pending.remote := by
     have actual := (TCPRewrite.rewrite listener.output.packet backwardTuple 63 listener.output.valid rfl).header rfl
     rw [activeFields.1, activeFields.2.1]
     exact actual
   have synAckAccepted : Handshake.ActiveAccepted pending synAck.input := by
-    refine ⟨synAckHeader, ⟨synAckFields.2.2.2.2.1, synAckFields.2.2.2.2.2.1,
-      synAckFields.2.2.2.2.2.2.1⟩, ?_⟩
+    refine ⟨synAckHeader, listener.output_profile, ?_⟩
     change listener.output.packet.segment.acknowledgment = _
     rw [synAckFields.2.2.1, passiveFields.2.1, synSequence]
   obtain ⟨active, activeComputed⟩ := Handshake.synSentSynAck_exists pending synAck.input synAckAccepted
