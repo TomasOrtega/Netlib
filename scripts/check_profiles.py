@@ -5,6 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 
+from check_campus_examples import check as campus_checks
 from check_cli import ROOT, invoke
 from check_icmp_examples import check as icmp_checks
 from check_reassembly_examples import synthetic_checks as reassembly_checks
@@ -1136,6 +1137,7 @@ def main():
     reassembly_native_checks()
     replication_checks()
     safe_handoff_checks()
+    campus_checks()
     count = 0
     for path in sorted((ROOT / "examples/dataplane").glob("*.json")):
         passed = path.stem == "secure"

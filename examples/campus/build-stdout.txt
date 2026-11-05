@@ -1,0 +1,13 @@
+Sending build context to Docker daemon  43.01kB
+Step 1/4 : FROM netlib-safe-handoff-capture:1
+ ---> 0de06682f606
+Step 2/4 : COPY exercise.py capture.sh /task/campus/
+ ---> 5db8bda0b48c
+Step 3/4 : COPY requirements.json demo-credential.json permit.json deny.json /task/campus/input/
+ ---> a84ad4f0b2b5
+Step 4/4 : CMD ["sh", "/task/campus/capture.sh"]
+ ---> Running in e8ec3de66eaf
+ ---> Removed intermediate container e8ec3de66eaf
+ ---> b17fdb28779b
+Successfully built b17fdb28779b
+Successfully tagged netlib-campus-capture:1

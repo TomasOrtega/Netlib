@@ -45,3 +45,15 @@ examples/safe-handoff/native/b-cache-statistics.txt -whitespace
 examples/safe-handoff/native/b-ct-statistics.txt -whitespace
 examples/safe-handoff/native/b-network-statistics.txt -whitespace
 examples/safe-handoff/native/b-runtime-statistics.txt -whitespace
+examples/campus/build-stdout.txt -whitespace
+examples/campus/build-stderr.txt -whitespace
+examples/campus/native/a-trace.txt -whitespace
+examples/campus/native/b-trace.txt -whitespace
+examples/campus/native/a-cache-statistics.txt -whitespace
+examples/campus/native/a-ct-statistics.txt -whitespace
+examples/campus/native/a-network-statistics.txt -whitespace
+examples/campus/native/a-runtime-statistics.txt -whitespace
+examples/campus/native/b-cache-statistics.txt -whitespace
+examples/campus/native/b-ct-statistics.txt -whitespace
+examples/campus/native/b-network-statistics.txt -whitespace
+examples/campus/native/b-runtime-statistics.txt -whitespace

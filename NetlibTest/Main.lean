@@ -114,6 +114,9 @@ import NetlibTest.Outstanding
 
 import NetlibTest.SafeHandoff
 import NetlibTest.SafeHandoffDeployment
+import NetlibTest.CampusWithdrawal
+import NetlibTest.CampusDuplex
+import NetlibTest.CampusDirect
 
 open Netlib
 
@@ -226,4 +229,7 @@ def main : IO Unit := do
   NetlibTest.Outstanding.run
   NetlibTest.SafeHandoff.run
   NetlibTest.SafeHandoffDeployment.run
+  NetlibTest.CampusWithdrawal.run
+  NetlibTest.CampusDuplex.run
+  NetlibTest.CampusDirect.run
   IO.println "Netlib tests passed."

@@ -1,0 +1,1 @@
+[{"dst":"198.51.100.0/24","dev":"sal","protocol":"kernel","scope":"link","prefsrc":"198.51.100.2","flags":["linkdown"]},{"dst":"198.51.101.0/24","dev":"sbl","protocol":"kernel","scope":"link","prefsrc":"198.51.101.2","flags":[]},{"dst":"203.0.113.1","gateway":"198.51.101.1","dev":"sbl","prefsrc":"198.51.100.2","flags":[]}]

@@ -17,9 +17,9 @@ All seven goals remain OPEN.
 | Mathematical foundations | OPEN | Paths, refinement, traces, domain composition, faults, and FIFO bounds. Old-prefix clearance under overload. Header transformation closure and alias-reuse indistinguishability. Interval/run invariants, timed input queues, and accepted-byte provenance. Arbitrary-identity retirement preserves exact counts and constructs finite targeted drains. | Broader information flow and adversary models, network calculus, probability, physical timing, congestion, reliability bounds, and foundational literature. |
 | Connected protocol stacks | OPEN | IPv4 UDP forwarding preserves payload through tracked NAT, regenerates checksums, decrements TTL, and produces verified MTU-bounded fragment families. Generated and received ICMP errors restore quoted tuples through related NAT. Host PMTU feedback has bounds, expiry, and forgery-limit proofs. Ingress reassembly precedes current policy; timeout errors retain first-fragment bytes and zone templates. Checked EAP evidence and credentials control the selected packet classes. | Full Ethernet, IP, TCP, DNS, BGP, TLS, QUIC, Wi-Fi, and cellular semantics with implementation correspondence. |
 | Machine-checkable standards | OPEN | Selected Wi-Fi and 5G profiles, RFC 3748 framing, and selected EAP-TLS evidence guards. Formal clause guards, compatibility, and version refinement. | Broader clause coverage, reference resolution, reviewed translations, interoperability cases, and connections between profiles and implementations. |
-| Complete architectures | OPEN | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. Ordered native handoff connects cache staging and observed kernel installation. Protected handoff preserves readiness across every admissible selected interleaving. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
-| Verified implementations and compilers | OPEN | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. Typed ICMP output guards retain type/code requirements. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
-| Safe operation | OPEN | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. Outstanding route assignments preserve actual source provenance through arbitrary retirement order. Progress from prior conditions and exact retirement counts support guarded fencing. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
+| Complete architectures | OPEN | Campus session enforcement, isolation, and single-fault paths. Checked EAP principals and credentials feed a configured-principal campus theorem. Stateful reply failover has exact-replication proofs. Ordered native handoff connects cache staging and observed kernel installation. Protected handoff preserves readiness across every admissible selected interleaving. Joint wired campus replay connects current session installation, duplex topology, actual ticket history, and planned withdrawal. | Native campus configuration and topology bindings, full protocol semantics, distributed state propagation, quantitative guarantees, and broader architecture deployments. |
+| Verified implementations and compilers | OPEN | Certified packet intent and current-session compilation preserve every header. Native policy exports match EAP-derived scope guards for every state and header. Typed ICMP output guards retain type/code requirements. Current installation certificates derive policy equivalence at actual consumed authentication prefixes. | Verified parsers and deployment operations, protocol implementations, broader configuration compilation, synthesis, and optimization. |
+| Safe operation | OPEN | Certified update snapshots, late barriers, and packet traces preserve explicit contracts. Buffered replay connects admissions to FIFO service and certifies clean delivery after sufficient drain capacity. Outstanding route assignments preserve actual source provenance through arbitrary retirement order. Progress from prior conditions and exact retirement counts support guarded fencing. Planned withdrawal archives the primary and checks current session policy in one timeline. | Verified native install commands, physical queue and service correspondence, routing transients, concurrent updates, monitoring, and recovery. |
 | Internet-scale assurance | OPEN | Local graph refinements compose through checked border transitions. Domain node types remain disjoint in the composed graph. | Contract exchange, partial observations, changing routes, independent operators, hidden topology, and larger end-to-end demonstrations. |
 
 ## Campus landmark
@@ -42,7 +42,7 @@ The complete campus landmark requires those additional connections and their evi
 The separate [Linux adapter](LINUX.md) now reads native route and firewall snapshots.
 Its compiled graph matches the structured source semantics under explicit transit assumptions.
 The [packet compiler](COMPILER.md) generates a native-format firewall from checked intent.
-The abstract campus theorem and these imported forwarding models still need a common protocol and failure interpretation.
+Their complete campus interpretation still requires broader protocol and failure semantics.
 
 `Netlib.Examples.CampusNAT` connects the campus graph to session-gated packet processing and per-gateway NAT stores.
 It proves primary request/reply paths with the actual updated store.
@@ -57,7 +57,7 @@ Both kernel tables start empty; an actual primary packet establishes the record 
 The replay separates received cache state, kernel commitment, each endpoint route change, and the primary data fence.
 Current standby policy remains effective after installation, including a denied reply's seen-reply update.
 Provenance identifies the actual earlier staging prefix and computed source table.
-The abstract campus graph and this native flow still need a common failure, session, and deployment interpretation.
+The joint campus layer below connects their selected session and planned-withdrawal interpretation.
 Automatic detection, reliable synchronization, expiry, concurrent installs, and bounded convergence remain open.
 
 The [safe handoff extension](SAFE_HANDOFF.md) separates endpoint route assignment from later processing at the assigned gateway.
@@ -70,6 +70,20 @@ The finite drain constructs exactly the initial target count of processing opera
 It does not establish physical time, fair scheduling, native queue correspondence, or eventual delivery.
 The native example records 20 operations, seven datagrams, and six protected tickets without a native EAP enforcement claim.
 Lifetime stability, physical correspondence, installation coherence, and complete campus integration remain open.
+
+The [joint campus deployment](CAMPUS_DEPLOYMENT.md) connects actual wired EAP, credential installation, current native policies, and the ordinary protected flow.
+Its unified history interleaves authentication, network processing, and planned primary withdrawal.
+Current installation certificates derive forward equivalence from actual source rules and the consumed authentication prefix.
+Each served output has exact NAT, payload, and TTL guarantees from an actual earlier assignment in that same timeline.
+Current application validity and method readiness follow at the processing prefix.
+The declared class must cover even denied packets, and next-hop roles must match the direct request or reply path.
+
+The direct graph uses four data roles and an explicit collapse of abstract access-point vertices.
+Request and reply continuity, management isolation, and mandatory gateway traversal have reusable proofs.
+After drain and fencing, primary state becomes an archive and later live primary operations are prohibited.
+The saved example records 26 native operations, eight datagrams, and seven tickets.
+Its joint replay has 45 operations: 21 authentication, 23 network, and one withdrawal.
+Cryptography, wireless deployment, principal anti-spoofing, physical correspondence, automatic failures, lifetimes, and the complete campus objective remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
 Its per-flow model uses complete zone and tuple keys, including shared public endpoints across different peers.
@@ -149,7 +163,7 @@ Principal-to-tuple ownership and global policy-installation timing also need str
 3. Refine EAP method evidence with cryptographic semantics, wireless key installation, and trusted link/session attribution.
 4. Connect concrete upgrade commands and physical queue behavior to the certified barrier and intermediate snapshots.
 5. Connect physical service lower bounds and concurrent queue models to the FIFO drain proof, then add timing and reliability guarantees.
-6. Extend the campus proof through those models and real configuration inputs.
+6. Extend the joint wired campus interpretation through cryptography, wireless deployment, principal anti-spoofing, physical correspondence, lifetimes, and broader fault behavior.
 7. Reuse the resulting contracts for other architectures and independent domains.
 
 Standards additions should exercise reusable semantics and preserve exact source clauses.
