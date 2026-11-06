@@ -13,7 +13,9 @@ Assignment and delivery consume pending identities; copies and drops are explici
 General finite and infinite bounded-service theorems are implemented in `Theory.BoundedProgress`.
 The [enabled-operation extension](../TCP_ENABLED_OPERATIONS.md) derives positive endpoint and gateway operations from their preceding guards.
 It also derives actual cursor chronology, ticket validity, and finite schedule slots from one checked history.
-The concrete TCP adapter and complete transfer theorem below remain OPEN.
+The [first bounded round](../TCP_ROUND_PROGRESS.md) now proves the concrete adapter and all nine phases for one fresh range.
+It fixes local clocks and primary ownership and permits no additional copy or drop on the selected suffix.
+The broader fault, clock, gap, and transfer theorem below remains OPEN.
 See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
 The source links below describe the earlier design basis.
 

@@ -3,7 +3,8 @@
 These proofs derive supported operations from the preceding state.
 They use the existing endpoint, gateway, and campus computations.
 The scheduling condition must still supply those operations.
-A complete bounded TCP transfer theorem remains OPEN.
+The [bounded-round proof](TCP_ROUND_PROGRESS.md) composes these operations for one fresh range.
+The broader TCP fault and transfer result remains OPEN.
 
 ## Endpoint guards
 
@@ -90,11 +91,11 @@ A strict cut before the evaluated end is supported, including when a later opera
 A supported complete prefix can append an actual computed step through `Report.appendStep`.
 The constructor retains one joint checked history.
 An abstract adapter over that actual transition relation can use the finite bounded-service theorem.
-A concrete TCP adapter must still prove its own invariant, demand, persistence, and descent laws.
+The [bounded-round adapter](TCP_ROUND_PROGRESS.md) now proves its concrete invariant, demand, persistence, and descent laws.
 
-## Remaining transfer proof
+## Connected round and remaining work
 
-The next result must compose these laws through one actual complete range:
+The bounded round composes these laws through one actual complete range:
 
 ```text
 original send → ingress assignment → current gateway service
@@ -103,8 +104,8 @@ original send → ingress assignment → current gateway service
   → actual application read
 ```
 
-It must derive each new phase's readiness from the initial checked state and the stated environment.
-A list of successful operations or a final empty buffer does not supply that proof.
+It derives each new phase's readiness from the initial checked state and the stated environment.
+Actual current-cut constructions and clock frames supply the phase invariant.
 The broader result must charge failed rounds to actual custody drops.
 It must retain a combined data-and-ACK loss bound and exclude spurious retries through clock and service conditions.
 It must then cover the existing 400-byte and 600-byte held gaps and bounded planned transfer.

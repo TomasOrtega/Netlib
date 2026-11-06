@@ -151,6 +151,8 @@ import NetlibTest.TCPAdmission
 import NetlibTest.CampusTCPDeliveryEnabled
 import NetlibTest.CampusTCPSchedule
 import NetlibTest.CampusTCPEnabled
+import NetlibTest.CampusTCPRound
+import NetlibTest.CampusTCPRoundTheorem
 import NetlibTest.GatewayEnabled
 import NetlibTest.TCPReceiveEnabled
 import NetlibTest.TCPReceiveWindowEnabled
@@ -338,6 +340,8 @@ def main : IO Unit := do
   NetlibTest.CampusTCPDeliveryEnabled.run
   NetlibTest.CampusTCPSchedule.run
   NetlibTest.CampusTCPEnabled.run
+  NetlibTest.CampusTCPRound.run
+  NetlibTest.CampusTCPRoundTheorem.run
   NetlibTest.GatewayEnabled.run
   NetlibTest.TCPReceiveEnabled.run
   NetlibTest.TCPReceiveWindowEnabled.run
