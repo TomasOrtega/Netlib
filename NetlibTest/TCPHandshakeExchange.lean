@@ -125,6 +125,12 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
   have passiveRecovery : passiveSeed.recovery = none := by
     simp only [passiveSeed, HandshakeExchange.Complete.passiveSeed, startup.value.passive.derived,
       Handshake.passiveSeed]
+  have activeAck : activeSeed.ackReaction = none := by
+    simp only [activeSeed, HandshakeExchange.Complete.activeSeed, startup.value.active.derived,
+      Handshake.activeSeed]
+  have passiveAck : passiveSeed.ackReaction = none := by
+    simp only [passiveSeed, HandshakeExchange.Complete.passiveSeed, startup.value.passive.derived,
+      Handshake.passiveSeed]
   have pendingLimit : activeSeed.pendingLimit = 4 := by
     rw [startup.value.configuration.2.1, startup.activeConfig]
     rfl
@@ -171,13 +177,19 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
       decide
     · rw [writtenEq]
       simp only [Endpoint.recoveryReady, Endpoint.writeState, activeRecovery]
+  have writtenAck : writtenState.ackReaction = none := by
+    rw [writtenEq]
+    exact activeAck
+  have prepared : Endpoint.ackReady writtenState = .ok () := by
+    simp only [Endpoint.ackReady, Endpoint.AckCoherent, writtenAck, not_true_eq_false, ite_false]
   obtain ⟨output, encoded⟩ := Output.emit_exists writtenState.core (writtenState.pending.take 1)
     writtenValid.1 (by rw [pendingBytes]; decide)
   obtain ⟨sentState, sentEq⟩ : ∃ state, state = Endpoint.sendState writtenState 1 := ⟨_, rfl⟩
   have sendResult : Endpoint.send writtenState 1 true =
       ⟨sentState, .accepted (.send 1), some output, [], none⟩ := by
     rw [sentEq]
-    exact Endpoint.send_of_ready _ _ writtenValid sendReady _ encoded
+    apply Endpoint.send_of_ready _ _ writtenValid sendReady prepared output
+    simpa only [Endpoint.emit, writtenAck] using encoded
   let send : A.Step := ⟨writtenState, .send 1 true,
     ⟨sentState, .accepted (.send 1), some output, [], none⟩, 5, writtenValid, sendResult.symm⟩
   let input := output.rewrite passiveSeed.core.inbound 63 passiveValid.1.1
@@ -220,7 +232,7 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit passiveSeed.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    rw [Endpoint.receive_without_recovery passiveSeed input passiveValid passiveRecovery, coreReceived]
+    rw [Endpoint.receive_without_recovery passiveSeed input passiveValid passiveRecovery passiveAck, coreReceived]
     simp only [payload]
     rfl
   have receivedValid : receivedState.Valid := by

@@ -88,6 +88,18 @@ private theorem application_produces (input : M.Input) (before : M.State input)
             cases accepted
             simp [Produces, Check.CampusTCPModel.publish, Check.CampusTCPModel.Produced.time, stamp]
 
+private theorem enableAck_produces (input : M.Input) (before : M.State input)
+    (actor : M.Actor) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.enableAck input before actor = .ok effect) : Produces before effect := by
+  unfold Check.CampusTCPModel.enableAck at accepted
+  split at accepted
+  · exact application_produces _ _ _ _ _ accepted
+  · cases actor <;> simp only at accepted
+    all_goals
+      split at accepted
+      · exact application_produces _ _ _ _ _ accepted
+      · cases accepted
+
 def Assignment (before : M.State input) (event : M.Event)
     (item : O.Item (M.Ticket input.active input.passive)) : Prop :=
   ∃ index ingress produced, event = .assign index ingress ∧
@@ -129,6 +141,8 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
     exact produces_changes _ (application_produces _ _ _ _ _ accepted)
   | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
     exact produces_changes _ (application_produces _ _ _ _ _ accepted)
+  | dispatchAck actor policy => exact produces_changes _ (application_produces _ _ _ _ _ accepted)
+  | enableAck actor => exact produces_changes _ (enableAck_produces _ _ _ _ accepted)
   | authentication index =>
     simp only [Check.CampusTCPModel.process] at accepted
     split at accepted

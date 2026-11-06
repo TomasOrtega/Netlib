@@ -1,5 +1,6 @@
 import Netlib.Check.CampusTCPFacts
 import Netlib.Check.CampusTCPTransferFacts
+import Netlib.Check.CampusTCPAckFacts
 
 /-!
 # Imported campus TCP execution
@@ -170,6 +171,12 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
   | "enableRecovery" =>
     Import.PacketFields.fields json ["kind", "actor"]
     return .enableRecovery (← actorFromJson (← json.getObjVal? "actor"))
+  | "enableAck" =>
+    Import.PacketFields.fields json ["kind", "actor"]
+    return .enableAck (← actorFromJson (← json.getObjVal? "actor"))
+  | "dispatchAck" =>
+    Import.PacketFields.fields json ["kind", "actor", "policyPermitted"]
+    return .dispatchAck (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "policyPermitted").getBool?)
   | "advanceClock" =>
     Import.PacketFields.fields json ["kind", "actor", "millis"]
     return .advanceClock (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "millis").getNat?)
@@ -306,6 +313,54 @@ def TransferStatus.json : TransferStatus report → Lean.Json
     ("historyTransitions", Lean.toJson value.installation.history.length),
     ("sourcePreserved", Lean.toJson (report.final.primary.transport.same value.installation.checkpoint.snapshot.source))]
 
+def ackEnabled (report : CampusTCPModel.Report input events) : Bool :=
+  match report.final.connection with
+  | .startup .. => false
+  | .application _ endpoints => endpoints.client.current.ackReaction.isSome || endpoints.server.current.ackReaction.isSome
+
+inductive AckStatus (report : CampusTCPModel.Report input events) where
+  | disabled (absent : ackEnabled report = false)
+  | pending (value : CampusTCPAckFacts.Evidence report)
+      (owed : (TCP.AckTrace.work value.application.endpoints.client.current).pending ≠ [] ∨
+        (TCP.AckTrace.work value.application.endpoints.server.current).pending ≠ [])
+  | failed (reason : String)
+  | checked (value : CampusTCPAckFacts.Assurance report)
+
+def ackStatus (report : CampusTCPModel.Report input events) : AckStatus report :=
+  if enabled : ackEnabled report = true then
+    match CampusTCPAckFacts.evidence report with
+    | .error reason => .failed reason
+    | .ok value =>
+      if clientClosed : (TCP.AckTrace.work value.application.endpoints.client.current).pending = [] then
+        if serverClosed : (TCP.AckTrace.work value.application.endpoints.server.current).pending = [] then
+          .checked ⟨value, clientClosed, serverClosed⟩
+        else .pending value (.inr serverClosed)
+      else .pending value (.inl clientClosed)
+  else .disabled (by cases actual : ackEnabled report <;> simp_all)
+
+def AckStatus.passed : AckStatus report → Bool
+  | .disabled _ | .pending .. | .checked _ => true
+  | .failed _ => false
+
+private def ackCounts (value : CampusTCPAckFacts.Evidence report) : List (String × Lean.Json) :=
+  let client := TCP.AckTrace.work value.application.endpoints.client.current
+  let server := TCP.AckTrace.work value.application.endpoints.server.current
+  [("clientEnabled", Lean.toJson value.application.endpoints.client.current.ackReaction.isSome),
+    ("serverEnabled", Lean.toJson value.application.endpoints.server.current.ackReaction.isSome),
+    ("clientCauses", Lean.toJson client.nextID), ("clientDischarges", Lean.toJson client.completed.length),
+    ("clientPending", Lean.toJson client.pending.length),
+    ("serverCauses", Lean.toJson server.nextID), ("serverDischarges", Lean.toJson server.completed.length),
+    ("serverPending", Lean.toJson server.pending.length)]
+
+def AckStatus.json : AckStatus report → Lean.Json
+  | .disabled _ => Lean.Json.mkObj [("status", Lean.toJson "disabled")]
+  | .failed reason => Lean.Json.mkObj [("scope", Lean.toJson "local-ack-generation"),
+      ("status", Lean.toJson "failed"), ("reason", Lean.toJson reason)]
+  | .pending value _ => Lean.Json.mkObj ([("scope", Lean.toJson "local-ack-generation"),
+      ("status", Lean.toJson "pending")] ++ ackCounts value)
+  | .checked value => Lean.Json.mkObj ([("scope", Lean.toJson "local-ack-generation"),
+      ("status", Lean.toJson "checked")] ++ ackCounts value.toEvidence)
+
 def namespaceJson (value : IngressAttachment.NamespaceRef) : Lean.Json :=
   Lean.Json.mkObj [("id", Lean.toJson value.id), ("birth", Lean.toJson value.birth)]
 
@@ -323,6 +378,7 @@ def eventKind : Event → String
   | .switchRoute .. => "switchRoute" | .fencePrimary => "fencePrimary" | .resume => "resume"
   | .open .. => "open" | .write .. => "write" | .send .. => "send" | .read .. => "read" | .emitAck .. => "emitAck"
   | .enableRecovery .. => "enableRecovery" | .advanceClock .. => "advanceClock" | .timeout .. => "timeout"
+  | .enableAck .. => "enableAck" | .dispatchAck .. => "dispatchAck"
   | .assign .. => "assign" | .serve .. => "serve" | .deliver .. => "deliver"
 
 def eventJson (event : Event) : Lean.Json :=
@@ -341,6 +397,8 @@ def eventJson (event : Event) : Lean.Json :=
     | .write actor bytes => [("actor", Lean.toJson (actorName actor)), ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex bytes))]
     | .send actor count policy => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
     | .enableRecovery actor => [("actor", Lean.toJson (actorName actor))]
+    | .enableAck actor => [("actor", Lean.toJson (actorName actor))]
+    | .dispatchAck actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .advanceClock actor millis => [("actor", Lean.toJson (actorName actor)), ("millis", Lean.toJson millis)]
     | .timeout actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .read actor count => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count)]
@@ -460,7 +518,7 @@ def stateJson (state : State input) : Lean.Json :=
 def producedKind : Produced active passive → String
   | .startup step _ _ => match step.event with | .activeOpen .. => "open" | _ => "startup"
   | .application _ step _ _ => match step.event with
-    | .send .. => "send" | .emitAck .. => "emitAck" | .timeout .. => "retry" | _ => "invalid"
+    | .send .. => "send" | .emitAck .. => "emitAck" | .timeout .. => "retry" | .dispatchAck .. => "dispatchAck" | _ => "invalid"
 
 def producedStartupOperation : Produced active passive → Option String
   | .startup step _ _ => some step.event.kind
@@ -471,7 +529,7 @@ def attemptJson (step : TCP.ApplicationTrace.Step) : Option Lean.Json := do
   let (kind, original, start, count) ← match step.event with
     | .send count _ => some ("original", some recovery.nextId, recovery.frontier, count)
     | .timeout _ => recovery.outstanding.head?.map (fun entry => ("retry", some entry.id, entry.start, entry.count))
-    | .emitAck _ => some ("ack", none, recovery.frontier, 0)
+    | .emitAck _ | .dispatchAck _ => some ("ack", none, recovery.frontier, 0)
     | _ => none
   return Lean.Json.mkObj [("kind", Lean.toJson kind), ("clockMillis", Lean.toJson recovery.now),
     ("originalID", Lean.toJson original), ("start", Lean.toJson start), ("count", Lean.toJson count)]
@@ -542,9 +600,15 @@ def sources : List Standards.Source := [
   ⟨"Linux netfilter NAT", "v6.8", "nf_nat_packet", Protocol.NetfilterNAT.sourceURL⟩,
   ⟨"Linux connection tracking", "v6.8", "ordinary attachment and confirmation", Protocol.ConntrackLifecycle.sourceURL⟩]
 
+def ackSources : List Standards.Source := [
+  ⟨"Transmission Control Protocol", "RFC 9293", "3.8.6.2.2 and 3.8.6.3",
+    "https://www.rfc-editor.org/rfc/rfc9293.html#section-3.8.6.2.2"⟩,
+  ⟨"TCP Congestion Control", "RFC 5681", "4.2", "https://www.rfc-editor.org/rfc/rfc5681.html#section-4.2"⟩]
+
 def renderJson (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
-    (transfer : TransferStatus report := transferStatus report) : Lean.Json := Lean.Json.mkObj ([
+    (transfer : TransferStatus report := transferStatus report)
+    (ack : AckStatus report := ackStatus report) : Lean.Json := Lean.Json.mkObj ([
   ("scope", Lean.toJson "campus-tcp-application-path"), ("supported", Lean.toJson report.supported),
   ("compliant", Lean.toJson report.compliant), ("inputEvents", Lean.toJson events.length), ("evaluatedEvents", Lean.toJson report.steps.length),
   ("applicationAssurance", application.json),
@@ -557,16 +621,21 @@ def renderJson (report : CampusTCPModel.Report input events)
           ("readHex", Lean.toJson (Import.EAPOL.bytesToHex step.result.read))])
       | _ => none
     | _, _ => none)),
-  ("remainingEvents", Lean.toJson (report.remaining.map eventJson)), ("assumptions", Lean.toJson assumptions),
-  ("sources", Lean.toJson (sources.map fun source => Lean.Json.mkObj [
+  ("remainingEvents", Lean.toJson (report.remaining.map eventJson)),
+  ("assumptions", Lean.toJson (assumptions ++ if ackEnabled report then [
+    "ACK assurance covers only the enabled endpoints and timely local generation, with an inclusive 499-ms delayed bound.",
+    "Receive-window suppression applies to all enabled endpoint output. Scheduling, native clocks, and eventual delivery remain open."] else [])),
+  ("sources", Lean.toJson ((sources ++ if ackEnabled report then ackSources else []).map fun source => Lean.Json.mkObj [
     ("document", Lean.toJson source.document), ("version", Lean.toJson source.version),
     ("clause", Lean.toJson source.clause), ("url", Lean.toJson source.url)]))] ++
-    if input.standby.isSome then [("transferAssurance", transfer.json)] else [])
+    (if input.standby.isSome then [("transferAssurance", transfer.json)] else []) ++
+    (if ackEnabled report then [("ackAssurance", ack.json)] else []))
 
 def render (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
-    (transfer : TransferStatus report := transferStatus report) : String :=
+    (transfer : TransferStatus report := transferStatus report)
+    (ack : AckStatus report := ackStatus report) : String :=
   (if report.compliant then "CAMPUS TCP MODEL COMPLIANT\n" else "CAMPUS TCP MODEL NOT COMPLIANT\n") ++
-    (renderJson report application transfer).pretty
+    (renderJson report application transfer ack).pretty
 
 end Netlib.Check.CampusTCP

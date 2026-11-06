@@ -139,6 +139,13 @@ The application trace separates unique stream bytes from packet attempts and der
 The existing checkpoint image retains this full observation history and its actual transition cut.
 The [recovery guide](TCP_RECOVERY.md) states the selected congestion bound and remaining protocol scope.
 
+`Theory.TimedReaction` proves causal coverage, one-use response credit, retained deadlines, and closed-history responses.
+`TCP.ReceiveAdvertisement` separates free storage from the last offered receive edge.
+`TCP.AckTrace` checks the actual endpoint chain against timed causes and actual output packets.
+Its causal proof ties the owed cursor and window edge to packet fields in one host clock context.
+`Check.CampusTCPAckFacts` retains checked startup, early activation, actual gateway receipt paths, and both application histories.
+The [ACK guide](TCP_ACK.md) states the selected timing and receive-window rules.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

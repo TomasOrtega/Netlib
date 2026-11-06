@@ -47,6 +47,13 @@ def stepOutput (step : Step) : Except String { output : Input // OutputOrigin st
       | some output => .ok ⟨output, .ack policy event selected actual⟩
       | none => .error "The selected ACK event has no checked output."
     | _ => .error "The selected ACK event did not succeed."
+  | .dispatchAck policy =>
+    match selected : step.result.decision with
+    | .accepted .dispatchAck =>
+      match actual : step.result.output with
+      | some output => .ok ⟨output, .dispatchAck policy event selected actual⟩
+      | none => .error "The selected ACK dispatch has no checked output."
+    | _ => .error "The selected ACK dispatch did not succeed."
   | _ => .error "The selected event cannot produce application-profile output."
 
 def findOutput : (steps : List Step) → (stamp : Nat) →
@@ -88,17 +95,17 @@ theorem Step.emitted_index (step : Step) (index : Nat) (byte : UInt8)
       step.result.decision = .accepted (.send amount) ∧
       index < count ∧ step.before.pending[index]? = some byte := by
   cases event : step.event with
-  | write bytes | read bytes | emitAck bytes | receive bytes | advanceClock bytes | timeout bytes =>
+  | write bytes | read bytes | emitAck bytes | receive bytes | advanceClock bytes | timeout bytes | dispatchAck bytes =>
     simp [Step.emitted, ApplicationTrace.emitted, event] at selected
-  | enableRecovery => simp [Step.emitted, ApplicationTrace.emitted, event] at selected
+  | enableRecovery | enableAck => simp [Step.emitted, ApplicationTrace.emitted, event] at selected
   | send count policy =>
     cases decision : step.result.decision with
-    | reject reason | unsupported reason | recoveryUnsupported reason =>
+    | reject reason | unsupported reason | recoveryUnsupported reason | ackUnsupported reason =>
       simp [Step.emitted, ApplicationTrace.emitted, event, decision] at selected
     | accepted action =>
       cases action with
       | write amount | read amount | retry amount => simp [Step.emitted, ApplicationTrace.emitted, event, decision] at selected
-      | emitAck | enableRecovery | advanceClock => simp [Step.emitted, ApplicationTrace.emitted, event, decision] at selected
+      | emitAck | enableRecovery | advanceClock | enableAck | dispatchAck => simp [Step.emitted, ApplicationTrace.emitted, event, decision] at selected
       | receive count size => simp [Step.emitted, ApplicationTrace.emitted, event, decision] at selected
       | send amount =>
         have present : (step.before.pending.take count)[index]? = some byte := by
@@ -118,12 +125,19 @@ theorem Step.send_amount (step : Step) (count : Nat) (policy : Bool) (amount : N
     | false => simp [Endpoint.send, valid, Endpoint.rejected] at selected
     | true =>
       by_cases ready : Endpoint.SendReady step.before count
-      · cases encoded : Output.emit step.before.core (step.before.pending.take count) with
-        | error reason => simp [Endpoint.send, valid, ready, encoded, Endpoint.rejected] at selected
-        | ok output =>
+      · cases prepared : Endpoint.ackReady step.before with
+        | error reason =>
           simp only [Endpoint.send, valid, not_true_eq_false, ite_false, Bool.not_true, Bool.false_eq_true,
-            ready, encoded, Endpoint.Decision.accepted.injEq, Endpoint.Accepted.send.injEq] at selected
-          exact selected.symm
+            ready, prepared, Endpoint.ackBlocked] at selected
+          split at selected <;> cases selected
+        | ok answer =>
+          cases answer
+          cases encoded : Endpoint.emit step.before (step.before.pending.take count) with
+          | error reason => simp [Endpoint.send, valid, ready, prepared, encoded, Endpoint.rejected] at selected
+          | ok output =>
+            simp only [Endpoint.send, valid, not_true_eq_false, ite_false, Bool.not_true, Bool.false_eq_true,
+              ready, prepared, encoded, Endpoint.Decision.accepted.injEq, Endpoint.Accepted.send.injEq] at selected
+            exact selected.symm
       · simp only [Endpoint.send, valid, not_true_eq_false, ite_false, Bool.not_true, Bool.false_eq_true,
           ready, not_false_eq_true, ite_true] at selected
         split at selected
@@ -140,17 +154,17 @@ theorem Step.written_index (step : Step) (index : Nat) (byte : UInt8)
   | read count => simp [Step.written, ApplicationTrace.written, event] at selected
   | emitAck policy => simp [Step.written, ApplicationTrace.written, event] at selected
   | receive input => simp [Step.written, ApplicationTrace.written, event] at selected
-  | enableRecovery | advanceClock _ | timeout _ => simp [Step.written, ApplicationTrace.written, event] at selected
+  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ => simp [Step.written, ApplicationTrace.written, event] at selected
   | write bytes =>
     cases decision : step.result.decision with
-    | reject reason | unsupported reason | recoveryUnsupported reason =>
+    | reject reason | unsupported reason | recoveryUnsupported reason | ackUnsupported reason =>
       simp [Step.written, ApplicationTrace.written, event, decision] at selected
     | accepted action =>
       cases action with
       | write amount =>
         exact ⟨bytes, amount, rfl, rfl, by simpa only [Step.written, ApplicationTrace.written, event, decision] using selected⟩
       | send count | read count | retry count => simp [Step.written, ApplicationTrace.written, event, decision] at selected
-      | emitAck | enableRecovery | advanceClock => simp [Step.written, ApplicationTrace.written, event, decision] at selected
+      | emitAck | enableRecovery | advanceClock | enableAck | dispatchAck => simp [Step.written, ApplicationTrace.written, event, decision] at selected
       | receive count size => simp [Step.written, ApplicationTrace.written, event, decision] at selected
 
 

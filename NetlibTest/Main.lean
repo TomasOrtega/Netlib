@@ -134,6 +134,10 @@ import NetlibTest.TCPMSSCampus
 import NetlibTest.TCPRecovery
 import NetlibTest.TCPRecoveryEndpoint
 import NetlibTest.TCPRecoveryCampus
+import NetlibTest.TimedReaction
+import NetlibTest.TCPAckEndpoint
+import NetlibTest.TCPAckTrace
+import NetlibTest.TCPAckCampus
 import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
 import NetlibTest.TCPWireForwarding
@@ -299,6 +303,10 @@ def main : IO Unit := do
   NetlibTest.TCPRecovery.run
   NetlibTest.TCPRecoveryEndpoint.run
   NetlibTest.TCPRecoveryCampus.run
+  NetlibTest.TimedReaction.run
+  NetlibTest.TCPAckEndpoint.run
+  NetlibTest.TCPAckTrace.run
+  NetlibTest.TCPAckCampus.run
   NetlibTest.TCPHandshakeCheck.run
   NetlibTest.TCPWireForwarding.run
   NetlibTest.TCPAdmission.run

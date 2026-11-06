@@ -114,6 +114,25 @@ structure Cursor (seed : TCP.Endpoint.State) where
 def Cursor.initial (seed : TCP.Endpoint.State) (valid : seed.Valid) : Cursor seed :=
   ⟨seed, valid, [], .nil seed, .nil⟩
 
+def Cursor.beforeTransport (cursor : Cursor seed) : Bool :=
+  cursor.steps.all (fun step => match step.event with | .send .. | .receive .. => false | _ => true)
+
+theorem Cursor.beforeTransport_no_send (cursor : Cursor seed) (ready : cursor.beforeTransport = true)
+    (step : T.Step) (member : step ∈ cursor.steps) (count : Nat) (policy : Bool) :
+    step.event ≠ .send count policy := by
+  have selected := (List.all_eq_true.mp ready) step member
+  intro event
+  simp only [event] at selected
+  contradiction
+
+theorem Cursor.beforeTransport_no_receive (cursor : Cursor seed) (ready : cursor.beforeTransport = true)
+    (step : T.Step) (member : step ∈ cursor.steps) (packet : TCP.EstablishedReceive.Input) :
+    step.event ≠ .receive packet := by
+  have selected := (List.all_eq_true.mp ready) step member
+  intro event
+  simp only [event] at selected
+  contradiction
+
 structure Applied (before : Cursor seed) where
   step : T.Step
   same : step.before = before.current
@@ -311,6 +330,8 @@ inductive Event where
   | write (actor : Actor) (bytes : List UInt8)
   | send (actor : Actor) (count : Nat) (policy : Bool)
   | enableRecovery (actor : Actor)
+  | enableAck (actor : Actor)
+  | dispatchAck (actor : Actor) (policy : Bool)
   | advanceClock (actor : Actor) (millis : Nat)
   | timeout (actor : Actor) (policy : Bool)
   | read (actor : Actor) (count : Nat)
@@ -401,6 +422,16 @@ def applyApplication (input : Input) (before : State input) (actor : Actor) (eve
       let actual ← parsed (TCP.ApplicationTrace.stepOutput step)
       let produced := Produced.application actor step actual.val actual.property
       return { result with state := publish next produced, output := some produced }
+
+def enableAck (input : Input) (before : State input) (actor : Actor) : Except Error (Effect input) := do
+  match before.connection with
+  | .startup .. => applyApplication input before actor .enableAck
+  | .application _ endpoints =>
+    let permitted := match actor with
+      | .client => endpoints.client.current.ackReaction.isSome || endpoints.client.beforeTransport
+      | .server => endpoints.server.current.ackReaction.isSome || endpoints.server.beforeTransport
+    if permitted then applyApplication input before actor .enableAck
+    else throw (.input "Enable ACK reactions before this endpoint's send or receive operations.")
 
 def observe (seen : Option (List UInt8 × Option (List UInt8))) (source : W.Source)
     (output : Option (W.Emission source.packet)) : Bool :=
@@ -515,6 +546,8 @@ def process (input : Input) (before : State input) (event : Event) : Except Erro
   | .write actor bytes => applyApplication input before actor (.write bytes)
   | .send actor count policy => applyApplication input before actor (.send count policy)
   | .enableRecovery actor => applyApplication input before actor .enableRecovery
+  | .enableAck actor => enableAck input before actor
+  | .dispatchAck actor policy => applyApplication input before actor (.dispatchAck policy)
   | .advanceClock actor millis => applyApplication input before actor (.advanceClock millis)
   | .timeout actor policy => applyApplication input before actor (.timeout policy)
   | .read actor count => applyApplication input before actor (.read count)

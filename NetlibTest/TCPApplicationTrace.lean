@@ -85,6 +85,9 @@ theorem rewritten_application_prefix : Nonempty Witness := by
   let write : A.Step := ⟨sender, .write [42],
     ⟨writtenState, .accepted (.write 1), none, [], none⟩, 0, sender_valid, writeResult.symm⟩
   have ready : Endpoint.SendReady writtenState 1 := by rw [writtenEq]; decide
+  have writtenAck : writtenState.ackReaction = none := by rw [writtenEq]; rfl
+  have prepared : Endpoint.ackReady writtenState = .ok () := by
+    simp only [Endpoint.ackReady, Endpoint.AckCoherent, writtenAck, not_true_eq_false, ite_false]
   obtain ⟨output, encoded⟩ := Output.emit_exists writtenState.core
     (writtenState.pending.take 1) writtenValid.1 (by rw [writtenEq]; decide)
   obtain ⟨sentState, sentEq⟩ : ∃ state, state = Endpoint.sendState writtenState 1 := ⟨_, rfl⟩
@@ -94,7 +97,8 @@ theorem rewritten_application_prefix : Nonempty Witness := by
   have sendResult : Endpoint.send writtenState 1 true =
       ⟨sentState, .accepted (.send 1), some output, [], none⟩ := by
     rw [sentEq]
-    exact Endpoint.send_of_ready writtenState 1 writtenValid ready output encoded
+    apply Endpoint.send_of_ready writtenState 1 writtenValid ready prepared output
+    simpa only [Endpoint.emit, writtenAck] using encoded
   let send : A.Step := ⟨writtenState, .send 1 true,
     ⟨sentState, .accepted (.send 1), some output, [], none⟩, 1, writtenValid, sendResult.symm⟩
   let input := output.rewrite receiver.core.inbound 63 rfl
@@ -131,7 +135,7 @@ theorem rewritten_application_prefix : Nonempty Witness := by
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit receiver.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    rw [Endpoint.receive_without_recovery receiver input receiver_valid rfl, coreReceived]
+    rw [Endpoint.receive_without_recovery receiver input receiver_valid rfl rfl, coreReceived]
     simp only [payload]
     rfl
   have receivedCore : receivedState.core = EstablishedReceive.commit receiver.core [42] 0 := by
@@ -155,10 +159,19 @@ theorem rewritten_application_prefix : Nonempty Witness := by
   let read : A.Step := ⟨receivedState, .read 1,
     ⟨readState, .accepted (.read 1), none, [42], none⟩, 3, receivedValid, readResult.symm⟩
   obtain ⟨ackOutput, ackEncoded⟩ := Output.emit_exists readState.core [] readValid.1 (by decide)
+  have receivedAck : receivedState.ackReaction = none := by
+    rw [receivedEq]
+    unfold Endpoint.receiveState Endpoint.windowState
+    split <;> rfl
+  have readAck : readState.ackReaction = none := by
+    rw [readEq]
+    simp only [Endpoint.readState, receivedAck, Option.map_none]
   have ackResult : Endpoint.emitAck readState true =
       ⟨readState, .accepted .emitAck, some ackOutput, [], none⟩ := by
-    simp only [Endpoint.emitAck, readValid, not_true_eq_false, ite_false, Bool.not_true,
-      Bool.false_eq_true, ackEncoded]
+    simp only [Endpoint.emitAck, Endpoint.pureAck, Endpoint.responseReady, readValid, not_true_eq_false,
+      ite_false, Bool.not_true, Bool.false_eq_true, readAck, Endpoint.ackReady, Endpoint.AckCoherent,
+      Endpoint.emit, ackEncoded, Endpoint.outputState, Option.map_none]
+    rw [← readAck]
   let ack : A.Step := ⟨readState, .emitAck true,
     ⟨readState, .accepted .emitAck, some ackOutput, [], none⟩, 4, readValid, ackResult.symm⟩
   let ackInput := ackOutput.rewrite sender.core.inbound 63 rfl
@@ -213,7 +226,10 @@ theorem rewritten_application_prefix : Nonempty Witness := by
       ⟨returnedState, .accepted (.receive 1 0), none, [], none⟩ := by
     rw [returnedEq]
     have disabled : sentState.recovery = none := by rw [sentEq, writtenEq]; rfl
-    rw [Endpoint.receive_without_recovery sentState ackInput sentValid disabled, coreReturned]
+    have ackDisabled : sentState.ackReaction = none := by
+      rw [sentEq]
+      simp only [Endpoint.sendState, Endpoint.outputState, writtenAck, Option.map_none]
+    rw [Endpoint.receive_without_recovery sentState ackInput sentValid disabled ackDisabled, coreReturned]
   let returned : A.Step := ⟨sentState, .receive ackInput,
     ⟨returnedState, .accepted (.receive 1 0), none, [], none⟩, 5, sentValid, returnedResult.symm⟩
   let senderSteps := [write, send, returned]

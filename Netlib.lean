@@ -140,6 +140,7 @@ import Netlib.Protocol.StatefulFailover
 import Netlib.Check.StatefulFailover
 import Netlib.Protocol.TrackedFlow
 import Netlib.Theory.Outstanding
+import Netlib.Theory.TimedReaction
 import Netlib.Protocol.SafeHandoff
 import Netlib.Protocol.SafeHandoffCommonFacts
 import Netlib.Protocol.SafeHandoffControlFacts
@@ -188,6 +189,10 @@ import Netlib.Protocol.TCP.ControlOutput
 import Netlib.Protocol.TCP.MSS
 import Netlib.Protocol.TCP.RTO
 import Netlib.Protocol.TCP.Recovery
+import Netlib.Protocol.TCP.AckReaction
+import Netlib.Protocol.TCP.AckTrace
+import Netlib.Check.CampusTCPAckFacts
+import Netlib.Protocol.TCP.ReceiveAdvertisement
 import Netlib.Protocol.TCP.Handshake
 import Netlib.Protocol.TCP.HandshakeExchange
 import Netlib.Check.TCPHandshake

@@ -64,6 +64,18 @@ private structure Changes (before : M.State input) (effect : M.Effect input) : P
   cacheStable : before.primarySealed = true → effect.state.cache = before.cache
   installation : before.primarySealed = true → effect.state.installation = before.installation
 
+private theorem enableAck_keeps (input : M.Input) (before : M.State input) (actor : Check.CampusTCPModel.Actor)
+    (effect : M.Effect input) (accepted : Check.CampusTCPModel.enableAck input before actor = .ok effect) :
+    Keeps before effect := by
+  unfold Check.CampusTCPModel.enableAck at accepted
+  split at accepted
+  · exact application_keeps _ _ _ _ _ accepted
+  · cases actor <;> simp only at accepted
+    all_goals
+      split at accepted
+      · exact application_keeps _ _ _ _ _ accepted
+      · cases accepted
+
 private theorem keeps_changes (kept : Keeps before effect) : Changes before effect := by
   obtain ⟨sealed, fenced, transport, cache, installation, _⟩ := kept
   exact ⟨fun checkpoint selected => .inl (cache ▸ selected), fun prior => sealed.trans prior,
@@ -78,6 +90,8 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
   | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
+  | dispatchAck actor policy => exact keeps_changes (application_keeps _ _ _ _ _ accepted)
+  | enableAck actor => exact keeps_changes (enableAck_keeps _ _ _ _ accepted)
   | authentication index =>
     simp only [Check.CampusTCPModel.process] at accepted
     repeat' first

@@ -16,6 +16,7 @@ from check_reassembly_native_examples import check as reassembly_native_checks
 from check_received_icmp_examples import check as received_icmp_checks
 from check_replication_examples import check as replication_checks
 from check_safe_handoff_examples import check as safe_handoff_checks
+from check_tcp_ack_examples import check as tcp_ack_checks
 from check_tcp_endpoint_examples import check as tcp_endpoint_checks
 from check_tcp_examples import check as tcp_checks
 from check_tcp_handshake_examples import check as tcp_handshake_checks
@@ -1154,6 +1155,7 @@ def main():
     tcp_handshake_checks()
     tcp_mss_checks()
     tcp_recovery_checks()
+    tcp_ack_checks()
     campus_tcp_checks()
     campus_tcp_transfer_checks()
     count = 0

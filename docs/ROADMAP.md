@@ -122,6 +122,8 @@ The [directional MSS extension](TCP_MSS.md) derives actual peer limits through s
 Its asymmetric example sends payloads above 536 bytes through each gateway while retaining current permission and read-prefix proofs.
 The [data recovery extension](TCP_RECOVERY.md) connects actual retry ranges and local timer evidence to the same campus transfer.
 Its selected congestion bound limits unique flight to one effective MSS.
+The [ACK extension](TCP_ACK.md) checks local reaction deadlines, actual response credit, and receive-window suppression through that same transfer.
+General scheduling, challenge-ACK limits, and eventual delivery remain open.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

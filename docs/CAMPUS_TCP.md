@@ -171,5 +171,6 @@ The interface/node interpretation and principal/header ownership also remain dep
 The base example has one gateway and one bounded ordinary TCP connection.
 It does not extend the UDP-only replication profile to TCP.
 The [bounded recovery extension](TCP_RECOVERY.md) adds explicit local timers and exact retry ranges through the same transfer path.
+The [ACK extension](TCP_ACK.md) adds local reaction deadlines and receive-window updates on that same endpoint history.
 Native TCP replication, automatic failure recovery, safe upgrade, reordering, broader recovery, other options, and long sequence reuse remain open.
 All seven [research programs](ROADMAP.md) and the full campus demonstration remain OPEN.

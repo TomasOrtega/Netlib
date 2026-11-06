@@ -148,7 +148,8 @@ def activeSeed (pending : SynSent) (input : Input) (peer : MSS.Offer) : Endpoint
   sendWL1 := input.packet.segment.sequence
   sendWL2 := input.packet.segment.acknowledgment
   effectiveMSS := effectiveMSS pending.config peer
-  ipSendLimit := pending.config.ipSendLimit }
+  ipSendLimit := pending.config.ipSendLimit
+  localReceiveMSS := receiveOffer pending.config }
 
 def passiveSeed (pending : SynReceived) (input : Input) : Endpoint.State := {
   core := ⟨pending.input.packet.header, pending.input.packet.segment.sequence.add 1,
@@ -159,7 +160,14 @@ def passiveSeed (pending : SynReceived) (input : Input) : Endpoint.State := {
   sendWL1 := input.packet.segment.sequence
   sendWL2 := input.packet.segment.acknowledgment
   effectiveMSS := effectiveMSS pending.config pending.peerMSS
-  ipSendLimit := pending.config.ipSendLimit }
+  ipSendLimit := pending.config.ipSendLimit
+  localReceiveMSS := receiveOffer pending.config }
+
+theorem activeSeed_receiveMSS (pending : SynSent) (input : Input) (peer : MSS.Offer) :
+    (activeSeed pending input peer).localReceiveMSS = receiveOffer pending.config := rfl
+
+theorem passiveSeed_receiveMSS (pending : SynReceived) (input : Input) :
+    (passiveSeed pending input).localReceiveMSS = receiveOffer pending.config := rfl
 
 theorem effectiveMSS_bounds (config : Local) (peer : MSS.Offer) (valid : config.Valid) :
     0 < effectiveMSS config peer ∧ effectiveMSS config peer ≤ peer.limit ∧

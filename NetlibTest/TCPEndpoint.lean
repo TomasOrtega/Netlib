@@ -43,7 +43,7 @@ private def result (before : E.State) (after : E.Result) (decision : E.Decision)
   ensure (after.decision == decision) s!"Unexpected endpoint decision: {repr after.decision}."
   ensure (decide after.state.Valid) "The resulting state must meet the buffer and cursor bounds."
   match decision with
-  | .reject _ | .unsupported _ | .recoveryUnsupported _ =>
+  | .reject _ | .unsupported _ | .recoveryUnsupported _ | .ackUnsupported _ =>
     ensure (after.state == before && after.output.isNone && after.read.isEmpty)
       "A blocked event must keep state and return no output or read bytes."
   | .accepted _ => pure ()
