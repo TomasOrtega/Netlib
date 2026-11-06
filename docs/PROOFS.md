@@ -195,6 +195,21 @@ The [enabled-operation guide](TCP_ENABLED_OPERATIONS.md) states the local guard 
 `Check.CampusTCPRoundPhaseHistory` proves exact release and read streams and one selected receive and nonempty read.
 The [bounded-round guide](TCP_ROUND_PROGRESS.md) states the fixed-clock, fixed-primary, and additional-copy/loss restrictions.
 
+`TCP.EndpointClockEnabled` derives monotone clock operations from current ledger and ACK guards.
+`TCP.EndpointTimeoutEnabled` derives actual timeout output from the due stored timer and retry allowance.
+`TCP.AdmissionRepeatEnabled` derives known-range admission without a fresh-data window condition.
+`Check.CampusTCPTimedClock`, `Check.CampusTCPTimedTimeout`, and `Check.CampusTCPTimedOldData` lift these laws to actual campus steps.
+`Check.CampusTCPRecoveryRoundEvidence` retains the actual phase, packet references, and selected suffix drop log.
+`Check.CampusTCPRecoveryRoundProgress` proves the concrete adapter for advancing clocks and at most two combined data or ACK drops.
+`Check.CampusTCPRecoveryRoundBounded` proves an actual prefix read within `(25 + ceil(1000 / q) + ceil(2000 / q)) * B` slots.
+At `q = 10` and `B = 2`, the bound is `650` evaluated slots.
+`Check.CampusTCPRecoveryRoundHistory` proves one nonempty release and read, including whole-old retry receipts.
+`Check.CampusTCPRecoveryRoundOrigins` constructs existing typed delivery and per-byte write evidence.
+`Check.CampusTCPRecoveryRoundBookkeeping` proves the exact additional custody-drop count and excludes additional copies.
+`Check.CampusTCPRecoveryRoundTiming` identifies actual drop or ACK resolution within `7 * B` slots after each original or retry output.
+Under `q * (7 * B) < 1000`, it keeps sender time before the actual stored deadline through resolution.
+The [recovery progress guide](TCP_RECOVERY_PROGRESS.md) states the clock, native preflight, and service assumptions.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

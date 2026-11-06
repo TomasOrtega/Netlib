@@ -112,12 +112,16 @@ The [bounded round](TCP_ROUND_PROGRESS.md) now connects packet custody to a conc
 It derives actual receive release, covering ACK output, sender retirement, and a read by `9 * B` evaluated slots.
 This first suffix fixes local clocks and primary ownership and permits no additional copy or drop.
 It retains the actual current-policy and byte-origin evidence.
-The broader loss and transfer proof remains open.
+The [recovery round](TCP_RECOVERY_PROGRESS.md) extends this result to advancing logical clocks and at most two combined data or ACK drops.
+Its selected suffix has no additional copy operations.
+The proof identifies each actual dropped packet and the exact increase from the initial custody count.
+Old pending packets and earlier drops can remain in the initial report.
+At quantum `10` and service bound `2`, the actual read occurs within `650` evaluated slots.
+It also proves one nonempty release and read, actual sender retirement, and existing typed byte origins.
 
-The selected recovery model permits at most two timer retries per original range.
-Its combined failed-round budget must include both data loss and ACK loss.
-Copies can create unsupported duplicate-ACK behavior, so a progress profile must state its copy restriction.
-Host clocks, ACK deadlines, receive space, read service, route ownership, and transfer controls need explicit conditions.
+The 400-byte and 600-byte held-gap prefix and planned gateway transfer remain open.
+Additional copies and multiple active ranges need broader progress profiles.
+Clock guards, receive space, read service, current policy, and route ownership remain explicit conditions.
 Native time and physical delivery remain external.
 See the [campus progress design](research/CAMPUS_PROGRESS.md) for these proof obligations.
 All seven programs and the full campus objective remain OPEN.

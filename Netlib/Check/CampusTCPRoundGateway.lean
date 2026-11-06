@@ -46,7 +46,7 @@ theorem singleton_zone (tracker : ConntrackLifecycle.State) (entry : NetfilterNA
   · exact compatible.1.2.2.1
   · exact compatible.1.2.2.2.1
 
-private def existing_ready
+def existing_ready
     (native : Native context initial ingress entry direction hop) (current : CampusTCPService.Before)
     (same : initial.environment = current.environment) (source : TCP.WireForwarding.Source) (zone : Nat)
     (header : source.packet.header = entry.flow.input direction) (zoneEq : entry.flow.zone direction = zone)

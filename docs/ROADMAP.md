@@ -132,7 +132,8 @@ The [custody extension](PACKET_CUSTODY.md) adds automatic packet identities, exp
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive guarded endpoint and gateway actions and expose actual finite schedule slots.
 The [bounded round](TCP_ROUND_PROGRESS.md) proves one fresh range through all nine actual phases under fixed local clocks and a fixed primary gateway.
 It gives an actual read and sender retirement by `9 * B` evaluated slots under the action and service contract.
-The [progress design](research/CAMPUS_PROGRESS.md) retains the broader loss, clock, gap, and transfer obligations.
+The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks, two shared data-and-ACK drops, and actual timeout retries for that fresh range.
+The [progress design](research/CAMPUS_PROGRESS.md) retains broader copy, gap, transfer, and native time obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

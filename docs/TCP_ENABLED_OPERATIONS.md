@@ -58,7 +58,8 @@ That evidence is bound to the current authentication prefix, imported configurat
 Successful construction of this preflight evidence is an explicit boundary.
 The new theorem derives packet processing and emission from the old tracker, lane, route, filter, and TTL conditions.
 It also derives the actual route result and current comparison status.
-Repeated-payload admission needs a later readiness extension.
+`AdmissionRepeatEnabled` derives repeated-payload readiness from the actual known range.
+The known-range proof also permits a retry after a real zero-window ACK.
 
 ## Actual campus steps
 
@@ -106,8 +107,10 @@ original send → ingress assignment → current gateway service
 
 It derives each new phase's readiness from the initial checked state and the stated environment.
 Actual current-cut constructions and clock frames supply the phase invariant.
-The broader result must charge failed rounds to actual custody drops.
-It must retain a combined data-and-ACK loss bound and exclude spurious retries through clock and service conditions.
-It must then cover the existing 400-byte and 600-byte held gaps and bounded planned transfer.
+The [recovery adapter](TCP_RECOVERY_PROGRESS.md) now charges failed attempts to actual custody drops.
+It covers at most two combined data and ACK drops with advancing logical clocks and no additional copies.
+Actual timer ticks and due timeout outputs need service.
+Under `q * (7 * B) < 1000`, each live attempt resolves before its actual sender deadline.
+The existing 400-byte and 600-byte held gaps and bounded planned transfer remain open.
 See the [progress design](research/CAMPUS_PROGRESS.md) and [custody guide](PACKET_CUSTODY.md).
 All seven programs and the full campus objective remain OPEN.

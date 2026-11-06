@@ -113,7 +113,8 @@ The formal test constructs actual startup and native evidence and rejects wrong 
 A read can create a new ACK cause.
 Completion does not require discharge of that cause.
 
-Advancing clocks, data and ACK losses, retries, competing streams, congestion control, and planned gateway transfer remain open for this progress proof.
+The [recovery progress extension](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks, two combined data-and-ACK drops, and actual timer retries.
+Competing streams, congestion control, and planned gateway transfer remain open for this progress proof.
 The existing 400-byte and 600-byte held-gap campus prefix is a later extension.
 This first round does not replace or reset that prefix.
 Native transmission, physical time, kernel refinement, and full protocol conformance remain external obligations.

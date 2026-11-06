@@ -139,7 +139,7 @@ private theorem output_supported (actual : T.Step) (output : Protocol.TCP.Establ
   | ack policy event accepted present | dispatchAck policy event accepted present =>
     simp only [Protocol.TCP.ApplicationTrace.Step.supported, accepted]
 
-private theorem application_emitting (before : State input) (complete : H.Completed input.active input.passive)
+theorem application_emitting (before : State input) (complete : H.Completed input.active input.passive)
     (endpoints : Applications complete) (connection : before.connection = .application complete endpoints)
     (actor : Actor) (event : T.Event) (earlier : ∀ old ∈ applicationSteps endpoints actor, old.stamp < before.time)
     (output : Protocol.TCP.EstablishedReceive.Input)
@@ -183,7 +183,7 @@ theorem application_quiet (before : State input) (complete : H.Completed input.a
       pure, Except.pure, present]
     exact ⟨_, rfl, supported, rfl, by rw [actual], by simp only [same, endpoint]⟩
 
-private theorem finish_step (before : State input) (event : Event) (effect : Effect input)
+theorem finish_step (before : State input) (event : Event) (effect : Effect input)
     (core : processCore input before event = .ok effect)
     (prepared : prepareCustody before event = .ok before.custody) :
     ∃ after, step input before event = .ok after ∧ after.supported = effect.supported ∧

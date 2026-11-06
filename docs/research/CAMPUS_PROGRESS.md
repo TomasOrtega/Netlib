@@ -15,7 +15,8 @@ The [enabled-operation extension](../TCP_ENABLED_OPERATIONS.md) derives positive
 It also derives actual cursor chronology, ticket validity, and finite schedule slots from one checked history.
 The [first bounded round](../TCP_ROUND_PROGRESS.md) now proves the concrete adapter and all nine phases for one fresh range.
 It fixes local clocks and primary ownership and permits no additional copy or drop on the selected suffix.
-The broader fault, clock, gap, and transfer theorem below remains OPEN.
+The [recovery progress extension](../TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks and two combined data-and-ACK drops for the fresh range.
+Broader copy, held-gap, physical-clock, and transfer results below remain OPEN.
 See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
 The source links below describe the earlier design basis.
 

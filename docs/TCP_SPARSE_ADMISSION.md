@@ -116,6 +116,7 @@ The [research and independent evidence](research/TCP_SPARSE_ADMISSION.md) states
 The [bounded-progress design](research/CAMPUS_PROGRESS.md) identifies the next architecture proof boundary.
 The [custody extension](PACKET_CUSTODY.md) records pending packets, explicit loss, and copies.
 It also supplies general bounded-service theorems.
-Concrete TCP progress, physical correspondence, and eventual delivery remain open.
+The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) covers one fresh range with two combined data or ACK drops.
+Progress through held gaps and physical correspondence remain open.
 General overlap handling, broader congestion control, close, and native TCP tracking refinement also remain open.
 All seven programs and the full campus objective remain OPEN.
