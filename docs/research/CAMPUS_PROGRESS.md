@@ -16,7 +16,8 @@ It also derives actual cursor chronology, ticket validity, and finite schedule s
 The [first bounded round](../TCP_ROUND_PROGRESS.md) now proves the concrete adapter and all nine phases for one fresh range.
 It fixes local clocks and primary ownership and permits no additional copy or drop on the selected suffix.
 The [recovery progress extension](../TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks and two combined data-and-ACK drops for the fresh range.
-Broader copy, held-gap, physical-clock, and transfer results below remain OPEN.
+The [held-gap extension](../TCP_GAP_PROGRESS.md) retains both actual two-record campus cuts with advancing clocks and two shared drops per task.
+Broader copy, sparse-hole, physical-clock, and transfer results below remain OPEN.
 See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
 The source links below describe the earlier design basis.
 

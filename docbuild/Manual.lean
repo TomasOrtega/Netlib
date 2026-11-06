@@ -2075,8 +2075,9 @@ Sparse source assurance permits holes and reports prefix completeness separately
 The raw admission checker starts empty and checks supplied startup packets under a declared mapping and fixed permit routes.
 It supplies no endpoint-write or authentication claim.
 The next chapter adds packet custody and general bounded-service laws.
-Later chapters prove bounded TCP progress for a fresh range, including two combined data or ACK drops.
-Progress through the existing held gaps and native correspondence remain open.
+Later chapters prove bounded TCP progress for a fresh range and both actual two-record held-gap cuts.
+Each task permits two combined data or ACK drops.
+Progress through sparse holes and native correspondence remain open.
 All seven programs and the full campus objective remain OPEN.
 
 # Packet custody and bounded service
@@ -2258,7 +2259,8 @@ Old startup copies can remain in the initial history.
 The copy restriction applies to the selected suffix.
 
 The next chapter adds advancing clocks, selected losses, and actual timer retries.
-The existing held-gap prefix and bounded planned transfer remain open.
+A later chapter retains both actual held-gap cuts.
+Bounded planned transfer remains open.
 Native transmission, physical time, and the full campus objective remain external obligations.
 All seven programs remain OPEN.
 
@@ -2355,8 +2357,99 @@ Initial typed preflight comparisons and native route and filter permits remain e
 Current-permission results extend compliance of the prepared report through the actual passed suffix.
 The existing typed delivery and per-byte read origins come from actual records.
 
-The 400-byte and 600-byte held-gap prefix and planned gateway transfer remain open.
+The next chapter starts at the actual 400-byte and 600-byte held-gap cuts.
+Planned gateway transfer remains open for progress.
 Additional copies, multiple active ranges, persist, and fast recovery need further profiles.
+Logical time does not establish physical timing or native delivery.
+All seven programs and the full campus objective remain OPEN.
+
+# Bounded progress through a held TCP gap
+%%%
+tag := "tcp-gap-progress"
+file := "tcp-gap-progress"
+%%%
+
+The task starts at an actual two-record held-gap cut in the campus trace.
+The forward cut retains two 400-byte sender records and the upper 400 bytes at the server.
+The reverse cut retains two 600-byte sender records and the upper 600 bytes at the client.
+Both retain the actual startup, selected write, original sends, upper receipt, and old lower link.
+The endpoints and their prior histories are not reset.
+
+One shared allowance permits at most two selected data or ACK drops for the whole task.
+No additional copies are permitted.
+Current standby ownership stays fixed after the earlier actual gateway transfer.
+The original selected link can still come from its earlier primary service.
+Old unrelated pending copies and tickets remain in the report.
+
+The receiver releases and reads `lower ++ upper` once.
+Actual retries send only the lower head record and retain the literal upper tail.
+After release, a lower retry lies wholly behind the combined receive cursor.
+It releases no new bytes and creates new immediate covering ACK work.
+The actual covering ACK retires both original sender records.
+
+The initial timer reserve uses the actual deadline minus the current sender time.
+That distance is 1000 logical milliseconds forward and 900 reverse.
+At quantum `10`, service bound `2`, and allowance `2`, the bounds are `644` and `624` evaluated slots.
+The initial path needs at most `5 * B` slots for drop or ACK resolution.
+Each actual retry path needs at most `7 * B` slots.
+Its clock margin uses the actual new head time and current RTO.
+
+The finite theorem identifies the read in the supplied actual prefix:
+
+```lean
+open Netlib.Check in
+example
+    {input : CampusTCPModel.Input}
+    {complete : TCPHandshake.Completed
+      input.active input.passive}
+    {cut : CampusTCPRound.Cut input complete}
+    {sender : CampusTCPModel.Actor}
+    {lower upper : List UInt8}
+    {quantum allowance bound : Nat}
+    {suffix remaining : List CampusTCPModel.Event}
+    {steps : List (CampusTCPModel.Step input)}
+    {final : CampusTCPModel.State input}
+    (initial : CampusTCPGapProgressStart.GapInitial
+      cut sender lower upper)
+    (native : CampusTCPGapProgressStart.NativeEnv
+      cut initial.gateway.seed.entry)
+    (basis : CampusTCPGapProgressBounded.Basis
+      initial quantum allowance)
+    (trace : CampusTCPModel.Trace input cut.report.final
+      suffix steps final remaining)
+    (allowed : CampusTCPGapProgressBounded.Actions
+      initial native quantum allowance steps)
+    (service : CampusTCPGapProgressServiceBound.Serviced
+      (CampusTCPGapProgressSetup.config
+        initial native quantum allowance)
+      cut.report.final
+      (CampusTCPGapProgressSetup.initialMonitor initial)
+      steps bound)
+    (enough : CampusTCPGapProgressMonitor.boundSlots
+      (CampusTCPGapProgressSetup.config
+        initial native quantum allowance) bound
+      ≤ steps.length) :
+    ∃ actual ∈ steps.take
+      (CampusTCPGapProgressMonitor.boundSlots
+        (CampusTCPGapProgressSetup.config
+          initial native quantum allowance) bound),
+      actual.event =
+        .read sender.other (lower ++ upper).length ∧
+      actual.result.read = lower ++ upper :=
+  CampusTCPGapProgressBounded.read_by
+    basis trace allowed service enough
+```
+
+The observer reads those stored steps and does not evaluate the network again.
+Actual selected output sources identify the original send or a later head retry.
+Typed read origins retain the selected application write and actual receipt sources.
+Permission results extend compliance of the prepared report through the passed suffix.
+Karn suppression retains the stored estimator for a retried range.
+A lossless ACK can take a valid RTT sample.
+
+The two cut theorems are independent applications.
+One shared allowance across a sequential exchange in both directions needs a new reverse setup and allowance composition.
+Sparse holes, more flights, additional copies, competing applications, gateway transfer, persist, and fast recovery remain open.
 Logical time does not establish physical timing or native delivery.
 All seven programs and the full campus objective remain OPEN.
 

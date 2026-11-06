@@ -29,7 +29,7 @@ structure OldDataReady (state : Endpoint.State) (packet : EstablishedReceive.Inp
   ends : packet.packet.segment.sequence.add packet.packet.segment.payload.length = state.core.receiveNext
   epoch : packet.packet.segment.payload.length + Endpoint.offeredWindow state ≤ Seq.modulus
 
-private theorem application_sequence (before : State input) (complete : H.Completed input.active input.passive)
+theorem application_sequence (before : State input) (complete : H.Completed input.active input.passive)
     (endpoints : Applications complete) (connection : before.connection = .application complete endpoints)
     (actor : Actor) (packet : EstablishedReceive.Input)
     (earlier : ∀ old ∈ applicationSteps endpoints actor, old.stamp < before.time)
@@ -94,7 +94,7 @@ private theorem applyApplication_passed (before : State input) (actor : Actor) (
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
 
-private theorem finish_application_delivery (before : State input) (index : Nat) (served : Served input)
+theorem finish_application_delivery (before : State input) (index : Nat) (served : Served input)
     (found : before.services[index]? = some served)
     (emission : W.Emission served.ticket.value.source.packet) (emitted : served.evidence.output = some emission)
     (application : D.ApplicationSource served.ticket.value.produced)
@@ -124,7 +124,7 @@ private theorem finish_application_delivery (before : State input) (index : Nat)
   exact ⟨actual, receipt, rfl, rfl, coreSupport.trans supported, corePassed.trans applicationPassed,
     coreOutput.trans noOutput, coreApplication, receiptAt, receiptService, receiptPacket, receiptApplication, coreConnection, coreRead⟩
 
-private theorem delivery_consumed (report : Report input events) (actual : Step input) (beforeEq : actual.before = report.final)
+theorem delivery_consumed (report : Report input events) (actual : Step input) (beforeEq : actual.before = report.final)
     (index : Nat) (served : Served input) (found : report.final.services[index]? = some served)
     (emission : TCP.WireForwarding.Emission served.ticket.value.source.packet)
     (emitted : served.evidence.output = some emission) (event : actual.event = .deliver index emission.bytes true) :

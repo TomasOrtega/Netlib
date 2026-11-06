@@ -63,7 +63,7 @@ structure TimeoutFacts (before : State input) (complete : H.Completed input.acti
     CampusTCPRoundEnvironment.environment actual.result.state
   resident : ∀ gateway, actual.result.state.resident gateway = before.resident gateway
 
-private theorem application_frames (before : State input) (actor : Actor) (event : T.Event)
+theorem application_frames (before : State input) (actor : Actor) (event : T.Event)
     (effect : Effect input) (computed : applyApplication input before actor event = .ok effect) :
     effect.state.work = before.work ∧ effect.state.services = before.services ∧
       effect.state.receipts = before.receipts := by

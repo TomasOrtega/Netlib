@@ -406,7 +406,9 @@ The campus checker automatically retains [packet custody](PACKET_CUSTODY.md) for
 Assignment and delivery consume pending identities; copies and drops are explicit actions.
 The [bounded-round proof](TCP_ROUND_PROGRESS.md) gives completion of one fresh range by `9 * B` evaluated slots under its fixed-clock action and service contract.
 The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) covers advancing logical clocks and two additional drops across data and ACKs for one fresh range.
-Additional copies, held gaps, and gateway transfer remain open for progress.
+The [held-gap progress proof](TCP_GAP_PROGRESS.md) retains both actual two-record campus cuts and their prior histories.
+It permits two shared data and ACK drops per selected task with advancing logical clocks.
+Additional copies, sparse holes, more flights, and gateway transfer remain open for progress.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive current endpoint and gateway actions from their actual preceding states.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.
