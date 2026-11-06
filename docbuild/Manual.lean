@@ -1695,14 +1695,14 @@ example (state : EstablishedReceive.State)
 A read returns an exact receive-buffer prefix.
 It increases the local free window and preserves the receive cursor.
 The trace records the computed result of each endpoint operation.
-Its receive conservation law includes actual read results:
+Its receive conservation law uses released bytes and actual read results:
 
 ```lean
 open Netlib.Protocol.TCP.ApplicationTrace in
 example (seed final : Model) (steps : List Step)
     (chain : Chain seed steps final) :
     seed.core.received ++
-        steps.flatMap Step.acceptedPayload =
+        steps.flatMap Step.releasedPayload =
       steps.flatMap Step.readBytes ++ final.core.received :=
   chain.received
 ```
@@ -1958,6 +1958,75 @@ Logoff can deny later gateway delivery after timely local generation.
 
 General scheduling, challenge-ACK limits, physical clock correspondence, and eventual delivery remain open.
 Complete TCP conformance, all seven programs, and the full campus demonstration remain OPEN.
+
+# Bounded TCP receive gaps
+%%%
+tag := "tcp-receive-gaps"
+file := "tcp-receive-gaps"
+%%%
+
+The endpoint automatically holds non-overlapping future payloads.
+Each run retains its actual receipt identity, header, payload, and local receipt time.
+An exact queued duplicate keeps the first copy and consumes no extra storage.
+Input cannot supply queued state or a release certificate.
+
+The store derives its storage and post-state bounds for every supported span:
+
+```lean
+open Netlib.Protocol.TCP.ReceiveStore in
+example (state : State Meta) (position edge budget : Nat)
+    (payload : List UInt8) (metadata : Meta)
+    (valid : state.Valid edge budget)
+    (nonempty : payload ≠ [])
+    (forward : state.frontier ≤ position)
+    (inside : position + payload.length ≤ edge)
+    (compatible : Compatible
+      (current state position payload metadata)
+      state.held) :
+    ∃ result, accept state position payload metadata
+      edge budget = .ok result :=
+  accept_exists state position payload metadata edge budget
+    valid nonempty forward inside compatible
+```
+
+Physical free space deducts both ordered unread bytes and unique held bytes.
+The receive window reserves a sequence span that includes held positions.
+Storing a future packet does not shrink its offered right edge.
+Receiver SWS uses reservation space outside that span.
+
+Queued ACK and window fields are processed in sequence order when the gap closes.
+All contiguous runs are processed before one receive ACK cause is created.
+A 400-byte input can release 800 bytes from two actual receipts.
+Its cause still counts one input and 400 novel bytes.
+
+A held ACK uses its original arrival time for an RTT sample.
+Timer restart uses the current processing clock:
+
+```lean
+open Netlib.Protocol.TCP.Recovery in
+example (state after : State) (count time : Nat)
+    (checked : acknowledgeAt state count time = .ok after) :
+    after.now = state.now :=
+  acknowledgeAt_now state count time after checked
+```
+
+Karn exclusion remains in effect for retried ranges.
+A failed queued header publishes no partial batch state.
+The failure identifies the earlier receipt and underlying check.
+
+The ordered application buffer uses released bytes for conservation.
+Incoming payloads remain separate whole packets with actual gateway byte paths.
+Released-byte origins retain each source receipt and payload index.
+Gateway transfer leaves this host storage and its clocks at the endpoint.
+
+Campus read-byte proofs connect each release to its receipt, gateway service, peer output, and application write.
+Pending receive-gap assurance retains checked storage and source evidence.
+Checked assurance also requires both final held stores to be empty.
+
+The selected reordering occurs after gateway service.
+Partial overlap, conflicting copies, and receive trimming retain explicit scope stops.
+Gateway-ingress reordering, fast recovery, native correspondence, and eventual delivery remain open.
+All seven programs and the full campus demonstration remain OPEN.
 
 # An authenticated campus TCP path
 %%%

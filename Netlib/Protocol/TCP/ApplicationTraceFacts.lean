@@ -272,12 +272,101 @@ theorem received_byte_origin (sourceChain : Chain sourceInitial sourceSteps sour
       ∃ attempt : OutputAt sourceSteps, BytePath attempt.output input ∧ attempt.step.stamp < step.stamp ∧
         Nonempty (AttemptByteOrigin sourceInitial sourceSteps attempt index byte) := by
   have nonempty : step.acceptedPayload ≠ [] := by intro empty; simp [empty] at selected
-  obtain ⟨input, count, size, event, accepted, payload, _⟩ := step.data nonempty
+  obtain ⟨input, count, size, event, accepted, payload⟩ := step.data nonempty
   obtain ⟨attempt, earlier, path⟩ := history.delivered step member input event
   have sourceByte : attempt.output.packet.segment.payload[index]? = some byte := by
     rw [payload, path.fields.1] at selected
     exact selected
   exact ⟨input, count, size, event, accepted, attempt, path, earlier,
     attempt.byte_origin sourceChain emptySent emptyPending history.senderOrder index byte sourceByte⟩
+
+theorem RunReceiptOrigin.attempt_origin (value : RunReceiptOrigin targetSteps run)
+    (sourceChain : Chain sourceInitial sourceSteps sourceFinal) (history : DeliveryHistory sourceSteps targetSteps)
+    (emptySent : sourceInitial.core.sent = []) (emptyPending : sourceInitial.pending = [])
+    (index : Nat) (byte : UInt8) (selected : run.bytes[index]? = some byte) :
+    ∃ attempt : OutputAt sourceSteps,
+      BytePath attempt.output value.allocation.input ∧ attempt.step.stamp < value.issuer.stamp ∧
+      Nonempty (AttemptByteOrigin sourceInitial sourceSteps attempt index byte) := by
+  obtain ⟨attempt, earlier, path⟩ := history.delivered value.issuer value.member
+    value.allocation.input value.allocation.event
+  have sourceByte : attempt.output.packet.segment.payload[index]? = some byte := by
+    rw [value.fields.1, path.fields.1] at selected
+    exact selected
+  exact ⟨attempt, path, earlier,
+    attempt.byte_origin sourceChain emptySent emptyPending history.senderOrder index byte sourceByte⟩
+
+theorem ActualReleasedByteOrigin.attempt_origin (value : ActualReleasedByteOrigin targetSteps release index byte)
+    (sourceChain : Chain sourceInitial sourceSteps sourceFinal) (history : DeliveryHistory sourceSteps targetSteps)
+    (emptySent : sourceInitial.core.sent = []) (emptyPending : sourceInitial.pending = []) :
+    ∃ attempt : OutputAt sourceSteps,
+      BytePath attempt.output value.origin.allocation.input ∧ attempt.step.stamp < value.origin.issuer.stamp ∧
+      Nonempty (AttemptByteOrigin sourceInitial sourceSteps attempt value.localIndex byte) := by
+  obtain ⟨attempt, earlier, path⟩ := history.delivered value.origin.issuer value.origin.issuer_member
+    value.origin.allocation.input value.origin.allocation.event
+  have sourceByte : attempt.output.packet.segment.payload[value.localIndex]? = some byte := by
+    rw [← path.fields.1]
+    exact value.input_byte
+  exact ⟨attempt, path, earlier,
+    attempt.byte_origin sourceChain emptySent emptyPending history.senderOrder value.localIndex byte sourceByte⟩
+
+structure ReadReleasedByteOrigin (operations : List Step) (reader : Step) (index : Nat) (byte : UInt8) where
+  prior : List Step
+  later : List Step
+  split : operations = prior ++ reader :: later
+  releasePrior : List Step
+  release : Step
+  releaseLater : List Step
+  releaseSplit : prior = releasePrior ++ release :: releaseLater
+  releaseIndex : Nat
+  releaseByte : release.releasedPayload[releaseIndex]? = some byte
+  position : (prior.flatMap Step.readBytes).length + index =
+    (releasePrior.flatMap Step.releasedPayload).length + releaseIndex
+  origin : ActualReleasedByteOrigin operations release releaseIndex byte
+  earlier : release.stamp < reader.stamp
+
+theorem read_byte_origin (chain : Chain initial operations final) (emptyReceived : initial.core.received = [])
+    (emptyHeld : initial.receiveStore.held = []) (ordered : Chronological operations)
+    (reader : Step) (member : reader ∈ operations) (count : Nat) (event : reader.event = .read count)
+    (index : Nat) (byte : UInt8) (selected : reader.readBytes[index]? = some byte) :
+    Nonempty (ReadReleasedByteOrigin operations reader index byte) := by
+  obtain ⟨prior, later, split, preceding, _⟩ := chain.split reader member
+  have noRelease : reader.releasedPayload = [] := by
+    simp only [Step.releasedPayload, ApplicationTrace.releasedPayload, event]
+  have readerBalance := reader.received_balance
+  rw [noRelease, List.append_nil] at readerBalance
+  have readBound := (List.getElem?_eq_some_iff.mp selected).1
+  have inBuffer : reader.before.core.received[index]? = some byte := by
+    rw [readerBalance, List.getElem?_append_left readBound]
+    exact selected
+  have balance := preceding.received
+  simp only [emptyReceived, List.nil_append] at balance
+  have inReleases : (prior.flatMap Step.releasedPayload)[(prior.flatMap Step.readBytes).length + index]? = some byte := by
+    rw [balance, List.getElem?_append_right (by omega)]
+    simpa only [Nat.add_sub_cancel_left] using inBuffer
+  obtain ⟨releasePrior, release, releaseLater, releaseIndex, releaseSplit, position, releaseByte⟩ :=
+    flatMap_location Step.releasedPayload prior ((prior.flatMap Step.readBytes).length + index) byte inReleases
+  have releaseMember : release ∈ prior := by rw [releaseSplit]; simp
+  have memberAll : release ∈ operations := by
+    have present : release ∈ prior ++ reader :: later := List.mem_append_left _ releaseMember
+    exact Eq.mpr (congrArg (fun list => release ∈ list) split) present
+  obtain ⟨origin⟩ := released_byte_origin chain emptyHeld release memberAll releaseIndex byte releaseByte
+  have earlier : release.stamp < reader.stamp := by
+    have pairs := ordered
+    unfold Chronological at pairs
+    rw [split] at pairs
+    exact (List.pairwise_append.mp pairs).2.2 release releaseMember reader (by simp)
+  exact ⟨⟨prior, later, split, releasePrior, release, releaseLater, releaseSplit,
+    releaseIndex, releaseByte, position, origin, earlier⟩⟩
+
+theorem ReadReleasedByteOrigin.attempt_origin (value : ReadReleasedByteOrigin targetSteps reader index byte)
+    (sourceChain : Chain sourceInitial sourceSteps sourceFinal) (history : DeliveryHistory sourceSteps targetSteps)
+    (emptySent : sourceInitial.core.sent = []) (emptyPending : sourceInitial.pending = []) :
+    ∃ attempt : OutputAt sourceSteps,
+      BytePath attempt.output value.origin.origin.allocation.input ∧
+      attempt.step.stamp < value.origin.origin.issuer.stamp ∧
+      value.origin.origin.issuer.stamp ≤ value.release.stamp ∧ value.release.stamp < reader.stamp ∧
+      Nonempty (AttemptByteOrigin sourceInitial sourceSteps attempt value.origin.localIndex byte) := by
+  obtain ⟨attempt, path, earlier, provenance⟩ := value.origin.attempt_origin sourceChain history emptySent emptyPending
+  exact ⟨attempt, path, earlier, value.origin.origin.no_later history.receiverOrder, value.earlier, provenance⟩
 
 end Netlib.Protocol.TCP.ApplicationTrace

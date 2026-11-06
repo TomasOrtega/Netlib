@@ -113,6 +113,7 @@ The timer rules follow [RFC 6298, sections 2, 3, and 5](https://www.rfc-editor.o
 The selected congestion bound uses [RFC 5681, section 3](https://www.rfc-editor.org/rfc/rfc5681.html#section-3).
 Duplicate receive processing uses [RFC 9293, section 3.10.7.4](https://www.rfc-editor.org/rfc/rfc9293.html#section-3.10.7.4).
 
-Fast recovery, receive overlap, reordering storage, persist, SYN/FIN retries, and full connection-failure handling remain OPEN.
+The [receive-gap extension](TCP_RECEIVE_GAPS.md) holds non-overlapping future runs and retains their actual receipt origins through planned transfer.
+Fast recovery, receive overlap, persist, SYN/FIN retries, and full connection-failure handling remain OPEN.
 Native TCP refinement, physical delivery, automatic gateway failure recovery, and general liveness also remain OPEN.
 All seven research programs and the full campus demonstration remain OPEN.

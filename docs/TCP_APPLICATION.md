@@ -98,7 +98,7 @@ Its byte ledgers prove these conservation equations:
 ```text
 seed.pending ++ written = emitted ++ final.pending
 seed.sent ++ emitted = acknowledged ++ final.sent
-seed.received ++ acceptedPayloads = readBytes ++ final.received
+seed.received ++ releasedPayloads = readBytes ++ final.received
 ```
 
 The emitted ledger includes successful new-data sends only.
@@ -106,7 +106,7 @@ Acknowledged bytes are removed outstanding bytes.
 They do not establish a remote application read.
 Nonempty seed buffers retain separate origin assumptions.
 
-The paired theorem uses empty pending, outstanding, and receive seed buffers and matching initial cursors.
+The paired theorem uses empty pending, outstanding, ordered receive, and held seed buffers with matching initial cursors.
 Each receive event must refer to an earlier successful peer output, including rejected inputs and pure ACKs.
 Each accepted nonempty payload has an earlier unique send and an earlier application write.
 Its actual delivered output can be the original packet attempt or a later checked retry.
@@ -116,13 +116,15 @@ Valid checksums and matching tuples alone do not establish this delivery history
 The CLI does a check of one endpoint replay.
 It does not construct delivery-history evidence for the paired theorem.
 
-Ghost byte positions connect emitted and accepted data to sequence values.
+Ghost byte positions connect emitted and released data to sequence values.
+Each released byte retains its actual receipt and original payload index, including an earlier held receipt.
 The theorem bounds each finite epoch below half the sequence space.
 The caller assumes that inputs represent the selected trace outputs and excludes inputs from older connection instances.
 Byte equality alone cannot establish physical origin or connection identity.
-Modulo injectivity then gives the same byte position for matching in-order data.
+Modulo injectivity then gives the same stream position for each released byte.
 The result states that application read bytes form a prefix of peer application writes.
-It permits loss, rejected reordering, and stalled progress.
+It permits loss, bounded receive gaps, and stalled progress.
+The [receive-gap guide](TCP_RECEIVE_GAPS.md) separates incoming bytes from ordered release and physical storage.
 
 Serial window-history comparisons require separate age evidence.
 State validity and the outstanding-byte bound do not supply it.

@@ -129,21 +129,28 @@ theorem rewritten_application_prefix : Nonempty Witness := by
       decide
   have coreReceived := EstablishedReceive.receive_old_ack_data receiver.core input coreReady
     (by rw [acknowledgment]; decide) sequence (by rw [payload]; decide)
-  obtain ⟨receivedState, receivedEq⟩ : ∃ state,
-      state = Endpoint.receiveState receiver input (EstablishedReceive.commit receiver.core [42] 0) := ⟨_, rfl⟩
+  obtain ⟨receivedState, receivedEq⟩ : ∃ state : Endpoint.State,
+      state = Endpoint.storedState (Endpoint.receiveState receiver input (EstablishedReceive.commit receiver.core [42] 0))
+        ⟨1, 1, [], false⟩ none := ⟨_, rfl⟩
   have receiveResult : Endpoint.receive receiver input =
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit receiver.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    rw [Endpoint.receive_without_recovery receiver input receiver_valid rfl rfl, coreReceived]
-    simp only [payload]
-    rfl
+    have coreSuccess : EstablishedReceive.receive receiver.core input =
+        ⟨EstablishedReceive.commit receiver.core [42] 0, .accepted 0 1,
+          some (EstablishedReceive.request (EstablishedReceive.commit receiver.core [42] 0) .data)⟩ := by
+      simpa [payload] using coreReceived
+    have actual := Endpoint.receive_of_in_order_core receiver input _ 0 1 _ receiver_valid rfl rfl rfl
+      (by rw [payload]; decide) sequence coreSuccess
+    simpa [payload] using actual
   have receivedCore : receivedState.core = EstablishedReceive.commit receiver.core [42] 0 := by
-    rw [receivedEq, receiveState_core]
-  have receivedValid : receivedState.Valid := by
     rw [receivedEq]
-    exact Endpoint.receiveState_valid receiver input _ receiver_valid
-      (EstablishedReceive.commit_valid receiver.core [42] 0 receiver_valid.1 (by decide) (by decide))
+    unfold Endpoint.storedState Endpoint.receiveState Endpoint.windowState
+    split <;> rfl
+  have receivedValid : receivedState.Valid := by
+    have valid := Endpoint.receive_valid receiver input receiver_valid
+    rw [receiveResult] at valid
+    exact valid
   let receive : A.Step := ⟨receiver, .receive input,
     ⟨receivedState, .accepted (.receive 0 1), none, [],
       some (EstablishedReceive.request (EstablishedReceive.commit receiver.core [42] 0) .data)⟩,
@@ -229,7 +236,8 @@ theorem rewritten_application_prefix : Nonempty Witness := by
     have ackDisabled : sentState.ackReaction = none := by
       rw [sentEq]
       simp only [Endpoint.sendState, Endpoint.outputState, writtenAck, Option.map_none]
-    rw [Endpoint.receive_without_recovery sentState ackInput sentValid disabled ackDisabled, coreReturned]
+    have initial : sentState.receiveStore = ReceiveStore.initial := by rw [sentEq, writtenEq]; rfl
+    exact Endpoint.receive_of_empty_core sentState ackInput _ 1 0 none sentValid disabled ackDisabled initial ackPayload coreReturned
   let returned : A.Step := ⟨sentState, .receive ackInput,
     ⟨returnedState, .accepted (.receive 1 0), none, [], none⟩, 5, sentValid, returnedResult.symm⟩
   let senderSteps := [write, send, returned]
@@ -279,7 +287,7 @@ theorem rewritten_application_prefix : Nonempty Witness := by
     change ([] : List UInt8).length < Seq.halfSpace
     decide
   have application := ApplicationTrace.paired_application_prefix senderChain receiverChain forward backward
-    rfl rfl rfl rfl rfl rfl rfl rfl senderEpoch receiverEpoch
+    rfl rfl rfl rfl rfl rfl rfl rfl rfl rfl senderEpoch receiverEpoch
   have senderEmpty : returnedState.core.sent = [] := by
     rw [returnedEq, receiveState_core]
     change (sentState.core.sent.drop 1) = []

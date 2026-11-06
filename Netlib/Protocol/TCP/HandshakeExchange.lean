@@ -216,6 +216,15 @@ theorem Complete.empty (value : Complete input) :
   simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
     Handshake.activeSeed, Handshake.passiveSeed, and_self]
 
+theorem Complete.receiveStore_initial (value : Complete input) :
+    value.activeSeed.receiveStore = ReceiveStore.initial ∧ value.passiveSeed.receiveStore = ReceiveStore.initial := by
+  simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
+    Handshake.activeSeed, Handshake.passiveSeed, and_self]
+
+theorem Complete.empty_receiveStore (value : Complete input) :
+    value.activeSeed.receiveStore.held = [] ∧ value.passiveSeed.receiveStore.held = [] := by
+  simp only [value.receiveStore_initial.1, value.receiveStore_initial.2, ReceiveStore.initial, and_self]
+
 theorem Complete.establishment_order (value : Complete input) :
     input.times.opened < input.times.synReceived ∧
       input.times.synReceived < input.times.synAckReceived ∧
@@ -381,6 +390,7 @@ theorem Complete.application_prefix (value : Complete input)
   exact ApplicationTrace.paired_application_prefix activeChain passiveChain forward backward
     value.empty.1 value.empty.2.2.2.1 value.empty.2.1 value.empty.2.2.2.2.1
     value.empty.2.2.1 value.empty.2.2.2.2.2
+    value.empty_receiveStore.1 value.empty_receiveStore.2
     value.cursors.1 value.cursors.2 activeEpoch passiveEpoch
 
 theorem Complete.startup_to_application (value : Complete input)

@@ -226,15 +226,20 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
     decide
   have coreReceived := EstablishedReceive.receive_old_ack_data passiveSeed.core input ready
     (by rw [acknowledgment, Seq.distance_self]; decide) sequence dataFits
-  obtain ⟨receivedState, receivedEq⟩ : ∃ state,
-      state = Endpoint.receiveState passiveSeed input (EstablishedReceive.commit passiveSeed.core [42] 0) := ⟨_, rfl⟩
+  obtain ⟨receivedState, receivedEq⟩ : ∃ state : Endpoint.State,
+      state = Endpoint.storedState (Endpoint.receiveState passiveSeed input (EstablishedReceive.commit passiveSeed.core [42] 0))
+        ⟨1, 1, [], false⟩ none := ⟨_, rfl⟩
   have receiveResult : Endpoint.receive passiveSeed input =
       ⟨receivedState, .accepted (.receive 0 1), none, [],
         some (EstablishedReceive.request (EstablishedReceive.commit passiveSeed.core [42] 0) .data)⟩ := by
     rw [receivedEq]
-    rw [Endpoint.receive_without_recovery passiveSeed input passiveValid passiveRecovery passiveAck, coreReceived]
-    simp only [payload]
-    rfl
+    have coreSuccess : EstablishedReceive.receive passiveSeed.core input =
+        ⟨EstablishedReceive.commit passiveSeed.core [42] 0, .accepted 0 1,
+          some (EstablishedReceive.request (EstablishedReceive.commit passiveSeed.core [42] 0) .data)⟩ := by
+      simpa [payload] using coreReceived
+    have actual := Endpoint.receive_of_in_order_core passiveSeed input _ 0 1 _ passiveValid passiveRecovery passiveAck
+      startup.value.receiveStore_initial.2 (by rw [payload]; decide) sequence coreSuccess
+    simpa [payload] using actual
   have receivedValid : receivedState.Valid := by
     have valid := Endpoint.receive_valid passiveSeed input passiveValid
     rw [receiveResult] at valid
@@ -243,8 +248,12 @@ theorem startup_to_application : Nonempty ApplicationWitness := by
     ⟨receivedState, .accepted (.receive 0 1), none, [],
       some (EstablishedReceive.request (EstablishedReceive.commit passiveSeed.core [42] 0) .data)⟩,
     6, passiveValid, receiveResult.symm⟩
+  have receivedCore : receivedState.core = EstablishedReceive.commit passiveSeed.core [42] 0 := by
+    rw [receivedEq]
+    unfold Endpoint.storedState Endpoint.receiveState Endpoint.windowState
+    split <;> rfl
   have receivedBytes : receivedState.core.received = [42] := by
-    rw [receivedEq, receiveState_core]
+    rw [receivedCore]
     simp only [EstablishedReceive.commit, passiveReceived, List.nil_append]
   obtain ⟨readState, readEq⟩ : ∃ state, state = Endpoint.readState receivedState 1 := ⟨_, rfl⟩
   have readResult : Endpoint.read receivedState 1 =

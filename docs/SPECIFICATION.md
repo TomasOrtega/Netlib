@@ -398,6 +398,9 @@ The paired application-prefix proof also requires earlier successful peer output
 The command does not establish those external delivery conditions from checksums alone.
 Replay stops at the first unsupported event and retains the unprocessed suffix.
 The [application guide](TCP_APPLICATION.md) gives the event schema, proof contract, and remaining obligations.
+The automatic [receive-gap extension](TCP_RECEIVE_GAPS.md) holds non-overlapping future payloads and exact queued duplicates.
+Queued headers retain their original receipt clocks and are processed in sequence order.
+Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.
 
 ## TCP startup histories
 

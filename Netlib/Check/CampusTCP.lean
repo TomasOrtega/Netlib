@@ -1,6 +1,7 @@
 import Netlib.Check.CampusTCPFacts
 import Netlib.Check.CampusTCPTransferFacts
 import Netlib.Check.CampusTCPAckFacts
+import Netlib.Check.CampusTCPGapFacts
 
 /-!
 # Imported campus TCP execution
@@ -361,6 +362,56 @@ def AckStatus.json : AckStatus report → Lean.Json
   | .checked value => Lean.Json.mkObj ([("scope", Lean.toJson "local-ack-generation"),
       ("status", Lean.toJson "checked")] ++ ackCounts value.toEvidence)
 
+def receiveGapSeen (report : CampusTCPModel.Report input events) : Bool :=
+  match report.final.connection with
+  | .startup .. => false
+  | .application _ endpoints => endpoints.client.current.receiveStore.seenGap || endpoints.server.current.receiveStore.seenGap
+
+inductive ReceiveGapStatus (report : CampusTCPModel.Report input events) where
+  | absent (unseen : receiveGapSeen report = false)
+  | pending (value : CampusTCPGapFacts.Evidence report)
+      (held : value.application.endpoints.client.current.receiveStore.held ≠ [] ∨
+        value.application.endpoints.server.current.receiveStore.held ≠ [])
+  | failed (reason : String)
+  | checked (value : CampusTCPGapFacts.Assurance report)
+
+def receiveGapStatus (report : CampusTCPModel.Report input events) : ReceiveGapStatus report :=
+  if seen : receiveGapSeen report = true then
+    match CampusTCPGapFacts.evidence report with
+    | .error reason => .failed reason
+    | .ok value =>
+      if clientClosed : value.application.endpoints.client.current.receiveStore.held = [] then
+        if serverClosed : value.application.endpoints.server.current.receiveStore.held = [] then
+          .checked ⟨value, clientClosed, serverClosed⟩
+        else .pending value (.inr serverClosed)
+      else .pending value (.inl clientClosed)
+  else .absent (by cases actual : receiveGapSeen report <;> simp_all)
+
+def ReceiveGapStatus.passed : ReceiveGapStatus report → Bool
+  | .absent _ | .pending .. | .checked _ => true
+  | .failed _ => false
+
+private def receiveGapCounts (value : CampusTCPGapFacts.Evidence report) : List (String × Lean.Json) :=
+  let client := value.application.endpoints.client
+  let server := value.application.endpoints.server
+  [("clientReceipts", Lean.toJson client.current.receiveStore.nextID),
+    ("serverReceipts", Lean.toJson server.current.receiveStore.nextID),
+    ("clientHeldBytes", Lean.toJson client.current.receiveStore.heldBytes),
+    ("serverHeldBytes", Lean.toJson server.current.receiveStore.heldBytes),
+    ("clientReleasedBytes", Lean.toJson (client.steps.flatMap TCP.ApplicationTrace.Step.releasedPayload).length),
+    ("serverReleasedBytes", Lean.toJson (server.steps.flatMap TCP.ApplicationTrace.Step.releasedPayload).length),
+    ("clientReadBytes", Lean.toJson (client.steps.flatMap TCP.ApplicationTrace.Step.readBytes).length),
+    ("serverReadBytes", Lean.toJson (server.steps.flatMap TCP.ApplicationTrace.Step.readBytes).length)]
+
+def ReceiveGapStatus.json : ReceiveGapStatus report → Lean.Json
+  | .absent _ => Lean.Json.mkObj [("status", Lean.toJson "absent")]
+  | .failed reason => Lean.Json.mkObj [("scope", Lean.toJson "ordered-receive-storage"),
+      ("status", Lean.toJson "failed"), ("reason", Lean.toJson reason)]
+  | .pending value _ => Lean.Json.mkObj ([("scope", Lean.toJson "ordered-receive-storage"),
+      ("status", Lean.toJson "pending")] ++ receiveGapCounts value)
+  | .checked value => Lean.Json.mkObj ([("scope", Lean.toJson "ordered-receive-storage"),
+      ("status", Lean.toJson "checked")] ++ receiveGapCounts value.toEvidence)
+
 def namespaceJson (value : IngressAttachment.NamespaceRef) : Lean.Json :=
   Lean.Json.mkObj [("id", Lean.toJson value.id), ("birth", Lean.toJson value.birth)]
 
@@ -569,14 +620,15 @@ def decisionJson (step : CampusTCPModel.Step input) : Lean.Json :=
       ("kind", Lean.toJson "accepted"), ("operation", Lean.toJson (eventKind step.event))]
     else Lean.Json.mkObj [("kind", Lean.toJson "unsupported"), ("reason", Lean.toJson step.result.decision)]
 
-def stepJson (step : CampusTCPModel.Step input) : Lean.Json := Lean.Json.mkObj [
+def stepJson (step : CampusTCPModel.Step input) : Lean.Json := Lean.Json.mkObj ([
   ("index", Lean.toJson step.before.time), ("event", eventJson step.event), ("before", stateJson step.before),
   ("supported", Lean.toJson step.result.supported), ("passed", Lean.toJson step.result.passed),
   ("decision", decisionJson step), ("output", TCPEndpoint.outputJson (step.result.output.map (·.output))),
   ("decodedInput", match step.result.receipt with | none => .null | some receipt => TCPReceive.decodedJson receipt.received.packet),
   ("readHex", Lean.toJson (Import.EAPOL.bytesToHex step.result.read)),
   ("service", (step.result.service.map (fun value => servedJson value step.before.services.length)).getD .null),
-  ("state", stateJson step.result.state)]
+  ("state", stateJson step.result.state)] ++
+    match step.result.application with | none => [] | some (_, applied) => TCPEndpoint.receiveFields applied)
 
 def assumptions : List String := [
   "The result concerns the selected Lean gateway model, not Linux TCP tracker refinement or native installation.",
@@ -608,7 +660,8 @@ def ackSources : List Standards.Source := [
 def renderJson (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
     (transfer : TransferStatus report := transferStatus report)
-    (ack : AckStatus report := ackStatus report) : Lean.Json := Lean.Json.mkObj ([
+    (ack : AckStatus report := ackStatus report)
+    (gaps : ReceiveGapStatus report := receiveGapStatus report) : Lean.Json := Lean.Json.mkObj ([
   ("scope", Lean.toJson "campus-tcp-application-path"), ("supported", Lean.toJson report.supported),
   ("compliant", Lean.toJson report.compliant), ("inputEvents", Lean.toJson events.length), ("evaluatedEvents", Lean.toJson report.steps.length),
   ("applicationAssurance", application.json),
@@ -629,13 +682,15 @@ def renderJson (report : CampusTCPModel.Report input events)
     ("document", Lean.toJson source.document), ("version", Lean.toJson source.version),
     ("clause", Lean.toJson source.clause), ("url", Lean.toJson source.url)]))] ++
     (if input.standby.isSome then [("transferAssurance", transfer.json)] else []) ++
-    (if ackEnabled report then [("ackAssurance", ack.json)] else []))
+    (if ackEnabled report then [("ackAssurance", ack.json)] else []) ++
+    (if receiveGapSeen report then [("receiveGapAssurance", gaps.json)] else []))
 
 def render (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
     (transfer : TransferStatus report := transferStatus report)
-    (ack : AckStatus report := ackStatus report) : String :=
+    (ack : AckStatus report := ackStatus report)
+    (gaps : ReceiveGapStatus report := receiveGapStatus report) : String :=
   (if report.compliant then "CAMPUS TCP MODEL COMPLIANT\n" else "CAMPUS TCP MODEL NOT COMPLIANT\n") ++
-    (renderJson report application transfer ack).pretty
+    (renderJson report application transfer ack gaps).pretty
 
 end Netlib.Check.CampusTCP

@@ -19,6 +19,7 @@ from check_safe_handoff_examples import check as safe_handoff_checks
 from check_tcp_ack_examples import check as tcp_ack_checks
 from check_tcp_endpoint_examples import check as tcp_endpoint_checks
 from check_tcp_examples import check as tcp_checks
+from check_tcp_gap_examples import check as tcp_gap_checks
 from check_tcp_handshake_examples import check as tcp_handshake_checks
 from check_tcp_mss_examples import check as tcp_mss_checks
 from check_tcp_receive_examples import check as tcp_receive_checks
@@ -1156,6 +1157,7 @@ def main():
     tcp_mss_checks()
     tcp_recovery_checks()
     tcp_ack_checks()
+    tcp_gap_checks()
     campus_tcp_checks()
     campus_tcp_transfer_checks()
     count = 0

@@ -278,6 +278,7 @@ private def rejectName : Model.Reject → String
 private def unsupportedName : Model.Unsupported → String
   | .reset => "reset" | .synchronize => "synchronize" | .finish => "finish" | .urgent => "urgent"
   | .congestion => "congestion" | .options => "options" | .trimming => "trimming" | .outOfOrder => "outOfOrder"
+  | .overlap => "overlap" | .conflict => "conflict" | .receiveCapacity => "receiveCapacity" | .queuedHeader => "queuedHeader"
 
 def decisionJson : Model.Decision → Lean.Json
   | .accepted acknowledged received => Lean.Json.mkObj [

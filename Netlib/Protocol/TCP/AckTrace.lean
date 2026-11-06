@@ -21,12 +21,12 @@ end A
 def work (state : Endpoint.State) : AckReaction.Work :=
   (state.ackReaction.map (·.work)).getD (T.initial ())
 
-def receiveRequest (before : Endpoint.State) (result : Endpoint.Result) : Option (AckReaction.Demand × Nat) :=
+def receiveRequest (before : Endpoint.State) (result : Endpoint.Result) (immediate : Bool := false) : Option (AckReaction.Demand × Nat) :=
   match before.ackReaction, result.state.ackReaction, result.ack with
   | some previous, some next, some request =>
     match request.kind, result.decision with
     | .data, .accepted (.receive _ size) =>
-      let delay := if 2 ≤ next.fullSegments ∨ 2 * previous.rmss ≤ next.dataBytes then 0 else 499
+      let delay := if immediate || decide (2 ≤ next.fullSegments ∨ 2 * previous.rmss ≤ next.dataBytes) then 0 else 499
       some (⟨.data, result.state.core.receiveNext, next.advertisement.frontier, size, 0⟩, delay)
     | .sequence, .reject (.input .sequence) =>
       some (AckReaction.demand previous .sequence before.core.receiveNext 0 0, 0)
@@ -45,7 +45,7 @@ def readRequest (before : Endpoint.State) (result : Endpoint.Result) : Option (A
 
 def request (before : Endpoint.State) (event : A.Event) (result : Endpoint.Result) : Option (AckReaction.Demand × Nat) :=
   match event with
-  | .receive _ => receiveRequest before result
+  | .receive input => receiveRequest before result (ReceiveReassembly.immediate before.core before.receiveStore input)
   | .read _ => readRequest before result
   | _ => none
 
@@ -182,7 +182,8 @@ theorem checkSteps_origin (steps : List A.Step) (checked : List (T.CheckedStep a
       exact ⟨actual, by simp [belongs], link⟩
 
 theorem receiveRequest_kind (before : Endpoint.State) (result : Endpoint.Result)
-    (demand : AckReaction.Demand) (delay : Nat) (selected : receiveRequest before result = some (demand, delay)) :
+    (demand : AckReaction.Demand) (delay : Nat) (immediate : Bool)
+    (selected : receiveRequest before result immediate = some (demand, delay)) :
     demand.kind = .data ∨ demand.kind = .sequence := by
   unfold receiveRequest at selected
   split at selected
@@ -190,7 +191,8 @@ theorem receiveRequest_kind (before : Endpoint.State) (result : Endpoint.Result)
   · cases selected
 
 theorem receiveRequest_ack (before : Endpoint.State) (result : Endpoint.Result)
-    (demand : AckReaction.Demand) (delay : Nat) (selected : receiveRequest before result = some (demand, delay)) :
+    (demand : AckReaction.Demand) (delay : Nat) (immediate : Bool)
+    (selected : receiveRequest before result immediate = some (demand, delay)) :
     result.ack.isSome = true := by
   unfold receiveRequest at selected
   split at selected
@@ -214,9 +216,10 @@ theorem request_source (step : A.Step) (demand : AckReaction.Demand) (delay : Na
     (∃ count, step.event = .read count ∧ demand.kind = .window) := by
   cases event : step.event with
   | receive input =>
-    have received : receiveRequest step.before step.result = some (demand, delay) := by
+    have received : receiveRequest step.before step.result
+        (ReceiveReassembly.immediate step.before.core step.before.receiveStore input) = some (demand, delay) := by
       simpa only [request, event] using selected
-    exact .inl ⟨input, rfl, receiveRequest_ack _ _ _ _ received, receiveRequest_kind _ _ _ _ received⟩
+    exact .inl ⟨input, rfl, receiveRequest_ack _ _ _ _ _ received, receiveRequest_kind _ _ _ _ _ received⟩
   | read count =>
     have consumed : readRequest step.before step.result = some (demand, delay) := by
       simpa only [request, event] using selected
@@ -278,7 +281,8 @@ def assure (chain : A.Chain initial steps final) (ordered : A.Chronological step
     else throw "The actual endpoint trace did not enable ACK scheduling."
 
 theorem receiveRequest_delay (before : Endpoint.State) (result : Endpoint.Result)
-    (demand : AckReaction.Demand) (delay : Nat) (selected : receiveRequest before result = some (demand, delay)) :
+    (demand : AckReaction.Demand) (delay : Nat) (immediate : Bool)
+    (selected : receiveRequest before result immediate = some (demand, delay)) :
     delay ≤ 499 := by
   unfold receiveRequest at selected
   split at selected
@@ -303,7 +307,7 @@ theorem readRequest_delay (before : Endpoint.State) (result : Endpoint.Result)
 theorem request_delay (step : A.Step) (demand : AckReaction.Demand) (delay : Nat)
     (selected : request step.before step.event step.result = some (demand, delay)) : delay ≤ 499 := by
   cases event : step.event with
-  | receive input => exact receiveRequest_delay _ _ _ _ (by simpa only [request, event] using selected)
+  | receive input => exact receiveRequest_delay _ _ _ _ _ (by simpa only [request, event] using selected)
   | read count => exact readRequest_delay _ _ _ _ (by simpa only [request, event] using selected)
   | write _ | send _ _ | emitAck _ | dispatchAck _ | timeout _ | advanceClock _ | enableAck | enableRecovery =>
     simp [request, event] at selected
