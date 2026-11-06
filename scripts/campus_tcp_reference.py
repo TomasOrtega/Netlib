@@ -843,6 +843,7 @@ def replay(value, driver=None):
     canonical = canonical_event if driver is None else driver.canonical_event
     evaluate = endpoint.evaluate if driver is None else driver.evaluate
     wrap = (lambda state: state) if driver is None else driver.wrap
+    admit_packet = getattr(driver, "admit", admit)
     events = [canonical(event) for event in value["events"]]
     auth = Authentication()
     after = 0
@@ -1019,7 +1020,9 @@ def replay(value, driver=None):
                 _, selected, selected_direction, fresh = attachment(
                     records, configurations[configuration], packet.header, value["zone"]
                 )
-                candidate, reason = admit(admission, selected, selected_direction, fresh, raw)
+                candidate, reason = admit_packet(
+                    admission, selected, selected_direction, fresh, raw
+                )
                 if reason:
                     decision = {"kind": "unsupported", "reason": reason}
                     disposition, service_output, hop = "unsupported", None, None

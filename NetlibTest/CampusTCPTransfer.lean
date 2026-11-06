@@ -23,7 +23,7 @@ structure Demonstration (input : Check.CampusTCP.Input) where
   acknowledgment : Check.CampusTCPFacts.At report 50
   copied : TCP.Admission.Session
   sourcePhase : assurance.installation.checkpoint.snapshot.source.admission.phase = .data copied
-  deferred : copied.reply.observed = 3 ∧ copied.reply.acknowledged = 0
+  deferred : copied.reply.observed = 3 ∧ copied.reply.highEnd = 3 ∧ copied.reply.acknowledged = 0
   exactBefore : acknowledgment.step.before.standby.transport = assurance.installation.checkpoint.snapshot.source
   after : TCP.Admission.Session
   targetPhase : acknowledgment.step.result.state.standby.transport.admission.phase = .data after
@@ -53,7 +53,7 @@ theorem Demonstration.deferred_ack (value : Demonstration input) :
       value.after.reply.outstanding = 0 ∧
       serverSent value.endpointAck.step.before.connection = some [120, 121, 122] ∧
       serverSent value.endpointAck.step.result.state.connection = some [] := by
-  exact ⟨value.exactBefore, by simp [TCP.Admission.Lane.outstanding, value.deferred.1, value.deferred.2],
+  exact ⟨value.exactBefore, by simp [TCP.Admission.Lane.outstanding, value.deferred.2.1, value.deferred.2.2],
     value.acknowledges, value.removed.2.2, value.sentBefore, value.sentAfter⟩
 
 private def ensure (condition : Bool) (message : String) : IO Unit := do
@@ -125,7 +125,7 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
       | .data copied =>
         match targetPhase : acknowledgment.step.result.state.standby.transport.admission.phase with
         | .data after =>
-          if deferred : copied.reply.observed = 3 ∧ copied.reply.acknowledged = 0 then
+          if deferred : copied.reply.observed = 3 ∧ copied.reply.highEnd = 3 ∧ copied.reply.acknowledged = 0 then
             if exactBefore : acknowledgment.step.before.standby.transport.same assurance.installation.checkpoint.snapshot.source = true then
               if removed : after.reply.observed = 3 ∧ after.reply.acknowledged = 3 ∧ after.reply.outstanding = 0 then
                 if resumed : assurance.resume.step.before.time < acknowledgment.step.before.time then
@@ -147,7 +147,7 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
                 else throw "The deferred acknowledgment preceded assignment resumption."
               else throw "The deferred acknowledgment did not remove the transferred reply bytes."
             else throw "The acknowledgment did not start from the exact installed source cut."
-          else throw "The copied source has no nonzero deferred reply epoch."
+          else throw "The copied reply epoch is not a complete deferred prefix."
         | _ => throw "The acknowledgment result has no TCP application admission phase."
       | _ => throw "The installed source has no TCP application admission phase."
     else throw "The server read does not contain the expected bytes spanning transfer."

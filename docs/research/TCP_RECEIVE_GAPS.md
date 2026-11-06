@@ -114,8 +114,8 @@ The resulting window update is generated locally at event 93, but current gatewa
 Timely local generation does not establish peer delivery or eventual progress.
 
 The first positive trace reorders delivery after gateway service.
-Fresh ingress reordering before the gateway remains outside its current admission profile.
-The corpus includes that separate scope outcome.
+The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) now covers selected ingress reordering.
+Its corpus retains the former fresh-ingress input with its supported continuation.
 
 ## Receipt-time witness and variants
 
@@ -136,7 +136,7 @@ A lost cumulative ACK triggers a second real retry without appending old bytes o
 
 ## Corpus and audit
 
-[The fixtures](../../examples/tcp-receive-gaps/fixtures.json) contain 14 campus cases and 17 raw endpoint cases.
+[The fixtures](../../examples/tcp-receive-gaps/fixtures.json) contain 13 campus cases and 17 raw endpoint cases.
 They also contain five campus input errors and five raw input errors.
 Raw seeded cases check receiver mechanics; they do not establish startup or peer-write provenance.
 The campus cases use actual generated peer packets and gateway emissions.

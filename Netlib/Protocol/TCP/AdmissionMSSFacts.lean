@@ -60,17 +60,34 @@ theorem Result.preserves_mss (result : Result before input lifecycle prepared) (
   rw [result.phase]
   simpa only [phase] using computed
 
+theorem nextPhase_data_bases (session : Session) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
+    {observations : List Seen} (allowed : Allowed (.data session) attachment segment observations) :
+    ∃ after, nextPhase (.data session) attachment segment allowed = .data after ∧
+      after.entry = session.entry ∧ after.original.base = session.original.base ∧ after.reply.base = session.reply.base := by
+  rw [nextPhase.eq_4]
+  split <;> split <;> exact ⟨_, rfl, rfl, by simp only [sentLane_base, acknowledgedLane_base],
+    by simp only [sentLane_base, acknowledgedLane_base]⟩
+
+theorem Result.data_fields (result : Result before input lifecycle prepared) (phase : before.phase = .data session) :
+    ∃ after, result.state.phase = .data after ∧ after.entry = session.entry ∧
+      after.original.base = session.original.base ∧ after.reply.base = session.reply.base := by
+  have allowed : Allowed (.data session) prepared.attachment input.packet.segment before.observations := phase ▸ result.admitted
+  obtain ⟨after, computed, entry, original, reply⟩ := nextPhase_data_bases session prepared.attachment input.packet.segment allowed
+  refine ⟨after, ?_, entry, original, reply⟩
+  rw [result.phase]
+  simpa only [phase] using computed
+
 theorem Result.data_payload_bound (result : Result before input lifecycle prepared) (phase : before.phase = .data session) :
     input.packet.segment.payload.length ≤ (session.peerMSS prepared.attachment.direction).limit := by
   have allowed : Allowed (.data session) prepared.attachment input.packet.segment before.observations := phase ▸ result.admitted
   cases direction : prepared.attachment.direction with
   | original =>
-    have selected : DataAllowed session.original session.reply input.packet.segment session.serverMSS ∨
+    have selected : DataAllowed session.original session.reply input.packet.segment session.serverMSS before.observations.length ∨
         RepeatedAllowed session.original session.reply session.entry .original input.packet.segment session.serverMSS before.observations := by
       simpa only [Allowed, direction] using allowed.2.2
     exact selected.elim (fun fresh => fresh.2.2.1) (fun repeated => repeated.2.2.2.2.1)
   | reply =>
-    have selected : DataAllowed session.reply session.original input.packet.segment session.clientMSS ∨
+    have selected : DataAllowed session.reply session.original input.packet.segment session.clientMSS before.observations.length ∨
         RepeatedAllowed session.reply session.original session.entry .reply input.packet.segment session.clientMSS before.observations := by
       simpa only [Allowed, direction] using allowed.2.2
     exact selected.elim (fun fresh => fresh.2.2.1) (fun repeated => repeated.2.2.2.2.1)

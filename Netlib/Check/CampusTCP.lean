@@ -2,6 +2,8 @@ import Netlib.Check.CampusTCPFacts
 import Netlib.Check.CampusTCPTransferFacts
 import Netlib.Check.CampusTCPAckFacts
 import Netlib.Check.CampusTCPGapFacts
+import Netlib.Check.TCPAdmissionJSON
+import Netlib.Check.CampusTCPSparseFacts
 
 /-!
 # Imported campus TCP execution
@@ -412,6 +414,49 @@ def ReceiveGapStatus.json : ReceiveGapStatus report → Lean.Json
   | .checked value => Lean.Json.mkObj ([("scope", Lean.toJson "ordered-receive-storage"),
       ("status", Lean.toJson "checked")] ++ receiveGapCounts value.toEvidence)
 
+def gatewaySparse (state : TCP.Checkpoint.Gateway) : Bool :=
+  match state.admission.phase with
+  | .data session => TCPAdmissionJSON.sparseSeen session.original || TCPAdmissionJSON.sparseSeen session.reply
+  | _ => false
+
+def sparseSeen (report : CampusTCPModel.Report input events) : Bool :=
+  gatewaySparse report.final.primary.transport || gatewaySparse report.final.standby.transport
+
+inductive SparseStatus (report : CampusTCPModel.Report input events) where
+  | absent (unseen : sparseSeen report = false)
+  | failed (reason : String)
+  | checked (value : CampusTCPSparseFacts.Assurance report)
+
+def sparseStatus (report : CampusTCPModel.Report input events) : SparseStatus report :=
+  if seen : sparseSeen report = true then
+    match CampusTCPSparseFacts.assure report with
+    | .ok value => .checked value
+    | .error reason => .failed reason
+  else .absent (by cases actual : sparseSeen report <;> simp_all)
+
+def SparseStatus.passed : SparseStatus report → Bool
+  | .absent _ | .checked _ => true
+  | .failed _ => false
+
+private def sparseLaneSummary (lane : TCP.Admission.Lane) : Lean.Json := Lean.Json.mkObj [
+  ("frontier", Lean.toJson lane.observed), ("highEnd", Lean.toJson lane.highEnd),
+  ("uniqueBytes", Lean.toJson lane.uniqueBytes), ("sources", Lean.toJson lane.coverage.runs.length),
+  ("prefixComplete", Lean.toJson (decide (lane.observed = lane.highEnd)))]
+
+private def sparseGatewaySummary (name : String) (state : TCP.Checkpoint.Gateway) : Lean.Json :=
+  Lean.Json.mkObj (("gateway", Lean.toJson name) :: match state.admission.phase with
+    | .data session => [("original", sparseLaneSummary session.original), ("reply", sparseLaneSummary session.reply)]
+    | _ => [("original", .null), ("reply", .null)])
+
+def SparseStatus.json : SparseStatus report → Lean.Json
+  | .absent _ => Lean.Json.mkObj [("status", Lean.toJson "absent")]
+  | .failed reason => Lean.Json.mkObj [("scope", Lean.toJson "gateway-observation-sources"),
+      ("status", Lean.toJson "failed"), ("reason", Lean.toJson reason)]
+  | .checked _ => Lean.Json.mkObj [("scope", Lean.toJson "gateway-observation-sources"),
+      ("status", Lean.toJson "checked"), ("gateways", Lean.toJson [
+        sparseGatewaySummary "primary" report.final.primary.transport,
+        sparseGatewaySummary "standby" report.final.standby.transport])]
+
 def namespaceJson (value : IngressAttachment.NamespaceRef) : Lean.Json :=
   Lean.Json.mkObj [("id", Lean.toJson value.id), ("birth", Lean.toJson value.birth)]
 
@@ -482,53 +527,12 @@ def recordsJson (state : Protocol.ConntrackLifecycle.State) : Lean.Json :=
     ("zone", Lean.toJson record.entry.flow.originalZone), ("original", Import.PacketFields.headerJson record.entry.flow.original),
     ("translated", Import.PacketFields.headerJson (record.entry.flow.output .original)), ("seenReply", Lean.toJson record.seenReply)])
 
-def entryJson (entry : NetfilterNAT.Entry) : Lean.Json := Lean.Json.mkObj [
-  ("original", Import.PacketFields.headerJson entry.flow.original), ("reply", Import.PacketFields.headerJson entry.flow.reply),
-  ("originalZone", Lean.toJson entry.flow.originalZone), ("replyZone", Lean.toJson entry.flow.replyZone),
-  ("sourceNAT", Lean.toJson entry.sourceNAT), ("destinationNAT", Lean.toJson entry.destinationNAT)]
-
-def laneJson (lane : Protocol.TCP.Admission.Lane) : Lean.Json := Lean.Json.mkObj [
-  ("base", Lean.toJson lane.base.val), ("observed", Lean.toJson lane.observed), ("acknowledged", Lean.toJson lane.acknowledged),
-  ("peerWindow", Lean.toJson lane.peerWindow.val), ("windowSequence", Lean.toJson lane.windowSequence.val),
-  ("windowAcknowledgment", Lean.toJson lane.windowAcknowledgment.val)]
-
-def mssJson : Protocol.TCP.MSS.Offer → Lean.Json
-  | .absent => Lean.Json.mkObj [("kind", Lean.toJson "absent")]
-  | .present value => Lean.Json.mkObj [("kind", Lean.toJson "present"), ("value", Lean.toJson value.word.val)]
-
-def mssFields (client server : Protocol.TCP.MSS.Offer) : List (String × Lean.Json) :=
-  match client, server with
-  | .absent, .absent => []
-  | _, _ => [("clientMSS", mssJson client), ("serverMSS", mssJson server),
-      ("originalMSS", Lean.toJson server.limit), ("replyMSS", Lean.toJson client.limit)]
-
-def seenJson (seen : Protocol.TCP.Admission.Seen) : Lean.Json := Lean.Json.mkObj [
-  ("zone", Lean.toJson seen.zone), ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex seen.bytes)),
-  ("header", Import.PacketFields.headerJson seen.header), ("segment", Check.TCP.segmentJson seen.segment),
-  ("entry", entryJson seen.attachment.entry), ("direction", Lean.toJson (directionName seen.attachment.direction)),
-  ("classification", Lean.toJson (match seen.attachment.classification with
-    | .new => "new" | .established => "established" | .related => "related" | .invalid => "invalid" | .untracked => "untracked")),
-  ("fresh", Lean.toJson seen.attachment.fresh)]
-
-def admissionJson (state : Protocol.TCP.Admission.State) : Lean.Json :=
-  let initialWindow (flags : UInt8) := ((state.observations.find? (·.segment.flags == flags)).map (·.segment.window.val)).getD 0
-  Lean.Json.mkObj ([
-    ("phase", Lean.toJson state.phase.name), ("observations", Lean.toJson state.observations.length),
-    ("sourcePackets", Lean.toJson (state.observations.map seenJson))] ++ match state.phase with
-    | .empty => []
-    | .syn entry iss window clientMSS => [
-      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val)] ++
-      (match clientMSS with
-      | .absent => []
-      | .present _ => [("clientMSS", mssJson clientMSS), ("replyMSS", Lean.toJson clientMSS.limit)])
-    | .synAck entry iss window serverISS serverWindow clientMSS serverMSS => [
-      ("entry", entryJson entry), ("clientISS", Lean.toJson iss.val), ("clientWindow", Lean.toJson window.val),
-      ("serverISS", Lean.toJson serverISS.val), ("serverWindow", Lean.toJson serverWindow.val)] ++ mssFields clientMSS serverMSS
-    | .data session => [
-      ("entry", entryJson session.entry), ("clientISS", Lean.toJson session.original.controlOrigin.val),
-      ("clientWindow", Lean.toJson (initialWindow 2)), ("serverISS", Lean.toJson session.reply.controlOrigin.val),
-      ("serverWindow", Lean.toJson (initialWindow 18)), ("original", laneJson session.original), ("reply", laneJson session.reply)] ++
-      mssFields session.clientMSS session.serverMSS)
+abbrev entryJson := TCPAdmissionJSON.entryJson
+abbrev laneJson := TCPAdmissionJSON.laneJson
+abbrev mssJson := TCPAdmissionJSON.mssJson
+abbrev mssFields := TCPAdmissionJSON.mssFields
+abbrev seenJson := TCPAdmissionJSON.seenJson
+abbrev admissionJson := TCPAdmissionJSON.admissionJson
 
 def transportFields (transport : Protocol.TCP.Checkpoint.Gateway) (transitions : Nat) : List (String × Lean.Json) := [
   ("records", recordsJson transport.tracker), ("confirmed", Check.ConntrackLifecycle.stateJson transport.tracker),
@@ -661,7 +665,8 @@ def renderJson (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
     (transfer : TransferStatus report := transferStatus report)
     (ack : AckStatus report := ackStatus report)
-    (gaps : ReceiveGapStatus report := receiveGapStatus report) : Lean.Json := Lean.Json.mkObj ([
+    (gaps : ReceiveGapStatus report := receiveGapStatus report)
+    (sparse : SparseStatus report := sparseStatus report) : Lean.Json := Lean.Json.mkObj ([
   ("scope", Lean.toJson "campus-tcp-application-path"), ("supported", Lean.toJson report.supported),
   ("compliant", Lean.toJson report.compliant), ("inputEvents", Lean.toJson events.length), ("evaluatedEvents", Lean.toJson report.steps.length),
   ("applicationAssurance", application.json),
@@ -683,14 +688,16 @@ def renderJson (report : CampusTCPModel.Report input events)
     ("clause", Lean.toJson source.clause), ("url", Lean.toJson source.url)]))] ++
     (if input.standby.isSome then [("transferAssurance", transfer.json)] else []) ++
     (if ackEnabled report then [("ackAssurance", ack.json)] else []) ++
-    (if receiveGapSeen report then [("receiveGapAssurance", gaps.json)] else []))
+    (if receiveGapSeen report then [("receiveGapAssurance", gaps.json)] else []) ++
+    (if sparseSeen report then [("sparseAssurance", sparse.json)] else []))
 
 def render (report : CampusTCPModel.Report input events)
     (application : ApplicationStatus report := applicationStatus report)
     (transfer : TransferStatus report := transferStatus report)
     (ack : AckStatus report := ackStatus report)
-    (gaps : ReceiveGapStatus report := receiveGapStatus report) : String :=
+    (gaps : ReceiveGapStatus report := receiveGapStatus report)
+    (sparse : SparseStatus report := sparseStatus report) : String :=
   (if report.compliant then "CAMPUS TCP MODEL COMPLIANT\n" else "CAMPUS TCP MODEL NOT COMPLIANT\n") ++
-    (renderJson report application transfer ack gaps).pretty
+    (renderJson report application transfer ack gaps sparse).pretty
 
 end Netlib.Check.CampusTCP

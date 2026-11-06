@@ -121,7 +121,8 @@ private def ordinaryData : IO Unit := do
   let final ← session last.gate
   ensure (final.original.observed == 3 && final.original.next.val == 1004 && last.gate.observations.length == 10)
     "Reopened space must permit the next exact byte range."
-  rejected last.gate last.tracker (← packet original 1003 5002 16) .sequence
+  let oldAck ← serve permit last.gate last.tracker (← packet original 1003 5002 16)
+  ensure oldAck.emitted "An empty ACK inside the observed epoch must remain supported."
   rejected last.gate last.tracker (← packet original 1004 4999 16) .acknowledgment
   rejected last.gate last.tracker (← packet original 1004 5003 16) .acknowledgment
   rejected last.gate last.tracker (← packet original 1004 5002 20) .flags
@@ -181,8 +182,8 @@ private def repeatedData : IO Unit := do
   let final ← session lostAck.gate
   ensure (lostAck.emitted && final.original.observed == 3 && final.original.acknowledged == 3)
     "A repeated slice remains valid after the gateway observes an ACK that the sender can lose."
-  rejected lostAck.gate lostAck.tracker (← packet original 1001 5001 16 [1, 9, 3]) .sequence
-  rejected lostAck.gate lostAck.tracker (← packet original 1002 5001 16 [2, 3, 4]) .sequence
+  rejected lostAck.gate lostAck.tracker (← packet original 1001 5001 16 [1, 9, 3]) .conflict
+  rejected lostAck.gate lostAck.tracker (← packet original 1002 5001 16 [2, 3, 4]) .overlap
   rejected lostAck.gate lostAck.tracker (← packet original 1000 5001 16 [1]) .sequence
   rejected lostAck.gate lostAck.tracker (← packet original 1001 5002 16 [1, 2, 3]) .acknowledgment
   let wrap ← startup 4294967294 5000

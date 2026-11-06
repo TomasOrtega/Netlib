@@ -351,6 +351,7 @@ def admissionReason : TCP.Admission.Unsupported → String
   | .missingHistory => "missingHistory" | .replacement => "replacement" | .direction => "direction"
   | .flags => "flags" | .options => "options" | .data => "data" | .sequence => "sequence"
   | .acknowledgment => "acknowledgment" | .window => "window" | .epoch => "epoch" | .historyLost => "historyLost"
+  | .overlap => "overlap" | .conflict => "conflict"
 
 structure Effect (input : Input) where
   state : State input

@@ -156,6 +156,17 @@ The [receive-gap guide](TCP_RECEIVE_GAPS.md) separates incoming bytes, ordered r
 `Check.CampusTCPGapFacts` derives storage history and receipt sources from the actual campus trace.
 Its read-byte theorems connect each byte to an earlier release, actual gateway delivery, peer send attempt, and application write.
 
+`Theory.SparseCoverage` proves disjoint observation coverage, first-source retention, exact payload indices, and hole bounds.
+`TCP.Admission.fresh_data_allowed` derives fresh admission from old lane validity and full input geometry.
+No caller-supplied placement or post-state certificate is required.
+`TCP.AdmissionCoverageFacts` derives each source from the actual committed packet ledger.
+`TCP.CheckpointObservationHistory` and `TCP.CheckpointCoverageFacts` identify its operation in the same reachable gateway history.
+Exact checkpoint installation preserves these source bindings, including holes below the greatest observed end.
+`Check.TCPAdmission` constructs a checked gateway history from empty state and raw packets.
+It supplies no endpoint-write or authentication claim.
+`Check.CampusTCPSparseFacts` retains the actual campus assurance and both gateway source invariants.
+The [sparse admission guide](TCP_SPARSE_ADMISSION.md) states the sequence, window, and source limits.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

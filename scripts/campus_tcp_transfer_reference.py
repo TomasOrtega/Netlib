@@ -290,6 +290,8 @@ def replay(value, driver=None):
     canonical = base.canonical_event if driver is None else driver.canonical_event
     evaluate = base.endpoint.evaluate if driver is None else driver.evaluate
     wrap = (lambda state: state) if driver is None else driver.wrap
+    admit_packet = getattr(driver, "admit", base.admit)
+    render_image = getattr(driver, "image_json", image_json)
     events = [canonical(event) for event in value["events"]]
     transfer = Transfer()
     auth, after = base.Authentication(), 0
@@ -351,7 +353,7 @@ def replay(value, driver=None):
                 name: {
                     "configuration": gateway.configuration,
                     "guard": gateway.guard,
-                    **image_json(gateway.image),
+                    **render_image(gateway.image),
                 }
                 for name, gateway in gateways.items()
             },
@@ -368,7 +370,7 @@ def replay(value, driver=None):
                 else {
                     "id": transfer.cache.id,
                     "stagedAt": transfer.cache.staged_at,
-                    **image_json(transfer.cache.image),
+                    **render_image(transfer.cache.image),
                 },
             },
         }
@@ -526,7 +528,7 @@ def replay(value, driver=None):
                     selected = tracked_candidate(
                         selected, gateway.configurations[gateway.configuration]
                     )
-                candidate, reason = base.admit(image.admission, selected, direction, fresh, raw)
+                candidate, reason = admit_packet(image.admission, selected, direction, fresh, raw)
                 if reason:
                     decision = {"kind": "unsupported", "reason": reason}
                     disposition, service_output, hop = "unsupported", None, None

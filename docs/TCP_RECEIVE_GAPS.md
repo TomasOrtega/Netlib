@@ -114,8 +114,8 @@ The order is write, original send, attempt, receipt, release, and read.
 Receipt and release can be the same operation.
 The two hosts retain their own local clocks.
 
-The covered reordering occurs after actual gateway service.
-Current gateway ingress admission still requires its selected sequence order.
-This profile does not establish arbitrary reordering before the gateway.
+The receive-storage example reorders delivery after actual gateway service.
+The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) also admits selected disjoint ranges before an unseen lower range.
+General overlap handling remains outside both selected profiles.
 General overlap handling, fast recovery, native correspondence, and eventual delivery remain OPEN.
 All seven research programs and the full campus demonstration remain OPEN.

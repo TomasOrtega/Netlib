@@ -399,6 +399,9 @@ The command does not establish those external delivery conditions from checksums
 Replay stops at the first unsupported event and retains the unprocessed suffix.
 The [application guide](TCP_APPLICATION.md) gives the event schema, proof contract, and remaining obligations.
 The automatic [receive-gap extension](TCP_RECEIVE_GAPS.md) holds non-overlapping future payloads and exact queued duplicates.
+The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) records disjoint observed ranges without delaying accepted packet output.
+It separates covered prefix, greatest end, unique bytes, and cumulative ACK position.
+Source indices derive from actual committed observations and survive exact checkpoint installation.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.
 

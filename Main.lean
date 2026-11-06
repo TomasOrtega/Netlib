@@ -31,6 +31,7 @@ import Netlib.Check.TCP
 import Netlib.Check.WireTCP
 import Netlib.Check.TCPReceive
 import Netlib.Check.TCPEndpoint
+import Netlib.Check.TCPAdmission
 import Netlib.Check.TCPHandshake
 import Netlib.Check.CampusTCP
 import Netlib.Standards.ThreeGPP.ServiceAccess
@@ -63,6 +64,7 @@ private def usage : String := "Netlib: checked network requirements\n\n\
   netlib tcp-sequence QUERY.json [--json]\n\
   netlib tcp-receive TRACE.json [--json]\n\
   netlib tcp-endpoint TRACE.json [--json]\n\
+  netlib tcp-admission TRACE.json [--json]\n\
   netlib tcp-handshake TRACE.json [--json]\n\
   netlib campus-tcp TRACE.json [--json]\n\
   netlib wire-forward TRACE.json [--json]\n\
@@ -257,6 +259,12 @@ private def tcpEndpoint (path : String) (json : Bool) : IO UInt32 := do
   IO.println (if json then report.renderJson.pretty else report.render)
   return if report.supported then 0 else 2
 
+private def tcpAdmission (path : String) (json : Bool) : IO UInt32 := do
+  let input ← unwrap (Check.TCPAdmission.Input.parse (← IO.FS.readFile path))
+  let report ← unwrap input.check
+  IO.println (if json then report.renderJson.pretty else report.render)
+  return if report.supported then 0 else 2
+
 private def tcpHandshake (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.TCPHandshake.Input.parse (← IO.FS.readFile path))
   let report ← unwrap input.check
@@ -270,8 +278,9 @@ private def campusTCP (path : String) (json : Bool) : IO UInt32 := do
   let transfer := Check.CampusTCP.transferStatus report
   let ack := Check.CampusTCP.ackStatus report
   let gaps := Check.CampusTCP.receiveGapStatus report
-  IO.println (if json then (Check.CampusTCP.renderJson report application transfer ack gaps).pretty else Check.CampusTCP.render report application transfer ack gaps)
-  return if !report.supported then 2 else if report.compliant && application.passed && transfer.passed && ack.passed && gaps.passed then 0 else 1
+  let sparse := Check.CampusTCP.sparseStatus report
+  IO.println (if json then (Check.CampusTCP.renderJson report application transfer ack gaps sparse).pretty else Check.CampusTCP.render report application transfer ack gaps sparse)
+  return if !report.supported then 2 else if report.compliant && application.passed && transfer.passed && ack.passed && gaps.passed && sparse.passed then 0 else 1
 
 private def wireForward (path : String) (json : Bool) : IO UInt32 := do
   let input ← unwrap (Check.WireForwarding.Input.parse (← IO.FS.readFile path))
@@ -572,6 +581,8 @@ private def run (args : List String) : IO UInt32 := do
   | ["tcp-receive", path, "--json"] => tcpReceive path true
   | ["tcp-endpoint", path] => tcpEndpoint path false
   | ["tcp-endpoint", path, "--json"] => tcpEndpoint path true
+  | ["tcp-admission", path] => tcpAdmission path false
+  | ["tcp-admission", path, "--json"] => tcpAdmission path true
   | ["tcp-handshake", path] => tcpHandshake path false
   | ["tcp-handshake", path, "--json"] => tcpHandshake path true
   | ["campus-tcp", path] => campusTCP path false

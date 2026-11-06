@@ -126,6 +126,9 @@ The [ACK extension](TCP_ACK.md) checks local reaction deadlines, actual response
 General scheduling, challenge-ACK limits, and eventual delivery remain open.
 The [receive-gap extension](TCP_RECEIVE_GAPS.md) connects sparse host storage, queued headers, and byte origins across separate gateway receipts.
 Physical storage and advertised sequence reservations have separate bounds.
+The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) separates observed coverage from the greatest sequence end.
+Actual first-source indices survive transfer, and unseen holes can fill on standby.
+The [progress design](research/CAMPUS_PROGRESS.md) states the remaining custody, loss, scheduling, and service contracts.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

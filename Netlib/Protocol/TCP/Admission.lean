@@ -1,6 +1,7 @@
 import Netlib.Protocol.ConntrackLifecycle
 import Netlib.Protocol.TCP.EstablishedReceive
 import Netlib.Protocol.TCP.MSS
+import Netlib.Theory.SparseCoverage
 
 /-!
 # A selected TCP admission history at a gateway
@@ -20,31 +21,42 @@ abbrev Input := EstablishedReceive.Input
 abbrev Direction := FlowNAT.Direction
 abbrev Entry := NetfilterNAT.Entry
 
+namespace Coverage
+export Theory.SparseCoverage (State Run Result Stop accept initial)
+end Coverage
+
 structure Lane where
   base : Seq
-  observed : Nat
+  coverage : Coverage.State Nat
   acknowledged : Nat
   peerWindow : InternetChecksum.Word
   windowSequence : Seq
   windowAcknowledgment : Seq
   deriving Repr, BEq, DecidableEq
 
+def Lane.observed (lane : Lane) : Nat := lane.coverage.frontier
+def Lane.highEnd (lane : Lane) : Nat := lane.coverage.highEnd
+def Lane.uniqueBytes (lane : Lane) : Nat := lane.coverage.count
 def Lane.next (lane : Lane) : Seq := lane.base.add lane.observed
+def Lane.highNext (lane : Lane) : Seq := lane.base.add lane.highEnd
 def Lane.una (lane : Lane) : Seq := lane.base.add lane.acknowledged
-def Lane.outstanding (lane : Lane) : Nat := lane.observed - lane.acknowledged
+def Lane.outstanding (lane : Lane) : Nat := lane.highEnd - lane.acknowledged
+
+def coverageBound : Nat := Seq.halfSpace - 3
 
 def Lane.Valid (lane : Lane) : Prop :=
-  lane.acknowledged ≤ lane.observed ∧ lane.observed + 2 < Seq.halfSpace ∧ lane.outstanding ≤ 65535
+  lane.acknowledged ≤ lane.observed ∧ lane.highEnd + 2 < Seq.halfSpace ∧
+    lane.outstanding ≤ 65535 ∧ lane.coverage.Valid coverageBound
 
 instance (lane : Lane) : Decidable lane.Valid := by unfold Lane.Valid; infer_instance
 
 def Lane.initial (base : Seq) (window : InternetChecksum.Word) (sequence acknowledgment : Seq) : Lane :=
-  ⟨base, 0, 0, window, sequence, acknowledgment⟩
+  ⟨base, Coverage.initial, 0, window, sequence, acknowledgment⟩
 
 theorem Lane.initial_valid (base : Seq) (window : InternetChecksum.Word) (sequence acknowledgment : Seq) :
     (Lane.initial base window sequence acknowledgment).Valid := by
-  change 0 ≤ 0 ∧ 0 + 2 < Seq.halfSpace ∧ 0 - 0 ≤ 65535
-  decide
+  change 0 ≤ 0 ∧ 0 + 2 < Seq.halfSpace ∧ 0 - 0 ≤ 65535 ∧ Coverage.initial.Valid coverageBound
+  exact ⟨by decide, by decide, by decide, Theory.SparseCoverage.initial_valid _⟩
 
 def Lane.controlOrigin (lane : Lane) : Seq := lane.base.add (Seq.modulus - 1)
 
@@ -62,6 +74,7 @@ theorem Lane.control_distance (lane : Lane) (valid : lane.Valid) :
     Seq.distance lane.controlOrigin lane.next = lane.observed + 1 := by
   have bound : 1 + lane.observed < Seq.modulus := by
     have epoch := valid.2.1
+    have covered : lane.observed ≤ lane.highEnd := lane.coverage.frontier_le_highEnd
     unfold Seq.halfSpace Seq.modulus at *
     omega
   change Seq.distance lane.controlOrigin (lane.base.add lane.observed) = _
@@ -73,7 +86,7 @@ theorem Lane.control_distance (lane : Lane) (valid : lane.Valid) :
       omega
 
 def WindowHistory (lane peer : Lane) : Prop :=
-  Seq.distance peer.controlOrigin lane.windowSequence ≤ peer.observed + 1 ∧
+  Seq.distance peer.controlOrigin lane.windowSequence ≤ peer.highEnd + 1 ∧
     Seq.distance lane.base lane.windowAcknowledgment ≤ lane.observed
 
 structure Session where
@@ -148,8 +161,23 @@ def windowFresh (peer : Lane) (segment : Segment) : Bool :=
 def windowEligible (peer : Lane) (segment : Segment) : Bool :=
   decide (peer.acknowledged ≤ ackOffset peer segment) && windowFresh peer segment
 
-def sentLane (sender : Lane) (segment : Segment) : Lane :=
-  { sender with observed := sender.observed + segment.payload.length }
+def placement (sender : Lane) (segment : Segment) (source : Nat) : Except Coverage.Stop (Coverage.Result Nat) :=
+  Coverage.accept sender.coverage (Seq.distance sender.base segment.sequence) segment.payload source coverageBound
+
+def sentLane (sender : Lane) (segment : Segment) (source : Nat := 0) : Lane :=
+  match placement sender segment source with
+  | .ok result => { sender with coverage := result.state }
+  | .error _ => sender
+
+def FreshSequence (sender : Lane) (segment : Segment) (source : Nat) : Prop :=
+  if segment.payload = [] then Seq.distance sender.base segment.sequence ≤ sender.highEnd
+  else match placement sender segment source with
+    | .ok result => result.novel = segment.payload.length
+    | .error _ => False
+
+instance (sender : Lane) (segment : Segment) (source : Nat) : Decidable (FreshSequence sender segment source) := by
+  unfold FreshSequence
+  split <;> first | infer_instance | (split <;> infer_instance)
 
 def acknowledgedLane (peer : Lane) (segment : Segment) : Lane :=
   let after := { peer with acknowledged := max peer.acknowledged (ackOffset peer segment) }
@@ -170,36 +198,163 @@ def acknowledgedLane (peer : Lane) (segment : Segment) : Lane :=
   unfold acknowledgedLane
   split <;> rfl
 
-theorem sent_history (sender peer : Lane) (segment : Segment) (history : WindowHistory sender peer) :
-    WindowHistory (sentLane sender segment) (acknowledgedLane peer segment) := by
-  have first := history.1
-  have second := history.2
-  simp only [WindowHistory, Lane.controlOrigin, sentLane, acknowledgedLane_base, acknowledgedLane_observed]
-  exact ⟨first, by omega⟩
-
-theorem acknowledged_history (sender peer : Lane) (segment : Segment) (valid : sender.Valid)
-    (history : WindowHistory peer sender) (sequence : segment.sequence = sender.next)
-    (acknowledgment : ackOffset peer segment ≤ peer.observed) :
-    WindowHistory (acknowledgedLane peer segment) (sentLane sender segment) := by
+@[simp] theorem acknowledgedLane_coverage (peer : Lane) (segment : Segment) :
+    (acknowledgedLane peer segment).coverage = peer.coverage := by
   unfold acknowledgedLane
+  split <;> rfl
+
+@[simp] theorem acknowledgedLane_highEnd (peer : Lane) (segment : Segment) :
+    (acknowledgedLane peer segment).highEnd = peer.highEnd := by
+  simp only [Lane.highEnd, acknowledgedLane_coverage]
+
+@[simp] theorem sentLane_base (sender : Lane) (segment : Segment) (source : Nat) :
+    (sentLane sender segment source).base = sender.base := by
+  unfold sentLane
+  split <;> rfl
+
+@[simp] theorem sentLane_windowSequence (sender : Lane) (segment : Segment) (source : Nat) :
+    (sentLane sender segment source).windowSequence = sender.windowSequence := by
+  unfold sentLane
+  split <;> rfl
+
+@[simp] theorem sentLane_windowAcknowledgment (sender : Lane) (segment : Segment) (source : Nat) :
+    (sentLane sender segment source).windowAcknowledgment = sender.windowAcknowledgment := by
+  unfold sentLane
+  split <;> rfl
+
+theorem sentLane_monotone (sender : Lane) (segment : Segment) (source : Nat) :
+    sender.observed ≤ (sentLane sender segment source).observed ∧
+      sender.highEnd ≤ (sentLane sender segment source).highEnd := by
+  unfold sentLane
   split
-  · change Seq.distance sender.controlOrigin segment.sequence ≤ sender.observed + segment.payload.length + 1 ∧
-      Seq.distance peer.base segment.acknowledgment ≤ peer.observed
-    rw [sequence, sender.control_distance valid]
-    exact ⟨by omega, acknowledgment⟩
-  · change Seq.distance sender.controlOrigin peer.windowSequence ≤ sender.observed + segment.payload.length + 1 ∧
-      Seq.distance peer.base peer.windowAcknowledgment ≤ peer.observed
-    exact ⟨by have bound := history.1; omega, history.2⟩
+  · rename_i result accepted
+    exact ⟨Theory.SparseCoverage.accept_frontier_mono _ _ _ _ _ _ accepted,
+      Theory.SparseCoverage.accept_highEnd_mono _ _ _ _ _ _ accepted⟩
+  · exact ⟨Nat.le_refl _, Nat.le_refl _⟩
 
-def DataAllowed (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer := .absent) : Prop :=
-  DataProfile segment ∧ segment.sequence = sender.next ∧ segment.payload.length ≤ peerMSS.limit ∧
+theorem sent_history (sender peer : Lane) (segment : Segment) (source : Nat) (history : WindowHistory sender peer) :
+    WindowHistory (sentLane sender segment source) (acknowledgedLane peer segment) := by
+  have monotone := (sentLane_monotone sender segment source).1
+  simpa only [WindowHistory, Lane.controlOrigin, sentLane_base, acknowledgedLane_base,
+    acknowledgedLane_highEnd, sentLane_windowSequence, sentLane_windowAcknowledgment] using (show Seq.distance peer.controlOrigin sender.windowSequence ≤ peer.highEnd + 1 ∧
+      Seq.distance sender.base sender.windowAcknowledgment ≤ (sentLane sender segment source).observed from
+      ⟨history.1, Nat.le_trans history.2 monotone⟩)
+
+def DataAllowed (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer := .absent) (source : Nat := 0) : Prop :=
+  DataProfile segment ∧ FreshSequence sender segment source ∧ segment.payload.length ≤ peerMSS.limit ∧
     ackOffset peer segment ≤ peer.observed ∧ peer.acknowledged ≤ ackOffset peer segment + 65535 ∧
-    (segment.payload = [] ∨ sender.outstanding + segment.payload.length ≤ sender.peerWindow.val) ∧
-    (sentLane sender segment).Valid ∧ (acknowledgedLane peer segment).Valid
+    (segment.payload = [] ∨ Seq.distance sender.base segment.sequence + segment.payload.length ≤
+      sender.acknowledged + sender.peerWindow.val) ∧
+    (sentLane sender segment source).Valid ∧ (acknowledgedLane peer segment).Valid
 
-instance (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer) : Decidable (DataAllowed sender peer segment peerMSS) := by
+instance (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer) (source : Nat) :
+    Decidable (DataAllowed sender peer segment peerMSS source) := by
   unfold DataAllowed
   infer_instance
+
+theorem fresh_sequence_bound (sender : Lane) (segment : Segment) (source : Nat)
+    (fresh : FreshSequence sender segment source) (valid : (sentLane sender segment source).Valid) :
+    Seq.distance sender.controlOrigin segment.sequence ≤ (sentLane sender segment source).highEnd + 1 := by
+  have offset : Seq.distance sender.base segment.sequence ≤ (sentLane sender segment source).highEnd := by
+    unfold FreshSequence at fresh
+    split at fresh
+    · exact Nat.le_trans fresh (sentLane_monotone sender segment source).2
+    · split at fresh
+      · rename_i result accepted
+        have slice := (Theory.SparseCoverage.accept_source _ _ _ _ _ _ accepted).2
+        have member := (Theory.SparseCoverage.accept_source _ _ _ _ _ _ accepted).1
+        have limit := Theory.SparseCoverage.State.limit_le_highEnd result.state result.source member
+        simpa only [sentLane, accepted, Lane.highEnd] using (show Seq.distance sender.base segment.sequence ≤ result.state.highEnd by
+          unfold Theory.SparseCoverage.Slice at slice
+          unfold Theory.SparseCoverage.Run.limit at limit
+          omega)
+      · contradiction
+  have bound := valid.2.1
+  have shifted : sender.controlOrigin.add (1 + Seq.distance sender.base segment.sequence) = segment.sequence := by
+    rw [← Seq.add_add, sender.controlOrigin_add, Seq.add_distance]
+  have short : 1 + Seq.distance sender.base segment.sequence < Seq.modulus := by
+    unfold Seq.halfSpace at bound
+    unfold Seq.modulus
+    omega
+  rw [← shifted, Seq.distance_add, Nat.mod_eq_of_lt short]
+  omega
+
+theorem acknowledged_history (sender peer : Lane) (segment : Segment) (source : Nat)
+    (history : WindowHistory peer sender) (allowed : DataAllowed sender peer segment peerMSS source) :
+    WindowHistory (acknowledgedLane peer segment) (sentLane sender segment source) := by
+  have monotone := (sentLane_monotone sender segment source).2
+  have sequence := fresh_sequence_bound sender segment source allowed.2.1 allowed.2.2.2.2.2.2.1
+  unfold acknowledgedLane
+  split
+  · simpa only [WindowHistory, Lane.controlOrigin, sentLane_base] using ⟨sequence, allowed.2.2.2.1⟩
+  · exact ⟨by simpa only [Lane.controlOrigin, sentLane_base] using Nat.le_trans history.1 (Nat.add_le_add_right monotone 1),
+      by simpa only [sentLane_base, Lane.observed] using history.2⟩
+
+theorem acknowledgedLane_valid (peer : Lane) (segment : Segment) (valid : peer.Valid)
+    (acknowledgment : ackOffset peer segment ≤ peer.observed) : (acknowledgedLane peer segment).Valid := by
+  have extent := valid.2.2.1
+  unfold Lane.outstanding at extent
+  unfold acknowledgedLane
+  split <;> refine ⟨?_, valid.2.1, ?_, valid.2.2.2⟩
+  all_goals first
+    | (change max peer.acknowledged (ackOffset peer segment) ≤ peer.observed
+       exact Nat.max_le.mpr ⟨valid.1, acknowledgment⟩)
+    | (change peer.highEnd - max peer.acknowledged (ackOffset peer segment) ≤ 65535
+       omega)
+
+theorem fresh_data_allowed (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer) (source : Nat)
+    (senderValid : sender.Valid) (peerValid : peer.Valid)
+    (profile : DataProfile segment) (nonempty : segment.payload ≠ [])
+    (mss : segment.payload.length ≤ peerMSS.limit)
+    (epoch : Seq.distance sender.base segment.sequence + segment.payload.length + 2 < Seq.halfSpace)
+    (left : sender.acknowledged ≤ Seq.distance sender.base segment.sequence)
+    (right : Seq.distance sender.base segment.sequence + segment.payload.length ≤
+      sender.acknowledged + sender.peerWindow.val)
+    (disjoint : ∀ run ∈ sender.coverage.runs,
+      Seq.distance sender.base segment.sequence + segment.payload.length ≤ run.position ∨
+        run.limit ≤ Seq.distance sender.base segment.sequence)
+    (acknowledgment : ackOffset peer segment ≤ peer.observed)
+    (stale : peer.acknowledged ≤ ackOffset peer segment + 65535) :
+    DataAllowed sender peer segment peerMSS source := by
+  have inside : Seq.distance sender.base segment.sequence + segment.payload.length ≤ coverageBound := by
+    unfold coverageBound Seq.halfSpace at *
+    omega
+  have separate : ∀ run ∈ sender.coverage.runs,
+      (Theory.SparseCoverage.current sender.coverage (Seq.distance sender.base segment.sequence) segment.payload source).Before run ∨
+        run.Before (Theory.SparseCoverage.current sender.coverage (Seq.distance sender.base segment.sequence) segment.payload source) := by
+    intro run member
+    simpa only [Theory.SparseCoverage.Run.Before, Theory.SparseCoverage.Run.limit,
+      Theory.SparseCoverage.current] using disjoint run member
+  obtain ⟨placed, accepted, novel, _, _, _⟩ := Theory.SparseCoverage.accept_fresh_exists sender.coverage
+    (Seq.distance sender.base segment.sequence) segment.payload source coverageBound senderValid.2.2.2 nonempty inside separate
+  have placementEq : placement sender segment source = .ok placed := accepted
+  have fresh : FreshSequence sender segment source := by
+    simp only [FreshSequence, nonempty, ite_false, placementEq]
+    exact novel
+  have stored := Theory.SparseCoverage.accept_valid _ _ _ _ _ _ accepted
+  have frontier := Theory.SparseCoverage.accept_frontier_mono _ _ _ _ _ _ accepted
+  have endPosition := Theory.SparseCoverage.accept_highEnd _ _ _ _ _ _ accepted
+  have sentValid : (sentLane sender segment source).Valid := by
+    rw [sentLane, placementEq]
+    refine ⟨?_, ?_, ?_, stored⟩
+    · change sender.acknowledged ≤ placed.state.frontier
+      exact Nat.le_trans senderValid.1 frontier
+    · change placed.state.highEnd + 2 < Seq.halfSpace
+      rw [endPosition]
+      have oldEnd := senderValid.2.1
+      change sender.highEnd + 2 < Seq.halfSpace at oldEnd
+      change max sender.highEnd (Seq.distance sender.base segment.sequence + segment.payload.length) + 2 < Seq.halfSpace
+      omega
+    · change placed.state.highEnd - sender.acknowledged ≤ 65535
+      rw [endPosition]
+      have oldExtent := senderValid.2.2.1
+      have windowBound := sender.peerWindow.isLt
+      have afterAck := Nat.le_trans left (Nat.le_add_right (Seq.distance sender.base segment.sequence) segment.payload.length)
+      unfold Lane.outstanding at oldExtent
+      change max sender.highEnd (Seq.distance sender.base segment.sequence + segment.payload.length) - sender.acknowledged ≤ 65535
+      omega
+  exact ⟨profile, fresh, mss, acknowledgment, stale, .inr right, sentValid,
+    acknowledgedLane_valid peer segment peerValid acknowledgment⟩
 
 def RangeFrom (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (seen : Seen) : Prop :=
   let start := Seq.distance sender.base segment.sequence
@@ -207,7 +362,7 @@ def RangeFrom (sender : Lane) (entry : Entry) (direction : Direction) (segment :
   seen.attachment.entry = entry ∧ seen.attachment.direction = direction ∧
     DataProfile seen.segment ∧ seen.segment.payload ≠ [] ∧ earlier ≤ start ∧
     start + segment.payload.length ≤ earlier + seen.segment.payload.length ∧
-    earlier + seen.segment.payload.length ≤ sender.observed ∧
+    earlier + seen.segment.payload.length ≤ sender.highEnd ∧
     segment.payload = (seen.segment.payload.drop (start - earlier)).take segment.payload.length
 
 instance (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (seen : Seen) :
@@ -217,21 +372,42 @@ instance (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segm
 
 def KnownRange (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment)
     (observations : List Seen) : Prop :=
-  observations.any (fun seen => decide (RangeFrom sender entry direction segment seen)) = true
+  match placement sender segment observations.length with
+  | .error _ => False
+  | .ok result => result.novel = 0 ∧
+    match observations[result.source.metadata]? with
+    | none => False
+    | some seen => RangeFrom sender entry direction segment seen
 
 instance (sender : Lane) (entry : Entry) (direction : Direction) (segment : Segment) (observations : List Seen) :
     Decidable (KnownRange sender entry direction segment observations) := by
   unfold KnownRange
-  infer_instance
+  split
+  · infer_instance
+  · split <;> infer_instance
+
+theorem KnownRange.placement (known : KnownRange sender entry direction segment observations) :
+    ∃ result, placement sender segment observations.length = .ok result ∧ result.novel = 0 ∧
+      ∃ seen, observations[result.source.metadata]? = some seen ∧ RangeFrom sender entry direction segment seen := by
+  unfold KnownRange at known
+  split at known
+  · contradiction
+  · rename_i result accepted
+    refine ⟨result, accepted, known.1, ?_⟩
+    split at known
+    · exact False.elim known.2
+    · rename_i seen selected
+      exact ⟨seen, selected, known.2⟩
 
 theorem KnownRange.source (known : KnownRange sender entry direction segment observations) :
     ∃ seen ∈ observations, RangeFrom sender entry direction segment seen := by
-  simpa only [KnownRange, List.any_eq_true, decide_eq_true_eq] using known
+  obtain ⟨result, _, _, seen, selected, source⟩ := known.placement
+  exact ⟨seen, List.mem_of_getElem? selected, source⟩
 
 def RepeatedAllowed (sender peer : Lane) (entry : Entry) (direction : Direction) (segment : Segment)
     (peerMSS : MSS.Offer) (observations : List Seen) : Prop :=
   DataProfile segment ∧ segment.payload ≠ [] ∧
-    Seq.distance sender.controlOrigin segment.sequence ≤ sender.observed + 1 ∧
+    Seq.distance sender.controlOrigin segment.sequence ≤ sender.highEnd + 1 ∧
     KnownRange sender entry direction segment observations ∧ segment.payload.length ≤ peerMSS.limit ∧
     ackOffset peer segment ≤ peer.observed ∧ peer.acknowledged ≤ ackOffset peer segment + 65535 ∧
     (acknowledgedLane peer segment).Valid
@@ -244,11 +420,11 @@ instance (sender peer : Lane) (entry : Entry) (direction : Direction) (segment :
 
 theorem repeated_sent_history (sender peer : Lane) (segment : Segment) (history : WindowHistory sender peer) :
     WindowHistory sender (acknowledgedLane peer segment) := by
-  simpa only [WindowHistory, Lane.controlOrigin, acknowledgedLane_base, acknowledgedLane_observed] using history
+  simpa only [WindowHistory, Lane.controlOrigin, acknowledgedLane_base, acknowledgedLane_highEnd] using history
 
 theorem repeated_acknowledged_history (sender peer : Lane) (segment : Segment)
     (history : WindowHistory peer sender)
-    (sequence : Seq.distance sender.controlOrigin segment.sequence ≤ sender.observed + 1)
+    (sequence : Seq.distance sender.controlOrigin segment.sequence ≤ sender.highEnd + 1)
     (acknowledgment : ackOffset peer segment ≤ peer.observed) :
     WindowHistory (acknowledgedLane peer segment) sender := by
   unfold acknowledgedLane
@@ -278,9 +454,9 @@ def Allowed (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segmen
   | .data session =>
     attachment.entry = session.entry ∧ attachment.fresh = false ∧
       match attachment.direction with
-      | .original => DataAllowed session.original session.reply segment session.serverMSS ∨
+      | .original => DataAllowed session.original session.reply segment session.serverMSS observations.length ∨
           RepeatedAllowed session.original session.reply session.entry .original segment session.serverMSS observations
-      | .reply => DataAllowed session.reply session.original segment session.clientMSS ∨
+      | .reply => DataAllowed session.reply session.original segment session.clientMSS observations.length ∨
           RepeatedAllowed session.reply session.original session.entry .reply segment session.clientMSS observations
 
 instance (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment) (observations : List Seen) :
@@ -300,24 +476,28 @@ def nextPhase (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segm
       Lane.initial (clientISS.add 1) serverWindow serverISS (clientISS.add 1),
       Lane.initial (serverISS.add 1) segment.window segment.sequence segment.acknowledgment,
       Lane.initial_valid _ _ _ _, Lane.initial_valid _ _ _ _,
-      by simp only [WindowHistory, Lane.controlOrigin, Lane.initial, control_inverse, Seq.distance_self]; decide,
+      by simp only [WindowHistory, Lane.controlOrigin, Lane.initial, Lane.highEnd, Lane.observed, Theory.SparseCoverage.State.highEnd,
+        Theory.SparseCoverage.State.frontier, Theory.SparseCoverage.initial, Theory.SparseCoverage.highEnd,
+        Theory.SparseCoverage.frontierFrom, control_inverse, Seq.distance_self]; decide,
       by
         have sequence := allowed.2.2.2.2.1
         have acknowledgment := allowed.2.2.2.2.2
-        simp only [WindowHistory, Lane.controlOrigin, Lane.initial, control_inverse, sequence, acknowledgment,
+        simp only [WindowHistory, Lane.controlOrigin, Lane.initial, Lane.highEnd, Lane.observed, Theory.SparseCoverage.State.highEnd,
+          Theory.SparseCoverage.State.frontier, Theory.SparseCoverage.initial, Theory.SparseCoverage.highEnd,
+          Theory.SparseCoverage.frontierFrom, control_inverse, sequence, acknowledgment,
           Seq.distance_add, Seq.distance_self]
         decide, clientMSS, serverMSS⟩
   | .data session =>
     match direction : attachment.direction with
     | .original =>
-      have selected : DataAllowed session.original session.reply segment session.serverMSS ∨
+      have selected : DataAllowed session.original session.reply segment session.serverMSS observations.length ∨
           RepeatedAllowed session.original session.reply session.entry .original segment session.serverMSS observations := by
         simpa only [Allowed, direction] using allowed.2.2
-      if fresh : DataAllowed session.original session.reply segment session.serverMSS then
-        .data ⟨session.entry, sentLane session.original segment, acknowledgedLane session.reply segment,
+      if fresh : DataAllowed session.original session.reply segment session.serverMSS observations.length then
+        .data ⟨session.entry, sentLane session.original segment observations.length, acknowledgedLane session.reply segment,
           fresh.2.2.2.2.2.2.1, fresh.2.2.2.2.2.2.2,
-          sent_history _ _ _ session.originalHistory,
-          acknowledged_history _ _ _ session.originalValid session.replyHistory fresh.2.1 fresh.2.2.2.1,
+          sent_history _ _ _ observations.length session.originalHistory,
+          acknowledged_history _ _ _ observations.length session.replyHistory fresh,
           session.clientMSS, session.serverMSS⟩
       else
         have repeated := selected.resolve_left fresh
@@ -327,14 +507,14 @@ def nextPhase (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segm
           repeated_acknowledged_history _ _ _ session.replyHistory repeated.2.2.1 repeated.2.2.2.2.2.1,
           session.clientMSS, session.serverMSS⟩
     | .reply =>
-      have selected : DataAllowed session.reply session.original segment session.clientMSS ∨
+      have selected : DataAllowed session.reply session.original segment session.clientMSS observations.length ∨
           RepeatedAllowed session.reply session.original session.entry .reply segment session.clientMSS observations := by
         simpa only [Allowed, direction] using allowed.2.2
-      if fresh : DataAllowed session.reply session.original segment session.clientMSS then
-        .data ⟨session.entry, acknowledgedLane session.original segment, sentLane session.reply segment,
+      if fresh : DataAllowed session.reply session.original segment session.clientMSS observations.length then
+        .data ⟨session.entry, acknowledgedLane session.original segment, sentLane session.reply segment observations.length,
           fresh.2.2.2.2.2.2.2, fresh.2.2.2.2.2.2.1,
-          acknowledged_history _ _ _ session.replyValid session.originalHistory fresh.2.1 fresh.2.2.2.1,
-          sent_history _ _ _ session.replyHistory, session.clientMSS, session.serverMSS⟩
+          acknowledged_history _ _ _ observations.length session.originalHistory fresh,
+          sent_history _ _ _ observations.length session.replyHistory, session.clientMSS, session.serverMSS⟩
       else
         have repeated := selected.resolve_left fresh
         .data ⟨session.entry, acknowledgedLane session.original segment, session.reply,
@@ -344,7 +524,7 @@ def nextPhase (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segm
 
 inductive Unsupported where
   | missingHistory | replacement | direction | flags | options | data | sequence | acknowledgment
-  | window | epoch | historyLost
+  | window | epoch | historyLost | overlap | conflict
   deriving Repr, BEq, DecidableEq
 
 inductive Error where
@@ -358,10 +538,12 @@ def Error.message : Error → String
   | .unsupported .flags => "The TCP control flags require processing outside this profile."
   | .unsupported .options => "TCP option processing is outside this profile."
   | .unsupported .data => "The TCP payload requires processing outside this profile."
-  | .unsupported .sequence => "The TCP sequence requires processing outside the observed in-order history."
+  | .unsupported .sequence => "The TCP sequence is outside the selected observed byte epoch."
   | .unsupported .acknowledgment => "The TCP ACK is outside the selected observed byte history."
   | .unsupported .window => "New TCP data exceeds the observed peer window."
   | .unsupported .epoch => "The TCP byte epoch or outstanding span exceeds the selected bounds."
+  | .unsupported .overlap => "The TCP range partly overlaps an earlier observation."
+  | .unsupported .conflict => "The TCP range conflicts with earlier observed bytes."
   | .unsupported .historyLost => "The earlier TCP entry is absent from the resulting confirmed table."
 
 private def startupReason (segment : Segment) (flags : UInt8) : Unsupported :=
@@ -371,15 +553,24 @@ private def startupReason (segment : Segment) (flags : UInt8) : Unsupported :=
   else .acknowledgment
 
 private def dataReason (sender peer : Lane) (segment : Segment) (peerMSS : MSS.Offer)
-    (entry : Entry) (direction : Direction) (observations : List Seen) : Unsupported :=
+    (_entry : Entry) (_direction : Direction) (observations : List Seen) : Unsupported :=
   if segment.options ≠ [] then .options
   else if ¬(segment.flags = 16 ∨ segment.flags = 24) then .flags
-  else if segment.sequence ≠ sender.next ∧
-      (segment.payload = [] ∨ ¬KnownRange sender entry direction segment observations) then .sequence
   else if segment.payload.length > peerMSS.limit then .data
-  else if ackOffset peer segment > peer.observed ∨ peer.acknowledged > ackOffset peer segment + 65535 then .acknowledgment
-  else if segment.payload ≠ [] ∧ sender.outstanding + segment.payload.length > sender.peerWindow.val then .window
-  else .epoch
+  else if Seq.distance sender.base segment.sequence > coverageBound then .sequence
+  else if segment.payload = [] ∧ Seq.distance sender.base segment.sequence > sender.highEnd then .sequence
+  else
+    let storage := placement sender segment observations.length
+    match storage with
+    | .error .overlap => .overlap
+    | .error .conflict => .conflict
+    | _ =>
+      if ackOffset peer segment > peer.observed ∨ peer.acknowledged > ackOffset peer segment + 65535 then .acknowledgment
+      else if segment.payload ≠ [] ∧
+          (match storage with | .ok result => result.novel | .error _ => segment.payload.length) ≠ 0 ∧
+          Seq.distance sender.base segment.sequence + segment.payload.length >
+            sender.acknowledged + sender.peerWindow.val then .window
+      else .epoch
 
 def reason (phase : Phase) (attachment : ConntrackLifecycle.Attachment) (segment : Segment)
     (observations : List Seen := []) : Unsupported :=
@@ -521,26 +712,25 @@ theorem Result.existing_missing (result : Result before input lifecycle prepared
     commit result tracker = .error (.unsupported .historyLost) := by
   simp only [commit, absent, fresh, Bool.false_eq_true, ite_false]
 
-theorem data_in_order (sender peer : Lane) (segment : Segment) {peerMSS : MSS.Offer}
-    (allowed : DataAllowed sender peer segment peerMSS) :
-    segment.sequence = sender.next ∧ segment.payload.length ≤ peerMSS.limit ∧ ackOffset peer segment ≤ peer.observed :=
-  ⟨allowed.2.1, allowed.2.2.1, allowed.2.2.2.1⟩
+theorem data_ack_bound (sender peer : Lane) (segment : Segment) {peerMSS : MSS.Offer} {source : Nat}
+    (allowed : DataAllowed sender peer segment peerMSS source) :
+    segment.payload.length ≤ peerMSS.limit ∧ ackOffset peer segment ≤ peer.observed :=
+  ⟨allowed.2.2.1, allowed.2.2.2.1⟩
 
-theorem sentLane_next (sender : Lane) (segment : Segment) :
-    (sentLane sender segment).next = sender.next.add segment.payload.length := by
-  simp only [Lane.next, sentLane, Seq.add_add]
-
-theorem Lane.cursor (lane : Lane) (valid : lane.Valid) : lane.una.add lane.outstanding = lane.next := by
-  simp only [Lane.una, Lane.outstanding, Lane.next, Seq.add_add]
-  have sum : lane.acknowledged + (lane.observed - lane.acknowledged) = lane.observed := by
+theorem Lane.cursor (lane : Lane) (valid : lane.Valid) : lane.una.add lane.outstanding = lane.highNext := by
+  simp only [Lane.una, Lane.outstanding, Lane.highNext, Seq.add_add]
+  have covered := lane.coverage.frontier_le_highEnd
+  have sum : lane.acknowledged + (lane.highEnd - lane.acknowledged) = lane.highEnd := by
     have bound := valid.1
+    change lane.observed ≤ lane.highEnd at covered
     omega
   rw [sum]
 
 theorem data_ack_count (sender peer : Lane) (segment : Segment) (valid : peer.Valid)
-    {peerMSS : MSS.Offer} (allowed : DataAllowed sender peer segment peerMSS) :
+    {peerMSS : MSS.Offer} {source : Nat} (allowed : DataAllowed sender peer segment peerMSS source) :
     EstablishedReceive.acknowledgedCountAt peer.una peer.outstanding segment.acknowledgment =
       some (ackOffset peer segment - peer.acknowledged) := by
+  have covered : peer.observed ≤ peer.highEnd := peer.coverage.frontier_le_highEnd
   have short : peer.observed + 1 < Seq.halfSpace := by have bound := valid.2.1; omega
   have acknowledgedBound : peer.acknowledged < Seq.modulus := by
     have amount := valid.1
@@ -581,7 +771,7 @@ theorem data_ack_count (sender peer : Lane) (segment : Segment) (valid : peer.Va
     have total := Seq.distance_reverse peer.una segment.acknowledgment different
     rw [reverse] at total
     have gap := allowed.2.2.2.2.1
-    have span := valid.2.2
+    have span := valid.2.2.1
     have outside : ¬Seq.distance peer.una segment.acknowledgment ≤ peer.outstanding := by
       unfold Seq.modulus at total
       omega
@@ -615,21 +805,24 @@ theorem duplicate_ack_window (peer : Lane) (segment : Segment)
   simp only [windowEligible, same, Nat.le_refl, decide_true, Bool.true_and]
 
 theorem windowFresh_coordinates (sender peer : Lane) (segment : Segment)
-    (senderValid : sender.Valid) (peerValid : peer.Valid) (history : WindowHistory peer sender)
-    {peerMSS : MSS.Offer} (allowed : DataAllowed sender peer segment peerMSS) :
+    (_senderValid : sender.Valid) (peerValid : peer.Valid) (history : WindowHistory peer sender)
+    {peerMSS : MSS.Offer} {source : Nat} (allowed : DataAllowed sender peer segment peerMSS source) :
     windowFresh peer segment = true ↔
       Seq.distance sender.controlOrigin peer.windowSequence < Seq.distance sender.controlOrigin segment.sequence ∨
         (peer.windowSequence = segment.sequence ∧
           Seq.distance peer.base peer.windowAcknowledgment ≤ ackOffset peer segment) := by
-  have sequenceShort : sender.observed + 2 < Seq.halfSpace := senderValid.2.1
+  have updated := allowed.2.2.2.2.2.2.1
+  have monotone := (sentLane_monotone sender segment source).2
+  have sequenceBound := fresh_sequence_bound sender segment source allowed.2.1 updated
+  have sequenceShort : (sentLane sender segment source).highEnd + 2 < Seq.halfSpace := updated.2.1
+  have covered : peer.observed ≤ peer.highEnd := peer.coverage.frontier_le_highEnd
   have ackShort : peer.observed + 1 < Seq.halfSpace := by have bound := peerValid.2.1; omega
-  have oldSequence : Seq.InInterval sender.controlOrigin (sender.observed + 2) peer.windowSequence := by
+  have oldSequence : Seq.InInterval sender.controlOrigin ((sentLane sender segment source).highEnd + 2) peer.windowSequence := by
     have bound := history.1
     unfold Seq.InInterval
     omega
-  have newSequence : Seq.InInterval sender.controlOrigin (sender.observed + 2) segment.sequence := by
+  have newSequence : Seq.InInterval sender.controlOrigin ((sentLane sender segment source).highEnd + 2) segment.sequence := by
     unfold Seq.InInterval
-    rw [allowed.2.1, sender.control_distance senderValid]
     omega
   have oldAck : Seq.InInterval peer.base (peer.observed + 1) peer.windowAcknowledgment := by
     have bound := history.2
@@ -640,7 +833,7 @@ theorem windowFresh_coordinates (sender peer : Lane) (segment : Segment)
     unfold Seq.InInterval ackOffset at *
     omega
   have sequenceOrder := Seq.common_arc_before sender.controlOrigin peer.windowSequence segment.sequence
-    (sender.observed + 2) sequenceShort oldSequence newSequence
+    ((sentLane sender segment source).highEnd + 2) sequenceShort oldSequence newSequence
   have ackOrder := Seq.common_arc_before peer.base peer.windowAcknowledgment segment.acknowledgment
     (peer.observed + 1) ackShort oldAck newAck
   have ackEqual : peer.windowAcknowledgment = segment.acknowledgment ↔
