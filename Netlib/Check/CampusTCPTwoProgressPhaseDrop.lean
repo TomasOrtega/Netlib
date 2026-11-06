@@ -133,6 +133,7 @@ private def nextCore (selected : Selected core item target actual)
       omega
     retired := core.retired
     gatewayAck := core.gatewayAck
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := core.covered
     duplicates := recovery.symm ▸ core.duplicates
     deadline := recovery.symm ▸ core.deadline

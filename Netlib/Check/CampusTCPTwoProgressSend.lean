@@ -187,7 +187,7 @@ private theorem data_fields (live : Live initial current sent timeouts received)
   have before : original.operation.before = endpoint current.endpoints sender := by rw [same]; exact facts.localBefore
   have transport := Endpoint.emit_transport _ _ _ original.encoded
   have production := original_production facts original same
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
   · rw [production]
     change original.packet.packet.header = _
     rw [transport.1, before, live.senderFlight.inbound]
@@ -206,6 +206,9 @@ private theorem data_fields (live : Live initial current sent timeouts received)
     change 1 < original.packet.packet.ip.packet.ttl.toNat
     rw [CampusTCPRoundLocal.emit_ttl _ _ _ original.encoded]
     decide
+  · rw [production]
+    exact Endpoint.emit_window_floor _ _ _ (by rw [before]; exact live.senderFlight.prepared.1)
+      (by rw [before]; exact live.senderFlight.advertised) original.encoded
 
 private def after_live (live : Live initial current sent timeouts received) (facts : SendFacts current sender count actual)
     (flight : S.Flight initial (endpoint facts.move.after.endpoints sender) next timeouts) :

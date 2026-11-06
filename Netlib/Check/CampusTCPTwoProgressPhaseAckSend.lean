@@ -143,6 +143,7 @@ theorem ack_at (core : Core initial native quantum allowance current monitor sen
       (by rw [CampusTCPTwoProgressLossHistory.isTimeout, value.facts.event])
       (by rw [observed]) (by rw [observed])
     lossBound := core.lossBound, retired := core.retired, gatewayAck := core.gatewayAck
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := core.covered
     duplicates := duplicate_same value ▸ core.duplicates
     emptyDuplicate := fun empty => duplicate_same value ▸ core.emptyDuplicate empty

@@ -106,6 +106,9 @@ def lower_assigned (active : Active core) (path : DataIngress initial current .l
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 def lower_served (active : Active core) (path : DataTicket initial native current .lower monitor.lower)
     (source : SelectedOutput initial current path.output.produced) (missing : ¬Arrived received .lower)
@@ -130,6 +133,9 @@ def lower_served (active : Active core) (path : DataTicket initial native curren
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 def upper_assigned (active : Active core) (path : DataIngress initial current .upper monitor.upper)
     (source : SelectedOutput initial current path.output.produced) (missing : ¬Arrived received .upper)
@@ -157,6 +163,9 @@ def upper_assigned (active : Active core) (path : DataIngress initial current .u
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 def upper_served (active : Active core) (path : DataTicket initial native current .upper monitor.upper)
     (source : SelectedOutput initial current path.output.produced) (missing : ¬Arrived received .upper)
@@ -184,5 +193,8 @@ def upper_served (active : Active core) (path : DataTicket initial native curren
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 end Netlib.Check.CampusTCPTwoProgressPhaseNetworkState

@@ -3,6 +3,7 @@ import Netlib.Check.CampusTCPTwoProgressLossHistory
 import Netlib.Check.CampusTCPTwoProgressNetworkState
 import Netlib.Check.CampusTCPTwoProgressPathsReady
 import Netlib.Check.CampusTCPTwoProgressOriginalRank
+import Netlib.Check.CampusTCPTwoProgressGatewayPeerSettled
 import Netlib.Protocol.TCP.RecoveryDeadline
 import Netlib.Protocol.TCP.RTOEnvelope
 
@@ -73,6 +74,8 @@ structure Core (initial : TwoWriteInitial cut sender gateway lower upper)
   retired : sent.retiredBytes ≤ (received.bytes lower upper).length
   gatewayAck : (live.gatewayState.gateway.session.lane sender.direction).acknowledged ≤
     initial.geometry.«prefix» + (received.bytes lower upper).length
+  peerSettled : CampusTCPTwoProgressGatewayPeerSettled.Settled live.gatewayState
+  peerWindow : CampusTCPTwoProgressGatewayPeerWindow.Reserved live.gatewayState
   covered : ∀ part, Arrived received part → (rangeAt live.gatewayState part).isSome = true
   duplicates : live.senderFlight.recovery.duplicateAcks ≤ 1
   emptyDuplicate : received = .empty → live.senderFlight.recovery.duplicateAcks = 0
@@ -97,6 +100,8 @@ def Core.ofInitial (initial : TwoWriteInitial cut sender gateway lower upper)
     change (initial.gatewayState.session.lane sender.direction).acknowledged ≤ initial.geometry.«prefix» + 0
     rw [initial.geometry.acknowledged]
     exact Nat.le_refl _
+  peerSettled := CampusTCPTwoProgressGatewayPeerSettled.initial_settled initial
+  peerWindow := CampusTCPTwoProgressGatewayPeerWindow.initial_reserved initial
   covered := by intro part impossible; cases part <;> cases impossible
   duplicates := by
     change initial.senderState.idle.recovery.duplicateAcks ≤ 1
@@ -196,6 +201,7 @@ def Core.clock (core : Core initial native quantum allowance current monitor sen
     writer := core.writer.clock clocked.placement
     losses := core.losses.clock clocked.placement folded
     lossBound := core.lossBound, retired := core.retired, gatewayAck := core.gatewayAck
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := core.covered, duplicates := core.duplicates, emptyDuplicate := core.emptyDuplicate
     deadline := RecoveryDeadline.advance _ _ core.deadline (core.clock_now_monotone clocked allowed)
     estimatorBeforeRetire := core.estimatorBeforeRetire

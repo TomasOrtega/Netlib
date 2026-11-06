@@ -174,6 +174,12 @@ theorem first_at (core : Core initial native quantum allowance current monitor .
     lossBound := core.lossBound
     retired := Nat.le_refl _
     gatewayAck := by rw [gateway_session value.facts core.live value.next]; exact core.gatewayAck
+    peerSettled := CampusTCPTwoProgressGatewayPeerSettled.same_service core.live.gatewayState value.next.gatewayState
+      core.peerSettled (value.facts.serviceFrame gateway)
+    peerWindow := by
+      change CampusTCPTwoProgressGatewayPeerWindow.floor initial ≤ _
+      rw [gateway_session value.facts core.live value.next]
+      exact core.peerWindow
     covered := by intro part impossible; cases part <;> cases impossible
     duplicates := duplicate ▸ core.duplicates
     emptyDuplicate := fun _ => duplicate ▸ core.emptyDuplicate rfl
@@ -237,6 +243,12 @@ theorem second_at {first : S.Original initial .lower}
     lossBound := core.lossBound
     retired := Nat.le_refl _
     gatewayAck := by rw [gateway_session value.facts core.live value.next]; exact core.gatewayAck
+    peerSettled := CampusTCPTwoProgressGatewayPeerSettled.same_service core.live.gatewayState value.next.gatewayState
+      core.peerSettled (value.facts.serviceFrame gateway)
+    peerWindow := by
+      change CampusTCPTwoProgressGatewayPeerWindow.floor initial ≤ _
+      rw [gateway_session value.facts core.live value.next]
+      exact core.peerWindow
     covered := by intro part impossible; cases part <;> cases impossible
     duplicates := duplicate ▸ core.duplicates
     emptyDuplicate := fun _ => duplicate ▸ core.emptyDuplicate rfl

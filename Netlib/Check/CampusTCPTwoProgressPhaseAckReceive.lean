@@ -274,6 +274,7 @@ theorem advancing_at (core : Core initial native quantum allowance current monit
     lossBound := counters.2.symm ▸ core.lossBound
     retired := Nat.le_of_eq coordinate
     gatewayAck := core.gatewayAck
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := core.covered
     duplicates := by rw [duplicate]; decide
     emptyDuplicate := fun empty => False.elim (notEmpty empty)
@@ -349,6 +350,7 @@ theorem zero_at (core : Core initial native quantum allowance current monitor se
     lossBound := counters.2.symm ▸ core.lossBound
     retired := core.retired
     gatewayAck := core.gatewayAck
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := core.covered
     duplicates := bound
     emptyDuplicate := fun empty => False.elim (notEmpty empty)

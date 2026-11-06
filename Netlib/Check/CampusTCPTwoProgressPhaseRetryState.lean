@@ -89,6 +89,7 @@ private def after_retry (active : Active core) (value : Retry.Retried core part 
       rw [← same]
     serial := by intro impossible; rw [nextAck] at impossible; cases impossible
     ackNonempty := by intro impossible; rw [nextAck] at impossible; cases impossible
+    ackGateway := by intro _ impossible; rw [nextAck] at impossible; cases impossible
     waiting := by intro impossible; rw [value.observed] at impossible; cases impossible
     runnable := by intro _ _ _; rw [value.path.phase]; decide
     originalOpen := by intro impossible; rw [value.observed] at impossible; change monitor.mode = .originals at impossible; rw [mode] at impossible; cases impossible

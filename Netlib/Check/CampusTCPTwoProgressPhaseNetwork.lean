@@ -60,6 +60,8 @@ private def finish (core : Core initial native quantum allowance current monitor
     (covered : ∀ role, Arrived received role → (rangeAt jointBefore.gatewayState role).isSome = true)
     (acknowledged : (jointBefore.gatewayState.gateway.session.lane sender.direction).acknowledged ≤
       initial.geometry.«prefix» + (received.bytes lower upper).length)
+    (peerSettled : CampusTCPTwoProgressGatewayPeerSettled.Settled jointBefore.gatewayState)
+    (peerWindow : CampusTCPTwoProgressGatewayPeerWindow.Reserved jointBefore.gatewayState)
     (action : CampusTCPRoundMonitor.Action) (event : actual.event = action.event)
     (allowed : M.Allowed (config initial native quantum allowance) current.report.final monitor action.event) :
     Advance core actual move := by
@@ -100,6 +102,7 @@ private def finish (core : Core initial native quantum allowance current monitor
       lossBound := by rw [drops]; exact core.lossBound
       retired := core.retired
       gatewayAck := acknowledged
+      peerSettled, peerWindow
       covered
       duplicates := by rw [sameRuntime]; exact core.duplicates
       deadline := by rw [sameRuntime]; exact core.deadline
@@ -134,7 +137,14 @@ private def assignment_advance (core : Core initial native quantum allowance cur
       initial.geometry.«prefix» + (received.bytes lower upper).length := by
     rw [session_same core.live.gatewayState assigned.next.gatewayState (assigned.value.serviceFrame gateway)]
     exact core.gatewayAck
+  have peerSettled := CampusTCPTwoProgressGatewayPeerSettled.same_service core.live.gatewayState assigned.next.gatewayState
+    core.peerSettled (assigned.value.serviceFrame gateway)
+  have peerWindow : CampusTCPTwoProgressGatewayPeerWindow.Reserved assigned.next.gatewayState := by
+    change CampusTCPTwoProgressGatewayPeerWindow.floor initial ≤ _
+    rw [session_same core.live.gatewayState assigned.next.gatewayState (assigned.value.serviceFrame gateway)]
+    exact core.peerWindow
   exact finish core assigned.value.move assigned.value.endpoints assigned.next assigned.reserve covered acknowledged
+    peerSettled peerWindow
     (.assign path.output.index (native.ingress path.output.produced.actor)) assigned.value.facts.event allowed
 
 private theorem data_acknowledged (core : Core initial native quantum allowance current monitor sent received)
@@ -213,7 +223,18 @@ theorem serve_data_at (core : Core initial native quantum allowance current moni
       initial.geometry.«prefix» + (received.bytes lower upper).length := by
     rw [data_acknowledged core path value]
     exact core.gatewayAck
+  have fields : CampusTCPTwoProgressWire.DataFields initial (part.offset lower) (part.bytes lower upper)
+      value.served.ticket.value.produced := by
+    rw [value.value.facts.ticket, path.produced]
+    exact path.output.fields
+  have peerSettled := CampusTCPTwoProgressGatewayPeerSettled.sender_service_settled core.live.gatewayState value.value
+    value.next.gatewayState rfl fields.acknowledgment
+  have peerWindow := CampusTCPTwoProgressGatewayPeerWindow.sender_service_reserved core.live.gatewayState core.peerWindow
+    value.value value.next.gatewayState rfl
+    (show CampusTCPTwoProgressGatewayPeerWindow.floor initial ≤ value.served.ticket.value.source.packet.segment.window.val from
+      Nat.le_trans (Nat.min_le_right _ _) fields.window)
   exact ⟨actual, ⟨⟨value, finish core value.value.move value.value.endpoints value.next value.reserve covered acknowledged
+    peerSettled peerWindow
     (.serve path.ticket.id) value.value.facts.event allowed, rfl⟩⟩⟩
 
 theorem serve_ack_at (core : Core initial native quantum allowance current monitor sent received)
@@ -229,7 +250,12 @@ theorem serve_ack_at (core : Core initial native quantum allowance current monit
     | upper => change value.next.gatewayState.ranges.upperRun.isSome = true; rw [value.upperRun]; exact old
   have acknowledged : (value.next.gatewayState.gateway.session.lane sender.direction).acknowledged ≤
       initial.geometry.«prefix» + (received.bytes lower upper).length := by rw [value.acknowledged]; exact Nat.le_refl _
+  have peerSettled := CampusTCPTwoProgressGatewayPeerSettled.receiver_service_settled core.live.gatewayState core.peerSettled
+    value.value value.next.gatewayState rfl value.lowerRun value.upperRun
+  have peerWindow := CampusTCPTwoProgressGatewayPeerWindow.receiver_service_reserved core.live.gatewayState core.peerWindow
+    value.value value.next.gatewayState rfl
   exact ⟨actual, ⟨⟨value, finish core value.value.move value.value.endpoints value.next value.reserve covered acknowledged
+    peerSettled peerWindow
     (.serve path.ticket.id) value.value.facts.event allowed, rfl⟩⟩⟩
 
 theorem DataServed.covered {core : Core initial native quantum allowance current monitor sent received}

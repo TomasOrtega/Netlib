@@ -147,8 +147,8 @@ They apply the public bounded theorem with verified action and service checks in
 Each retains one result's read slot, exact bytes, timeout bound, selected writers, and service permissions.
 The milestone changes no fixture schema or runtime protocol behavior.
 
-The forward and reverse results use separate selected cuts and allowances.
-One sequential exchange with a single shared allowance across both directions remains open.
+The one-way cases above use separate selected cuts and allowances.
+The [two-way progress result](TCP_TWO_WAY_PROGRESS.md) composes the forward read, one actual reverse write, and reverse read on the same report with one shared allowance.
 More than two original records, sparse holes, extra copies, concurrent applications, gateway transfer during progress, persist, and fast recovery also remain open.
 
 See the [held-gap result](TCP_GAP_PROGRESS.md), [fresh-range recovery](TCP_RECOVERY_PROGRESS.md), and [campus progress design](research/CAMPUS_PROGRESS.md).

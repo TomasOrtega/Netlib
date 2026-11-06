@@ -231,6 +231,13 @@ Its action selector permits either current original path, including alternating 
 The completed witness retains exact `lower ++ upper` read bytes, full sender retirement, selected write origins, and conditional current service permissions.
 The [two-record progress guide](TCP_TWO_RECORD_PROGRESS.md) states the bound and fixed-owner action profile.
 
+`Check.CampusTCPTwoExchangeBounded` proves one sequential forward read, actual reverse write, and reverse read on the same report.
+One action selector and persistent-service condition cover both legs, with one shared drop allowance `D ≤ 2` and reverse allowance `D - forwardDrops`.
+Initial reverse endpoint and gateway reserves derive the actual reverse setup without a future readiness premise.
+The static bound adds both leg bounds and one service window; its reverse term uses the initial forward receiver's recovery fields.
+The result retains strictly ordered read/write slots, both exact byte lists, final idle endpoints, selected writers, and service permissions from initial compliance.
+The [two-way progress guide](TCP_TWO_WAY_PROGRESS.md) states the complete contract and remaining scope.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

@@ -205,7 +205,13 @@ private def lower_finish (active : Active core) (path : DataLink initial current
       cases impossible
     lowerLane := ?_, upperLane := ?_, retry := ?_, ack := ?_
     originals := ?_, recovery := ?_, serial := ?_, ackNonempty := ?_, waiting := ?_, runnable := ?_, originalOpen := ?_
-    debt := ?_, upperMissing := ?_, zeroAck := ?_, sources := active.sources.data path source value.value }
+    debt := ?_, upperMissing := ?_, zeroAck := ?_
+    ackGateway := by
+      intro lane pending phase
+      rw [ackEq] at pending
+      have impossible := (congrArg (fun state => state.phase) (Option.some.inj pending)).trans phase
+      cases impossible
+    sources := active.sources.data path source value.value }
   · rw [observed]
     exact .inl mode
   · rw [lowerEq]
@@ -279,7 +285,13 @@ private def upper_finish (active : Active core) (path : DataLink initial current
       cases impossible
     lowerLane := ?_, upperLane := ?_, retry := ?_, ack := ?_
     originals := ?_, recovery := ?_, serial := ?_, ackNonempty := ?_, waiting := ?_, runnable := ?_, originalOpen := ?_
-    debt := ?_, upperMissing := ?_, zeroAck := ?_, sources := active.sources.data path source value.value }
+    debt := ?_, upperMissing := ?_, zeroAck := ?_
+    ackGateway := by
+      intro lane pending phase
+      rw [ackEq] at pending
+      have impossible := (congrArg (fun state => state.phase) (Option.some.inj pending)).trans phase
+      cases impossible
+    sources := active.sources.data path source value.value }
   · rw [observed]
     exact .inl mode
   · rw [lowerEq]

@@ -110,7 +110,11 @@ def assemble (active : Active core) (move : Move current actual) (advance : N.Ad
       (M.observe (config initial native quantum allowance) monitor actual).upper)
     (retry : RetryLane initial native move.after advance.nextCore.live.gatewayState sent
       (M.observe (config initial native quantum allowance) monitor actual).retry)
-    (ack : AckState advance.nextCore) : Active advance.nextCore := by
+    (ack : AckState advance.nextCore)
+    (ackGateway : ∀ lane, (M.observe (config initial native quantum allowance) monitor actual).ack = some lane →
+      lane.phase = .ackLink →
+      (advance.nextCore.live.gatewayState.gateway.session.lane sender.direction).acknowledged =
+        initial.geometry.«prefix» + (received.bytes lower upper).length) : Active advance.nextCore := by
   let next := M.observe (config initial native quantum allowance) monitor actual
   have someBefore : next.ack.isSome = true → monitor.ack.isSome = true := by
     intro pending
@@ -123,7 +127,7 @@ def assemble (active : Active core) (move : Move current actual) (advance : N.Ad
   refine {
     mode := by rw [frame.mode]; exact active.mode
     preparing := active.preparing, nonempty := active.nonempty
-    lowerLane, upperLane, retry, ack
+    lowerLane, upperLane, retry, ack, ackGateway
     originals := ?_, recovery := ?_, serial := ?_, ackNonempty := ?_, waiting := ?_, runnable := ?_
     recoveryHead := fun mode waiting => active.recoveryHead (frame.mode ▸ mode) (frame.waiting ▸ waiting)
     originalOpen := ?_, debt := ?_, upperMissing := ?_, zeroAck := ?_

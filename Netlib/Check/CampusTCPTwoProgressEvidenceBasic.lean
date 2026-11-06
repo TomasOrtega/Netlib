@@ -51,7 +51,9 @@ def Complete.clock (value : Complete initial native quantum allowance current mo
     mode := value.mode, stamp := value.stamp, bytes := value.bytes
     originals := value.originals.clock clocked.placement
     originalTimes := value.originalTimes
-    writer := value.writer.clock clocked.placement }
+    writer := value.writer.clock clocked.placement
+    senderDuplicate := value.senderDuplicate
+    gatewayComplete := value.gatewayComplete.same_service _ (clocked.placement.frame.beforeService gateway) }
 
 def Evidence.clock (value : Evidence initial native quantum allowance current monitor)
     (clocked : CampusTCPTwoProgressClock.Clocked cut current (config initial native quantum allowance) monitor actor millis actual)
@@ -62,7 +64,13 @@ def Evidence.clock (value : Evidence initial native quantum allowance current mo
   | upper first value sources => exact .upper first (value.clock clocked allowed) (sources.clock clocked)
   | active core value => exact .active (core.clock clocked allowed) (value.clock clocked allowed)
   | ready core value =>
-    exact .ready (core.clock clocked allowed) ⟨value.mode, value.retired, value.preparing, value.sources.clock clocked⟩
+    exact .ready (core.clock clocked allowed) {
+      mode := value.mode, retired := value.retired, preparing := value.preparing
+      sources := value.sources.clock clocked
+      senderDuplicate := by
+        rw [CampusTCPTwoProgressPhaseState.clock_sender_recovery core clocked allowed]
+        exact value.senderDuplicate
+      mainAck := value.mainAck }
   | done value => exact .done (value.clock clocked allowed)
 
 theorem Evidence.clock_at (value : Evidence initial native quantum allowance current monitor) (actor : Actor) (millis : Nat)

@@ -49,7 +49,13 @@ private def retry_finish (active : Active core) (path : DataLink initial current
       exact active.recoveryHead mode oldWaiting role currentHead currentRest current
     lowerLane := ?_, upperLane := ?_, retry := ?_, ack := ?_
     originals := ?_, recovery := ?_, serial := ?_, ackNonempty := ?_, waiting := ?_, runnable := ?_, originalOpen := ?_
-    debt := ?_, upperMissing := ?_, zeroAck := ?_, sources := active.sources.data path source value.value }
+    debt := ?_, upperMissing := ?_, zeroAck := ?_
+    ackGateway := by
+      intro lane pending phase
+      rw [ackEq] at pending
+      have impossible := (congrArg (fun state => state.phase) (Option.some.inj pending)).trans phase
+      cases impossible
+    sources := active.sources.data path source value.value }
   · rw [observed]
     exact .inr mode
   · rw [lowerEq]

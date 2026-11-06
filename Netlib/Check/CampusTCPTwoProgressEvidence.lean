@@ -2,6 +2,7 @@ import Netlib.Check.CampusTCPTwoProgressPhaseState
 import Netlib.Check.CampusTCPTwoProgressPhaseRead
 import Netlib.Check.CampusTCPTwoProgressPhaseNormalize
 import Netlib.Check.CampusTCPTwoProgressPreparationDrop
+import Netlib.Check.CampusTCPTwoProgressGatewayComplete
 
 /-!
 # Evidence from the accepted write through the final read
@@ -40,6 +41,9 @@ structure Ready (core : Core initial native quantum allowance current monitor se
   retired : sent.ledger = []
   preparing : sent.preparing = false
   sources : CampusTCPTwoProgressReceiptSources.History initial current
+  senderDuplicate : core.live.senderFlight.recovery.duplicateAcks = 0
+  mainAck : (core.live.gatewayState.gateway.session.lane sender.direction).acknowledged =
+    initial.geometry.«prefix» + (lower ++ upper).length
 
 structure Complete (initial : TwoWriteInitial cut sender gateway lower upper)
     (native : NativeEnv cut gateway initial.gatewayState.session.entry) (quantum allowance : Nat)
@@ -58,6 +62,23 @@ structure Complete (initial : TwoWriteInitial cut sender gateway lower upper)
   originals : CampusTCPTwoProgressSourceHistory.Originals initial current (.retired first second)
   originalTimes : CampusTCPTwoProgressPhaseBase.OriginalTimes initial (.retired first second)
   writer : CampusTCPTwoProgressWriteHistory.History initial current (lower ++ upper)
+  senderDuplicate : completed.senderFlight.recovery.duplicateAcks = 0
+  gatewayComplete : CampusTCPTwoProgressGatewayComplete.Facts completed.gatewayState
+
+theorem Ready.read_duplicate {first : S.Original initial .lower} {second : S.Original initial .upper}
+    {core : Core initial native quantum allowance current monitor (.retired first second) .allReleased}
+    {actual : Step input} (ready : Ready core) (record : CampusTCPTwoProgressPhaseRead.ReadDone core actual) :
+    record.completed.senderFlight.recovery.duplicateAcks = 0 := by
+  have runtime := record.completed.senderFlight.runtime.symm.trans
+    ((congrArg Endpoint.State.recovery record.value.peer).trans core.live.senderFlight.runtime)
+  exact (congrArg Recovery.State.duplicateAcks (Option.some.inj runtime)).trans ready.senderDuplicate
+
+theorem Ready.read_gateway {first : S.Original initial .lower} {second : S.Original initial .upper}
+    {core : Core initial native quantum allowance current monitor (.retired first second) .allReleased}
+    {actual : Step input} (ready : Ready core) (record : CampusTCPTwoProgressPhaseRead.ReadDone core actual) :
+    CampusTCPTwoProgressGatewayComplete.Facts record.completed.gatewayState :=
+  (CampusTCPTwoProgressGatewayComplete.of_core core ready.mainAck).same_service
+    record.completed.gatewayState (record.value.gateway gateway)
 
 theorem Ready.read_at {core : Core initial native quantum allowance current monitor sent received} (ready : Ready core) :
     ∃ actual, ∃ move : Move current actual,
@@ -82,7 +103,9 @@ theorem Ready.read_at {core : Core initial native quantum allowance current moni
       bytes := record.bytes
       originals := record.originals
       originalTimes := record.originalTimes
-      writer := record.writer }⟩⟩
+      writer := record.writer
+      senderDuplicate := ready.read_duplicate record
+      gatewayComplete := ready.read_gateway record }⟩⟩
 
 theorem Complete.read_writer (value : Complete initial native quantum allowance current monitor)
     (index : Nat) (byte : UInt8) (selected : (lower ++ upper)[index]? = some byte) :

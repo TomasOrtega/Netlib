@@ -229,6 +229,7 @@ private def active_after (active : Active core) (ack : AckLink initial current c
       cases nonwaiting
     serial := by intro impossible; rw [layout.ack] at impossible; cases impossible
     ackNonempty := by intro impossible; rw [layout.ack] at impossible; cases impossible
+    ackGateway := by intro _ impossible; rw [layout.ack] at impossible; cases impossible
     waiting := layout.waiting, runnable := layout.runnable, originalOpen := layout.originalOpen
     debt, upperMissing
     zeroAck := by intro _ impossible; rw [layout.ack] at impossible; cases impossible
@@ -341,7 +342,8 @@ private def ready_after {first : S.Original initial .lower} {second : S.Original
     (next : Core initial native quantum allowance move.after nextMonitor (.retired first second) received)
     (selected : monitor.ack = some lane)
     (observed : nextMonitor = M.normalize (config initial native quantum allowance) move.after.report.final
-      (ackCleared monitor current.report.final.receipts.length)) : CampusTCPTwoProgressEvidence.Ready next := by
+      (ackCleared monitor current.report.final.receipts.length))
+    (duplicate : next.live.senderFlight.recovery.duplicateAcks = 0) : CampusTCPTwoProgressEvidence.Ready next := by
   have all := CampusTCPTwoProgressPhaseNormalize.retired_allReleased next
   have lowerDone : monitor.lower.phase = .done := by
     cases active.lowerLane with
@@ -360,7 +362,14 @@ private def ready_after {first : S.Original initial .lower} {second : S.Original
   exact {
     mode := congrArg (fun state => state.mode) (observed.trans normalized)
     retired := rfl, preparing := rfl
-    sources := active.sources.ack path delivery move }
+    sources := active.sources.ack path delivery move
+    senderDuplicate := duplicate
+    mainAck := by
+      rw [CampusTCPTwoProgressGatewayComplete.session_same core.live.gatewayState next.live.gatewayState
+        (gateway_frame path delivery move)]
+      have acknowledged := active.ackGateway lane selected path.phase
+      have full : (received.bytes lower upper).length = (lower ++ upper).length := by rw [all]; rfl
+      exact acknowledged.trans (congrArg (Nat.add initial.geometry.«prefix») full) }
 
 inductive Outcome (next : Core initial native quantum allowance current monitor sent received) where
   | active (value : Active next)
@@ -373,11 +382,12 @@ private theorem advancing_outcome (active : Active core) (path : AckLink initial
     (coordinate : nextSent.retiredBytes = (received.bytes lower upper).length)
     (observed : nextMonitor = M.normalize (config initial native quantum allowance) move.after.report.final
       (ackCleared monitor current.report.final.receipts.length))
-    (book : next.losses.book = A.retirementBook core.losses.book nextSent) : Nonempty (Outcome next) := by
+    (book : next.losses.book = A.retirementBook core.losses.book nextSent)
+    (duplicate : next.live.senderFlight.recovery.duplicateAcks = 0) : Nonempty (Outcome next) := by
   cases retiring with
   | lower first second head => exact ⟨.active (partial_after (sent := .both first second head) (core := core) active path delivery move next selected coordinate observed book)⟩
-  | both first second head => exact ⟨.ready (ready_after active path delivery move next selected observed)⟩
-  | tail first second head => exact ⟨.ready (ready_after active path delivery move next selected observed)⟩
+  | both first second head => exact ⟨.ready (ready_after active path delivery move next selected observed duplicate)⟩
+  | tail first second head => exact ⟨.ready (ready_after active path delivery move next selected observed duplicate)⟩
 
 structure AdvancedState (active : Active core) (path : AckLink initial current (received.bytes lower upper).length lane) where
   value : A.Advanced core path
@@ -392,7 +402,7 @@ theorem advancing_at (active : Active core) (path : AckLink initial current (rec
   have observed := value.observed
   rw [← value.value.delivery.move.final] at observed
   obtain ⟨outcome⟩ := advancing_outcome active path value.value.delivery.toDelivery value.value.delivery.move value.nextCore
-    selected value.value.retiring value.coordinate observed value.losses
+    selected value.value.retiring value.coordinate observed value.losses value.duplicates
   exact ⟨⟨value, outcome⟩⟩
 
 inductive Received (active : Active core) (path : AckLink initial current (received.bytes lower upper).length lane) where

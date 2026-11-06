@@ -111,6 +111,7 @@ private def finish (core : Core initial native quantum allowance current monitor
     lossBound := by rw [drops]; exact core.lossBound
     retired := Nat.le_trans core.retired monotone
     gatewayAck := Nat.le_trans core.gatewayAck (Nat.add_le_add_left monotone _)
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     covered := ?_
     duplicates := by rw [sameRuntime]; exact core.duplicates
     deadline := by rw [sameRuntime]; exact core.deadline

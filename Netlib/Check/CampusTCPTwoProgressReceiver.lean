@@ -2,6 +2,7 @@ import Netlib.Check.CampusTCPTwoProgressStart
 import Netlib.Protocol.TCP.EndpointFutureReceiveEnabled
 import Netlib.Protocol.TCP.EndpointOldSpanEnabled
 import Netlib.Protocol.TCP.EndpointClockEnabled
+import Netlib.Protocol.TCP.EndpointWindowFloor
 
 namespace Netlib.Check.CampusTCPTwoProgressReceiver
 
@@ -14,6 +15,12 @@ variable {input : Input} {complete : H.Completed input.active input.passive}
 
 def source (_initial : TwoWriteInitial cut sender gateway lower upper) : Endpoint.State :=
   endpoint cut.endpoints sender.other
+
+def advertisedFloor (_initial : TwoWriteInitial cut sender gateway lower upper) : Nat :=
+  Endpoint.offeredWindow (endpoint cut.endpoints sender)
+
+def windowFloor (initial : TwoWriteInitial cut sender gateway lower upper) : Nat :=
+  min (source initial).sendWindow (advertisedFloor initial)
 
 inductive Stage where
   | empty | upperHeld | lowerReleased | allReleased
@@ -37,6 +44,7 @@ structure PacketFields (initial : TwoWriteInitial cut sender gateway lower upper
   sequence : packet.packet.segment.sequence = (source initial).core.receiveNext.add offset
   acknowledgment : packet.packet.segment.acknowledgment = (source initial).core.sendUna
   payload : packet.packet.segment.payload = bytes
+  window : advertisedFloor initial ≤ packet.packet.segment.window.val
 
 inductive Evolution (initial : Endpoint.State) : Endpoint.State → Type where
   | initial : Evolution initial initial
@@ -94,6 +102,7 @@ structure Facts (initial : TwoWriteInitial cut sender gateway lower upper) (stat
   receiptPast : ∀ receipt, upperReceipt = some receipt → receipt.before.now ≤ state.now
   seenGap : state.receiveStore.seenGap = if upperReceipt.isSome then true else (source initial).receiveStore.seenGap
   space : lower.length + upper.length ≤ (stage.bytes lower upper).length + Endpoint.offeredWindow state
+  sendWindowFloor : windowFloor initial ≤ state.sendWindow
   valid : state.Valid
   coherent : Endpoint.RecoveryCoherent state
   prepared : Endpoint.AckPrepared state
@@ -182,6 +191,7 @@ def initial_facts (initial : TwoWriteInitial cut sender gateway lower upper) : F
   receiptPast := by intro receipt impossible; cases impossible
   seenGap := rfl
   space := by simpa only [source, Stage.bytes, List.length_nil, List.length_append, Nat.zero_add] using initial.receiverState.space
+  sendWindowFloor := Nat.min_le_left _ _
   valid := initial.receiverState.idle.valid
   coherent := initial.receiverState.idle.coherent
   prepared := initial.receiverState.idle.prepared
@@ -197,6 +207,7 @@ def Facts.clock (facts : Facts initial state stage) (frame : Endpoint.ClockFrame
     recoveryState := ?_, fixed := ?_, core := frame.core.trans facts.core
     frontier := ?_, nextID := ?_, held := ?_, receiptPast := ?_, seenGap := ?_, space := ?_
     valid := frame.valid facts.valid, coherent := frame.recovery_coherent facts.coherent
+    sendWindowFloor := by rw [frame.sendWindow]; exact facts.sendWindowFloor
     prepared := frame.ack_prepared facts.prepared timely, storage := frame.storage_coherent facts.storage
     monotone := Nat.le_trans facts.monotone frame.monotone, evolution := .clock facts.evolution frame }
   · rw [facts.recoveryState]
@@ -230,6 +241,7 @@ def Facts.output (facts : Facts initial state stage) (packet : Endpoint.Input)
     reaction := AckReaction.outputState facts.reaction state.now state.core.receiveNext
       state.core.capacity state.core.window state.effectiveMSS
     ackRuntime := ?_, space := ?_
+    sendWindowFloor := facts.sendWindowFloor
     prepared := Endpoint.outputState_ackPrepared state facts.prepared
     storage := Endpoint.outputState_storage_coherent state facts.prepared facts.storage
     evolution := .output facts.evolution packet actual }
@@ -277,6 +289,7 @@ def Facts.future_held (facts : Facts initial state .empty)
     fixed := facts.fixed, core := facts.core, frontier := ?_, nextID := ?_
     upperReceipt := some receipt, held := rfl, hasUpper := fun _ => rfl
     receiptPast := ?_, seenGap := rfl, space := ?_
+    sendWindowFloor := facts.sendWindowFloor
     valid := held.valid, coherent := held.coherent, prepared := held.prepared, storage := held.storage
     monotone := facts.monotone, evolution := .receive facts.evolution packet _ held.receive }
   · simpa only [Endpoint.futureAfter, Endpoint.storedState, Endpoint.futureStore, Stage.bytes, List.length_nil,
@@ -428,6 +441,10 @@ def Facts.in_order_received {next : Stage} (facts : Facts initial state stage)
     hasUpper := fun impossible => False.elim (nextNotHeld impossible)
     receiptPast := fun receipt recorded => sameNow.symm ▸ facts.receiptPast receipt recorded
     seenGap := frame.seenGap, space := frame.space, valid, coherent, prepared, storage
+    sendWindowFloor := by
+      rw [afterEq]
+      exact Endpoint.inOrderAfterWith_sendWindow_floor state packet facts.recovery facts.reaction facts.sendWindowFloor
+        (Nat.le_trans (Nat.min_le_right _ _) fields.window)
     monotone := sameNow.symm ▸ facts.monotone
     evolution := .receive facts.evolution packet _ actual }
 
@@ -497,6 +514,9 @@ theorem UpperReceipt.run_fields (receipt : UpperReceipt initial) :
       receipt.run.metadata = ⟨receipt.packet.packet.segment, receipt.packet.packet.header, receipt.before.now⟩ := by
   exact ⟨congrArg (fun n => n + lower.length) receipt.frontier, receipt.fields.payload, receipt.nextID, rfl⟩
 
+theorem UpperReceipt.window (receipt : UpperReceipt initial) : advertisedFloor initial ≤ receipt.run.metadata.segment.window.val :=
+  receipt.fields.window
+
 theorem Facts.upper_receipt (facts : Facts initial state .upperHeld) :
     ∃ receipt, facts.upperReceipt = some receipt ∧ state.receiveStore.held = [receipt.run] := by
   have present := facts.hasUpper rfl
@@ -545,6 +565,10 @@ def Facts.gap_filled (facts : Facts initial state .upperHeld) (receipt : UpperRe
     frontier := ?_, nextID := ?_, upperReceipt := facts.upperReceipt, held := ?_
     hasUpper := by intro impossible; cases impossible
     receiptPast := ?_, seenGap := ?_, space := ?_
+    sendWindowFloor := by
+      rw [← afterEq]
+      exact Endpoint.gapAfter_sendWindow_floor state packet receipt.run facts.recovery facts.reaction facts.sendWindowFloor
+        (Nat.le_trans (Nat.min_le_right _ _) fields.window) (Nat.le_trans (Nat.min_le_right _ _) receipt.window)
     valid := by rw [← afterEq]; exact filled.valid
     coherent := by rw [← afterEq]; exact filled.coherent
     prepared := by rw [← afterEq]; exact filled.prepared
@@ -609,6 +633,7 @@ def Facts.old_received (facts : Facts initial state stage) (packet : Established
     reaction := AckReaction.receiveSequence facts.reaction state.now state.core.receiveNext
     ackRuntime := rfl
     space := ?_
+    sendWindowFloor := facts.sendWindowFloor
     prepared := Endpoint.sequenceAfter_prepared state facts.reaction facts.ackRuntime facts.prepared
     storage := ?_
     evolution := .receive facts.evolution packet _ actual }

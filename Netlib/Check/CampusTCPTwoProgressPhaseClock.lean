@@ -118,6 +118,7 @@ def Active.clock (value : Active core)
   recoveryHead := value.recoveryHead
   serial := value.serial
   ackNonempty := value.ackNonempty
+  ackGateway := value.ackGateway
   waiting := value.waiting
   runnable := value.runnable
   originalOpen := value.originalOpen

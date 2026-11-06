@@ -112,6 +112,11 @@ theorem ReceiverClosed.nextID (closed : ReceiverClosed initial state) :
   rw [closed.store]
   exact closed.facts.nextID
 
+theorem ReceiverClosed.sendWindow_floor (closed : ReceiverClosed initial state) :
+    CampusTCPTwoProgressReceiver.windowFloor initial ≤ state.sendWindow := by
+  rw [closed.frame.sendWindow]
+  exact closed.facts.sendWindowFloor
+
 def ReceiverClosed.clock (closed : ReceiverClosed initial state) (frame : Endpoint.ClockFrame state after)
     (timely : Endpoint.AckTimeReady state after.now) : ReceiverClosed initial after where
   before := closed.before

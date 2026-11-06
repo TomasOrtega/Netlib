@@ -36,6 +36,7 @@ structure DataFields (initial : TwoWriteInitial cut sender gateway lower upper) 
   payload : produced.source.packet.segment.payload = bytes
   profile : Admission.DataProfile produced.source.packet.segment
   ttl : 1 < produced.source.packet.ip.packet.ttl.toNat
+  window : CampusTCPTwoProgressReceiver.advertisedFloor initial ≤ produced.source.packet.segment.window.val
 
 structure AckFields (initial : TwoWriteInitial cut sender gateway lower upper) (count : Nat)
     (produced : Produced input.active input.passive) : Prop where
@@ -86,13 +87,16 @@ theorem DataFields.receiver (fields : DataFields initial offset bytes served.tic
     (target : emission.target = initial.gatewayState.session.entry.flow.output sender.direction) :
     CampusTCPTwoProgressReceiver.PacketFields initial offset bytes emission.asInput := by
   have controls := CampusTCPRoundEmission.profile_controls (CampusTCPRoundEmission.emission_profile emission fields.profile)
-  refine ⟨?_, controls.1, controls.2, ?_, ?_, ?_⟩
+  refine ⟨?_, controls.1, controls.2, ?_, ?_, ?_, ?_⟩
   · change emission.decoded.header = _
     rw [emission.header, target]
     exact initial.output_tuple sender
   · exact emission.control.1.trans (fields.sequence.trans (congrArg (fun sequence => sequence.add offset) initial.geometry.receiverCursor.symm))
   · exact emission.control.2.1.trans (fields.acknowledgment.trans (acknowledgment_cursor initial))
   · exact emission.payload.trans fields.payload
+  · change CampusTCPTwoProgressReceiver.advertisedFloor initial ≤ emission.decoded.segment.window.val
+    rw [emission.control.2.2.2.2.1]
+    exact fields.window
 
 theorem AckFields.admission_ready (fields : AckFields initial count produced)
     (view : CampusTCPTwoProgressGatewayState.View initial current)

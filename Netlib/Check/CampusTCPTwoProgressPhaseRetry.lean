@@ -216,6 +216,7 @@ private theorem finish (core : Core initial native quantum allowance current mon
     lossBound := core.lossBound
     retired := by rw [← value.selection.retired]; exact core.retired
     gatewayAck := core.gatewayAck, covered := core.covered
+    peerSettled := core.peerSettled, peerWindow := core.peerWindow
     duplicates := by rw [duplicate_zero core value]; decide
     emptyDuplicate := fun _ => duplicate_zero core value
     deadline := by
