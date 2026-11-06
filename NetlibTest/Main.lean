@@ -138,6 +138,12 @@ import NetlibTest.TimedReaction
 import NetlibTest.TCPAckEndpoint
 import NetlibTest.TCPAckTrace
 import NetlibTest.TCPAckCampus
+import NetlibTest.TCPReceiveStore
+import NetlibTest.TCPReceiveStoreHistory
+import NetlibTest.TCPReceiveReassembly
+import NetlibTest.TCPReceiveGapEndpoint
+import NetlibTest.TCPReceiveGapCampus
+import NetlibTest.TCPRecoveryReceipt
 import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
 import NetlibTest.TCPWireForwarding
@@ -307,6 +313,12 @@ def main : IO Unit := do
   NetlibTest.TCPAckEndpoint.run
   NetlibTest.TCPAckTrace.run
   NetlibTest.TCPAckCampus.run
+  NetlibTest.TCPReceiveStore.run
+  NetlibTest.TCPReceiveStoreHistory.run
+  NetlibTest.TCPReceiveReassembly.run
+  NetlibTest.TCPReceiveGapEndpoint.run
+  NetlibTest.TCPReceiveGapCampus.run
+  NetlibTest.TCPRecoveryReceipt.run
   NetlibTest.TCPHandshakeCheck.run
   NetlibTest.TCPWireForwarding.run
   NetlibTest.TCPAdmission.run

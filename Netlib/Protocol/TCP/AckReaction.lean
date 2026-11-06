@@ -99,6 +99,14 @@ def receiveData (state : State) (now : Nat) (cursor : Seq) (count : Nat) : State
 def receiveSequence (state : State) (now : Nat) (cursor : Seq) : State :=
   { state with work := T.issue state.work now (demand state .sequence cursor 0 0) 0 }
 
+def receiveRelease (state : State) (now : Nat) (cursor : Seq) (novel released : Nat) (immediate : Bool) : State :=
+  let next := { state with
+    advertisement := ReceiveAdvertisement.consume state.advertisement released
+    fullSegments := state.fullSegments + if state.rmss ≤ novel then 1 else 0
+    dataBytes := state.dataBytes + novel }
+  let delay := if immediate || decide (2 ≤ next.fullSegments ∨ 2 * state.rmss ≤ next.dataBytes) then 0 else 499
+  { next with work := T.issue state.work now (demand next .data cursor novel 0) delay }
+
 def read (state : State) (now : Nat) (cursor : Seq) (capacity beforeFree afterFree outgoingMSS : Nat) : State :=
   let before := candidate state capacity beforeFree outgoingMSS
   let after := candidate state capacity afterFree outgoingMSS

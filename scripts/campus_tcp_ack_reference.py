@@ -562,9 +562,9 @@ class Driver:
 
 
 def replay(value):
-    if not any(event.get("kind") in ("enableAck", "dispatchAck") for event in value["events"]):
-        return recovery.replay(value)
-    return recovery.transfer.replay(value, driver=Driver(value))
+    import campus_tcp_gap_reference as gaps
+
+    return gaps.replay(value)
 
 
 def projection(report):

@@ -177,7 +177,7 @@ The final client ledger has five causes and five discharges.
 The server ledger has five causes and four discharges because its first response covered two causes.
 The server retains 1200 unacknowledged bytes; denied ACK service does not establish sender retirement.
 
-[The independent fixtures](../../examples/tcp-ack/fixtures.json) contain 25 traces and 16 input-error cases.
+[The independent fixtures](../../examples/tcp-ack/fixtures.json) contain 24 traces and 17 input-error cases.
 They include default MSS, asymmetric offers, one gateway, sequence wrap, and a checkpoint staged before pause.
 They exercise zero-window duplicate feedback, accumulated SWS reopening, and both ACK-versus-RTO operation orders.
 Separate cases preserve stale-allow output and reject late activation, supplied state, supplied credit, and unmatched receipts.
@@ -189,7 +189,8 @@ Its audit checks earlier actual cause issuers, strict issuer-before-output order
 It also retains the existing retry-range and application-byte audit.
 The two legacy oracle changes only recognize the new actual dispatcher output as an application-origin packet.
 Existing campus, transfer, MSS, and recovery fixture inputs and expectations remain unchanged.
+The [receive-gap extension](../TCP_RECEIVE_GAPS.md) adds the automatic receiver and moves newly covered geometry cases into its corpus.
 
 General receiver conformance requires more than this selected profile.
-Reordering, overlap storage, challenge throttling, sender persist, close, general congestion control, native correspondence, and liveness remain OPEN.
+Gateway-ingress reordering, overlap storage, challenge throttling, sender persist, close, general congestion control, native correspondence, and liveness remain OPEN.
 All seven research programs and the full campus landmark remain OPEN.

@@ -151,7 +151,13 @@ private def windowUpdates : IO Unit := do
   ensure (half.state.sendWindow == opposite.sendWindow)
     "An exact half-space comparison must not pass the freshness test."
   let geometry ← packet 101 201 [1] 0
-  result queued (Endpoint.receive queued geometry) (.unsupported .outOfOrder)
+  let held := Endpoint.receive queued geometry
+  result queued held (.accepted (.receive 0 1))
+  ensure (held.state.receiveStore.heldBytes == 1 && held.state.receiveStore.nextID == 1 &&
+    held.state.core == queued.core && held.state.sendWindow == queued.sendWindow &&
+    held.state.sendWL1 == queued.sendWL1 && held.state.sendWL2 == queued.sendWL2 &&
+    held.output.isNone && (Endpoint.receivedBytes queued geometry).isEmpty)
+    "Future data must retain storage and defer its ACK and window effects."
   let reset ← packet 100 200 [1] 0 20
   let zero := { queued with core := { queued.core with capacity := 0 } }
   result zero (Endpoint.receive zero reset) (.unsupported .reset)

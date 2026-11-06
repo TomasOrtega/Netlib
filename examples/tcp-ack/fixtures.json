@@ -31716,2243 +31716,6 @@
       }
     },
     {
-      "id": "actual-out-of-order-data-remains-outside-profile",
-      "replacements": [
-        {
-          "path": [
-            "events"
-          ],
-          "value": [
-            {
-              "kind": "authentication",
-              "index": 0
-            },
-            {
-              "kind": "authentication",
-              "index": 1
-            },
-            {
-              "kind": "authentication",
-              "index": 2
-            },
-            {
-              "kind": "authentication",
-              "index": 3
-            },
-            {
-              "kind": "authentication",
-              "index": 4
-            },
-            {
-              "kind": "authentication",
-              "index": 5
-            },
-            {
-              "kind": "authentication",
-              "index": 6
-            },
-            {
-              "kind": "install",
-              "configuration": "permit"
-            },
-            {
-              "kind": "stage",
-              "specification": "client"
-            },
-            {
-              "kind": "stage",
-              "specification": "server"
-            },
-            {
-              "kind": "installGuard",
-              "guard": "permit"
-            },
-            {
-              "kind": "install",
-              "gateway": "standby",
-              "configuration": "permit"
-            },
-            {
-              "kind": "stage",
-              "gateway": "standby",
-              "specification": "client"
-            },
-            {
-              "kind": "stage",
-              "gateway": "standby",
-              "specification": "server"
-            },
-            {
-              "kind": "installGuard",
-              "gateway": "standby",
-              "guard": "permit"
-            },
-            {
-              "kind": "open",
-              "remote": {
-                "address": "203.0.113.2",
-                "port": 8080
-              },
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 0,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 0,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 0,
-              "rawIPv4Hex": "4500002c000040003f06d594cb007101c63364029c402328000003e800000000600210005fa20000020404b0",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 1,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 1,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 1,
-              "rawIPv4Hex": "4500002c000040003f063dc7cb007102c00002021f90a02800001388000003e960121000b57b000002040320",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 2,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 2,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 2,
-              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010100062c20000",
-              "policyPermitted": true
-            },
-            {
-              "kind": "enableRecovery",
-              "actor": "client"
-            },
-            {
-              "kind": "enableRecovery",
-              "actor": "server"
-            },
-            {
-              "kind": "enableAck",
-              "actor": "client"
-            },
-            {
-              "kind": "enableAck",
-              "actor": "server"
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 100
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 100
-            },
-            {
-              "kind": "write",
-              "actor": "client",
-              "payloadHex": "1112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
-            },
-            {
-              "kind": "send",
-              "actor": "client",
-              "count": 400,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 3,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 3,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 150
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 150
-            },
-            {
-              "kind": "send",
-              "actor": "client",
-              "count": 400,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 4,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 4,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 4,
-              "rawIPv4Hex": "450001b8000040003f06d408cb007101c63364029c40232800000579000013895010100022980000a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
-              "policyPermitted": true
-            },
-            {
-              "kind": "write",
-              "actor": "server",
-              "payloadHex": "5152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819"
-            },
-            {
-              "kind": "send",
-              "actor": "server",
-              "count": 1200,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 5,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 5,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 5,
-              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a028000013890000070950100ce014e200005152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 3,
-              "ingress": {
-                "namespace": {
-                  "id": 1,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "pause"
-            },
-            {
-              "kind": "stageCheckpoint"
-            },
-            {
-              "kind": "serve",
-              "ticket": 6,
-              "observed": null
-            },
-            {
-              "kind": "stageCheckpoint"
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 200
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 200
-            },
-            {
-              "kind": "installCheckpoint",
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "switchRoute",
-              "actor": "client",
-              "gateway": "standby"
-            },
-            {
-              "kind": "switchRoute",
-              "actor": "server",
-              "gateway": "standby"
-            },
-            {
-              "kind": "fencePrimary"
-            },
-            {
-              "kind": "resume"
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 648
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 648
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 649
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 649
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 6,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 7,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 7,
-              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000007090000183950100b505fa20000",
-              "policyPermitted": true
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 700
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 700
-            },
-            {
-              "kind": "write",
-              "actor": "client",
-              "payloadHex": "2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f"
-            },
-            {
-              "kind": "send",
-              "actor": "client",
-              "count": 800,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 7,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 8,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 1700
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 1700
-            },
-            {
-              "kind": "timeout",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 8,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 9,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 9,
-              "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
-              "policyPermitted": true
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 2199
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 2199
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "server",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 9,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 10,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 3700
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 3700
-            },
-            {
-              "kind": "timeout",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 10,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 11,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 11,
-              "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
-              "policyPermitted": true
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "server",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 11,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 12,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 3750
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 3750
-            },
-            {
-              "kind": "deliver",
-              "service": 12,
-              "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000183900000a29501009c0c5f40000",
-              "policyPermitted": true
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 3800
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 3800
-            },
-            {
-              "kind": "write",
-              "actor": "server",
-              "payloadHex": "6162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829"
-            },
-            {
-              "kind": "send",
-              "actor": "server",
-              "count": 1200,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 12,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 13,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 5297
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 5297
-            },
-            {
-              "kind": "timeout",
-              "actor": "server",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 13,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 14,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 14,
-              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
-              "policyPermitted": true
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 5796
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 5796
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 14,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 15,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 8291
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 8291
-            },
-            {
-              "kind": "timeout",
-              "actor": "server",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 15,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 16,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 16,
-              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
-              "policyPermitted": true
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 16,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 17,
-              "observed": null
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 8341
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 8341
-            },
-            {
-              "kind": "deliver",
-              "service": 17,
-              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c40232800000a2900001ce9501006a05c820000",
-              "policyPermitted": true
-            },
-            {
-              "kind": "read",
-              "actor": "server",
-              "count": 1199
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 8400
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 8400
-            },
-            {
-              "kind": "write",
-              "actor": "server",
-              "payloadHex": "7172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839"
-            },
-            {
-              "kind": "send",
-              "actor": "server",
-              "count": 1200,
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 17,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 18,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 18,
-              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a02800001ce900000a29501009c07ef500007172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
-              "policyPermitted": true
-            },
-            {
-              "kind": "read",
-              "actor": "client",
-              "count": 799
-            },
-            {
-              "kind": "read",
-              "actor": "server",
-              "count": 1
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "server",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 18,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 2,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 19,
-              "observed": null
-            },
-            {
-              "kind": "deliver",
-              "service": 19,
-              "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000219900000a2950100e70b7e40000",
-              "policyPermitted": true
-            },
-            {
-              "kind": "authentication",
-              "index": 7
-            },
-            {
-              "kind": "install",
-              "gateway": "standby",
-              "configuration": "deny"
-            },
-            {
-              "kind": "installGuard",
-              "gateway": "standby",
-              "guard": "deny"
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "client",
-              "millis": 8899
-            },
-            {
-              "kind": "advanceClock",
-              "actor": "server",
-              "millis": 8899
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 19,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 20,
-              "observed": null
-            },
-            {
-              "kind": "read",
-              "actor": "server",
-              "count": 400
-            },
-            {
-              "kind": "read",
-              "actor": "client",
-              "count": 2801
-            },
-            {
-              "kind": "dispatchAck",
-              "actor": "client",
-              "policyPermitted": true
-            },
-            {
-              "kind": "assign",
-              "output": 20,
-              "ingress": {
-                "namespace": {
-                  "id": 3,
-                  "birth": 1
-                },
-                "ifindex": 1,
-                "birth": 1
-              }
-            },
-            {
-              "kind": "serve",
-              "ticket": 21,
-              "observed": null
-            }
-          ]
-        }
-      ],
-      "expected": {
-        "supported": false,
-        "compliant": false,
-        "evaluatedEvents": 41,
-        "final": {
-          "after": 7,
-          "configuration": "permit",
-          "guard": "permit",
-          "activePhase": "ESTABLISHED",
-          "passivePhase": "ESTABLISHED",
-          "activeEstablishedAt": 21,
-          "passiveEstablishedAt": 24,
-          "client": {
-            "core": {
-              "inbound": {
-                "source": "203.0.113.2",
-                "destination": "192.0.2.2",
-                "protocol": 6,
-                "sourcePort": 8080,
-                "destinationPort": 41000
-              },
-              "receiveNext": 5001,
-              "capacity": 4096,
-              "receivedHex": "",
-              "sendUna": 1001,
-              "sendNext": 1801,
-              "sentHex": "1112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
-              "window": 4096
-            },
-            "pendingHex": "",
-            "pendingLimit": 4096,
-            "sendWindow": 4096,
-            "sendWL1": 5000,
-            "sendWL2": 1001,
-            "effectiveMSS": 800,
-            "ipSendLimit": 1000,
-            "recovery": {
-              "now": 150,
-              "smss": 800,
-              "outstanding": [
-                {
-                  "id": 0,
-                  "start": 0,
-                  "count": 400,
-                  "sentAt": 100,
-                  "lastAt": 100,
-                  "retried": false
-                },
-                {
-                  "id": 1,
-                  "start": 400,
-                  "count": 400,
-                  "sentAt": 150,
-                  "lastAt": 150,
-                  "retried": false
-                }
-              ],
-              "nextId": 2,
-              "frontier": 800,
-              "estimator": null,
-              "lastSample": null,
-              "rto": 1000,
-              "deadline": 1100,
-              "cwnd": 800,
-              "ssthresh": 65535,
-              "lastTimedOut": null,
-              "timeoutCount": 0,
-              "duplicateAcks": 0,
-              "flight": 800
-            },
-            "lastAckWindow": 4096,
-            "localReceiveMSS": {
-              "kind": "present",
-              "value": 1200
-            },
-            "ackReaction": {
-              "origin": 5001,
-              "rmss": 1200,
-              "advertisement": {
-                "frontier": 0,
-                "edge": 4096,
-                "window": 4096,
-                "candidate": 4096,
-                "free": 4096,
-                "threshold": 800
-              },
-              "work": {
-                "nextID": 0,
-                "nextDischarge": 0,
-                "pendingDue": null,
-                "credit": 0,
-                "pending": [],
-                "completed": []
-              },
-              "fullSegments": 0,
-              "dataBytes": 0
-            }
-          },
-          "server": {
-            "core": {
-              "inbound": {
-                "source": "203.0.113.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 40000,
-                "destinationPort": 9000
-              },
-              "receiveNext": 1001,
-              "capacity": 4096,
-              "receivedHex": "",
-              "sendUna": 5001,
-              "sendNext": 5001,
-              "sentHex": "",
-              "window": 4096
-            },
-            "pendingHex": "",
-            "pendingLimit": 4096,
-            "sendWindow": 4096,
-            "sendWL1": 1001,
-            "sendWL2": 5001,
-            "effectiveMSS": 1200,
-            "ipSendLimit": 1500,
-            "recovery": {
-              "now": 150,
-              "smss": 1200,
-              "outstanding": [],
-              "nextId": 0,
-              "frontier": 0,
-              "estimator": null,
-              "lastSample": null,
-              "rto": 1000,
-              "deadline": null,
-              "cwnd": 1200,
-              "ssthresh": 65535,
-              "lastTimedOut": null,
-              "timeoutCount": 0,
-              "duplicateAcks": 0,
-              "flight": 0
-            },
-            "lastAckWindow": 4096,
-            "localReceiveMSS": {
-              "kind": "present",
-              "value": 800
-            },
-            "ackReaction": {
-              "origin": 1001,
-              "rmss": 800,
-              "advertisement": {
-                "frontier": 0,
-                "edge": 4096,
-                "window": 4096,
-                "candidate": 4096,
-                "free": 4096,
-                "threshold": 1200
-              },
-              "work": {
-                "nextID": 0,
-                "nextDischarge": 0,
-                "pendingDue": null,
-                "credit": 0,
-                "pending": [],
-                "completed": []
-              },
-              "fullSegments": 0,
-              "dataBytes": 0
-            }
-          },
-          "admissionPhase": "data",
-          "admissionObservations": 5,
-          "records": [
-            {
-              "zone": 0,
-              "original": {
-                "source": "192.0.2.2",
-                "destination": "203.0.113.2",
-                "protocol": 6,
-                "sourcePort": 41000,
-                "destinationPort": 8080
-              },
-              "translated": {
-                "source": "203.0.113.1",
-                "destination": "198.51.100.2",
-                "protocol": 6,
-                "sourcePort": 40000,
-                "destinationPort": 9000
-              },
-              "seenReply": true
-            }
-          ],
-          "outputs": 5,
-          "pendingTickets": [],
-          "services": 5,
-          "gateways": {
-            "primary": {
-              "configuration": "permit",
-              "guard": "permit",
-              "records": [
-                {
-                  "zone": 0,
-                  "original": {
-                    "source": "192.0.2.2",
-                    "destination": "203.0.113.2",
-                    "protocol": 6,
-                    "sourcePort": 41000,
-                    "destinationPort": 8080
-                  },
-                  "translated": {
-                    "source": "203.0.113.1",
-                    "destination": "198.51.100.2",
-                    "protocol": 6,
-                    "sourcePort": 40000,
-                    "destinationPort": 9000
-                  },
-                  "seenReply": true
-                }
-              ],
-              "confirmed": [
-                {
-                  "original": {
-                    "source": "192.0.2.2",
-                    "destination": "203.0.113.2",
-                    "protocol": 6,
-                    "sourcePort": 41000,
-                    "destinationPort": 8080
-                  },
-                  "reply": {
-                    "source": "198.51.100.2",
-                    "destination": "203.0.113.1",
-                    "protocol": 6,
-                    "sourcePort": 9000,
-                    "destinationPort": 40000
-                  },
-                  "originalZone": 0,
-                  "replyZone": 0,
-                  "sourceNAT": true,
-                  "destinationNAT": true,
-                  "seenReply": true
-                }
-              ],
-              "admission": {
-                "phase": "data",
-                "observations": 5,
-                "entry": {
-                  "original": {
-                    "source": "192.0.2.2",
-                    "destination": "203.0.113.2",
-                    "protocol": 6,
-                    "sourcePort": 41000,
-                    "destinationPort": 8080
-                  },
-                  "reply": {
-                    "source": "198.51.100.2",
-                    "destination": "203.0.113.1",
-                    "protocol": 6,
-                    "sourcePort": 9000,
-                    "destinationPort": 40000
-                  },
-                  "originalZone": 0,
-                  "replyZone": 0,
-                  "sourceNAT": true,
-                  "destinationNAT": true
-                },
-                "clientISS": 1000,
-                "clientWindow": 4096,
-                "serverISS": 5000,
-                "serverWindow": 4096,
-                "original": {
-                  "base": 1001,
-                  "observed": 800,
-                  "acknowledged": 0,
-                  "peerWindow": 4096,
-                  "windowSequence": 5000,
-                  "windowAcknowledgment": 1001
-                },
-                "reply": {
-                  "base": 5001,
-                  "observed": 0,
-                  "acknowledged": 0,
-                  "peerWindow": 4096,
-                  "windowSequence": 1401,
-                  "windowAcknowledgment": 5001
-                },
-                "clientMSS": {
-                  "kind": "present",
-                  "value": 1200
-                },
-                "replyMSS": 1200,
-                "serverMSS": {
-                  "kind": "present",
-                  "value": 800
-                },
-                "originalMSS": 800
-              },
-              "historyTransitions": 5
-            },
-            "standby": {
-              "configuration": "permit",
-              "guard": "permit",
-              "records": [],
-              "confirmed": [],
-              "admission": {
-                "phase": "empty",
-                "observations": 0
-              },
-              "historyTransitions": 0
-            }
-          },
-          "transfer": {
-            "paused": false,
-            "installed": false,
-            "primarySealed": false,
-            "primaryFenced": false,
-            "owners": {
-              "client": "primary",
-              "server": "primary"
-            },
-            "routeEpoch": 0,
-            "installation": null,
-            "cache": null
-          }
-        },
-        "outputs": [
-          {
-            "id": 0,
-            "index": 15,
-            "actor": "client",
-            "kind": "open",
-            "rawIPv4Hex": "4500002c0000400040063cc7c0000202cb007102a0281f90000003e80000000060021000c7840000020404b0"
-          },
-          {
-            "id": 1,
-            "index": 18,
-            "actor": "server",
-            "kind": "startup",
-            "rawIPv4Hex": "4500002c000040004006d494c6336402cb00710123289c4000001388000003e9601210004d99000002040320"
-          },
-          {
-            "id": 2,
-            "index": 21,
-            "actor": "client",
-            "kind": "startup",
-            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950101000caa40000"
-          },
-          {
-            "id": 3,
-            "index": 32,
-            "actor": "client",
-            "kind": "send",
-            "rawIPv4Hex": "450001b80000400040063b3bc0000202cb007102a0281f90000003e90000138950101000119600001112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5",
-            "attempt": {
-              "kind": "original",
-              "clockMillis": 100,
-              "originalID": 0,
-              "start": 0,
-              "count": 400
-            }
-          },
-          {
-            "id": 4,
-            "index": 37,
-            "actor": "client",
-            "kind": "send",
-            "rawIPv4Hex": "450001b80000400040063b3bc0000202cb007102a0281f900000057900001389501010008a7a0000a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
-            "attempt": {
-              "kind": "original",
-              "clockMillis": 150,
-              "originalID": 1,
-              "start": 400,
-              "count": 400
-            }
-          }
-        ],
-        "services": [
-          {
-            "id": 0,
-            "index": 17,
-            "ticket": 0,
-            "gateway": "primary",
-            "routeEpoch": 0,
-            "inputHex": "4500002c0000400040063cc7c0000202cb007102a0281f90000003e80000000060021000c7840000020404b0",
-            "outputHex": "4500002c000040003f06d594cb007101c63364029c402328000003e800000000600210005fa20000020404b0",
-            "disposition": "forwarded",
-            "checks": {
-              "forward": true,
-              "ingress": true,
-              "coverage": true
-            },
-            "observationsMatch": true,
-            "routeRoleMatch": true
-          },
-          {
-            "id": 1,
-            "index": 20,
-            "ticket": 1,
-            "gateway": "primary",
-            "routeEpoch": 0,
-            "inputHex": "4500002c000040004006d494c6336402cb00710123289c4000001388000003e9601210004d99000002040320",
-            "outputHex": "4500002c000040003f063dc7cb007102c00002021f90a02800001388000003e960121000b57b000002040320",
-            "disposition": "forwarded",
-            "checks": {
-              "forward": true,
-              "ingress": true,
-              "coverage": true
-            },
-            "observationsMatch": true,
-            "routeRoleMatch": true
-          },
-          {
-            "id": 2,
-            "index": 23,
-            "ticket": 2,
-            "gateway": "primary",
-            "routeEpoch": 0,
-            "inputHex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950101000caa40000",
-            "outputHex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010100062c20000",
-            "disposition": "forwarded",
-            "checks": {
-              "forward": true,
-              "ingress": true,
-              "coverage": true
-            },
-            "observationsMatch": true,
-            "routeRoleMatch": true
-          },
-          {
-            "id": 3,
-            "index": 34,
-            "ticket": 3,
-            "gateway": "primary",
-            "routeEpoch": 0,
-            "inputHex": "450001b80000400040063b3bc0000202cb007102a0281f90000003e90000138950101000119600001112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5",
-            "outputHex": "450001b8000040003f06d408cb007101c63364029c402328000003e90000138950101000a9b300001112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5",
-            "disposition": "forwarded",
-            "checks": {
-              "forward": true,
-              "ingress": true,
-              "coverage": true
-            },
-            "observationsMatch": true,
-            "routeRoleMatch": true
-          },
-          {
-            "id": 4,
-            "index": 39,
-            "ticket": 4,
-            "gateway": "primary",
-            "routeEpoch": 0,
-            "inputHex": "450001b80000400040063b3bc0000202cb007102a0281f900000057900001389501010008a7a0000a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
-            "outputHex": "450001b8000040003f06d408cb007101c63364029c40232800000579000013895010100022980000a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
-            "disposition": "forwarded",
-            "checks": {
-              "forward": true,
-              "ingress": true,
-              "coverage": true
-            },
-            "observationsMatch": true,
-            "routeRoleMatch": true
-          }
-        ],
-        "reads": [],
-        "decisions": [
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "authentication"
-          },
-          {
-            "kind": "accepted",
-            "operation": "install"
-          },
-          {
-            "kind": "accepted",
-            "operation": "stage"
-          },
-          {
-            "kind": "accepted",
-            "operation": "stage"
-          },
-          {
-            "kind": "accepted",
-            "operation": "installGuard"
-          },
-          {
-            "kind": "accepted",
-            "operation": "install"
-          },
-          {
-            "kind": "accepted",
-            "operation": "stage"
-          },
-          {
-            "kind": "accepted",
-            "operation": "stage"
-          },
-          {
-            "kind": "accepted",
-            "operation": "installGuard"
-          },
-          {
-            "kind": "accepted",
-            "operation": "activeOpen"
-          },
-          {
-            "kind": "accepted",
-            "operation": "assign"
-          },
-          {
-            "kind": "accepted",
-            "operation": "serve"
-          },
-          {
-            "kind": "accepted",
-            "operation": "listenSyn"
-          },
-          {
-            "kind": "accepted",
-            "operation": "assign"
-          },
-          {
-            "kind": "accepted",
-            "operation": "serve"
-          },
-          {
-            "kind": "accepted",
-            "operation": "synSentSynAck"
-          },
-          {
-            "kind": "accepted",
-            "operation": "assign"
-          },
-          {
-            "kind": "accepted",
-            "operation": "serve"
-          },
-          {
-            "kind": "accepted",
-            "operation": "synReceivedAck"
-          },
-          {
-            "kind": "accepted",
-            "operation": "enableRecovery"
-          },
-          {
-            "kind": "accepted",
-            "operation": "enableRecovery"
-          },
-          {
-            "kind": "accepted",
-            "operation": "enableAck"
-          },
-          {
-            "kind": "accepted",
-            "operation": "enableAck"
-          },
-          {
-            "kind": "accepted",
-            "operation": "advanceClock"
-          },
-          {
-            "kind": "accepted",
-            "operation": "advanceClock"
-          },
-          {
-            "kind": "accepted",
-            "operation": "write",
-            "count": 800
-          },
-          {
-            "kind": "accepted",
-            "operation": "send",
-            "count": 400
-          },
-          {
-            "kind": "accepted",
-            "operation": "assign"
-          },
-          {
-            "kind": "accepted",
-            "operation": "serve"
-          },
-          {
-            "kind": "accepted",
-            "operation": "advanceClock"
-          },
-          {
-            "kind": "accepted",
-            "operation": "advanceClock"
-          },
-          {
-            "kind": "accepted",
-            "operation": "send",
-            "count": 400
-          },
-          {
-            "kind": "accepted",
-            "operation": "assign"
-          },
-          {
-            "kind": "accepted",
-            "operation": "serve"
-          },
-          {
-            "kind": "unsupported",
-            "reason": "outOfOrder"
-          }
-        ],
-        "cuts": [],
-        "remainingEvents": [
-          {
-            "kind": "write",
-            "actor": "server",
-            "payloadHex": "5152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819"
-          },
-          {
-            "kind": "send",
-            "actor": "server",
-            "count": 1200,
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 5,
-            "ingress": {
-              "namespace": {
-                "id": 1,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 5,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 5,
-            "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a028000013890000070950100ce014e200005152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 3,
-            "ingress": {
-              "namespace": {
-                "id": 1,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "pause"
-          },
-          {
-            "kind": "stageCheckpoint"
-          },
-          {
-            "kind": "serve",
-            "ticket": 6,
-            "observed": null
-          },
-          {
-            "kind": "stageCheckpoint"
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 200
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 200
-          },
-          {
-            "kind": "installCheckpoint",
-            "namespace": {
-              "id": 3,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "switchRoute",
-            "actor": "client",
-            "gateway": "standby"
-          },
-          {
-            "kind": "switchRoute",
-            "actor": "server",
-            "gateway": "standby"
-          },
-          {
-            "kind": "fencePrimary"
-          },
-          {
-            "kind": "resume"
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 648
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 648
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 649
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 649
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 6,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 7,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 7,
-            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000007090000183950100b505fa20000",
-            "policyPermitted": true
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 700
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 700
-          },
-          {
-            "kind": "write",
-            "actor": "client",
-            "payloadHex": "2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f"
-          },
-          {
-            "kind": "send",
-            "actor": "client",
-            "count": 800,
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 7,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 8,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 1700
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 1700
-          },
-          {
-            "kind": "timeout",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 8,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 9,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 9,
-            "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
-            "policyPermitted": true
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 2199
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 2199
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "server",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 9,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 10,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 3700
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 3700
-          },
-          {
-            "kind": "timeout",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 10,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 11,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 11,
-            "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
-            "policyPermitted": true
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "server",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 11,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 12,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 3750
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 3750
-          },
-          {
-            "kind": "deliver",
-            "service": 12,
-            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000183900000a29501009c0c5f40000",
-            "policyPermitted": true
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 3800
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 3800
-          },
-          {
-            "kind": "write",
-            "actor": "server",
-            "payloadHex": "6162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829"
-          },
-          {
-            "kind": "send",
-            "actor": "server",
-            "count": 1200,
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 12,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 13,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 5297
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 5297
-          },
-          {
-            "kind": "timeout",
-            "actor": "server",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 13,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 14,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 14,
-            "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
-            "policyPermitted": true
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 5796
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 5796
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 14,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 15,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 8291
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 8291
-          },
-          {
-            "kind": "timeout",
-            "actor": "server",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 15,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 16,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 16,
-            "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
-            "policyPermitted": true
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 16,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 17,
-            "observed": null
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 8341
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 8341
-          },
-          {
-            "kind": "deliver",
-            "service": 17,
-            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c40232800000a2900001ce9501006a05c820000",
-            "policyPermitted": true
-          },
-          {
-            "kind": "read",
-            "actor": "server",
-            "count": 1199
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 8400
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 8400
-          },
-          {
-            "kind": "write",
-            "actor": "server",
-            "payloadHex": "7172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839"
-          },
-          {
-            "kind": "send",
-            "actor": "server",
-            "count": 1200,
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 17,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 18,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 18,
-            "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a02800001ce900000a29501009c07ef500007172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
-            "policyPermitted": true
-          },
-          {
-            "kind": "read",
-            "actor": "client",
-            "count": 799
-          },
-          {
-            "kind": "read",
-            "actor": "server",
-            "count": 1
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "server",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 18,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 2,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 19,
-            "observed": null
-          },
-          {
-            "kind": "deliver",
-            "service": 19,
-            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000219900000a2950100e70b7e40000",
-            "policyPermitted": true
-          },
-          {
-            "kind": "authentication",
-            "index": 7
-          },
-          {
-            "kind": "install",
-            "gateway": "standby",
-            "configuration": "deny"
-          },
-          {
-            "kind": "installGuard",
-            "gateway": "standby",
-            "guard": "deny"
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "client",
-            "millis": 8899
-          },
-          {
-            "kind": "advanceClock",
-            "actor": "server",
-            "millis": 8899
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 19,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 20,
-            "observed": null
-          },
-          {
-            "kind": "read",
-            "actor": "server",
-            "count": 400
-          },
-          {
-            "kind": "read",
-            "actor": "client",
-            "count": 2801
-          },
-          {
-            "kind": "dispatchAck",
-            "actor": "client",
-            "policyPermitted": true
-          },
-          {
-            "kind": "assign",
-            "output": 20,
-            "ingress": {
-              "namespace": {
-                "id": 3,
-                "birth": 1
-              },
-              "ifindex": 1,
-              "birth": 1
-            }
-          },
-          {
-            "kind": "serve",
-            "ticket": 21,
-            "observed": null
-          }
-        ]
-      }
-    },
-    {
       "id": "actual-cursors-cross-sequence-wrap",
       "replacements": [
         {
@@ -81018,6 +78781,931 @@
               "kind": "dispatchAck",
               "actor": "client",
               "policyPermitted": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "out-of-order-receipt-reaches-later-emission-mismatch",
+      "replacements": [
+        {
+          "path": [
+            "events"
+          ],
+          "value": [
+            {
+              "kind": "authentication",
+              "index": 0
+            },
+            {
+              "kind": "authentication",
+              "index": 1
+            },
+            {
+              "kind": "authentication",
+              "index": 2
+            },
+            {
+              "kind": "authentication",
+              "index": 3
+            },
+            {
+              "kind": "authentication",
+              "index": 4
+            },
+            {
+              "kind": "authentication",
+              "index": 5
+            },
+            {
+              "kind": "authentication",
+              "index": 6
+            },
+            {
+              "kind": "install",
+              "configuration": "permit"
+            },
+            {
+              "kind": "stage",
+              "specification": "client"
+            },
+            {
+              "kind": "stage",
+              "specification": "server"
+            },
+            {
+              "kind": "installGuard",
+              "guard": "permit"
+            },
+            {
+              "kind": "install",
+              "gateway": "standby",
+              "configuration": "permit"
+            },
+            {
+              "kind": "stage",
+              "gateway": "standby",
+              "specification": "client"
+            },
+            {
+              "kind": "stage",
+              "gateway": "standby",
+              "specification": "server"
+            },
+            {
+              "kind": "installGuard",
+              "gateway": "standby",
+              "guard": "permit"
+            },
+            {
+              "kind": "open",
+              "remote": {
+                "address": "203.0.113.2",
+                "port": 8080
+              },
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 0,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 0,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 0,
+              "rawIPv4Hex": "4500002c000040003f06d594cb007101c63364029c402328000003e800000000600210005fa20000020404b0",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 1,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 1,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 1,
+              "rawIPv4Hex": "4500002c000040003f063dc7cb007102c00002021f90a02800001388000003e960121000b57b000002040320",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 2,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 2,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 2,
+              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010100062c20000",
+              "policyPermitted": true
+            },
+            {
+              "kind": "enableRecovery",
+              "actor": "client"
+            },
+            {
+              "kind": "enableRecovery",
+              "actor": "server"
+            },
+            {
+              "kind": "enableAck",
+              "actor": "client"
+            },
+            {
+              "kind": "enableAck",
+              "actor": "server"
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 100
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 100
+            },
+            {
+              "kind": "write",
+              "actor": "client",
+              "payloadHex": "1112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+            },
+            {
+              "kind": "send",
+              "actor": "client",
+              "count": 400,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 3,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 3,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 150
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 150
+            },
+            {
+              "kind": "send",
+              "actor": "client",
+              "count": 400,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 4,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 4,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 4,
+              "rawIPv4Hex": "450001b8000040003f06d408cb007101c63364029c40232800000579000013895010100022980000a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f",
+              "policyPermitted": true
+            },
+            {
+              "kind": "write",
+              "actor": "server",
+              "payloadHex": "5152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819"
+            },
+            {
+              "kind": "send",
+              "actor": "server",
+              "count": 1200,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 5,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 5,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 5,
+              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a028000013890000070950100ce014e200005152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f10111213141516171819",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 3,
+              "ingress": {
+                "namespace": {
+                  "id": 1,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "pause"
+            },
+            {
+              "kind": "stageCheckpoint"
+            },
+            {
+              "kind": "serve",
+              "ticket": 6,
+              "observed": null
+            },
+            {
+              "kind": "stageCheckpoint"
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 200
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 200
+            },
+            {
+              "kind": "installCheckpoint",
+              "namespace": {
+                "id": 3,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "switchRoute",
+              "actor": "client",
+              "gateway": "standby"
+            },
+            {
+              "kind": "switchRoute",
+              "actor": "server",
+              "gateway": "standby"
+            },
+            {
+              "kind": "fencePrimary"
+            },
+            {
+              "kind": "resume"
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 648
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 648
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 649
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 649
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 6,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 7,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 7,
+              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000007090000183950100b505fa20000",
+              "policyPermitted": true
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 700
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 700
+            },
+            {
+              "kind": "write",
+              "actor": "client",
+              "payloadHex": "2122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f"
+            },
+            {
+              "kind": "send",
+              "actor": "client",
+              "count": 800,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 7,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 8,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 1700
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 1700
+            },
+            {
+              "kind": "timeout",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 8,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 9,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 9,
+              "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
+              "policyPermitted": true
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 2199
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 2199
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "server",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 9,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 10,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 3700
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 3700
+            },
+            {
+              "kind": "timeout",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 10,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 11,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 11,
+              "rawIPv4Hex": "45000348000040003f06d278cb007101c63364029c402328000007090000183950100b50ee7f00002122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f",
+              "policyPermitted": true
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "server",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 11,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 12,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 3750
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 3750
+            },
+            {
+              "kind": "deliver",
+              "service": 12,
+              "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000183900000a29501009c0c5f40000",
+              "policyPermitted": true
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 3800
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 3800
+            },
+            {
+              "kind": "write",
+              "actor": "server",
+              "payloadHex": "6162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829"
+            },
+            {
+              "kind": "send",
+              "actor": "server",
+              "count": 1200,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 12,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 13,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 5297
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 5297
+            },
+            {
+              "kind": "timeout",
+              "actor": "server",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 13,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 14,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 14,
+              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
+              "policyPermitted": true
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 5796
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 5796
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 14,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 15,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 8291
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 8291
+            },
+            {
+              "kind": "timeout",
+              "actor": "server",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 15,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 16,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 16,
+              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a0280000183900000a29501009c0c9eb00006162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20212223242526272829",
+              "policyPermitted": true
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 16,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 17,
+              "observed": null
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 8341
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 8341
+            },
+            {
+              "kind": "deliver",
+              "service": 17,
+              "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c40232800000a2900001ce9501006a05c820000",
+              "policyPermitted": true
+            },
+            {
+              "kind": "read",
+              "actor": "server",
+              "count": 1199
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 8400
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 8400
+            },
+            {
+              "kind": "write",
+              "actor": "server",
+              "payloadHex": "7172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839"
+            },
+            {
+              "kind": "send",
+              "actor": "server",
+              "count": 1200,
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 17,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 18,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 18,
+              "rawIPv4Hex": "450004d8000040003f06391bcb007102c00002021f90a02800001ce900000a29501009c07ef500007172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fa000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f30313233343536373839",
+              "policyPermitted": true
+            },
+            {
+              "kind": "read",
+              "actor": "client",
+              "count": 799
+            },
+            {
+              "kind": "read",
+              "actor": "server",
+              "count": 1
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "server",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 18,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 2,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 19,
+              "observed": null
+            },
+            {
+              "kind": "deliver",
+              "service": 19,
+              "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a0280000219900000a2950100e70b7e40000",
+              "policyPermitted": true
+            },
+            {
+              "kind": "authentication",
+              "index": 7
+            },
+            {
+              "kind": "install",
+              "gateway": "standby",
+              "configuration": "deny"
+            },
+            {
+              "kind": "installGuard",
+              "gateway": "standby",
+              "guard": "deny"
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "client",
+              "millis": 8899
+            },
+            {
+              "kind": "advanceClock",
+              "actor": "server",
+              "millis": 8899
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 19,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 20,
+              "observed": null
+            },
+            {
+              "kind": "read",
+              "actor": "server",
+              "count": 400
+            },
+            {
+              "kind": "read",
+              "actor": "client",
+              "count": 2801
+            },
+            {
+              "kind": "dispatchAck",
+              "actor": "client",
+              "policyPermitted": true
+            },
+            {
+              "kind": "assign",
+              "output": 20,
+              "ingress": {
+                "namespace": {
+                  "id": 3,
+                  "birth": 1
+                },
+                "ifindex": 1,
+                "birth": 1
+              }
+            },
+            {
+              "kind": "serve",
+              "ticket": 21,
+              "observed": null
             }
           ]
         }

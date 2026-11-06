@@ -124,6 +124,8 @@ The [data recovery extension](TCP_RECOVERY.md) connects actual retry ranges and 
 Its selected congestion bound limits unique flight to one effective MSS.
 The [ACK extension](TCP_ACK.md) checks local reaction deadlines, actual response credit, and receive-window suppression through that same transfer.
 General scheduling, challenge-ACK limits, and eventual delivery remain open.
+The [receive-gap extension](TCP_RECEIVE_GAPS.md) connects sparse host storage, queued headers, and byte origins across separate gateway receipts.
+Physical storage and advertised sequence reservations have separate bounds.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

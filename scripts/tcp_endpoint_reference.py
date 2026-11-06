@@ -1,4 +1,4 @@
-"""Independent static oracle for the selected TCP application path.
+"""Independent static oracle for the in-order TCP application foundation.
 
 The oracle uses constructed bytes. It does not execute Lean or send packets.
 """

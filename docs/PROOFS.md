@@ -146,6 +146,16 @@ Its causal proof ties the owed cursor and window edge to packet fields in one ho
 `Check.CampusTCPAckFacts` retains checked startup, early activation, actual gateway receipt paths, and both application histories.
 The [ACK guide](TCP_ACK.md) states the selected timing and receive-window rules.
 
+`TCP.ReceiveStore` proves ordered, disjoint held spans and exact receipt metadata through gap release.
+Its totality theorem derives storage and post-state checks for each supported span.
+`TCP.ReceiveStoreHistory` connects released payload indices and stream positions to their actual allocation carriers.
+`TCP.ReceiveReassembly` checks retained headers in sequence order and proves the resulting core byte effects.
+`TCP.RecoveryReceipt` separates actual ACK receipt time from later processing and timer restart.
+`TCP.EndpointReceiveFacts` preserves physical storage bounds across endpoint operations and proves actual receive effects.
+The [receive-gap guide](TCP_RECEIVE_GAPS.md) separates incoming bytes, ordered release, and receive-window reservations.
+`Check.CampusTCPGapFacts` derives storage history and receipt sources from the actual campus trace.
+Its read-byte theorems connect each byte to an earlier release, actual gateway delivery, peer send attempt, and application write.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

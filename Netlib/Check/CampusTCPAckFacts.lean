@@ -172,17 +172,8 @@ def assure (value : Evidence report) : Except String (Assurance report) := do
 theorem receive_cause_delivery (history : CampusTCPFacts.Receives report peer actor steps)
     (step : A.Step) (member : step ∈ steps) (packet : TCP.EstablishedReceive.Input)
     (received : step.event = .receive packet) :
-    Nonempty (CampusTCPFacts.ApplicationDelivery report peer actor step) := by
-  induction history with
-  | nil => simp at member
-  | receive head input event delivery tail ih =>
-    rcases List.mem_cons.mp member with rfl | member
-    · exact ⟨delivery⟩
-    · exact ih member
-  | other head absent tail ih =>
-    rcases List.mem_cons.mp member with rfl | member
-    · exact False.elim (absent packet received)
-    · exact ih member
+    Nonempty (CampusTCPFacts.ApplicationDelivery report peer actor step) :=
+  history.application_delivery step member packet received
 
 structure CampusCausal (report : M.Report input events) (peer : List A.Step) (actor : M.Actor)
     (steps : List A.Step) (completion : Netlib.Theory.TimedReaction.Discharge Unit TCP.AckReaction.Demand TCP.AckReaction.Acknowledgment)

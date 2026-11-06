@@ -4,6 +4,7 @@ import copy
 import unittest
 from dataclasses import replace
 
+import campus_tcp_gap_reference as gaps
 import tcp_endpoint_reference as reference
 import tcp_receive_reference as wire
 
@@ -208,13 +209,20 @@ class EndpointTests(unittest.TestCase):
         blocked = self.send(1, state=result.state)
         self.assertEqual(blocked.decision, {"kind": "reject", "reason": "sendBounds"})
 
-    def test_geometry_failure_does_not_commit_window_or_ack(self):
-        result = self.run_event(
-            self.event(sequence=101, acknowledgment=1006, payload=b"z", window=0)
+    def test_future_data_defers_window_and_ack_until_release(self):
+        state = gaps.raw_state(self.seed.seed_dict())
+        result = gaps.evaluate(
+            state, self.event(sequence=101, acknowledgment=1006, payload=b"z", window=0)
         )
-        self.assertEqual(result.decision, {"kind": "unsupported", "reason": "outOfOrder"})
-        self.assertEqual(result.state, self.seed)
-        self.assertIsNone(result.ack)
+        self.assertEqual(
+            result.decision,
+            {"kind": "accepted", "operation": "receive", "acknowledged": 0, "received": 1},
+        )
+        self.assertEqual(result.state.core, self.seed.core)
+        self.assertEqual(result.state.send_window, self.seed.send_window)
+        self.assertEqual(result.state.receive_store.held_size, 1)
+        self.assertEqual(result.reassembly["releasedHex"], "")
+        self.assertEqual(result.reassembly["receiptID"], 0)
 
     def test_half_space_history_is_not_ordered(self):
         sequence_half = replace(

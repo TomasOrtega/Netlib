@@ -1,6 +1,8 @@
 import Netlib.Protocol.TCP.Output
 import Netlib.Protocol.TCP.Recovery
 import Netlib.Protocol.TCP.AckReaction
+import Netlib.Protocol.TCP.ReceiveReassembly
+import Netlib.Protocol.TCP.RecoveryReceipt
 
 /-!
 # Bounded application operations for a TCP endpoint
@@ -32,6 +34,7 @@ structure State where
   lastAckWindow : Option Nat := none
   localReceiveMSS : MSS.Offer := .absent
   ackReaction : Option AckReaction.State := none
+  receiveStore : ReceiveReassembly.Store := ReceiveStore.initial
   deriving Repr, BEq, DecidableEq
 
 def State.Valid (state : State) : Prop :=
@@ -41,6 +44,17 @@ def State.Valid (state : State) : Prop :=
 
 instance (state : State) : Decidable state.Valid := by
   unfold State.Valid
+  infer_instance
+
+def State.reservationFree (state : State) : Nat := state.core.window
+
+def State.physicalFree (state : State) : Nat := state.core.window - state.receiveStore.heldBytes
+
+def State.StorageValid (state : State) : Prop :=
+  state.receiveStore.Valid (state.receiveStore.frontier + state.core.window) state.core.window
+
+instance (state : State) : Decidable state.StorageValid := by
+  unfold State.StorageValid
   infer_instance
 
 def State.now (state : State) : Nat := (state.recovery.map (·.now)).getD 0
@@ -160,6 +174,7 @@ def enableAck (state : State) : Result :=
   else if state.ackReaction.isSome then ackBlocked state .alreadyEnabled
   else if state.recovery.isNone then ackBlocked state .disabled
   else if !state.core.received.isEmpty || !state.core.sent.isEmpty then ackBlocked state .ledger
+  else if state.receiveStore ≠ ReceiveStore.initial then ackBlocked state .ledger
   else ⟨{ state with ackReaction := some (AckReaction.initial state.core.receiveNext
       state.core.capacity state.localReceiveMSS.limit) }, .accepted .enableAck, none, [], none⟩
 
@@ -316,7 +331,7 @@ def issueRequest (state : State) (after : ERState) (request : Option Established
       | .sequence => .ok (some (AckReaction.receiveSequence reaction state.now after.receiveNext))
       | .challenge => .error .challenge
 
-def receive (state : State) (value : Input) : Result :=
+def receiveInOrder (state : State) (value : Input) : Result :=
   if ¬state.Valid then rejected state .invalidSeed
   else if ¬RecoveryCoherent state then recoveryBlocked state .ledger
   else if ¬AckCoherent state then ackBlocked state .ledger
@@ -399,9 +414,9 @@ theorem receiveState_recovery (state : State) (value : Input) (after : ERState) 
   unfold receiveState windowState
   split <;> rfl
 
-theorem receive_without_recovery (state : State) (value : Input) (valid : state.Valid)
+theorem receiveInOrder_without_recovery (state : State) (value : Input) (valid : state.Valid)
     (disabled : state.recovery = none) (ackDisabled : state.ackReaction = none) :
-    receive state value =
+    receiveInOrder state value =
       let result := EstablishedReceive.receive state.core value
       match result.decision with
       | .blocked (.reject reason) => ⟨state, .reject (.input reason), none, [], result.ack⟩
@@ -410,7 +425,7 @@ theorem receive_without_recovery (state : State) (value : Input) (valid : state.
         ⟨receiveState state value result.state, .accepted (.receive count size), none, [], result.ack⟩ := by
   have coherent : RecoveryCoherent state := by simp only [RecoveryCoherent, disabled]
   have ackCoherent : AckCoherent state := by simp only [AckCoherent, ackDisabled]
-  simp only [receive, valid, coherent, ackCoherent, not_true_eq_false, ite_false, receiveModel, ackDisabled]
+  simp only [receiveInOrder, valid, coherent, ackCoherent, not_true_eq_false, ite_false, receiveModel, ackDisabled]
   cases selected : (EstablishedReceive.receive state.core value).decision with
   | blocked reason =>
     cases reason
@@ -641,9 +656,9 @@ theorem enableAck_state (state : State)
     | split
 
 
-theorem receive_valid (state : State) (value : Input) (valid : state.Valid) :
-    (receive state value).state.Valid := by
-  simp only [receive, valid, not_true_eq_false, ite_false]
+theorem receiveInOrder_valid (state : State) (value : Input) (valid : state.Valid) :
+    (receiveInOrder state value).state.Valid := by
+  simp only [receiveInOrder, valid, not_true_eq_false, ite_false]
   split
   · rw [recoveryBlocked_state]; exact valid
   · split
@@ -730,16 +745,16 @@ theorem send_accepted (state : State) (count : Nat) (policy : Bool)
   · simp only [send, valid, not_false_eq_true, ite_true, rejected] at selected
     cases selected
 
-theorem receive_accepted (state : State) (value : Input) (count size : Nat)
-    (selected : (receive state value).decision = .accepted (.receive count size)) :
+theorem receiveInOrder_accepted (state : State) (value : Input) (count size : Nat)
+    (selected : (receiveInOrder state value).decision = .accepted (.receive count size)) :
     state.Valid ∧ (receiveModel state value).decision = .accepted count size ∧
       ∃ recovery ackReaction,
         receiveRecovery state value.packet.segment count = .ok recovery ∧
         issueRequest state (receiveModel state value).state (receiveModel state value).ack size = .ok ackReaction ∧
-        receive state value =
+        receiveInOrder state value =
           ⟨{ receiveState state value (receiveModel state value).state with recovery, ackReaction },
             .accepted (.receive count size), none, [], (receiveModel state value).ack⟩ := by
-  unfold receive at selected
+  unfold receiveInOrder at selected
   dsimp only at selected
   split at selected
   · cases selected
@@ -776,13 +791,13 @@ theorem receive_accepted (state : State) (value : Input) (count size : Nat)
               simp only [issued, Decision.accepted.injEq, Accepted.receive.injEq] at selected
               obtain ⟨rfl, rfl⟩ := selected
               exact ⟨Decidable.not_not.mp valid, rfl, recovery, ackReaction, updated, issued,
-                by simp only [receive, valid, coherent, ackCoherent, ite_false, chosen, updated, issued]⟩
+                by simp only [receiveInOrder, valid, coherent, ackCoherent, ite_false, chosen, updated, issued]⟩
 
-theorem receive_in_order (state : State) (value : Input) (count size : Nat)
-    (selected : (receive state value).decision = .accepted (.receive count size))
+theorem receiveInOrder_in_order (state : State) (value : Input) (count size : Nat)
+    (selected : (receiveInOrder state value).decision = .accepted (.receive count size))
     (nonempty : value.packet.segment.payload ≠ []) :
     value.packet.segment.sequence = state.core.receiveNext := by
-  have coreSelected := (receive_accepted state value count size selected).2.1
+  have coreSelected := (receiveInOrder_accepted state value count size selected).2.1
   cases chosen : state.ackReaction with
   | none =>
     simp only [receiveModel, chosen] at coreSelected
@@ -1130,10 +1145,10 @@ theorem receiveModel_rewrite (state : State) (value : Input) (target : Packet.He
     simpa only [receiveModel, State.rebind, selected] using
       EstablishedReceive.receiveWithWindow_rewrite state.core value reaction.window target ttl valid.1 tuple transport
 
-theorem receive_rewrite (state : State) (value : Input) (target : Packet.Header) (ttl : UInt8)
+theorem receiveInOrder_rewrite (state : State) (value : Input) (target : Packet.Header) (ttl : UInt8)
     (valid : state.Valid) (tuple : value.packet.header = state.core.inbound)
     (transport : target.protocol = Packet.Protocol.tcp) :
-    receive (state.rebind target) (value.rewrite target ttl transport) = (receive state value).rebind target := by
+    receiveInOrder (state.rebind target) (value.rewrite target ttl transport) = (receiveInOrder state value).rebind target := by
   have rebound := state.rebind_valid target valid transport
   have core := receiveModel_rewrite state value target ttl valid tuple transport
   by_cases coherent : RecoveryCoherent state
@@ -1148,18 +1163,18 @@ theorem receive_rewrite (state : State) (value : Input) (target : Packet.Header)
         | blocked reason =>
           cases reason with
           | unsupported reason =>
-            simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+            simp only [receiveInOrder, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
               reboundAck, ackCoherent, reboundCore, original, EstablishedReceive.Result.rebind]
             rfl
           | reject reason =>
-            simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+            simp only [receiveInOrder, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
               reboundAck, ackCoherent, reboundCore, original, EstablishedReceive.Result.rebind]
             rw [issueRequest_rebind_self]
             cases issued : issueRequest state state.core ack 0 with
             | error reason => simpa only using ackBlocked_rebind state reason target
             | ok reaction => rfl
         | accepted count size =>
-          simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+          simp only [receiveInOrder, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
             reboundAck, ackCoherent, reboundCore, original, EstablishedReceive.Result.rebind]
           rw [receiveRecovery_input_rewrite]
           cases updated : receiveRecovery state value.packet.segment count with
@@ -1175,12 +1190,157 @@ theorem receive_rewrite (state : State) (value : Input) (target : Packet.Header)
               simp only [receiveState, windowState, eligible]
               split <;> rfl
     · have reboundAck : ¬AckCoherent (state.rebind target) := ackCoherent
-      simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+      simp only [receiveInOrder, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
         reboundAck, ackCoherent, not_false_eq_true, ite_true]
       rfl
   · have reboundCoherent : ¬RecoveryCoherent (state.rebind target) := coherent
-    simp only [receive, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
+    simp only [receiveInOrder, rebound, valid, not_true_eq_false, ite_false, reboundCoherent, coherent,
       not_false_eq_true, ite_true]
     rfl
+
+def offeredWindow (state : State) : Nat :=
+  match state.ackReaction with | none => state.core.window | some reaction => reaction.window
+
+def StorageCoherent (state : State) : Prop :=
+  state.StorageValid ∧ match state.ackReaction with
+    | none => True
+    | some reaction => reaction.advertisement.frontier = state.receiveStore.frontier ∧
+      state.receiveStore.Valid (state.receiveStore.frontier + reaction.window) state.core.window
+
+instance (state : State) : Decidable (StorageCoherent state) := by
+  unfold StorageCoherent
+  split <;> infer_instance
+
+structure ReceiptFailure where
+  header : ReceiveReassembly.HeaderEffect
+  reason : Recovery.Stop
+
+inductive ReceiveFailure where
+  | header (failure : ReceiveReassembly.HeaderFailure)
+  | recovery (failure : ReceiptFailure)
+
+def ReceiveFailure.run : ReceiveFailure → ReceiveReassembly.Run
+  | .header failure => failure.run
+  | .recovery failure => failure.header.run
+
+def ReceiveFailure.before : ReceiveFailure → ERState
+  | .header failure => failure.before
+  | .recovery failure => failure.header.before
+
+structure ReceiveEffect where
+  result : Result
+  runs : List ReceiveReassembly.Run := []
+  stored : Option (ReceiveStore.Result ReceiveReassembly.Receipt) := none
+  headers : List ReceiveReassembly.HeaderEffect := []
+  failure : Option ReceiveFailure := none
+
+def receivePlain (result : Result) : ReceiveEffect := ⟨result, [], none, [], none⟩
+
+def receiveStopped (state : State) (reason : EstablishedReceive.Block)
+    (ack : Option EstablishedReceive.AckRequest) : Result :=
+  match reason with
+  | .unsupported reason => ⟨state, .unsupported reason, none, [], ack⟩
+  | .reject reason => match issueRequest state state.core ack 0 with
+    | .error stopped => ackBlocked state stopped
+    | .ok reaction => ⟨{ state with ackReaction := reaction }, .reject (.input reason), none, [], ack⟩
+
+def applyHeader (state : State) (header : ReceiveReassembly.HeaderEffect) : Except ReceiptFailure State :=
+  if state.core ≠ header.before then .error ⟨header, .ledger⟩
+  else
+    let prepared : Except Recovery.Stop (Option Recovery.State) := match state.recovery with
+      | none => .ok none
+      | some recovery => (Recovery.acknowledgeAt recovery header.acknowledged header.run.metadata.receivedAt).map
+          (fun after => some { after with duplicateAcks := 0 })
+    match prepared with
+    | .error reason => .error ⟨header, reason⟩
+    | .ok recovery => .ok (windowState state { state with
+        core := header.after
+        recovery
+        lastAckWindow := if state.recovery.isSome then some header.run.metadata.segment.window.val else state.lastAckWindow }
+        header.run.metadata.segment)
+
+def applyHeaders (state : State) : List ReceiveReassembly.HeaderEffect → Except ReceiptFailure State
+  | [] => .ok state
+  | head :: tail => match applyHeader state head with
+    | .error reason => .error reason
+    | .ok after => applyHeaders after tail
+
+structure ReceiveProcessed where
+  received : State
+  coreResult : ReceiveReassembly.Applied
+
+def processRuns (state : State) : List ReceiveReassembly.Run → Except ReceiveFailure ReceiveProcessed
+  | [] => .ok ⟨state, ⟨state.core, 0, []⟩⟩
+  | head :: tail => match ReceiveReassembly.applyRun state.core head with
+    | .error failure => .error (.header failure)
+    | .ok header => match applyHeader state header with
+      | .error failure => .error (.recovery failure)
+      | .ok after => match processRuns after tail with
+        | .error failure => .error failure
+        | .ok rest => .ok ⟨rest.received, ⟨rest.coreResult.state,
+            header.acknowledged + rest.coreResult.acknowledged, header :: rest.coreResult.headers⟩⟩
+
+def receiveFailed (state : State) (receiptID : Nat) (failure : ReceiveFailure) : ReceiveEffect :=
+  let result := if failure.run.receipt = receiptID then
+      match failure with
+      | .header value => receiveStopped state value.reason (match value.reason with
+          | .reject .acknowledgment => some (ReceiveReassembly.request state.core (offeredWindow state) .challenge)
+          | _ => none)
+      | .recovery value => recoveryBlocked state value.reason
+    else ⟨state, .unsupported .queuedHeader, none, [], none⟩
+  ⟨result, [], none, [], some failure⟩
+
+def receiveRaw (state : State) (input : Input) : ReceiveEffect :=
+  if ¬state.Valid then receivePlain (rejected state .invalidSeed)
+  else if ¬RecoveryCoherent state then receivePlain (recoveryBlocked state .ledger)
+  else if ¬AckCoherent state then receivePlain (ackBlocked state .ledger)
+  else if ¬StorageCoherent state then receivePlain (rejected state .invalidSeed)
+  else match ReceiveReassembly.prepare state.core state.receiveStore input (offeredWindow state) state.now with
+    | .blocked reason ack => receivePlain (receiveStopped state reason ack)
+    | .acknowledgment _ => receivePlain (receiveInOrder state input)
+    | .data stored =>
+      match processRuns state stored.released with
+      | .error failure => receiveFailed state stored.receiptID failure
+      | .ok processed =>
+          let received := processed.received
+          let coreResult := processed.coreResult
+          let reaction := state.ackReaction.map (fun before => AckReaction.receiveRelease before state.now
+            received.core.receiveNext stored.novel (ReceiveStore.size stored.released)
+            (ReceiveReassembly.immediate state.core state.receiveStore input))
+          let after := { received with receiveStore := stored.state, ackReaction := reaction }
+          if ¬RecoveryCoherent after ∨ ¬AckCoherent after ∨ ¬StorageCoherent after then
+            receivePlain ⟨state, .unsupported .queuedHeader, none, [], none⟩
+          else
+            let ack := some (ReceiveReassembly.request after.core (offeredWindow after) .data)
+            ⟨⟨after, .accepted (.receive coreResult.acknowledged stored.novel), none, [], ack⟩,
+              stored.released, some stored, coreResult.headers, none⟩
+
+def receiveEffect (state : State) (input : Input) : ReceiveEffect :=
+  let effect := receiveRaw state input
+  if effect.result.state.Valid ∧ effect.result.state.StorageValid then effect
+  else receivePlain (rejected state .invalidSeed)
+
+def receive (state : State) (input : Input) : Result := (receiveEffect state input).result
+
+def receiveRuns (state : State) (input : Input) : List ReceiveReassembly.Run := (receiveEffect state input).runs
+
+def receivedBytes (state : State) (input : Input) : List UInt8 := ReceiveStore.bytes (receiveRuns state input)
+
+theorem receive_valid (state : State) (input : Input) (valid : state.Valid) : (receive state input).state.Valid := by
+  unfold receive receiveEffect
+  dsimp only
+  split
+  · rename_i checked
+    exact checked.1
+  · exact valid
+
+theorem receive_storage_valid (state : State) (input : Input) (valid : state.StorageValid) :
+    (receive state input).state.StorageValid := by
+  unfold receive receiveEffect
+  dsimp only
+  split
+  · rename_i checked
+    exact checked.2
+  · exact valid
 
 end Netlib.Protocol.TCP.Endpoint

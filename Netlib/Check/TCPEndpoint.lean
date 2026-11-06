@@ -238,7 +238,7 @@ theorem Report.conservation (report : Report input) :
       (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.emitted ++ report.final.pending ∧
     input.seed.core.sent ++ (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.emitted =
       (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.acknowledged ++ report.final.core.sent ∧
-    input.seed.core.received ++ (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.acceptedPayload =
+    input.seed.core.received ++ (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.releasedPayload =
       (report.steps.map (·.typed)).flatMap Netlib.Protocol.TCP.ApplicationTrace.Step.readBytes ++ report.final.core.received :=
   ⟨report.trace.chain.pending, report.trace.chain.sent, report.trace.chain.received⟩
 
@@ -331,12 +331,15 @@ def ackCauseJson (value : Theory.TimedReaction.Cause Unit Protocol.TCP.AckReacti
 def ackOutputJson (value : Protocol.TCP.AckReaction.Acknowledgment) : Lean.Json := Lean.Json.mkObj [
   ("cursor", Lean.toJson value.cursor.val), ("position", Lean.toJson value.position), ("window", Lean.toJson value.window)]
 
-def ackReactionJson (value : Protocol.TCP.AckReaction.State) (capacity free outgoingMSS : Nat) : Lean.Json := Lean.Json.mkObj [
+def ackReactionJson (value : Protocol.TCP.AckReaction.State) (capacity free outgoingMSS : Nat)
+    (held : Nat := 0) (gaps : Bool := false) : Lean.Json := Lean.Json.mkObj [
   ("origin", Lean.toJson value.origin.val), ("rmss", Lean.toJson value.rmss),
-  ("advertisement", Lean.Json.mkObj [("frontier", Lean.toJson value.advertisement.frontier),
+  ("advertisement", Lean.Json.mkObj ([("frontier", Lean.toJson value.advertisement.frontier),
     ("edge", Lean.toJson value.advertisement.edge), ("window", Lean.toJson value.window),
-    ("candidate", Lean.toJson (Protocol.TCP.AckReaction.candidate value capacity free outgoingMSS)),
-    ("free", Lean.toJson free), ("threshold", Lean.toJson (Protocol.TCP.ReceiveAdvertisement.threshold capacity outgoingMSS))]),
+    ("candidate", Lean.toJson (Protocol.TCP.AckReaction.candidate value capacity free outgoingMSS))] ++
+    (if gaps then [("reservationFree", Lean.toJson free), ("physicalFree", Lean.toJson (free - held))]
+    else [("free", Lean.toJson free)]) ++
+    [("threshold", Lean.toJson (Protocol.TCP.ReceiveAdvertisement.threshold capacity outgoingMSS))])),
   ("work", Lean.Json.mkObj [("nextID", Lean.toJson value.work.nextID),
     ("nextDischarge", Lean.toJson value.work.nextDischarge), ("pendingDue", Lean.toJson value.due),
     ("credit", Lean.toJson value.credit), ("pending", Lean.toJson (value.work.pending.map ackCauseJson)),
@@ -344,6 +347,17 @@ def ackReactionJson (value : Protocol.TCP.AckReaction.State) (capacity free outg
       ("id", Lean.toJson completion.id), ("time", Lean.toJson completion.time),
       ("output", ackOutputJson completion.output), ("causes", Lean.toJson (completion.causes.map ackCauseJson))]))]),
   ("fullSegments", Lean.toJson value.fullSegments), ("dataBytes", Lean.toJson value.dataBytes)]
+
+def receiveRunJson (run : Protocol.TCP.ReceiveReassembly.Run) : Lean.Json := Lean.Json.mkObj [
+  ("position", Lean.toJson run.position), ("end", Lean.toJson run.limit), ("receiptID", Lean.toJson run.receipt),
+  ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex run.bytes)),
+  ("header", Import.PacketFields.headerJson run.metadata.header), ("segment", Check.TCP.segmentJson run.metadata.segment),
+  ("receivedAt", Lean.toJson run.metadata.receivedAt)]
+
+def receiveStoreJson (state : E.State) : Lean.Json := Lean.Json.mkObj [
+  ("frontier", Lean.toJson state.receiveStore.frontier), ("nextID", Lean.toJson state.receiveStore.nextID),
+  ("heldBytes", Lean.toJson state.receiveStore.heldBytes), ("reservationFree", Lean.toJson state.reservationFree),
+  ("physicalFree", Lean.toJson state.physicalFree), ("held", Lean.toJson (state.receiveStore.held.map receiveRunJson))]
 
 def stateJson (state : E.State) : Lean.Json := Lean.Json.mkObj ([
   ("core", TCPReceive.stateJson state.core), ("pendingHex", Lean.toJson (Import.EAPOL.bytesToHex state.pending)),
@@ -353,10 +367,12 @@ def stateJson (state : E.State) : Lean.Json := Lean.Json.mkObj ([
   (match state.recovery with
   | none => []
   | some value => [("recovery", recoveryJson value), ("lastAckWindow", Lean.toJson state.lastAckWindow)]) ++
-  match state.ackReaction with
+  (match state.ackReaction with
   | none => []
   | some value => [("localReceiveMSS", ownMSSJson state.localReceiveMSS),
-    ("ackReaction", ackReactionJson value state.core.capacity state.core.window state.effectiveMSS)])
+    ("ackReaction", ackReactionJson value state.core.capacity state.core.window state.effectiveMSS
+      state.receiveStore.heldBytes state.receiveStore.seenGap)]) ++
+  if state.receiveStore.seenGap then [("receiveStore", receiveStoreJson state)] else [])
 
 def ackStopName : Protocol.TCP.AckReaction.Stop → String
   | .disabled => "disabled" | .alreadyEnabled => "alreadyEnabled" | .noCredit => "noCredit"
@@ -403,12 +419,36 @@ def outputJson : Option Protocol.TCP.EstablishedReceive.Input → Lean.Json
   | some value => Lean.Json.mkObj [("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex value.bytes)),
       ("decoded", TCPReceive.decodedJson value.packet)]
 
-def Step.renderJson (step : Step) (index : Nat) : Lean.Json := Lean.Json.mkObj [
+def receiveFields (step : Protocol.TCP.ApplicationTrace.Step) : List (String × Lean.Json) :=
+  match step.event with
+  | .receive input =>
+    if step.before.receiveStore.seenGap || step.result.state.receiveStore.seenGap then
+      let effect := Protocol.TCP.Endpoint.receiveEffect step.before input
+      [("reassembly", Lean.Json.mkObj [
+        ("receiptID", Lean.toJson (effect.stored.map (·.receiptID))),
+        ("novelBytes", Lean.toJson (match effect.result.decision with | .accepted (.receive _ count) => count | _ => 0)),
+        ("releasedHex", Lean.toJson (Import.EAPOL.bytesToHex (Protocol.TCP.ReceiveStore.bytes effect.runs))),
+        ("releasedRuns", Lean.toJson (effect.runs.map receiveRunJson)),
+        ("headers", Lean.toJson (effect.headers.map fun header => Lean.Json.mkObj [
+          ("receiptID", Lean.toJson header.run.receipt), ("receivedAt", Lean.toJson header.run.metadata.receivedAt),
+          ("acknowledged", Lean.toJson header.acknowledged),
+          ("beforeSendUna", Lean.toJson header.before.sendUna.val), ("afterSendUna", Lean.toJson header.after.sendUna.val)])),
+        ("failure", (effect.failure.map fun failure => Lean.Json.mkObj [
+          ("source", Lean.toJson (if failure.run.receipt < step.before.receiveStore.nextID then "queued" else "current")),
+          ("receipt", receiveRunJson failure.run), ("beforeHeader", TCPReceive.stateJson failure.before),
+          ("check", Lean.toJson (match failure with | .header _ => "header" | .recovery _ => "recovery")),
+          ("reason", match failure with
+            | .header value => TCPReceive.decisionJson (.blocked value.reason)
+            | .recovery value => decisionJson (.reject (.recovery value.reason)))]).getD .null)])]
+    else []
+  | _ => []
+
+def Step.renderJson (step : Step) (index : Nat) : Lean.Json := Lean.Json.mkObj ([
   ("index", Lean.toJson index), ("event", step.raw.json), ("before", stateJson step.typed.before),
   ("decodedInput", match step.typed.event with | .receive value => TCPReceive.decodedJson value.packet | _ => .null),
   ("decision", decisionJson step.typed.result.decision), ("output", outputJson step.typed.result.output),
   ("readHex", Lean.toJson (Import.EAPOL.bytesToHex step.typed.result.read)),
-  ("ack", TCPReceive.ackJson step.typed.result.ack), ("state", stateJson step.typed.result.state)]
+  ("ack", TCPReceive.ackJson step.typed.result.ack), ("state", stateJson step.typed.result.state)] ++ receiveFields step.typed)
 
 def assumptions : List String := [
   "The caller supplies a pre-established seed. The seed does not prove a handshake or earlier sends.",

@@ -69,6 +69,7 @@ inductive Reject where
 
 inductive Unsupported where
   | reset | synchronize | finish | urgent | congestion | options | trimming | outOfOrder
+  | overlap | conflict | receiveCapacity | queuedHeader
   deriving Repr, BEq, DecidableEq
 
 inductive Block where

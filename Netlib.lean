@@ -192,7 +192,12 @@ import Netlib.Protocol.TCP.Recovery
 import Netlib.Protocol.TCP.AckReaction
 import Netlib.Protocol.TCP.AckTrace
 import Netlib.Check.CampusTCPAckFacts
+import Netlib.Check.CampusTCPGapFacts
 import Netlib.Protocol.TCP.ReceiveAdvertisement
+import Netlib.Protocol.TCP.ReceiveStore
+import Netlib.Protocol.TCP.ReceiveStoreHistory
+import Netlib.Protocol.TCP.ReceiveReassembly
+import Netlib.Protocol.TCP.RecoveryReceipt
 import Netlib.Protocol.TCP.Handshake
 import Netlib.Protocol.TCP.HandshakeExchange
 import Netlib.Check.TCPHandshake

@@ -462,6 +462,20 @@ inductive Receives (report : M.Report input events) (peer : List AppStep) (actor
   | other (head : AppStep) (absent : ∀ packet, head.event ≠ .receive packet)
       (tail : Receives report peer actor rest) : Receives report peer actor (head :: rest)
 
+theorem Receives.application_delivery (history : Receives report peer actor steps)
+    (step : AppStep) (member : step ∈ steps) (packet : PacketInput)
+    (received : step.event = .receive packet) : Nonempty (ApplicationDelivery report peer actor step) := by
+  induction history with
+  | nil => simp at member
+  | receive head input event delivery tail ih =>
+    rcases List.mem_cons.mp member with rfl | member
+    · exact ⟨delivery⟩
+    · exact ih member
+  | other head absent tail ih =>
+    rcases List.mem_cons.mp member with rfl | member
+    · exact False.elim (absent packet received)
+    · exact ih member
+
 def receives (report : M.Report input events) (peer : List AppStep) (actor : M.Actor) :
     (steps : List AppStep) → Except String (Receives report peer actor steps)
   | [] => .ok .nil

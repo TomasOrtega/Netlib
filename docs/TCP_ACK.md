@@ -60,7 +60,9 @@ Only actual successful local output consumes that credit.
 ## Receive-window suppression
 
 Physical free space and the offered receive window are separate values.
-Accepted data consumes the offered width while preserving its right edge.
+Ordered data release consumes the offered width while preserving its right edge.
+Held future bytes use physical storage without shrinking that span.
+The [receive-gap guide](TCP_RECEIVE_GAPS.md) separates physical free space from the remaining reservation.
 A small application read increases free space but can leave the offered edge unchanged.
 This rule applies to pure ACKs, data output, and retries.
 A piggyback ACK cannot bypass the suppression rule.

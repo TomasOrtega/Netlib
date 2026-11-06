@@ -40,6 +40,8 @@ lake exe netlib campus-tcp examples/campus-tcp-transfer/trace.json --json
 Use `examples/tcp-mss/trace.json` with the same command for asymmetric MSS and payloads above 536 bytes through the transfer.
 Use `examples/tcp-recovery/trace.json` for [bounded data and ACK loss recovery](TCP_RECOVERY.md) through that transfer.
 Use `examples/tcp-ack/trace.json` for [checked ACK reactions and receive-window updates](TCP_ACK.md) on the same host clocks.
+Use `examples/tcp-receive-gaps/trace.json` for [automatic future storage and release from separate receipts](TCP_RECEIVE_GAPS.md).
+Use `examples/tcp-receive-gaps/deferred-clock.json` to separate ACK receipt time from later header processing.
 
 ## Interface-bound campus admission
 
