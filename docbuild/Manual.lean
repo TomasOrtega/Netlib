@@ -2132,6 +2132,56 @@ That result must derive actual receive release, covering ACKs, sender retirement
 It must state its loss, copy, clock, receive-space, current-policy, and transfer conditions.
 All seven programs and the full campus objective remain OPEN.
 
+# Enabled TCP operations
+%%%
+tag := "tcp-enabled-operations"
+file := "tcp-enabled-operations"
+%%%
+
+Enabled-operation proofs derive actual outcomes from preceding guards.
+They use the existing endpoint and gateway computations.
+The scheduler must still supply the operations.
+
+ACK preparation includes current issue/deadline bounds and coverage of every pending window edge.
+Credit and due conditions then derive actual ACK output:
+
+```lean
+open Netlib.Protocol.TCP.Endpoint in
+example (state : State) (valid : state.Valid)
+    (prepared : AckPrepared state)
+    (available : ResponseAvailable state true) :
+    ∃ output, dispatchAck state true =
+      ⟨outputState state, .accepted .dispatchAck,
+        some output, [], none⟩ ∧
+      emit state [] = .ok output :=
+  dispatchAck_success_enabled state valid prepared available
+```
+
+Active in-order receive derives ordered release and ACK work.
+A subsequent enabled ACK operation covers the new cursor.
+It retains the actual runtime ledgers and old receive-store frontier.
+Gateway lookup, route, filter, and lane geometry derive actual transformed output.
+The gateway theorem retains typed evidence for the current policy and ingress preflight comparisons.
+
+Checked campus history supplies cursor chronology and ticket identity validity:
+
+```lean
+open Netlib.Check in
+example (report : CampusTCPModel.Report input events) :
+    CampusTCPChronology.Chronological report.final :=
+  CampusTCPChronology.Report.chronological report
+```
+
+Local frame laws identify the updated endpoint, retained peer, appended step, and actual operation time.
+The schedule projection reads the same stored results.
+Only evaluated operations supply checked service slots.
+An unsupported input suffix supplies none.
+A supported complete prefix can append an actual computed step without another model execution.
+
+A full transfer theorem must still derive readiness through every phase, actual covering ACK retirement, and application reads.
+The broader fault result must connect failed rounds to real custody drops and state clock, service, copy, and transfer conditions.
+Native correspondence and the full seven-program campus objective remain OPEN.
+
 # An authenticated campus TCP path
 %%%
 tag := "campus-tcp"

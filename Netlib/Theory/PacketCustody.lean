@@ -44,6 +44,15 @@ def State.lookup (state : State α) (id : Nat) : Option (Item α) :=
 def State.pendingID (state : State α) (predicate : α → Bool) : Option Nat :=
   (state.pending.find? (fun item => predicate item.value.payload)).map (·.id)
 
+theorem State.pendingID_exists (state : State α) (predicate : α → Bool)
+    (present : ∃ item ∈ state.pending, predicate item.value.payload = true) :
+    ∃ id, state.pendingID predicate = some id := by
+  cases found : state.pending.find? (fun item => predicate item.value.payload) with
+  | none =>
+    obtain ⟨item, member, selected⟩ := present
+    exact False.elim ((List.find?_eq_none.mp found) item member selected)
+  | some item => exact ⟨item.id, by simp only [pendingID, found, Option.map_some]⟩
+
 theorem State.pendingID_source (state : State α) (predicate : α → Bool) (id : Nat)
     (selected : state.pendingID predicate = some id) :
     ∃ item ∈ state.pending, item.id = id ∧ predicate item.value.payload = true := by

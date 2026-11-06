@@ -182,6 +182,53 @@ def run (context : Context) (before : Before) (source : W.Source) (zone : Nat) (
   else throw (.input "The service prefix exceeds the actual authentication history.")
 
 
+theorem run_of_parts (context : Context) (before : Before) (source : W.Source) (zone : Nat)
+    (ingress : I.InterfaceRef) (checks : Checks context before ingress)
+    (permitted : checks.decision source = true)
+    (processing : Processing context before source zone) :
+    run context before source zone ingress checks.budget = .ok ⟨checks, .processed permitted processing⟩ := by
+  have checked_ready {α : Type} (value : Except String α) (result : α) (computed : value = .ok result) :
+      checked value = .ok ⟨result, computed⟩ := by
+    cases value with
+    | error reason => cases computed
+    | ok actual => cases computed; rfl
+  have forwardReady := checked_ready _ _ checks.forwardComputed
+  have guardReady := checked_ready _ _ checks.guardComputed
+  simp only [run, checks.afterBound, dite_true, checks.currentLive, checks.namespaceEq, forwardReady,
+    guardReady, bind, Except.bind]
+  change (if permitted : checks.decision source = true then _ else _) = _
+  simp only [permitted, dite_true]
+  split
+  · rename_i reason failed
+    rw [processing.attached] at failed
+    cases failed
+  · rename_i actual accepted
+    have same : actual = processing.prepared := Except.ok.inj (accepted.symm.trans processing.attached)
+    subst actual
+    split
+    · rename_i reason failed
+      rw [processing.admissionComputed] at failed
+      cases failed
+    · rename_i actual accepted
+      have same : actual = processing.admitted := Except.ok.inj (accepted.symm.trans processing.admissionComputed)
+      subst actual
+      split
+      · rename_i reason failed
+        rw [processing.computed] at failed
+        cases failed
+      · rename_i actual accepted
+        have same : actual = processing.outcome := Except.ok.inj (accepted.symm.trans processing.computed)
+        subst actual
+        split
+        · rename_i reason failed
+          rw [processing.committed] at failed
+          cases failed
+        · rename_i actual accepted
+          have same : actual = processing.nextAdmission := Except.ok.inj (accepted.symm.trans processing.committed)
+          subst actual
+          rfl
+
+
 theorem Checks.actual_decision (checks : Checks context before ingress) (source : W.Source) :
     checks.decision source = before.guard.permits ingress.ifindex.val source.packet.header := by
   unfold Checks.decision IngressGuard.Checked.decision

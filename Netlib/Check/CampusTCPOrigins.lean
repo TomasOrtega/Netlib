@@ -117,10 +117,11 @@ private structure Changes (before : M.State input) (event : M.Event) (effect : M
       event = .serve id observed ∧ Theory.Outstanding.complete before.work id = .ok completed ∧
       served.ticket = completed.item ∧ served.before = Check.CampusTCPModel.beforeService input before served.ticket.value.gateway ∧
       served.time = before.time
+  workValid : before.work.Valid → effect.state.work.Valid
 
 private theorem produces_changes (event : M.Event) (produces : Produces before effect) : Changes before event effect := by
   obtain ⟨outputs, services, work, stamp, noService⟩ := produces
-  refine ⟨outputs, ?_, ?_, stamp, ?_, ?_⟩
+  refine ⟨outputs, ?_, ?_, stamp, ?_, ?_, ?_⟩
   · simp only [noService, Option.toList_none, List.append_nil]
     exact services
   · intro item member
@@ -131,6 +132,9 @@ private theorem produces_changes (event : M.Event) (produces : Produces before e
   · intro served present
     rw [noService] at present
     cases present
+  · intro valid
+    rw [work]
+    exact valid
 
 private theorem process_changes (input : M.Input) (before : M.State input) (event : M.Event)
     (effect : M.Effect input) (accepted : Check.CampusTCPModel.processCore input before event = .ok effect) :
@@ -184,11 +188,12 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
           | (split at accepted)
           | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
         all_goals
-          refine ⟨by simp, by simp, ?_, by simp, by simp, by simp⟩
-          intro item member
-          rcases List.mem_append.mp member with old | fresh
-          · exact .inl old
-          · exact .inr ⟨index, ingress, produced, rfl, found, List.mem_singleton.mp fresh⟩
+          refine ⟨by simp, by simp, ?_, by simp, by simp, by simp, ?_⟩
+          · intro item member
+            rcases List.mem_append.mp member with old | fresh
+            · exact .inl old
+            · exact .inr ⟨index, ingress, produced, rfl, found, List.mem_singleton.mp fresh⟩
+          · exact Theory.Outstanding.enqueue_valid _ _
   | serve id observed =>
     simp only [Check.CampusTCPModel.processCore] at accepted
     cases completed : Theory.Outstanding.complete before.work id with
@@ -201,7 +206,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
         | (split at accepted)
         | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
       all_goals
-        refine ⟨?_, ?_, ?_, by simp, ?_, ?_⟩
+        refine ⟨?_, ?_, ?_, by simp, ?_, ?_, ?_⟩
         · simp only [write_outputs, Option.toList_none, List.append_nil]
         · rfl
         · intro item member
@@ -212,6 +217,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
         · intro served present
           cases present
           exact ⟨id, observed, work, rfl, completed, rfl, rfl, rfl⟩
+        · exact work.valid
   | deliver index bytes policy =>
     simp only [Check.CampusTCPModel.processCore] at accepted
     cases found : before.services[index]? with
@@ -229,7 +235,36 @@ private theorem step_changes (step : M.Step input) : Changes step.before step.ev
   obtain ⟨effect, custody, computed, same⟩ := step.processed
   have changes := process_changes input step.before step.event effect computed
   rw [same]
-  exact ⟨changes.outputs, changes.services, changes.pending, changes.outputTime, changes.serviceTime, changes.serviceOrigin⟩
+  exact ⟨changes.outputs, changes.services, changes.pending, changes.outputTime, changes.serviceTime, changes.serviceOrigin, changes.workValid⟩
+
+theorem work_valid (step : M.Step input) (prior : step.before.work.Valid) : step.result.state.work.Valid :=
+  (step_changes step).workValid prior
+
+theorem Trace.work_valid (trace : M.Trace input initial events steps final remaining) (prior : initial.work.Valid) :
+    final.work.Valid := by
+  induction trace with
+  | done state => exact prior
+  | stop head _ _ => exact CampusTCPOrigins.work_valid head prior
+  | next head _ _ ih => exact ih (CampusTCPOrigins.work_valid head prior)
+
+theorem Trace.each_work_valid (trace : M.Trace input initial events steps final remaining) (prior : initial.work.Valid)
+    (selected : M.Step input) (member : selected ∈ steps) : selected.before.work.Valid := by
+  induction trace with
+  | done state => simp at member
+  | stop head blocked tail =>
+    have same : selected = head := by simpa only [List.mem_singleton] using member
+    exact same ▸ prior
+  | next head supported rest ih =>
+    rcases List.mem_cons.mp member with same | later
+    · exact same ▸ prior
+    · exact ih (CampusTCPOrigins.work_valid head prior) later
+
+theorem Report.work_valid (report : M.Report input events) : report.final.work.Valid :=
+  Trace.work_valid report.trace Theory.Outstanding.State.initial_valid
+
+theorem Report.each_work_valid (report : M.Report input events) (selected : M.Step input)
+    (member : selected ∈ report.steps) : selected.before.work.Valid :=
+  Trace.each_work_valid report.trace Theory.Outstanding.State.initial_valid selected member
 
 theorem output_history (step : M.Step input) :
     step.result.state.outputs = step.before.outputs ++ step.result.output.toList :=

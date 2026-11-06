@@ -11,6 +11,8 @@ The sparse gateway ledger is implemented.
 Automatic campus packet custody now creates identities from actual output and emission results.
 Assignment and delivery consume pending identities; copies and drops are explicit.
 General finite and infinite bounded-service theorems are implemented in `Theory.BoundedProgress`.
+The [enabled-operation extension](../TCP_ENABLED_OPERATIONS.md) derives positive endpoint and gateway operations from their preceding guards.
+It also derives actual cursor chronology, ticket validity, and finite schedule slots from one checked history.
 The concrete TCP adapter and complete transfer theorem below remain OPEN.
 See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
 The source links below describe the earlier design basis.

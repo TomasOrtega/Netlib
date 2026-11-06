@@ -109,6 +109,7 @@ No parser or replay inserts those copy events on behalf of an input.
 ## Remaining campus progress work
 
 The campus model has packet custody, but it has no concrete adapter that proves complete TCP transfer under bounded service and loss.
+The [enabled-operation extension](TCP_ENABLED_OPERATIONS.md) now derives the guarded local and gateway actions.
 The next result must derive actual receive release, covering ACK output, sender retirement, and application reads.
 It must also retain the actual current-policy and byte-origin evidence.
 

@@ -148,6 +148,13 @@ import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
 import NetlibTest.TCPWireForwarding
 import NetlibTest.TCPAdmission
+import NetlibTest.CampusTCPDeliveryEnabled
+import NetlibTest.CampusTCPSchedule
+import NetlibTest.CampusTCPEnabled
+import NetlibTest.GatewayEnabled
+import NetlibTest.TCPReceiveEnabled
+import NetlibTest.TCPReceiveWindowEnabled
+import NetlibTest.TCPAckEnabled
 import NetlibTest.CampusTCPCustody
 import NetlibTest.PacketCustody
 import NetlibTest.BoundedProgress
@@ -328,6 +335,13 @@ def main : IO Unit := do
   NetlibTest.TCPHandshakeCheck.run
   NetlibTest.TCPWireForwarding.run
   NetlibTest.TCPAdmission.run
+  NetlibTest.CampusTCPDeliveryEnabled.run
+  NetlibTest.CampusTCPSchedule.run
+  NetlibTest.CampusTCPEnabled.run
+  NetlibTest.GatewayEnabled.run
+  NetlibTest.TCPReceiveEnabled.run
+  NetlibTest.TCPReceiveWindowEnabled.run
+  NetlibTest.TCPAckEnabled.run
   NetlibTest.CampusTCPCustody.run
   NetlibTest.PacketCustody.run
   NetlibTest.BoundedProgress.run
