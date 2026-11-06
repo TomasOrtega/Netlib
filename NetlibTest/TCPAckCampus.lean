@@ -103,7 +103,7 @@ structure Demonstration (input : Check.CampusTCP.Input) where
     nowAt .client transfer.step.before.connection = 200
   copiedCut : transfer.installation.checkpoint.snapshot.cut = 7
   delayed : TCP.ApplicationTrace.OutputAt assurance.application.endpoints.client.steps
-  delayedStamp : delayed.step.stamp = 64
+  delayedStamp : delayed.step.stamp = 65
   delayedClock : delayed.step.before.now = 649
   delayedGroup : (TCP.AckTrace.work delayed.step.result.state).completed = [delayedCause.completion]
   delayBound : delayedCause.cause.issuedAt = 150 ∧ delayedCause.cause.due = 649 ∧ delayedCause.completion.time = 649
@@ -113,31 +113,31 @@ structure Demonstration (input : Check.CampusTCP.Input) where
     serverFirst.completion.causes = [serverFirst.cause, serverSecond.cause] ∧
     serverFirst.cause.due = 599 ∧ serverSecond.cause.due = 649 ∧ serverFirst.completion.time = 150
   piggybackGroup : (TCP.AckTrace.work piggyback.step.result.state).completed = [serverFirst.completion]
-  early : ApplicationAt report 61 .client
+  early : ApplicationAt report 62 .client
   earlyDecision : early.step.result.decision = .reject (.ack .early)
   earlyNoOutput : early.step.result.output = none
-  suppressed : ApplicationAt report 126 .server
+  suppressed : ApplicationAt report 127 .server
   suppressedCredit : Theory.TimedReaction.credit (TCP.AckTrace.work suppressed.step.result.state) = 0
   smallOutput : TCP.ApplicationTrace.OutputAt assurance.application.endpoints.server.steps
-  smallOutputStamp : smallOutput.step.stamp = 130
+  smallOutputStamp : smallOutput.step.stamp = 131
   suppressedWindow : smallOutput.output.packet.segment.window.val = 2496 ∧ smallOutput.step.before.core.window = 3695
-  thresholdRead : ApplicationAt report 135 .server
+  thresholdRead : ApplicationAt report 136 .server
   thresholdAccepted : thresholdRead.step.result.decision = .accepted (.read 1)
   windowCause : serverWindow.cause.demand.kind = .window ∧ serverWindow.cause.issuedAt = 8400 ∧
     serverWindow.cause.due = 8400 ∧ serverWindow.cause.demand.minimumEdge = 5296
   windowOutput : TCP.ApplicationTrace.OutputAt assurance.application.endpoints.server.steps
-  windowOutputStamp : windowOutput.step.stamp = 136
+  windowOutputStamp : windowOutput.step.stamp = 137
   reopenedWindow : windowOutput.output.packet.segment.window.val = 3696 ∧ serverWindow.completion.time = 8400
   serverRead : assurance.application.endpoints.server.steps.flatMap TCP.ApplicationTrace.Step.readBytes =
     fixturePayload 17 800 ++ fixturePayload 33 800
   clientRead : assurance.application.endpoints.client.steps.flatMap TCP.ApplicationTrace.Step.readBytes =
     fixturePayload 81 1200 ++ fixturePayload 97 1200 ++ fixturePayload 113 1200
-  deniedData : ServiceAt report 147
-  deniedWindow : ServiceAt report 152
+  deniedData : ServiceAt report 148
+  deniedWindow : ServiceAt report 153
   currentData : (Check.SessionFirewall.stateAt input.model.context.authentication deniedData.joint.step.before.authentication).auth.authorized = false
   currentWindow : (Check.SessionFirewall.stateAt input.model.context.authentication deniedWindow.joint.step.before.authentication).auth.authorized = false
-  deniedDataOrigin : deniedData.served.ticket.value.produced.time = 145
-  deniedWindowOrigin : deniedWindow.served.ticket.value.produced.time = 150
+  deniedDataOrigin : deniedData.served.ticket.value.produced.time = 146
+  deniedWindowOrigin : deniedWindow.served.ticket.value.produced.time = 151
 
 theorem Demonstration.rmss (value : Demonstration input) : value.client.rmss = 1200 ∧ value.server.rmss = 800 := by
   exact ⟨(value.assurance.client.rmss value.client value.clientStored).trans value.offers.1,
@@ -230,7 +230,7 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
       Theory.TimedReaction.pendingDue (workAt .client transfer.step.before.connection) = some 649 ∧
       nowAt .client transfer.step.before.connection = 200) "The pending client cause did not reach the actual installation cut."
     let copiedCut ← verify (transfer.installation.checkpoint.snapshot.cut = 7) "The actual copied gateway cut differs."
-    let delayed ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.client.steps 64
+    let delayed ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.client.steps 65
     let delayedClock ← verify (delayed.val.step.before.now = 649) "The delayed response used a different local clock."
     let delayedGroup ← verify ((TCP.AckTrace.work delayed.val.step.result.state).completed = [c0.completion])
       "The actual dispatch did not create the selected completed group."
@@ -241,36 +241,36 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
       s0.cause.due = 599 ∧ s1.cause.due = 649 ∧ s0.completion.time = 150) "The piggyback response lost its coalesced causes."
     let piggybackGroup ← verify ((TCP.AckTrace.work piggyback.val.step.result.state).completed = [s0.completion])
       "The actual data send did not create the coalesced ACK group."
-    let early ← applicationAt report 61 .client
+    let early ← applicationAt report 62 .client
     let earlyDecision ← verify (early.step.result.decision = .reject (.ack .early)) "The early dispatch decision differs."
     let earlyNoOutput ← match absent : early.step.result.output with
       | none => pure (show { _value : Unit // early.step.result.output = none } from ⟨(), absent⟩)
       | some _ => throw "The early dispatcher produced a packet."
-    let suppressed ← applicationAt report 126 .server
+    let suppressed ← applicationAt report 127 .server
     let suppressedCredit ← verify (Theory.TimedReaction.credit (TCP.AckTrace.work suppressed.step.result.state) = 0)
       "The small server read incorrectly granted response credit."
-    let smallOutput ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.server.steps 130
+    let smallOutput ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.server.steps 131
     let suppressedWindow ← verify (smallOutput.val.output.packet.segment.window.val = 2496 ∧ smallOutput.val.step.before.core.window = 3695)
       "The actual data output exposed the suppressed small-window advance."
-    let thresholdRead ← applicationAt report 135 .server
+    let thresholdRead ← applicationAt report 136 .server
     let thresholdAccepted ← verify (thresholdRead.step.result.decision = .accepted (.read 1)) "The threshold read differs."
     let windowCause ← verify (s4.cause.demand.kind = .window ∧ s4.cause.issuedAt = 8400 ∧
       s4.cause.due = 8400 ∧ s4.cause.demand.minimumEdge = 5296) "The threshold read lost its actual immediate window cause."
-    let windowOutput ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.server.steps 136
+    let windowOutput ← TCP.ApplicationTrace.findOutput assurance.application.endpoints.server.steps 137
     let reopenedWindow ← verify (windowOutput.val.output.packet.segment.window.val = 3696 ∧ s4.completion.time = 8400)
       "The actual window response did not expose the permitted right-edge advance."
     let serverRead ← verify (assurance.application.endpoints.server.steps.flatMap TCP.ApplicationTrace.Step.readBytes =
       fixturePayload 17 800 ++ fixturePayload 33 800) "The server read history repeated or omitted bytes."
     let clientRead ← verify (assurance.application.endpoints.client.steps.flatMap TCP.ApplicationTrace.Step.readBytes =
       fixturePayload 81 1200 ++ fixturePayload 97 1200 ++ fixturePayload 113 1200) "The client read history repeated or omitted bytes."
-    let deniedData ← serviceAt report 147
-    let deniedWindow ← serviceAt report 152
+    let deniedData ← serviceAt report 148
+    let deniedWindow ← serviceAt report 153
     let currentData ← verify ((Check.SessionFirewall.stateAt input.model.context.authentication deniedData.joint.step.before.authentication).auth.authorized = false)
       "The data ACK service did not use current Logoff state."
     let currentWindow ← verify ((Check.SessionFirewall.stateAt input.model.context.authentication deniedWindow.joint.step.before.authentication).auth.authorized = false)
       "The window ACK service did not use current Logoff state."
-    let deniedDataOrigin ← verify (deniedData.served.ticket.value.produced.time = 145) "The denied service selected a different data ACK."
-    let deniedWindowOrigin ← verify (deniedWindow.served.ticket.value.produced.time = 150) "The denied service selected a different window ACK."
+    let deniedDataOrigin ← verify (deniedData.served.ticket.value.produced.time = 146) "The denied service selected a different data ACK."
+    let deniedWindowOrigin ← verify (deniedWindow.served.ticket.value.produced.time = 151) "The denied service selected a different window ACK."
     return ⟨report, evidence, assurance, transfer, clientEnabled.property, serverEnabled.property,
       client, clientStored, server, serverStored, offers.property, outgoing.property, clientCases, serverCases,
       clientIDs.property, serverIDs.property, counts.property, c0, s0, s1, s4, keys.property, preserved.property,
@@ -295,7 +295,7 @@ def run : IO Unit := do
   let _ := value.current_denial
   for selected in value.clientCases do let _ := value.client_causal selected; pure ()
   for selected in value.serverCases do let _ := value.server_causal selected; pure ()
-  unless value.report.steps.length == 153 && value.report.remaining.isEmpty do
+  unless value.report.steps.length == 154 && value.report.remaining.isEmpty do
     throw (IO.userError "The ACK witness must retain the full actual replay.")
   unless value.deniedData.served.evidence.output.isNone && value.deniedWindow.served.evidence.output.isNone &&
       value.deniedData.served.ticket.value.gateway == .standby && value.deniedWindow.served.ticket.value.gateway == .standby &&

@@ -141,6 +141,8 @@ import Netlib.Check.StatefulFailover
 import Netlib.Protocol.TrackedFlow
 import Netlib.Theory.Outstanding
 import Netlib.Theory.TimedReaction
+import Netlib.Theory.PacketCustody
+import Netlib.Theory.BoundedProgress
 import Netlib.Theory.SparseCoverage
 import Netlib.Protocol.SafeHandoff
 import Netlib.Protocol.SafeHandoffCommonFacts
@@ -194,6 +196,7 @@ import Netlib.Protocol.TCP.AckReaction
 import Netlib.Protocol.TCP.AckTrace
 import Netlib.Check.CampusTCPAckFacts
 import Netlib.Check.CampusTCPGapFacts
+import Netlib.Check.CampusTCPCustodyFacts
 import Netlib.Check.CampusTCPSparseFacts
 import Netlib.Protocol.TCP.ReceiveAdvertisement
 import Netlib.Protocol.TCP.ReceiveStore

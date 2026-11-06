@@ -36,15 +36,19 @@ The timeline has these operations:
 | `write`, `send`, `read`, `emitAck` | Run the selected endpoint application operation. |
 | `assign` | Allocate an immutable ticket for an earlier endpoint output. |
 | `serve` | Process that stored ticket through the current gateway. |
-| `deliver` | Present exact bytes from an earlier actual gateway emission to the opposite endpoint. |
+| `deliver` | Consume a pending packet with exact bytes from an actual gateway emission. |
+| `copyPacket` | Create an explicit copy of an actual packet identity. |
+| `dropPacket` | Consume a pending packet and record explicit link loss. |
 
 Each generated output receives an output identity.
 Assignment references that identity and records an actual ingress lifetime.
 It cannot supply replacement bytes.
 Service consumes one pending ticket by identity.
 A second service of the same ticket fails.
-Receiver delivery can repeat an earlier emission to represent network duplication.
-The endpoint profile decides whether that receipt is supported.
+Each output and gateway emission automatically creates packet custody.
+Repeated assignment or delivery needs an explicit `copyPacket` action.
+An omitted action leaves its packet pending.
+See the [custody and service guide](PACKET_CUSTODY.md) for identity, source, loss, and schedule laws.
 
 `serve.observed` is either null or a supplied input/output byte observation.
 A mismatched observation fails comparison and cannot replace the stored source or computed outcome.

@@ -3,6 +3,7 @@ import Netlib.Check.CampusTCPTransferFacts
 import Netlib.Check.CampusTCPAckFacts
 import Netlib.Check.CampusTCPGapFacts
 import Netlib.Check.TCPAdmissionJSON
+import Netlib.Check.CampusTCPCustodyFacts
 import Netlib.Check.CampusTCPSparseFacts
 
 /-!
@@ -202,6 +203,12 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
     Import.PacketFields.fields json ["kind", "service", "rawIPv4Hex", "policyPermitted"]
     return .deliver (← (← json.getObjVal? "service").getNat?) (← hex (← json.getObjVal? "rawIPv4Hex"))
       (← (← json.getObjVal? "policyPermitted").getBool?)
+  | "copyPacket" =>
+    Import.PacketFields.fields json ["kind", "packet"]
+    return .copyPacket (← (← json.getObjVal? "packet").getNat?)
+  | "dropPacket" =>
+    Import.PacketFields.fields json ["kind", "packet"]
+    return .dropPacket (← (← json.getObjVal? "packet").getNat?)
   | _ => throw "The campus TCP event kind is unknown."
 
 def Input.fromJson (json : Lean.Json) : Except String Input := do
@@ -476,6 +483,7 @@ def eventKind : Event → String
   | .enableRecovery .. => "enableRecovery" | .advanceClock .. => "advanceClock" | .timeout .. => "timeout"
   | .enableAck .. => "enableAck" | .dispatchAck .. => "dispatchAck"
   | .assign .. => "assign" | .serve .. => "serve" | .deliver .. => "deliver"
+  | .copyPacket _ => "copyPacket" | .dropPacket _ => "dropPacket"
 
 def eventJson (event : Event) : Lean.Json :=
   Lean.Json.mkObj (("kind", Lean.toJson (eventKind event)) :: match event with
@@ -499,6 +507,7 @@ def eventJson (event : Event) : Lean.Json :=
     | .timeout actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .read actor count => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count)]
     | .emitAck actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
+    | .copyPacket id | .dropPacket id => [("packet", Lean.toJson id)]
     | .assign output ingress => [("output", Lean.toJson output), ("ingress", interfaceJson ingress)]
     | .serve ticket observed => [("ticket", Lean.toJson ticket), ("observed", match observed with
       | none => .null
@@ -555,6 +564,27 @@ def transferJson (state : State input) : Lean.Json := Lean.Json.mkObj [
     ("index", Lean.toJson installed.time), ("checkpoint", Lean.toJson installed.checkpoint.id),
     ("stagedAt", Lean.toJson installed.checkpoint.time), ("historyTransitions", Lean.toJson installed.history.length)]).getD .null)]
 
+def custodyJson (custody : Custody input) : Lean.Json := Lean.Json.mkObj [
+  ("nextID", Lean.toJson custody.nextID), ("pending", Lean.toJson (custody.pending.map (·.id))),
+  ("resolved", Lean.toJson (custody.resolutions.map fun record => Lean.Json.mkObj [
+    ("packet", Lean.toJson record.item.id), ("kind", Lean.toJson (match record.disposition with
+      | .assigned => "assigned" | .delivered => "delivered" | .dropped => "dropped"))])),
+  ("copies", Lean.toJson (custody.items.countP (·.value.parent.isSome)))]
+
+def packetJson (packet : Theory.PacketCustody.Item (Transit input)) : Lean.Json :=
+  let (stage, source) := match packet.value.payload with
+    | .ingress index _ => ("ingress", index)
+    | .link index .. => ("link", index)
+  Lean.Json.mkObj [("id", Lean.toJson packet.id), ("parent", Lean.toJson packet.value.parent),
+    ("stage", Lean.toJson stage), ("source", Lean.toJson source),
+    ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex packet.value.payload.bytes))]
+
+def custodyAssuranceJson (custody : Custody input) : Lean.Json := Lean.Json.mkObj [
+  ("scope", Lean.toJson "automatic-packet-custody"), ("status", Lean.toJson "checked"),
+  ("pending", Lean.toJson custody.pending.length),
+  ("assigned", Lean.toJson (custody.count .assigned)), ("delivered", Lean.toJson (custody.count .delivered)),
+  ("dropped", Lean.toJson custody.dropped), ("copies", Lean.toJson (custody.items.countP (·.value.parent.isSome)))]
+
 def stateJson (state : State input) : Lean.Json :=
   let stage := (connectionStage state.connection).json
   Lean.Json.mkObj ([
@@ -566,7 +596,7 @@ def stateJson (state : State input) : Lean.Json :=
     ("admissionPhase", Lean.toJson state.admission.phase.name), ("admissionObservations", Lean.toJson state.admission.observations.length),
     ("records", recordsJson state.tracker),
     ("outputs", Lean.toJson state.outputs.length), ("pendingTickets", Lean.toJson (state.work.pending.map (·.id))),
-    ("services", Lean.toJson state.services.length)] ++ if input.standby.isSome then [
+    ("services", Lean.toJson state.services.length), ("custody", custodyJson state.custody)] ++ if input.standby.isSome then [
       ("gateways", Lean.Json.mkObj [("primary", residentJson state.primary), ("standby", residentJson state.standby)]),
       ("transfer", transferJson state)] else [])
 
@@ -644,7 +674,9 @@ def assumptions : List String := [
   "Optional data recovery uses explicit local clocks, one-MSS unique flight, and at most two retries per outstanding original segment.",
   "Fast recovery, persist, replacement, close processing, other options, and unbounded sequence reuse remain outside the selected history.",
   "Local millisecond readings do not prove native time or coherence with credential expiry.",
-  "Actual gateway output supplies receiver bytes in the modeled timeline. Physical delivery and connection-instance identity remain external.",
+  "Every endpoint output and gateway emission allocates packet custody. Assignment and delivery consume actual pending packets.",
+  "Copies and link drops use explicit packet identities. An omitted action leaves its packet pending and does not prove loss.",
+  "Actual gateway output supplies receiver bytes in the modeled timeline. Bounded TCP progress, physical delivery, and connection-instance identity remain open.",
   "Logoff and checked denial prevent later gateway output. They do not erase bytes already received or buffered.",
   "Native TCP migration, automatic failure recovery, native Wi-Fi enforcement, and the full campus demonstration remain open."]
 
@@ -670,8 +702,10 @@ def renderJson (report : CampusTCPModel.Report input events)
   ("scope", Lean.toJson "campus-tcp-application-path"), ("supported", Lean.toJson report.supported),
   ("compliant", Lean.toJson report.compliant), ("inputEvents", Lean.toJson events.length), ("evaluatedEvents", Lean.toJson report.steps.length),
   ("applicationAssurance", application.json),
+  ("custodyAssurance", custodyAssuranceJson report.final.custody),
   ("initial", stateJson input.initial), ("steps", Lean.toJson (report.steps.map stepJson)), ("final", stateJson report.final),
   ("outputs", Lean.toJson (report.final.outputs.zipIdx.map fun (value, id) => producedJson value id)),
+  ("packets", Lean.toJson ((report.final.custody.items.mergeSort (fun first second => first.id ≤ second.id)).map packetJson)),
   ("services", Lean.toJson (report.final.services.zipIdx.map fun (value, id) => servedJson value id)),
   ("reads", Lean.toJson (report.steps.filterMap fun step => match step.event, step.result.application with
     | .read actor _, some (_, applied) => match applied.result.decision with

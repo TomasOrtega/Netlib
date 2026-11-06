@@ -181,11 +181,11 @@ structure Demonstration (input : Check.CampusTCP.Input) where
   gap : G.Assurance report
   transfer : Check.CampusTCPTransferFacts.Assurance report
   forwardHeld : Point gap.application.endpoints.server.steps 38
-  forwardRelease : Point gap.application.endpoints.server.steps 58
-  forwardRead : Point gap.application.endpoints.server.steps 64
-  reverseHeld : Point gap.application.endpoints.client.steps 72
-  reverseRelease : Point gap.application.endpoints.client.steps 83
-  reverseRead : Point gap.application.endpoints.client.steps 92
+  forwardRelease : Point gap.application.endpoints.server.steps 59
+  forwardRead : Point gap.application.endpoints.server.steps 65
+  reverseHeld : Point gap.application.endpoints.client.steps 73
+  reverseRelease : Point gap.application.endpoints.client.steps 84
+  reverseRead : Point gap.application.endpoints.client.steps 93
   held400 : heldShape forwardHeld.step 400
   held600 : heldShape reverseHeld.step 600
   released800 : releaseShape forwardRelease.step 400 800 (fixturePayload 17 400 ++ fixturePayload 33 400)
@@ -197,15 +197,15 @@ structure Demonstration (input : Check.CampusTCP.Input) where
   reverseSamples : List (ReceiptSample report gap.application.endpoints.server.steps .client
     gap.application.endpoints.client.steps reverseRelease.step reverseRead.step)
   forwardSources : forwardSamples.map ReceiptSample.shape =
-    [⟨0, 1, 0, 58, 54, 1100, true⟩, ⟨399, 1, 399, 58, 54, 1100, true⟩,
+    [⟨0, 1, 0, 59, 55, 1100, true⟩, ⟨399, 1, 399, 59, 55, 1100, true⟩,
       ⟨400, 0, 0, 38, 35, 100, false⟩, ⟨799, 0, 399, 38, 35, 100, false⟩]
   reverseSources : reverseSamples.map ReceiptSample.shape =
-    [⟨0, 1, 0, 83, 79, 2100, true⟩, ⟨599, 1, 599, 83, 79, 2100, true⟩,
-      ⟨600, 0, 0, 72, 69, 1200, true⟩, ⟨1199, 0, 599, 72, 69, 1200, true⟩]
-  forwardRetry : RecoveryCase gap.application.endpoints.client.steps 54
-  reverseRetry : RecoveryCase gap.application.endpoints.server.steps 79
-  forwardAck : RecoveryCase gap.application.endpoints.client.steps 63
-  reverseAck : RecoveryCase gap.application.endpoints.server.steps 88
+    [⟨0, 1, 0, 84, 80, 2100, true⟩, ⟨599, 1, 599, 84, 80, 2100, true⟩,
+      ⟨600, 0, 0, 73, 70, 1200, true⟩, ⟨1199, 0, 599, 73, 70, 1200, true⟩]
+  forwardRetry : RecoveryCase gap.application.endpoints.client.steps 55
+  reverseRetry : RecoveryCase gap.application.endpoints.server.steps 80
+  forwardAck : RecoveryCase gap.application.endpoints.client.steps 64
+  reverseAck : RecoveryCase gap.application.endpoints.server.steps 89
   retryEvents : forwardRetry.point.step.event = .timeout true ∧ reverseRetry.point.step.event = .timeout true
   retried400 : retryShape forwardRetry 400
   retried600 : retryShape reverseRetry 600
@@ -213,7 +213,7 @@ structure Demonstration (input : Check.CampusTCP.Input) where
   retired1200 : karnShape reverseAck 1200
   preservedHeld : (endpoint .server transfer.step.before.connection).map (·.receiveStore) = some forwardHeld.step.result.state.receiveStore
   copiedCut : transfer.installation.checkpoint.snapshot.cut = 7
-  denied : F.At report 95
+  denied : F.At report 96
   deniedService : M.Served input.model
   deniedPresent : denied.step.result.service = some deniedService
   revoked : (Check.SessionFirewall.stateAt input.model.context.authentication denied.step.before.authentication).auth.authorized = false
@@ -248,11 +248,11 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
   let gap ← Check.CampusTCPGapFacts.assure evidence
   let transfer ← Check.CampusTCPTransferFacts.assure report
   let forwardHeld ← point gap.application.endpoints.server.steps 38
-  let forwardRelease ← point gap.application.endpoints.server.steps 58
-  let forwardRead ← point gap.application.endpoints.server.steps 64
-  let reverseHeld ← point gap.application.endpoints.client.steps 72
-  let reverseRelease ← point gap.application.endpoints.client.steps 83
-  let reverseRead ← point gap.application.endpoints.client.steps 92
+  let forwardRelease ← point gap.application.endpoints.server.steps 59
+  let forwardRead ← point gap.application.endpoints.server.steps 65
+  let reverseHeld ← point gap.application.endpoints.client.steps 73
+  let reverseRelease ← point gap.application.endpoints.client.steps 84
+  let reverseRead ← point gap.application.endpoints.client.steps 93
   let held400 ← verify (heldShape forwardHeld.step 400) "The forward held storage differs."
   let held600 ← verify (heldShape reverseHeld.step 600) "The reverse held storage differs."
   let released800 ← verify (releaseShape forwardRelease.step 400 800 (fixturePayload 17 400 ++ fixturePayload 33 400)) "The forward ordered release differs."
@@ -268,15 +268,15 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
     receiptSample report gap.application.endpoints.server.steps .client gap.application.endpoints.client.chain gap.client.empty
       reverseRelease reverseRead receipt index readIndex)
   let forwardSources ← verify (forwardSamples.map ReceiptSample.shape =
-    [⟨0, 1, 0, 58, 54, 1100, true⟩, ⟨399, 1, 399, 58, 54, 1100, true⟩,
+    [⟨0, 1, 0, 59, 55, 1100, true⟩, ⟨399, 1, 399, 59, 55, 1100, true⟩,
       ⟨400, 0, 0, 38, 35, 100, false⟩, ⟨799, 0, 399, 38, 35, 100, false⟩]) "The forward receipt source differs."
   let reverseSources ← verify (reverseSamples.map ReceiptSample.shape =
-    [⟨0, 1, 0, 83, 79, 2100, true⟩, ⟨599, 1, 599, 83, 79, 2100, true⟩,
-      ⟨600, 0, 0, 72, 69, 1200, true⟩, ⟨1199, 0, 599, 72, 69, 1200, true⟩]) "The reverse receipt source differs."
-  let forwardRetry ← recoveryCase gap.application.endpoints.client.steps 54
-  let reverseRetry ← recoveryCase gap.application.endpoints.server.steps 79
-  let forwardAck ← recoveryCase gap.application.endpoints.client.steps 63
-  let reverseAck ← recoveryCase gap.application.endpoints.server.steps 88
+    [⟨0, 1, 0, 84, 80, 2100, true⟩, ⟨599, 1, 599, 84, 80, 2100, true⟩,
+      ⟨600, 0, 0, 73, 70, 1200, true⟩, ⟨1199, 0, 599, 73, 70, 1200, true⟩]) "The reverse receipt source differs."
+  let forwardRetry ← recoveryCase gap.application.endpoints.client.steps 55
+  let reverseRetry ← recoveryCase gap.application.endpoints.server.steps 80
+  let forwardAck ← recoveryCase gap.application.endpoints.client.steps 64
+  let reverseAck ← recoveryCase gap.application.endpoints.server.steps 89
   let forwardRetryEvent ← timeoutEvent forwardRetry.point.step
   let reverseRetryEvent ← timeoutEvent reverseRetry.point.step
   let retried400 ← verify (retryShape forwardRetry 400) "The forward RTO retry differs."
@@ -286,7 +286,7 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
   let preservedHeld ← verify ((endpoint .server transfer.step.before.connection).map (·.receiveStore) =
     some forwardHeld.step.result.state.receiveStore) "The receiver did not retain held data through transfer."
   let copiedCut ← verify (transfer.installation.checkpoint.snapshot.cut = 7) "The installed checkpoint cut differs."
-  let denied ← F.findStep report 95
+  let denied ← F.findStep report 96
   match deniedPresent : denied.step.result.service with
   | none => throw "The Logoff service is missing."
   | some deniedService =>
@@ -322,8 +322,8 @@ structure DeferredDemonstration (input : Check.CampusTCP.Input) where
   gap : G.Assurance report
   transfer : Check.CampusTCPTransferFacts.Assurance report
   held : Point gap.application.endpoints.server.steps 48
-  release : RecoveryCase gap.application.endpoints.server.steps 64
-  reader : Point gap.application.endpoints.server.steps 70
+  release : RecoveryCase gap.application.endpoints.server.steps 65
+  reader : Point gap.application.endpoints.server.steps 71
   allocation : TCP.ApplicationTrace.ActualAllocation release.point.step
   selected : release.point.step.allocation = some allocation
   headers : headerClocks release.point.step.before allocation.input = [⟨1, 1100, 0⟩, ⟨0, 150, 200⟩]
@@ -354,8 +354,8 @@ private def deferredDemonstrate (input : Check.CampusTCP.Input) : Except String 
   let gap ← Check.CampusTCPGapFacts.assure evidence
   let transfer ← Check.CampusTCPTransferFacts.assure report
   let held ← point gap.application.endpoints.server.steps 48
-  let release ← recoveryCase gap.application.endpoints.server.steps 64
-  let reader ← point gap.application.endpoints.server.steps 70
+  let release ← recoveryCase gap.application.endpoints.server.steps 65
+  let reader ← point gap.application.endpoints.server.steps 71
   match selected : release.point.step.allocation with
   | none => throw "The deferred header release has no actual allocation."
   | some allocation =>
@@ -410,7 +410,7 @@ def run : IO Unit := do
       let _ := sample.held_earlier value.gap.application.endpoints.client.chain value.gap.client.empty
         value.reverseRelease.member value.gap.application.backward.receiverOrder held.property
       pure ()
-  unless value.report.steps.length == 96 && value.report.remaining.isEmpty &&
+  unless value.report.steps.length == 97 && value.report.remaining.isEmpty &&
       value.deniedService.ticket.value.gateway == .standby && value.deniedService.evidence.output.isNone do
     throw (IO.userError "The receive-gap campus trace must complete and deny the final standby output.")
   let deferredInput ← match Check.CampusTCP.Input.parse (← IO.FS.readFile "examples/tcp-receive-gaps/deferred-clock.json") with
@@ -429,7 +429,7 @@ def run : IO Unit := do
   let empty := deferred.gap.application.complete.certificate.empty
   let _ := deferred.receipt.write_origin deferred.gap.application.endpoints.client.chain empty.2.1 empty.1
     deferred.gap.application.forward.senderOrder
-  unless deferred.report.steps.length == 79 && deferred.report.remaining.isEmpty do
+  unless deferred.report.steps.length == 80 && deferred.report.remaining.isEmpty do
     throw (IO.userError "The deferred receipt-clock trace must complete all actual events.")
   IO.println "Checked campus TCP receive-gap tests passed."
 

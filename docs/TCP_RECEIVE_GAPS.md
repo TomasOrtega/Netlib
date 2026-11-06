@@ -114,7 +114,10 @@ The order is write, original send, attempt, receipt, release, and read.
 Receipt and release can be the same operation.
 The two hosts retain their own local clocks.
 
-The receive-storage example reorders delivery after actual gateway service.
+The receive-storage example has 97 events and reorders delivery after actual gateway service.
+An explicit `copyPacket` action creates the old ingress copy used during drain.
+Omitted receipts leave packet identities pending.
+The [packet-custody guide](PACKET_CUSTODY.md) distinguishes that state from an explicit drop.
 The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) also admits selected disjoint ranges before an unseen lower range.
 General overlap handling remains outside both selected profiles.
 General overlap handling, fast recovery, native correspondence, and eventual delivery remain OPEN.

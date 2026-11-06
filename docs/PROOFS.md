@@ -167,6 +167,13 @@ It supplies no endpoint-write or authentication claim.
 `Check.CampusTCPSparseFacts` retains the actual campus assurance and both gateway source invariants.
 The [sparse admission guide](TCP_SPARSE_ADMISSION.md) states the sequence, window, and source limits.
 
+`Theory.PacketCustody` proves fresh identities, exact copy lineage, one-use resolution, and explicit loss counts.
+`Check.CampusTCPCustodyFacts` connects these laws to actual endpoint outputs and gateway emissions in the same campus trace.
+`Theory.BoundedProgress` proves universal rank-based completion under bounded persistent-demand service.
+Finite-prefix, sequential, concurrent, and transition-projection results retain their stated assumptions.
+A concrete TCP progress adapter remains open.
+The [custody and service guide](PACKET_CUSTODY.md) defines this boundary.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

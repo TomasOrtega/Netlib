@@ -11,6 +11,7 @@ from check_campus_tcp_examples import check as campus_tcp_checks
 from check_campus_tcp_transfer_examples import check as campus_tcp_transfer_checks
 from check_cli import ROOT, invoke
 from check_icmp_examples import check as icmp_checks
+from check_packet_custody_examples import check as packet_custody_checks
 from check_reassembly_examples import synthetic_checks as reassembly_checks
 from check_reassembly_native_examples import check as reassembly_native_checks
 from check_received_icmp_examples import check as received_icmp_checks
@@ -1160,6 +1161,7 @@ def main():
     tcp_ack_checks()
     tcp_gap_checks()
     tcp_sparse_checks()
+    packet_custody_checks()
     campus_tcp_checks()
     campus_tcp_transfer_checks()
     count = 0

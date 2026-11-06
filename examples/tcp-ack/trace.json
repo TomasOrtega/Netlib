@@ -1439,6 +1439,10 @@
       "policyPermitted": true
     },
     {
+      "kind": "copyPacket",
+      "packet": 6
+    },
+    {
       "kind": "assign",
       "output": 3,
       "ingress": {

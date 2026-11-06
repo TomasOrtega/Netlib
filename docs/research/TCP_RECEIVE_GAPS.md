@@ -89,7 +89,7 @@ Thus, decision `received` and cause `bytes` can be 400 when `releasedHex` contai
 
 ## Connected campus trace
 
-[The trace](../../examples/tcp-receive-gaps/trace.json) has 96 events, 14 actual endpoint outputs, and 15 gateway service results.
+[The trace](../../examples/tcp-receive-gaps/trace.json) has 97 events, 14 actual endpoint outputs, and 15 gateway service results.
 It uses the current imported campus configuration, checked startup, asymmetric MSS, recovery clocks, and ACK profile.
 
 The client sends two different 400-byte payloads within its 800-byte flight bound.
@@ -97,20 +97,21 @@ Primary service observes both in sequence order.
 Only the suffix arrives first, at event 38.
 The server retains 400 bytes, exposes no ordered data, and generates immediate cumulative feedback without shrinking its offered edge.
 
-The actual gateway checkpoint is installed at event 48.
+An explicit copy action creates the old ingress packet used during drain.
+The actual gateway checkpoint is installed at event 49.
 The held suffix and its receipt metadata remain at the host through pause, drain, installation, route changes, and fencing.
 They are not part of the copied NAT image.
-At event 54, the client retries its actual first 400-byte original range.
-Standby service emits that retry, and receipt 58 fills the gap.
+At event 55, the client retries its actual first 400-byte original range.
+Standby service emits that retry, and receipt 59 fills the gap.
 One cause covers the new arrival while the ordered frontier advances by 800.
 The released run identities are the current prefix first and the earlier suffix second.
 An actual cumulative ACK retires both original records without an RTT sample.
-Read 64 returns 800 bytes once.
+Read 65 returns 800 bytes once.
 
 The reverse path sends 600+600 bytes within the server's 1200-byte flight bound.
-A held suffix and an actual retry release 1200 bytes at event 83.
-Current Logoff precedes the buffered read at event 92.
-The resulting window update is generated locally at event 93, but current gateway service denies its delivery at event 95.
+A held suffix and an actual retry release 1200 bytes at event 84.
+Current Logoff precedes the buffered read at event 93.
+The resulting window update is generated locally at event 94, but current gateway service denies its delivery at event 96.
 Timely local generation does not establish peer delivery or eventual progress.
 
 The first positive trace reorders delivery after gateway service.
@@ -132,7 +133,9 @@ Other traces cover wrapped startup, exact queued copies, and a one-gateway parti
 The partial case releases 200 bytes first, retains a 400-byte suffix, and releases the remaining 600 after another actual retry.
 A current denial of the gap retry leaves the suffix stored and unreadable.
 An authorized earlier gateway emission can arrive after Logoff and release bytes under its original service-time evidence.
-A lost cumulative ACK triggers a second real retry without appending old bytes or replacing their first receipt origins.
+A cumulative ACK without a receipt remains pending while a second real retry occurs.
+It does not append old bytes or replace their first receipt origins.
+Omitted events do not prove packet loss; the [custody trace](../PACKET_CUSTODY.md) uses explicit drops.
 
 ## Corpus and audit
 
@@ -156,10 +159,12 @@ Actual noncompliance produces `failed` with its reason and no success counts.
 The helper requires this exact object, rejects an absent gap object, and checks its absence on all 94 valid legacy campus rows.
 A stale-permit-after-Logoff variant checks failure after both actual gaps have occurred.
 
-All previously valid campus, transfer, MSS, recovery, and ACK expectations remain unchanged.
+Automatic custody adds identity and resolution fields to all campus reports.
+Legacy cases with repeated assignment or delivery now include explicit copy actions.
+Expected operation indices change while packet bytes and host-clock readings stay the same.
 Three former outside-profile inputs move to the new corpus with their actual continuation outcomes.
 The ACK case `actual-out-of-order-data-remains-outside-profile` is now the input error `out-of-order-receipt-reaches-later-emission-mismatch`.
-Its input is unchanged and reaches the later actual-emission mismatch.
+Its packet bytes are retained, and its explicit copy action permits it to reach the later actual-emission mismatch.
 The raw in-order `tcp-receive` projection and its fixtures remain unchanged.
 Expected packets and state come only from the independent Python model.
 No Lean report supplies an expected value.

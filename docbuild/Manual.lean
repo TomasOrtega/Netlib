@@ -2074,7 +2074,62 @@ Both directions retain gateway, receipt, release, and application-write origins.
 Sparse source assurance permits holes and reports prefix completeness separately.
 The raw admission checker starts empty and checks supplied startup packets under a declared mapping and fixed permit routes.
 It supplies no endpoint-write or authentication claim.
-Packet custody, explicit loss, bounded service, native correspondence, and eventual delivery remain open.
+The next chapter adds packet custody and general bounded-service laws.
+Concrete TCP progress, native correspondence, and eventual delivery remain open.
+All seven programs and the full campus objective remain OPEN.
+
+# Packet custody and bounded service
+%%%
+tag := "packet-custody"
+file := "packet-custody"
+%%%
+
+Each actual endpoint output creates an ingress packet identity.
+Each actual gateway emission creates a receiver-link identity.
+Assignment and delivery consume pending identities.
+Copy and drop operations must cite actual packet identities.
+A copy retains its parent, source, and exact bytes.
+An omitted operation leaves its packet pending.
+It does not establish loss.
+
+The actual-operation history accounts for every allocated identity:
+
+```lean
+open Netlib.Theory.PacketCustody in
+example (history : History state) :
+    state.pending.length + state.resolutions.length =
+      state.nextID :=
+  history.accounted
+```
+
+The campus custody proof binds each packet to the exact stored output or gateway service.
+It uses the same checked endpoint, gateway, policy, and receipt results.
+Local denial and gateway denial do not consume a link-loss allowance.
+Only an explicit drop increases the recorded link-loss count.
+
+A general progress adapter uses the actual transition relation.
+Its laws require a nonincreasing rank, an enabled preceding-state demand, persistence, and descent on service.
+Bounded service then establishes completion for every admitted schedule:
+
+```lean
+open Netlib.Theory.BoundedProgress in
+example (adapter : Adapter S A D)
+    (run : Execution adapter.system) (bound : Nat)
+    (initial : adapter.invariant (run.state 0))
+    (service : run.ServiceFrom bound 0) :
+    adapter.complete (run.state
+      (0 + adapter.rank (run.state 0) * bound)) :=
+  run.completes_by initial service 0 (Nat.le_refl 0)
+```
+
+The finite-prefix result requires enough actual checked slots for the derived bound.
+Sequential composition adds local bounds.
+Concurrent composition retains a service condition for each task.
+Physical time needs a separate clock correspondence.
+
+The campus model does not yet have a complete TCP progress adapter.
+That result must derive actual receive release, covering ACKs, sender retirement, and application reads.
+It must state its loss, copy, clock, receive-space, current-policy, and transfer conditions.
 All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path

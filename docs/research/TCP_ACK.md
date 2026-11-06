@@ -140,25 +140,29 @@ Timing cases include the last permitted millisecond, a forbidden clock jump, loc
 
 ## Constructed campus witness
 
-[The trace](../../examples/tcp-ack/trace.json) has 153 operations, 21 endpoint outputs, and 22 gateway service results.
+[The trace](../../examples/tcp-ack/trace.json) has 154 operations, 21 endpoint outputs, and 22 gateway service results.
 It reuses the existing checked startup and native-format campus configuration inputs.
 The client sends two 400-byte segments at local times 100 and 150.
 Their server-side causes coalesce without postponing the first deadline.
 The server's actual 1200-byte output at time 150 piggybacks the cumulative ACK and discharges both causes.
 
 The client's resulting data-ACK obligation remains pending during gateway transfer at local time 200.
-An earlier actual output is assigned again before pause.
+An explicit `copyPacket` action copies an earlier actual output before pause.
+Assignment consumes that new ingress identity.
 Its service during drain advances the source cut from six transitions to seven.
 The final checkpoint preserves that actual cut and the directional MSS offers.
 Installation leaves the endpoint obligation and its due time 649 unchanged.
 Dispatch at 648 rejects as early; actual dispatch at 649 traverses standby and retires the server's outstanding range.
 
-A later 800-byte client output is lost after gateway service.
+A later 800-byte client output receives gateway service but no receipt.
+Its receiver-link identity remains pending.
 Retries occur at 1700 and 3700.
-The first recovery ACK is generated at 2199 and served, but its network receipt is withheld.
+The first recovery ACK is generated at 2199 and served, but its receiver-link identity also remains pending.
 The second data receipt is wholly old and creates an immediate cumulative response without additional application bytes.
-The server's later 1200-byte loss uses retries at 5297 and 8291.
-Its first recovery ACK is also left undelivered.
+The server's later 1200-byte emission has no receipt and uses retries at 5297 and 8291.
+Its first recovery ACK is also left pending.
+Omitted receipts do not prove packet loss.
+The [packet-custody trace](../PACKET_CUSTODY.md) uses explicit data and ACK drops on the actual recovery path.
 Both directions retain their original byte ranges and Karn ambiguity.
 
 The server then reads 1199 bytes, below its 1200-byte SWS threshold.
@@ -187,8 +191,9 @@ The no-loop claim concerns ordinary accepted pure ACKs.
 [The comparison helper](../../scripts/check_tcp_ack_examples.py) checks full independently calculated steps and actual packet bytes.
 Its audit checks earlier actual cause issuers, strict issuer-before-output order, single-use credit, same-clock deadlines, and offered-edge transitions.
 It also retains the existing retry-range and application-byte audit.
-The two legacy oracle changes only recognize the new actual dispatcher output as an application-origin packet.
-Existing campus, transfer, MSS, and recovery fixture inputs and expectations remain unchanged.
+The automatic custody extension adds packet identities and one-use resolution to the same replay.
+Legacy cases that repeat an assignment or delivery now contain explicit copy actions.
+Expected custody fields and causal operation indices are updated; packet bytes and host-clock readings are retained.
 The [receive-gap extension](../TCP_RECEIVE_GAPS.md) adds the automatic receiver and moves newly covered geometry cases into its corpus.
 
 General receiver conformance requires more than this selected profile.

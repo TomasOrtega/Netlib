@@ -83,6 +83,7 @@ def expected_assurance(oracle):
 
 
 def audit(report, name):
+    common.audit_custody(report, name)
     written, stream, received, read = (
         {actor: b"" for actor in ("client", "server")} for _ in range(4)
     )

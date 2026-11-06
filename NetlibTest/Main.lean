@@ -148,6 +148,9 @@ import NetlibTest.TCPHandshakeExchange
 import NetlibTest.TCPHandshakeCheck
 import NetlibTest.TCPWireForwarding
 import NetlibTest.TCPAdmission
+import NetlibTest.CampusTCPCustody
+import NetlibTest.PacketCustody
+import NetlibTest.BoundedProgress
 import NetlibTest.SparseCoverage
 import NetlibTest.TCPAdmissionSparse
 import NetlibTest.TCPSparseCampus
@@ -325,6 +328,9 @@ def main : IO Unit := do
   NetlibTest.TCPHandshakeCheck.run
   NetlibTest.TCPWireForwarding.run
   NetlibTest.TCPAdmission.run
+  NetlibTest.CampusTCPCustody.run
+  NetlibTest.PacketCustody.run
+  NetlibTest.BoundedProgress.run
   NetlibTest.SparseCoverage.run
   NetlibTest.TCPAdmissionSparse.run
   NetlibTest.TCPSparseCampus.run

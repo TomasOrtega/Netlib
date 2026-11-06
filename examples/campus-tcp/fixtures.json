@@ -1516,7 +1516,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -2212,6 +2271,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000001389000003ec50100008803a000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000138c50100008da960000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003ec0000138c50100008102e0000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -2403,8 +2565,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -3914,7 +4075,68 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 14,
+            "pending": [
+              13
+            ],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -4648,6 +4870,116 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000001389000003ec50100008803a000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000138c50100008da960000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003ec0000138c50100008102e0000646566"
+          },
+          {
+            "id": 13,
+            "parent": null,
+            "stage": "link",
+            "source": 6,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003ec0000138c50100008a84b0000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 1,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -4831,8 +5163,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -6350,7 +6681,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -7046,6 +7436,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000001389000003ec50100008803a000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000138c50100008da960000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003ec0000138c50100008102e0000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -7237,8 +7730,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -8759,7 +9251,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -9455,6 +10006,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000001389000003ec50100008803a000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000138c50100008da960000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003ec0000138c50100008102e0000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -9646,8 +10300,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -10932,6 +11585,10 @@
             "policyPermitted": true
           },
           {
+            "kind": "copyPacket",
+            "packet": 1
+          },
+          {
             "kind": "deliver",
             "service": 0,
             "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000",
@@ -10942,7 +11599,7 @@
       "expected": {
         "supported": false,
         "compliant": false,
-        "evaluatedEvents": 22,
+        "evaluatedEvents": 23,
         "final": {
           "after": 7,
           "configuration": "permit",
@@ -11025,7 +11682,42 @@
           ],
           "outputs": 3,
           "pendingTickets": [],
-          "services": 3
+          "services": 3,
+          "custody": {
+            "nextID": 7,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 1
+          }
         },
         "outputs": [
           {
@@ -11340,6 +12032,67 @@
           }
         ],
         "reads": [],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": 1,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 3,
+          "delivered": 4,
+          "dropped": 0,
+          "copies": 1
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -11426,11 +12179,14 @@
             "operation": "synReceivedAck"
           },
           {
+            "kind": "accepted",
+            "operation": "copyPacket"
+          },
+          {
             "kind": "unsupported",
             "reason": "startupCopy"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -12639,7 +13395,18 @@
           "records": [],
           "outputs": 1,
           "pendingTickets": [],
-          "services": 1
+          "services": 1,
+          "custody": {
+            "nextID": 1,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -12710,6 +13477,25 @@
           }
         ],
         "reads": [],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 1,
+          "delivered": 0,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -12723,8 +13509,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -14242,7 +15027,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -14938,6 +15782,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000000000000050020008f21c0000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c4023280000000000000000500200088a3a0000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c400000000000000001501200088a290000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a028000000000000000150120008f20b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000010000000150100008f20c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c4023280000000100000001501000088a2a0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f900000000100000001501000082da70000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000000010000000150100008c5c40000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000000001000000045010000897aa000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a028000000010000000450100008ff8c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000040000000450100008f2060000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c4023280000000400000004501000088a240000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000000040000000450100008279e0000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -15129,8 +16076,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -16648,7 +17594,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -17344,6 +18349,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90ffffffff0000000050020008f21c0000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328ffffffff00000000500200088a3a0000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000000005012000876a20000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a028000013880000000050120008de840000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000000000138950100008de850000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c40232800000000000013895010000876a30000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f900000000000001389501000081a200000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000000000000138950100008b23d0000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c400000138900000003501000088423000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a028000013890000000350100008ec05000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000030000138c50100008de7f0000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000000030000138c50100008769d0000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000000030000138c5010000814170000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -17535,8 +18643,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -19054,7 +20161,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -19750,6 +20916,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c40ffffffff000003e95012000886410000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a028ffffffff000003e950120008ee230000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000000050100008ee250000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000000005010000886430000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000000005010000829c00000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000000050100008c1dd0000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000000000000003ec5010000893c3000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800000000000003ec50100008fba5000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000000350100008ee1f0000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000000350100008863d0000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003ec000000035010000823b70000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -19941,8 +21210,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -21460,7 +22728,66 @@
           ],
           "outputs": 7,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 13,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -22156,6 +23483,109 @@
             "readHex": "78797a"
           }
         ],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90ffffffff0000000050020008f21c0000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328ffffffff00000000500200088a3a0000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c40ffffffff00000000501200088a2a0000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a028ffffffff0000000050120008f20c0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000000000000050100008f20e0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c4023280000000000000000501000088a2c0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f900000000000000000501000082da90000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000000000000000050100008c5c60000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000000000000000035010000897ac000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a028000000000000000350100008ff8e000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000000030000000350100008f2080000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c4023280000000300000003501000088a260000"
+          },
+          {
+            "id": 12,
+            "parent": null,
+            "stage": "ingress",
+            "source": 6,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f9000000003000000035010000827a00000646566"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 6,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -22347,8 +23777,7 @@
             "kind": "accepted",
             "operation": "serve"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -23731,7 +25160,38 @@
           ],
           "outputs": 3,
           "pendingTickets": [],
-          "services": 3
+          "services": 3,
+          "custody": {
+            "nextID": 6,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -24046,6 +25506,60 @@
           }
         ],
         "reads": [],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000072c10000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120000daa30000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 3,
+          "delivered": 3,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -24140,8 +25654,7 @@
             "kind": "reject",
             "reason": "sendBounds"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -25466,7 +26979,32 @@
           ],
           "outputs": 3,
           "pendingTickets": [],
-          "services": 2
+          "services": 2,
+          "custody": {
+            "nextID": 5,
+            "pending": [
+              4
+            ],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -25723,6 +27261,53 @@
           }
         ],
         "reads": [],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 1,
+          "assigned": 2,
+          "delivered": 2,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -25796,8 +27381,7 @@
             "kind": "accepted",
             "operation": "synSentSynAck"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -27127,7 +28711,32 @@
           ],
           "outputs": 3,
           "pendingTickets": [],
-          "services": 2
+          "services": 2,
+          "custody": {
+            "nextID": 5,
+            "pending": [
+              4
+            ],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -27384,6 +28993,53 @@
           }
         ],
         "reads": [],
+        "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 1,
+          "assigned": 2,
+          "delivered": 2,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -27461,8 +29117,7 @@
             "kind": "unsupported",
             "reason": "phase"
           }
-        ],
-        "remainingEvents": []
+        ]
       }
     },
     {
@@ -28885,7 +30540,46 @@
           ],
           "outputs": 4,
           "pendingTickets": [],
-          "services": 4
+          "services": 4,
+          "custody": {
+            "nextID": 8,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -29309,6 +31003,73 @@
           }
         ],
         "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 4,
+          "delivered": 4,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -31109,7 +32870,26 @@
           ],
           "outputs": 2,
           "pendingTickets": [],
-          "services": 2
+          "services": 2,
+          "custody": {
+            "nextID": 3,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              }
+            ],
+            "copies": 0
+          }
         },
         "outputs": [
           {
@@ -31284,6 +33064,38 @@
         ],
         "reads": [],
         "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 2,
+          "delivered": 1,
+          "dropped": 0,
+          "copies": 0
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -32748,6 +34560,10 @@
             "policyPermitted": true
           },
           {
+            "kind": "copyPacket",
+            "packet": 6
+          },
+          {
             "kind": "assign",
             "output": 3,
             "ingress": {
@@ -32775,7 +34591,7 @@
       "expected": {
         "supported": true,
         "compliant": true,
-        "evaluatedEvents": 40,
+        "evaluatedEvents": 41,
         "final": {
           "after": 7,
           "configuration": "permit",
@@ -32858,7 +34674,70 @@
           ],
           "outputs": 6,
           "pendingTickets": [],
-          "services": 7
+          "services": 7,
+          "custody": {
+            "nextID": 14,
+            "pending": [],
+            "resolved": [
+              {
+                "packet": 0,
+                "kind": "assigned"
+              },
+              {
+                "packet": 1,
+                "kind": "delivered"
+              },
+              {
+                "packet": 2,
+                "kind": "assigned"
+              },
+              {
+                "packet": 3,
+                "kind": "delivered"
+              },
+              {
+                "packet": 4,
+                "kind": "assigned"
+              },
+              {
+                "packet": 5,
+                "kind": "delivered"
+              },
+              {
+                "packet": 6,
+                "kind": "assigned"
+              },
+              {
+                "packet": 7,
+                "kind": "delivered"
+              },
+              {
+                "packet": 8,
+                "kind": "assigned"
+              },
+              {
+                "packet": 9,
+                "kind": "delivered"
+              },
+              {
+                "packet": 10,
+                "kind": "assigned"
+              },
+              {
+                "packet": 11,
+                "kind": "delivered"
+              },
+              {
+                "packet": 12,
+                "kind": "assigned"
+              },
+              {
+                "packet": 13,
+                "kind": "delivered"
+              }
+            ],
+            "copies": 1
+          }
         },
         "outputs": [
           {
@@ -33479,7 +35358,7 @@
           },
           {
             "id": 6,
-            "index": 38,
+            "index": 39,
             "ticket": 6,
             "outputID": 3,
             "actor": "client",
@@ -33549,6 +35428,115 @@
           }
         ],
         "remainingEvents": [],
+        "packets": [
+          {
+            "id": 0,
+            "parent": null,
+            "stage": "ingress",
+            "source": 0,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e80000000050020008ee340000"
+          },
+          {
+            "id": 1,
+            "parent": null,
+            "stage": "link",
+            "source": 0,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000"
+          },
+          {
+            "id": 2,
+            "parent": null,
+            "stage": "ingress",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040004006d498c6336402cb00710123289c4000001388000003e95012000872b90000"
+          },
+          {
+            "id": 3,
+            "parent": null,
+            "stage": "link",
+            "source": 1,
+            "rawIPv4Hex": "45000028000040003f063dcbcb007102c00002021f90a02800001388000003e950120008da9b0000"
+          },
+          {
+            "id": 4,
+            "parent": null,
+            "stage": "ingress",
+            "source": 2,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003e90000138950100008da9c0000"
+          },
+          {
+            "id": 5,
+            "parent": null,
+            "stage": "link",
+            "source": 2,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e9000013895010000872ba0000"
+          },
+          {
+            "id": 6,
+            "parent": null,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 7,
+            "parent": null,
+            "stage": "link",
+            "source": 3,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          },
+          {
+            "id": 8,
+            "parent": null,
+            "stage": "ingress",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040004006d495c6336402cb00710123289c4000001389000003ec50100008803a000078797a"
+          },
+          {
+            "id": 9,
+            "parent": null,
+            "stage": "link",
+            "source": 4,
+            "rawIPv4Hex": "4500002b000040003f063dc8cb007102c00002021f90a02800001389000003ec50100008e81c000078797a"
+          },
+          {
+            "id": 10,
+            "parent": null,
+            "stage": "ingress",
+            "source": 5,
+            "rawIPv4Hex": "450000280000400040063ccbc0000202cb007102a0281f90000003ec0000138c50100008da960000"
+          },
+          {
+            "id": 11,
+            "parent": null,
+            "stage": "link",
+            "source": 5,
+            "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000"
+          },
+          {
+            "id": 12,
+            "parent": 6,
+            "stage": "ingress",
+            "source": 3,
+            "rawIPv4Hex": "4500002b0000400040063cc8c0000202cb007102a0281f90000003e9000013895010000816370000616263"
+          },
+          {
+            "id": 13,
+            "parent": null,
+            "stage": "link",
+            "source": 6,
+            "rawIPv4Hex": "4500002b000040003f06d595cb007101c63364029c402328000003e90000138950100008ae540000616263"
+          }
+        ],
+        "custodyAssurance": {
+          "scope": "automatic-packet-custody",
+          "status": "checked",
+          "pending": 0,
+          "assigned": 7,
+          "delivered": 7,
+          "dropped": 0,
+          "copies": 1
+        },
         "decisions": [
           {
             "kind": "accepted",
@@ -33709,6 +35697,10 @@
             "operation": "receive",
             "acknowledged": 3,
             "received": 0
+          },
+          {
+            "kind": "accepted",
+            "operation": "copyPacket"
           },
           {
             "kind": "accepted",
@@ -54972,6 +56964,10 @@
             "policyPermitted": true
           },
           {
+            "kind": "copyPacket",
+            "packet": 1
+          },
+          {
             "kind": "deliver",
             "service": 0,
             "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003e8000000005002000886520000",
@@ -59234,6 +61230,10 @@
             "service": 5,
             "rawIPv4Hex": "45000028000040003f06d598cb007101c63364029c402328000003ec0000138c5010000872b40000",
             "policyPermitted": true
+          },
+          {
+            "kind": "copyPacket",
+            "packet": 6
           },
           {
             "kind": "assign",

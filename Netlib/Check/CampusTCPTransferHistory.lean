@@ -82,7 +82,7 @@ private theorem keeps_changes (kept : Keeps before effect) : Changes before effe
     fun prior => fenced.trans prior, fun _ => transport, fun _ => cache, fun _ => installation⟩
 
 private theorem process_changes (input : M.Input) (before : M.State input) (event : M.Event)
-    (effect : M.Effect input) (accepted : Check.CampusTCPModel.process input before event = .ok effect) :
+    (effect : M.Effect input) (accepted : Check.CampusTCPModel.processCore input before event = .ok effect) :
     Changes before effect := by
   cases event with
   | «open» remote policy => exact keeps_changes (startup_keeps _ _ _ _ accepted)
@@ -92,15 +92,18 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
   | dispatchAck actor policy => exact keeps_changes (application_keeps _ _ _ _ _ accepted)
   | enableAck actor => exact keeps_changes (enableAck_keeps _ _ _ _ accepted)
+  | copyPacket id | dropPacket id =>
+    cases accepted
+    exact keeps_changes (by simp [Keeps])
   | authentication index =>
-    simp only [Check.CampusTCPModel.process] at accepted
+    simp only [Check.CampusTCPModel.processCore] at accepted
     repeat' first
       | (solve | cases accepted)
       | (solve | cases accepted; exact keeps_changes (by simp [Keeps]))
       | (split at accepted)
       | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
   | install id | stage id | installGuard id | installAt gateway id | stageAt gateway id | installGuardAt gateway id =>
-    simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.installConfiguration,
+    simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.installConfiguration,
       Check.CampusTCPModel.stageAttachment, Check.CampusTCPModel.installIngress] at accepted
     repeat' first
       | (solve | cases accepted)
@@ -109,7 +112,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
       | (split at accepted)
       | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
   | pause | stageCheckpoint | installCheckpoint ns | switchRoute actor gateway | fencePrimary | resume =>
-    simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at accepted
+    simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at accepted
     repeat' first
       | (solve | cases accepted)
       | (solve | cases accepted; apply keeps_changes; simp [Keeps])
@@ -117,14 +120,14 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
       | (split at accepted)
       | (dsimp only [Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
   | assign index ingress =>
-    simp only [Check.CampusTCPModel.process] at accepted
+    simp only [Check.CampusTCPModel.processCore] at accepted
     repeat' first
       | (solve | cases accepted)
       | (solve | cases accepted; apply keeps_changes; simp [Keeps])
       | (split at accepted)
       | (dsimp only [Check.CampusTCPModel.get, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
   | serve id observed =>
-    simp only [Check.CampusTCPModel.process] at accepted
+    simp only [Check.CampusTCPModel.processCore] at accepted
     cases completed : Theory.Outstanding.complete before.work id with
     | error reason => simp [completed, Except.mapError, bind, Except.bind] at accepted
     | ok work =>
@@ -158,7 +161,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
           · intro sealed
             exact write_installation before _ _
   | deliver index bytes policy =>
-    simp only [Check.CampusTCPModel.process] at accepted
+    simp only [Check.CampusTCPModel.processCore] at accepted
     repeat' first
       | (solve | cases accepted)
       | (solve | apply keeps_changes; simpa only [Keeps] using (startup_keeps input before _ _ (by assumption)))
@@ -169,7 +172,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
           bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
 
 private theorem step_changes (step : M.Step input) : Changes step.before step.result := by
-  obtain ⟨effect, computed, same⟩ := step.processed
+  obtain ⟨effect, custody, computed, same⟩ := step.processed
   have changes := process_changes input step.before step.event effect computed
   rw [same]
   exact ⟨changes.cache, changes.sealed, changes.fenced, changes.transport, changes.cacheStable, changes.installation⟩

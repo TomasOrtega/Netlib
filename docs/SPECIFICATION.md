@@ -402,6 +402,9 @@ The automatic [receive-gap extension](TCP_RECEIVE_GAPS.md) holds non-overlapping
 The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) records disjoint observed ranges without delaying accepted packet output.
 It separates covered prefix, greatest end, unique bytes, and cumulative ACK position.
 Source indices derive from actual committed observations and survive exact checkpoint installation.
+The campus checker automatically retains [packet custody](PACKET_CUSTODY.md) for each actual endpoint output and gateway emission.
+Assignment and delivery consume pending identities; copies and drops are explicit actions.
+A general bounded-service theorem is available, but complete TCP progress under a fault model remains open.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.
 

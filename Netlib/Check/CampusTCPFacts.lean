@@ -66,10 +66,10 @@ theorem serve_origin (step : M.Step input) (id : Nat) (observed : Option (List U
       Theory.Outstanding.complete step.before.work id = .ok completed ∧ served.ticket = completed.item ∧
       served.before = Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway ∧ served.time = step.before.time ∧
       step.result.passed = served.passed := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   have selected : effect.service = some served := by simpa only [result] using present
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process] at computed
+  simp only [Check.CampusTCPModel.processCore] at computed
   cases completed : Theory.Outstanding.complete step.before.work id with
   | error reason => simp [completed, Except.mapError, bind, Except.bind] at computed
   | ok work =>
@@ -84,9 +84,9 @@ theorem serve_live (step : M.Step input) (id : Nat) (observed : Option (List UIn
     (event : step.event = .serve id observed) (served : M.Served input) (present : step.result.service = some served) :
     step.before.primaryFenced = false ∨ served.ticket.value.gateway = .standby := by
   obtain ⟨work, completed, ticket, _, _, _⟩ := serve_origin step id observed event served present
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, completed, Except.mapError, bind, Except.bind] at computed
+  simp only [Check.CampusTCPModel.processCore, completed, Except.mapError, bind, Except.bind] at computed
   split at computed
   · simp [throw] at computed
   · rename_i allowed
@@ -103,9 +103,9 @@ theorem assign_origin (step : M.Step input) (index : Nat) (ingress : IngressAtta
     (event : step.event = .assign index ingress) :
     ∃ produced, step.before.outputs[index]? = some produced ∧
       step.result.state.work = Theory.Outstanding.enqueue step.before.work ⟨index, produced, ingress, step.before.owner produced.actor, step.before.routeEpoch⟩ := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process] at computed
+  simp only [Check.CampusTCPModel.processCore] at computed
   cases found : step.before.outputs[index]? with
   | none =>
     simp only [Check.CampusTCPModel.get, found, bind, Except.bind, throw] at computed
@@ -131,10 +131,10 @@ theorem deliver_origin (step : M.Step input) (index : Nat) (bytes : List UInt8) 
     (present : step.result.receipt = some receipt) :
     receipt.time = step.before.time ∧ receipt.serviceIndex = index ∧
       step.before.services[index]? = some receipt.served := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   have selected : effect.receipt = some receipt := by simpa only [result] using present
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process] at computed
+  simp only [Check.CampusTCPModel.processCore] at computed
   cases found : step.before.services[index]? with
   | none => simp [Check.CampusTCPModel.get, found, bind, Except.bind] at computed
   | some served =>

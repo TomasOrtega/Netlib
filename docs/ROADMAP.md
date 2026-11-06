@@ -128,7 +128,8 @@ The [receive-gap extension](TCP_RECEIVE_GAPS.md) connects sparse host storage, q
 Physical storage and advertised sequence reservations have separate bounds.
 The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) separates observed coverage from the greatest sequence end.
 Actual first-source indices survive transfer, and unseen holes can fill on standby.
-The [progress design](research/CAMPUS_PROGRESS.md) states the remaining custody, loss, scheduling, and service contracts.
+The [custody extension](PACKET_CUSTODY.md) adds automatic packet identities, explicit loss and copies, and general bounded-service theorems.
+The [progress design](research/CAMPUS_PROGRESS.md) states the remaining concrete TCP scheduling, loss, clock, and service proof obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

@@ -167,6 +167,7 @@ def audit_header_timers(before, after, headers, clocks, retried, actor, name):
 
 
 def audit(report, name):
+    common.audit_custody(report, name)
     written, stream = ({actor: b"" for actor in ACTORS} for _ in range(2))
     writes = {actor: [] for actor in ACTORS}
     unread = {actor: [] for actor in ACTORS}

@@ -5,6 +5,16 @@ It uses the source at `1816bb875fae6485966b2419ca6eb3ad922a93bf`.
 No build or native experiment forms part of this research.
 All seven programs and the full campus objective remain OPEN.
 
+## Implementation status
+
+The sparse gateway ledger is implemented.
+Automatic campus packet custody now creates identities from actual output and emission results.
+Assignment and delivery consume pending identities; copies and drops are explicit.
+General finite and infinite bounded-service theorems are implemented in `Theory.BoundedProgress`.
+The concrete TCP adapter and complete transfer theorem below remain OPEN.
+See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
+The source links below describe the earlier design basis.
+
 ## Recommendation
 
 The architecture target is compositional bounded progress.

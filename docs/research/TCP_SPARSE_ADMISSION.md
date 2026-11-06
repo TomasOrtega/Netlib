@@ -273,7 +273,9 @@ The existing source audit checks write, original send, attempt, assignment, curr
 It does not derive expected bytes or state from a Lean report.
 
 Physical delivery, connection identity, local clock correspondence, scheduling, and imported deployment correspondence remain external conditions.
-The trace has no explicit packet custody or loss events and proves no eventual gap filling.
+The trace has no explicit loss events and proves no eventual gap filling.
+The later [custody extension](../PACKET_CUSTODY.md) retains its packets automatically.
+Omitted actions leave those packets pending.
 All seven programs and the full campus demonstration remain OPEN.
 
 ## Custody and bounded progress
