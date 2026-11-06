@@ -173,5 +173,6 @@ It does not extend the UDP-only replication profile to TCP.
 The [bounded recovery extension](TCP_RECOVERY.md) adds explicit local timers and exact retry ranges through the same transfer path.
 The [ACK extension](TCP_ACK.md) adds local reaction deadlines and receive-window updates on that same endpoint history.
 The [receive-gap extension](TCP_RECEIVE_GAPS.md) adds bounded reordering after gateway service and release from multiple actual receipts.
-Native TCP replication, automatic failure recovery, safe upgrade, gateway-ingress reordering, broader recovery, other options, and long sequence reuse remain open.
+The [sparse observation extension](TCP_SPARSE_ADMISSION.md) admits selected reordered ingress ranges and preserves their first sources through transfer.
+Native TCP replication, automatic failure recovery, safe upgrade, general overlap, broader recovery, other options, and long sequence reuse remain open.
 All seven [research programs](ROADMAP.md) and the full campus demonstration remain OPEN.

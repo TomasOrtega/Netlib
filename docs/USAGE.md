@@ -42,6 +42,7 @@ Use `examples/tcp-recovery/trace.json` for [bounded data and ACK loss recovery](
 Use `examples/tcp-ack/trace.json` for [checked ACK reactions and receive-window updates](TCP_ACK.md) on the same host clocks.
 Use `examples/tcp-receive-gaps/trace.json` for [automatic future storage and release from separate receipts](TCP_RECEIVE_GAPS.md).
 Use `examples/tcp-receive-gaps/deferred-clock.json` to separate ACK receipt time from later header processing.
+Use `examples/tcp-sparse-admission/trace.json` for [unseen ingress holes through gateway transfer](TCP_SPARSE_ADMISSION.md).
 
 ## Interface-bound campus admission
 

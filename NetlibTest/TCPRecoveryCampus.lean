@@ -174,7 +174,8 @@ structure RepeatedService (report : M.Report input events) (time : Nat) where
   source : TCP.Admission.Session
   phase : served.before.admission.phase = .data source
   direction : processing.prepared.attachment.direction = .original
-  old : served.ticket.value.source.packet.segment.sequence ≠ source.original.next
+  known : TCP.Admission.KnownRange source.original source.entry .original served.ticket.value.source.packet.segment
+    served.before.admission.observations
 
 theorem RepeatedService.range (value : RepeatedService report time) :
     ∃ seen ∈ value.served.before.admission.observations,
@@ -185,8 +186,8 @@ theorem RepeatedService.range (value : RepeatedService report time) :
             TCP.Seq.distance value.source.original.base seen.segment.sequence)).take
           value.served.ticket.value.source.packet.segment.payload.length := by
   have source := value.processing.admitted.repeated_source value.phase
-    (by simpa only [value.direction, TCP.WireForwarding.Source.asInput] using value.old)
-  simpa only [value.direction, TCP.WireForwarding.Source.asInput] using source
+    (by simpa only [value.direction, TCP.Admission.Session.lane, TCP.WireForwarding.Source.asInput] using value.known)
+  simpa only [value.direction, TCP.Admission.Session.lane, TCP.WireForwarding.Source.asInput] using source
 
 private def repeatedService (report : M.Report input events) (time : Nat) :
     Except String (RepeatedService report time) := do
@@ -200,8 +201,10 @@ private def repeatedService (report : M.Report input events) (time : Nat) :
       match phase : served.before.admission.phase with
       | .data source =>
         let direction ← verify (processing.prepared.attachment.direction = .original) "The copied range uses a different direction."
-        let old ← verify (served.ticket.value.source.packet.segment.sequence ≠ source.original.next) "The selected service is not a repeated range."
-        return ⟨joint, served, present, processing, computed, source, phase, direction.property, old.property⟩
+        let known ← verify (TCP.Admission.KnownRange source.original source.entry .original
+          served.ticket.value.source.packet.segment served.before.admission.observations)
+          "The selected service has no exact retained first source."
+        return ⟨joint, served, present, processing, computed, source, phase, direction.property, known.property⟩
       | _ => throw "The repeated range has no established source history."
 
 def fixturePayload (start count : Nat) : List UInt8 :=

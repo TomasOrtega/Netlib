@@ -552,8 +552,11 @@ class Driver(ack.Driver):
         return result
 
 
-def replay(value):
-    driver = Driver(value)
+def replay(value, driver=None):
+    if driver is None:
+        from campus_tcp_sparse_reference import Driver as SparseDriver
+
+        driver = SparseDriver(value)
     report = recovery.transfer.replay(value, driver=driver)
     pending = iter(driver.records)
     current = next(pending, None)

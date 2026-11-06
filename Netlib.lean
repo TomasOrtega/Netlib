@@ -141,6 +141,7 @@ import Netlib.Check.StatefulFailover
 import Netlib.Protocol.TrackedFlow
 import Netlib.Theory.Outstanding
 import Netlib.Theory.TimedReaction
+import Netlib.Theory.SparseCoverage
 import Netlib.Protocol.SafeHandoff
 import Netlib.Protocol.SafeHandoffCommonFacts
 import Netlib.Protocol.SafeHandoffControlFacts
@@ -193,6 +194,7 @@ import Netlib.Protocol.TCP.AckReaction
 import Netlib.Protocol.TCP.AckTrace
 import Netlib.Check.CampusTCPAckFacts
 import Netlib.Check.CampusTCPGapFacts
+import Netlib.Check.CampusTCPSparseFacts
 import Netlib.Protocol.TCP.ReceiveAdvertisement
 import Netlib.Protocol.TCP.ReceiveStore
 import Netlib.Protocol.TCP.ReceiveStoreHistory
@@ -207,6 +209,9 @@ import Netlib.Protocol.TCP.Admission
 import Netlib.Protocol.TCP.AdmissionMSSFacts
 import Netlib.Protocol.TCP.AdmissionRecoveryFacts
 import Netlib.Protocol.TCP.Checkpoint
+import Netlib.Protocol.TCP.CheckpointObservationHistory
+import Netlib.Protocol.TCP.AdmissionCoverageFacts
+import Netlib.Protocol.TCP.CheckpointCoverageFacts
 import Netlib.Protocol.TCP.ApplicationTraceFacts
 import Netlib.Check.CampusTCPService
 import Netlib.Check.CampusTCPHistory
@@ -216,3 +221,5 @@ import Netlib.Check.CampusTCPFacts
 import Netlib.Check.CampusTCPTransferHistory
 import Netlib.Check.CampusTCPTransferFacts
 import Netlib.Check.CampusTCP
+import Netlib.Check.TCPAdmissionJSON
+import Netlib.Check.TCPAdmission

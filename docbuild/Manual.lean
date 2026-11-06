@@ -2023,10 +2023,59 @@ Campus read-byte proofs connect each release to its receipt, gateway service, pe
 Pending receive-gap assurance retains checked storage and source evidence.
 Checked assurance also requires both final held stores to be empty.
 
-The selected reordering occurs after gateway service.
+The receive-storage example reorders delivery after gateway service.
 Partial overlap, conflicting copies, and receive trimming retain explicit scope stops.
-Gateway-ingress reordering, fast recovery, native correspondence, and eventual delivery remain open.
+The next extension covers selected sparse gateway observations.
+General overlap, fast recovery, native correspondence, and eventual delivery remain open.
 All seven programs and the full campus demonstration remain OPEN.
+
+# Sparse gateway observations
+%%%
+tag := "tcp-sparse-admission"
+file := "tcp-sparse-admission"
+%%%
+
+A gateway can observe a later range before an unseen lower range.
+Each accepted packet proceeds through current policy immediately.
+The ledger records observation coverage, rather than holding packets for later output.
+
+The contiguous covered prefix, greatest end, unique byte count, and cumulative ACK position are separate.
+An observed range above a hole cannot establish knowledge of that hole:
+
+```lean
+open Netlib.Theory.SparseCoverage in
+example (state : State Meta) (bound position : Nat)
+    (valid : state.Valid bound)
+    (hole : ¬state.Covers position) :
+    state.frontier ≤ position :=
+  state.frontier_le_of_not_covered bound valid position hole
+```
+
+New data must fit the advertised right edge at its actual sequence end.
+A cumulative ACK must not pass the peer's covered prefix.
+An exact contained repeat keeps its first source and adds no unique bytes.
+Mixed overlap and changed copies retain explicit scope stops.
+
+The first-source index names the actual committed packet observation.
+The reachable checkpoint history supplies that binding:
+
+```lean
+open Netlib.Protocol.TCP.Checkpoint in
+example (history : History gateway) :
+    gateway.admission.CoverageSources :=
+  history.coverage_sources
+```
+
+Exact transfer preserves runs, holes, source IDs, and observation indices.
+An unseen lower range can then enter standby coverage through a real retry.
+The connected example releases 400 bytes, fills a second hole, and reads 800 bytes once.
+Both directions retain gateway, receipt, release, and application-write origins.
+
+Sparse source assurance permits holes and reports prefix completeness separately.
+The raw admission checker starts empty and checks supplied startup packets under a declared mapping and fixed permit routes.
+It supplies no endpoint-write or authentication claim.
+Packet custody, explicit loss, bounded service, native correspondence, and eventual delivery remain open.
+All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path
 %%%

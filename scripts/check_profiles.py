@@ -24,6 +24,7 @@ from check_tcp_handshake_examples import check as tcp_handshake_checks
 from check_tcp_mss_examples import check as tcp_mss_checks
 from check_tcp_receive_examples import check as tcp_receive_checks
 from check_tcp_recovery_examples import check as tcp_recovery_checks
+from check_tcp_sparse_examples import check as tcp_sparse_checks
 
 
 def catalogue(report):
@@ -1158,6 +1159,7 @@ def main():
     tcp_recovery_checks()
     tcp_ack_checks()
     tcp_gap_checks()
+    tcp_sparse_checks()
     campus_tcp_checks()
     campus_tcp_transfer_checks()
     count = 0

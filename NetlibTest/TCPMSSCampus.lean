@@ -98,7 +98,7 @@ structure Demonstration (input : Check.CampusTCP.Input) where
   sourcePhase : assurance.installation.checkpoint.snapshot.source.admission.phase = .data source
   sourceClient : source.clientMSS = TCP.Handshake.receiveOffer input.model.active
   sourceServer : source.serverMSS = TCP.Handshake.receiveOffer input.model.passive
-  deferred : source.reply.observed = 1201 ∧ source.reply.acknowledged = 0
+  deferred : source.reply.observed = 1201 ∧ source.reply.highEnd = 1201 ∧ source.reply.acknowledged = 0
   acknowledgment : DataService report 50 .standby .original 0
   exactBefore : acknowledgment.joint.step.before.standby.transport = assurance.installation.checkpoint.snapshot.source
   after : TCP.Admission.Session
@@ -156,7 +156,7 @@ theorem Demonstration.deferred_ack (value : Demonstration input) :
   change value.acknowledgment.joint.step.result.state.standby.transport.admission.phase = .data after at phase
   have same : value.after = after := TCP.Admission.Phase.data.inj (value.afterPhase.symm.trans phase)
   rw [← same] at client server
-  exact ⟨value.exactBefore, by simp only [TCP.Admission.Lane.outstanding, value.deferred.1, value.deferred.2, Nat.sub_zero],
+  exact ⟨value.exactBefore, by simp only [TCP.Admission.Lane.outstanding, value.deferred.2.1, value.deferred.2.2, Nat.sub_zero],
     value.removed.2.2, client, server⟩
 
 theorem Demonstration.revoked_output (value : Demonstration input) : value.deniedService.evidence.output = none :=
@@ -178,7 +178,7 @@ private def demonstrate (input : Check.CampusTCP.Input) : Except String (Demonst
   | .data source =>
     let sourceClient ← verify (source.clientMSS = TCP.Handshake.receiveOffer input.model.active) "The copied client offer differs."
     let sourceServer ← verify (source.serverMSS = TCP.Handshake.receiveOffer input.model.passive) "The copied server offer differs."
-    let deferred ← verify (source.reply.observed = 1201 ∧ source.reply.acknowledged = 0) "The source has no deferred byte epoch."
+    let deferred ← verify (source.reply.observed = 1201 ∧ source.reply.highEnd = 1201 ∧ source.reply.acknowledged = 0) "The source reply epoch is not a complete deferred prefix."
     let acknowledgment ← dataService report 50 .standby .original 0
     let exactBefore ← verify (acknowledgment.joint.step.before.standby.transport.same
       assurance.installation.checkpoint.snapshot.source = true) "The deferred ACK did not use the exact installed cut."
