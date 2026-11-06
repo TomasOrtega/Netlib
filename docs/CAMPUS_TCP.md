@@ -60,6 +60,10 @@ The replay stops at its first unsupported result.
 Later transport contents remain unevaluated.
 Reported event fields come from typed values and use lowercase hex.
 
+The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive selected local and gateway steps from actual preceding guards.
+They also expose the evaluated history as finite service slots.
+A complete bounded TCP transfer theorem remains open.
+
 ## Current policy at service
 
 Installed configurations persist across authentication changes.

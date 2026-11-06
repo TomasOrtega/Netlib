@@ -405,6 +405,7 @@ Source indices derive from actual committed observations and survive exact check
 The campus checker automatically retains [packet custody](PACKET_CUSTODY.md) for each actual endpoint output and gateway emission.
 Assignment and delivery consume pending identities; copies and drops are explicit actions.
 A general bounded-service theorem is available, but complete TCP progress under a fault model remains open.
+The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive current endpoint and gateway actions from their actual preceding states.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.
 

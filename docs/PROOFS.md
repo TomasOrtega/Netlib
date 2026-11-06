@@ -174,6 +174,20 @@ Finite-prefix, sequential, concurrent, and transition-projection results retain 
 A concrete TCP progress adapter remains open.
 The [custody and service guide](PACKET_CUSTODY.md) defines this boundary.
 
+`TCP.AckReactionEnabled` proves time and pending-edge coverage guards.
+`TCP.EndpointAckEnabled` derives ACK, dispatch, and send output from those preceding guards.
+`TCP.RecoveryEnabled` derives clock, ACK, and timer operations from old ledger bounds.
+`TCP.EndpointReceiveEnabled` derives active in-order receive and ordered release.
+It proves that the subsequent enabled ACK operation covers the new cursor.
+`TCP.AdmissionEnabled` derives fresh-data and pure-ACK admission from old lane geometry.
+`ConntrackLifecycleEnabled` and `TCP.WireForwardingEnabled` derive existing-flow forwarding from lookup, route, and filter facts.
+`Check.CampusTCPServiceEnabled` retains actual preflight comparisons while deriving processing and emission.
+`Check.CampusTCPEnabled` and `Check.CampusTCPGatewayEnabled` lift these operations to checked campus steps.
+`Check.CampusTCPDeliveryEnabled` derives data and full-ACK delivery with actual receipts and endpoint frames.
+`Check.CampusTCPChronology` and the ticket invariant derive preceding-state guards from actual histories.
+`Check.CampusTCPSchedule` projects the same stored results to finite checked service slots.
+The [enabled-operation guide](TCP_ENABLED_OPERATIONS.md) states the remaining complete-transfer boundary.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.
