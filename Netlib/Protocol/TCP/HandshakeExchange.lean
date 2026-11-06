@@ -306,6 +306,12 @@ theorem Complete.directional_mss (value : Complete input) :
   · simp only [Complete.activeSeed, value.active.derived, Handshake.activeSeed, activePeer, value.pending_fields.1]
   · simp only [Complete.passiveSeed, value.passive.derived, Handshake.passiveSeed, passivePeer, value.pending_fields.2.2.1]
 
+theorem Complete.own_receiveMSS (value : Complete input) :
+    value.activeSeed.localReceiveMSS = Handshake.receiveOffer input.active ∧
+      value.passiveSeed.localReceiveMSS = Handshake.receiveOffer input.passive := by
+  simp only [Complete.activeSeed, Complete.passiveSeed, value.active.derived, value.passive.derived,
+    Handshake.activeSeed, Handshake.passiveSeed, value.pending_fields.1, value.pending_fields.2.2.1, and_self]
+
 theorem Complete.default_mss (value : Complete input)
     (active : input.active.receiveMSS = none) (passive : input.passive.receiveMSS = none) :
     value.syn.input.packet.segment.options = [] ∧ value.synAck.input.packet.segment.options = [] ∧

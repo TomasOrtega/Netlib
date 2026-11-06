@@ -620,7 +620,7 @@ def replay(value, driver=None):
                     endpoints["client"], established["client"] = wrap(startup.active_seed), index
                 if startup.passive_seed is not None and endpoints["server"] is None:
                     endpoints["server"], established["server"] = wrap(startup.passive_seed), index
-            elif delivered["sourceKind"] not in ("send", "emitAck", "retry"):
+            elif delivered["sourceKind"] not in ("send", "emitAck", "retry", "dispatchAck"):
                 decision = {"kind": "unsupported", "reason": "startupCopy"}
             else:
                 result = evaluate(

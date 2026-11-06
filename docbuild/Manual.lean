@@ -1901,6 +1901,64 @@ The third qualifying duplicate ACK stops for omitted fast recovery.
 Broader congestion control, persist, overlap storage, control retries, native refinement, and eventual delivery remain open.
 All seven research programs and the full campus demonstration remain OPEN.
 
+# Checked TCP ACK reactions
+%%%
+tag := "tcp-ack"
+file := "tcp-ack"
+%%%
+
+The ACK profile uses the actual endpoint chain and its existing recovery clock.
+Activation occurs before application sends or receives.
+Its RMSS comes from the endpoint's own checked startup offer.
+Each host keeps a separate clock context.
+
+Accepted data creates a cause with an inclusive deadline of local time plus 499 ms.
+Two RMSS-sized packets or two RMSS of bytes request an immediate response.
+An unacceptable sequence creates immediate credit without adding application bytes.
+Coalescing keeps each cause and its oldest deadline.
+
+The causal proof binds that deadline to actual local output:
+
+```lean
+open Netlib.Protocol.TCP.AckTrace in
+example (value : Causal steps completion cause) :
+    value.response.step.before.now -
+      value.issuer.before.now < 500 :=
+  value.strict_delay
+```
+
+A pure ACK needs unused response credit.
+`dispatchAck` also requires a due cause; `emitAck` can respond early.
+A successful send or retry can carry the response.
+Local output denial retains credit and the owed deadline.
+A clock jump beyond that deadline stops at explicit unsupported scope.
+
+The offered receive edge is separate from physical free space.
+A small application read can leave that edge unchanged.
+The same selection applies to pure ACK, data, and retry output.
+A successful output commits its selected edge while preserving the receive frontier:
+
+```lean
+open Netlib.Protocol.TCP.ReceiveAdvertisement in
+example (state : State) (capacity free mss : Nat) :
+    (commit state capacity free mss).frontier =
+      state.frontier :=
+  commit_frontier state capacity free mss
+```
+
+A read creates window-update credit only when the candidate window grows.
+The owed absolute edge survives later data arrival.
+The threshold is the smaller of half the capacity, rounded up, and the outgoing MSS.
+
+The campus example carries a pending cause through planned gateway transfer.
+Actual receive causes retain peer output, assignment, current gateway service, and delivery evidence.
+The closed assurance identifies the actual output packet that covers each cause.
+Application and transfer evidence use the same joint replay.
+Logoff can deny later gateway delivery after timely local generation.
+
+General scheduling, challenge-ACK limits, physical clock correspondence, and eventual delivery remain open.
+Complete TCP conformance, all seven programs, and the full campus demonstration remain OPEN.
+
 # An authenticated campus TCP path
 %%%
 tag := "campus-tcp"

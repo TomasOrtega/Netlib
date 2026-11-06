@@ -62,7 +62,7 @@ theorem timeout_projection (step : A.Step) (count : Nat)
     (before after : TCP.Recovery.State) (stored : step.before.recovery = some before)
     (updated : step.result.state.recovery = some after) :
     TCP.Recovery.timeout before = .ok (count, after) ∧
-      step.result.state = { step.before with recovery := some after } := by
+      step.result.state = { TCP.Endpoint.outputState step.before with recovery := some after } := by
   have result : step.result = TCP.Endpoint.timeout step.before true := by
     simpa only [event, TCP.ApplicationTrace.evaluate] using step.computed
   have chosen : (TCP.Endpoint.timeout step.before true).decision = .accepted (.retry count) := by
@@ -72,7 +72,7 @@ theorem timeout_projection (step : A.Step) (count : Nat)
     TCP.Endpoint.timeout_output step.before true count chosen
   have sourceSame : source = before := Option.some.inj (sourceEq.symm.trans stored)
   subst source
-  have nextEq : step.result.state = { step.before with recovery := some next } := by
+  have nextEq : step.result.state = { TCP.Endpoint.outputState step.before with recovery := some next } := by
     rw [result]
     exact changed
   have nextSame : next = after := (Option.some.inj (updated.symm.trans (congrArg TCP.Endpoint.State.recovery nextEq))).symm

@@ -419,6 +419,8 @@ The command distinguishes supported partial histories from a completed model exc
 The [startup guide](TCP_HANDSHAKE.md) gives the event schema, byte-history conditions, and connection to the application theorem.
 The [MSS guide](TCP_MSS.md) states receive-capability evidence, automatic peer selection, and exact gateway/checkpoint preservation.
 The [recovery guide](TCP_RECOVERY.md) adds explicit local clocks, bounded timer retries, exact range admission, and Karn checks.
+The [ACK guide](TCP_ACK.md) adds checked receive and read causes, strict sub-500-ms local response bounds, and receive-window suppression.
+ACK assurance retains actual packet output and gateway provenance on the same campus history.
 
 ## Authenticated campus TCP execution
 

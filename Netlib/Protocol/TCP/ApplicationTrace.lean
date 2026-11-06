@@ -24,6 +24,8 @@ inductive Event where
   | enableRecovery
   | advanceClock (millis : Nat)
   | timeout (policyPermitted : Bool)
+  | enableAck
+  | dispatchAck (policyPermitted : Bool)
 
 def evaluate (before : Model) : Event → Endpoint.Result
   | .write bytes => Endpoint.write before bytes
@@ -34,6 +36,8 @@ def evaluate (before : Model) : Event → Endpoint.Result
   | .enableRecovery => Endpoint.enableRecovery before
   | .advanceClock millis => Endpoint.advanceClock before millis
   | .timeout policy => Endpoint.timeout before policy
+  | .enableAck => Endpoint.enableAck before
+  | .dispatchAck policy => Endpoint.dispatchAck before policy
 
 theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
     (evaluate before event).state.Valid := by
@@ -46,6 +50,8 @@ theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
   | enableRecovery => exact Endpoint.enableRecovery_valid before valid
   | advanceClock millis => exact Endpoint.advanceClock_valid before millis valid
   | timeout policy => exact Endpoint.timeout_valid before policy valid
+  | enableAck => exact Endpoint.enableAck_valid before valid
+  | dispatchAck policy => exact Endpoint.dispatchAck_valid before policy valid
 
 structure Step where
   before : Model
@@ -60,7 +66,7 @@ def Step.make (before : Model) (valid : before.Valid) (event : Event) (stamp : N
 
 def Step.supported (step : Step) : Bool :=
   match step.result.decision with
-  | .unsupported _ | .recoveryUnsupported _ => false
+  | .unsupported _ | .recoveryUnsupported _ | .ackUnsupported _ => false
   | _ => true
 
 theorem Step.valid (step : Step) : step.result.state.Valid := by
@@ -105,42 +111,57 @@ def Balanced (before : Model) (event : Event) (result : Endpoint.Result) : Prop 
   result.state.core.receiveNext = before.core.receiveNext.add (acceptedPayload event result).length ∧
   result.state.core.sendUna = before.core.sendUna.add (acknowledged before event result).length
 
+private def FramedBalanced (before : Model) (event : Event) (result : Endpoint.Result) : Prop :=
+  Balanced before event result ∧ result.state.localReceiveMSS = before.localReceiveMSS
+
 private theorem rejected_balanced (before : Model) (event : Event) (reason : Endpoint.Reject) :
-    Balanced before event (Endpoint.rejected before reason) := by
-  cases event <;> simp [Balanced, Endpoint.rejected, written, emitted, acknowledged, acceptedPayload]
+    FramedBalanced before event (Endpoint.rejected before reason) := by
+  cases event <;> simp [FramedBalanced, Balanced, Endpoint.rejected, written, emitted, acknowledged, acceptedPayload]
 
 private theorem recoveryBlocked_balanced (before : Model) (event : Event) (reason : Recovery.Stop) :
-    Balanced before event (Endpoint.recoveryBlocked before reason) := by
+    FramedBalanced before event (Endpoint.recoveryBlocked before reason) := by
   unfold Endpoint.recoveryBlocked
   split
-  · cases event <;> simp [Balanced, written, emitted, acknowledged, acceptedPayload]
+  · cases event <;> simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload]
   · exact rejected_balanced _ _ _
+
+private theorem ackBlocked_balanced (before : Model) (event : Event) (reason : AckReaction.Stop) :
+    FramedBalanced before event (Endpoint.ackBlocked before reason) := by
+  unfold Endpoint.ackBlocked
+  split
+  · cases event <;> simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload]
+  · exact rejected_balanced _ _ _
+
+private theorem balanced_withRuntime (before : Model) (event : Event) (result : Endpoint.Result)
+    (recovery : Option Recovery.State) (ackReaction : Option AckReaction.State) :
+    FramedBalanced before event { result with state := { result.state with recovery, ackReaction } } ↔
+      FramedBalanced before event result := Iff.rfl
 
 private theorem balanced_withRecovery (before : Model) (event : Event) (result : Endpoint.Result)
     (recovery : Option Recovery.State) :
-    Balanced before event { result with state := { result.state with recovery } } ↔ Balanced before event result := Iff.rfl
+    FramedBalanced before event { result with state := { result.state with recovery } } ↔ FramedBalanced before event result := Iff.rfl
 
 private theorem evaluate_balanced (before : Model) (event : Event) :
-    Balanced before event (evaluate before event) := by
+    FramedBalanced before event (evaluate before event) := by
   cases event with
   | write bytes =>
-    change Balanced before (.write bytes) (Endpoint.write before bytes)
+    change FramedBalanced before (.write bytes) (Endpoint.write before bytes)
     unfold Endpoint.write
     split
     · exact rejected_balanced _ _ _
     · split
       · exact rejected_balanced _ _ _
-      · simp [Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.writeState]
+      · simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.writeState]
   | read count =>
-    change Balanced before (.read count) (Endpoint.read before count)
+    change FramedBalanced before (.read count) (Endpoint.read before count)
     unfold Endpoint.read
     split
     · exact rejected_balanced _ _ _
     · split
       · exact rejected_balanced _ _ _
-      · simp [Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.readState]
+      · simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.readState]
   | send count policy =>
-    change Balanced before (.send count policy) (Endpoint.send before count policy)
+    change FramedBalanced before (.send count policy) (Endpoint.send before count policy)
     unfold Endpoint.send
     split
     · exact rejected_balanced _ _ _
@@ -151,72 +172,107 @@ private theorem evaluate_balanced (before : Model) (event : Event) :
           · exact recoveryBlocked_balanced _ _ _
           · exact rejected_balanced _ _ _
         · rename_i ready
-          cases encoded : Output.emit before.core (before.pending.take count) with
-          | error reason => exact rejected_balanced _ _ _
-          | ok output =>
-            have bounded := (Decidable.not_not.mp ready).2.1
-            have size : (before.pending.take count).length = count := by simp [List.length_take, Nat.min_eq_left bounded]
-            simp [Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.sendState, size]
+          cases prepared : Endpoint.ackReady before with
+          | error reason => exact ackBlocked_balanced _ _ _
+          | ok answer =>
+            cases answer
+            cases encoded : Endpoint.emit before (before.pending.take count) with
+            | error reason => exact rejected_balanced _ _ _
+            | ok output =>
+              have bounded := (Decidable.not_not.mp ready).2.1
+              have size : (before.pending.take count).length = count := by simp [List.length_take, Nat.min_eq_left bounded]
+              simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.sendState, Endpoint.outputState, size]
   | emitAck policy =>
-    change Balanced before (.emitAck policy) (Endpoint.emitAck before policy)
-    unfold Endpoint.emitAck
-    split
-    · exact rejected_balanced _ _ _
-    · split
-      · exact rejected_balanced _ _ _
-      · cases Output.emit before.core [] <;>
-          simp [Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.rejected]
+    change FramedBalanced before (.emitAck policy) (Endpoint.pureAck before policy false)
+    unfold Endpoint.pureAck
+    repeat' first
+      | (solve | exact rejected_balanced _ _ _)
+      | (solve | exact ackBlocked_balanced _ _ _)
+      | (solve | simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.outputState])
+      | split
+  | dispatchAck policy =>
+    change FramedBalanced before (.dispatchAck policy) (Endpoint.pureAck before policy true)
+    unfold Endpoint.pureAck
+    repeat' first
+      | (solve | exact rejected_balanced _ _ _)
+      | (solve | exact ackBlocked_balanced _ _ _)
+      | (solve | simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.outputState])
+      | split
   | receive input =>
-    change Balanced before (.receive input) (Endpoint.receive before input)
+    change FramedBalanced before (.receive input) (Endpoint.receive before input)
     unfold Endpoint.receive
     split
     · exact rejected_balanced _ _ _
     · split
       · exact recoveryBlocked_balanced _ _ _
-      · cases selected : (EstablishedReceive.receive before.core input).decision with
-        | blocked reason =>
-          cases reason <;> simp [selected, Balanced, written, emitted, acknowledged, acceptedPayload]
-        | accepted count size =>
-          have changed := EstablishedReceive.receive_accepted before.core input count size selected
-          obtain ⟨_, bound, _, fits, after⟩ := changed
-          simp only [selected]
-          cases updated : Endpoint.receiveRecovery before input.packet.segment count with
-          | error reason => exact recoveryBlocked_balanced _ _ _
-          | ok recovery =>
-            apply (balanced_withRecovery before (.receive input)
-              ⟨Endpoint.receiveState before input (EstablishedReceive.receive before.core input).state,
-                .accepted (.receive count size), none, [], (EstablishedReceive.receive before.core input).ack⟩ recovery).mpr
-            simp only [Balanced, written, emitted, acknowledged, acceptedPayload,
-              Endpoint.receiveState, Endpoint.windowState, after]
-            split <;> simp [EstablishedReceive.commit, Nat.min_eq_left bound]
+      · split
+        · exact ackBlocked_balanced _ _ _
+        · dsimp only
+          cases selected : (Endpoint.receiveModel before input).decision with
+          | blocked reason =>
+            cases reason with
+            | unsupported reason => simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload]
+            | reject reason =>
+              cases issued : Endpoint.issueRequest before before.core (Endpoint.receiveModel before input).ack 0 with
+              | error reason => exact ackBlocked_balanced _ _ _
+              | ok reaction => simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload]
+          | accepted count size =>
+            have changed := Endpoint.receiveModel_effects before input
+            simp only [EstablishedReceive.Effects, selected] at changed
+            obtain ⟨_, bound, _, fits, after⟩ := changed
+            simp only []
+            cases updated : Endpoint.receiveRecovery before input.packet.segment count with
+            | error reason => exact recoveryBlocked_balanced _ _ _
+            | ok recovery =>
+              cases issued : Endpoint.issueRequest before (Endpoint.receiveModel before input).state
+                  (Endpoint.receiveModel before input).ack size with
+              | error reason => exact ackBlocked_balanced _ _ _
+              | ok reaction =>
+                apply (balanced_withRuntime before (.receive input)
+                  ⟨Endpoint.receiveState before input (Endpoint.receiveModel before input).state,
+                    .accepted (.receive count size), none, [], (Endpoint.receiveModel before input).ack⟩ recovery reaction).mpr
+                simp only [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload,
+                  Endpoint.receiveState, Endpoint.windowState, after]
+                split <;> simp [EstablishedReceive.commit, Nat.min_eq_left bound]
   | enableRecovery =>
-    change Balanced before .enableRecovery (Endpoint.enableRecovery before)
+    change FramedBalanced before .enableRecovery (Endpoint.enableRecovery before)
     unfold Endpoint.enableRecovery
     split
     · exact rejected_balanced _ _ _
     · split
       · exact recoveryBlocked_balanced _ _ _
-      · simp [Balanced, written, emitted, acknowledged, acceptedPayload]
+      · simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload]
   | advanceClock millis =>
-    change Balanced before (.advanceClock millis) (Endpoint.advanceClock before millis)
+    change FramedBalanced before (.advanceClock millis) (Endpoint.advanceClock before millis)
     unfold Endpoint.advanceClock
     repeat' first
       | (solve | exact rejected_balanced _ _ _)
       | (solve | exact recoveryBlocked_balanced _ _ _)
-      | (solve | simp [Balanced, written, emitted, acknowledged, acceptedPayload])
+      | (solve | exact ackBlocked_balanced _ _ _)
+      | (solve | simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload])
       | split
   | timeout policy =>
-    change Balanced before (.timeout policy) (Endpoint.timeout before policy)
+    change FramedBalanced before (.timeout policy) (Endpoint.timeout before policy)
     unfold Endpoint.timeout
     repeat' first
       | (solve | exact rejected_balanced _ _ _)
       | (solve | exact recoveryBlocked_balanced _ _ _)
-      | (solve | simp [Balanced, written, emitted, acknowledged, acceptedPayload])
+      | (solve | exact ackBlocked_balanced _ _ _)
+      | (solve | simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload, Endpoint.outputState])
+      | split
+  | enableAck =>
+    change FramedBalanced before .enableAck (Endpoint.enableAck before)
+    unfold Endpoint.enableAck
+    repeat' first
+      | (solve | exact rejected_balanced _ _ _)
+      | (solve | exact recoveryBlocked_balanced _ _ _)
+      | (solve | exact ackBlocked_balanced _ _ _)
+      | (solve | simp [FramedBalanced, Balanced, written, emitted, acknowledged, acceptedPayload])
       | split
 
 theorem Step.balance (step : Step) : Balanced step.before step.event step.result := by
   rw [step.computed]
-  exact evaluate_balanced step.before step.event
+  exact (evaluate_balanced step.before step.event).1
 
 
 theorem Step.pending_balance (step : Step) :
@@ -238,6 +294,12 @@ theorem Step.sendUna_balance (step : Step) :
     step.result.state.core.sendUna = step.before.core.sendUna.add step.acknowledged.length := step.balance.2.2.2.2.2
 
 
+theorem Step.localReceiveMSS (step : Step) :
+    step.result.state.localReceiveMSS = step.before.localReceiveMSS := by
+  rw [step.computed]
+  exact (evaluate_balanced step.before step.event).2
+
+
 inductive Chain : Model → List Step → Model → Prop where
   | nil (state : Model) : Chain state [] state
   | cons (head : Step) (tail : Chain head.result.state steps final) :
@@ -249,6 +311,12 @@ theorem valid (chain : Chain initial steps final) (valid : initial.Valid) : fina
   induction chain with
   | nil state => exact valid
   | cons head tail ih => exact ih head.valid
+
+theorem localReceiveMSS (chain : Chain initial steps final) :
+    final.localReceiveMSS = initial.localReceiveMSS := by
+  induction chain with
+  | nil state => rfl
+  | cons head tail ih => exact ih.trans head.localReceiveMSS
 
 theorem split (chain : Chain initial steps final) (head : Step) (member : head ∈ steps) :
     ∃ prior later, steps = prior ++ head :: later ∧ Chain initial prior head.before ∧
@@ -385,6 +453,10 @@ inductive OutputOrigin (step : Step) (output : Input) : Prop where
       (event : step.event = .emitAck policy)
       (accepted : step.result.decision = .accepted .emitAck)
       (actual : step.result.output = some output) : OutputOrigin step output
+  | dispatchAck (policy : Bool)
+      (event : step.event = .dispatchAck policy)
+      (accepted : step.result.decision = .accepted .dispatchAck)
+      (actual : step.result.output = some output) : OutputOrigin step output
 
 theorem OutputOrigin.fields (origin : OutputOrigin step output) (original : NoRetry step) :
     output.packet.segment.payload = step.emitted ∧
@@ -407,9 +479,111 @@ theorem OutputOrigin.fields (origin : OutputOrigin step output) (original : NoRe
       simpa only [step.computed, event, evaluate] using actual
     have equal : value = output := Option.some.inj (same.symm.trans actual')
     subst output
-    exact ⟨by simpa only [Step.emitted, event, emitted] using Output.emit_payload _ _ _ encoded,
-      (Output.emit_transport _ _ _ encoded).2.1⟩
+    exact ⟨by simpa only [Step.emitted, event, emitted] using Endpoint.emit_payload _ _ _ encoded,
+      (Endpoint.emit_transport _ _ _ encoded).2.1⟩
+  | dispatchAck policy event accepted actual =>
+    have selected : (Endpoint.dispatchAck step.before policy).decision = .accepted .dispatchAck := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨value, same, encoded⟩ := Endpoint.dispatchAck_output _ _ selected
+    have actual' : (Endpoint.dispatchAck step.before policy).output = some output := by
+      simpa only [step.computed, event, evaluate] using actual
+    have equal : value = output := Option.some.inj (same.symm.trans actual')
+    subst output
+    exact ⟨by simpa only [Step.emitted, event, emitted] using Endpoint.emit_payload _ _ _ encoded,
+      (Endpoint.emit_transport _ _ _ encoded).2.1⟩
   | retry count policy event accepted actual => exact False.elim (original policy event)
+
+theorem OutputOrigin.actual (origin : OutputOrigin step output) : step.result.output = some output := by
+  cases origin <;> assumption
+
+theorem OutputOrigin.ack_fields (origin : OutputOrigin step output) :
+    output.packet.segment.acknowledgment = step.before.core.receiveNext ∧
+      output.packet.segment.window.val = Endpoint.outputWindow step.before := by
+  cases origin with
+  | send count policy event accepted actual =>
+    have selected : (Endpoint.send step.before count policy).decision = .accepted (.send count) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨value, same, encoded, _, _, _⟩ := Endpoint.send_output _ _ _ selected
+    have actual' : (Endpoint.send step.before count policy).output = some output := by
+      simpa only [step.computed, event, evaluate] using actual
+    have equal : value = output := Option.some.inj (same.symm.trans actual')
+    subst output
+    exact ⟨(Endpoint.emit_transport _ _ _ encoded).2.2.1, (Endpoint.emit_transport _ _ _ encoded).2.2.2.1⟩
+  | ack policy event accepted actual =>
+    have selected : (Endpoint.emitAck step.before policy).decision = .accepted (.emitAck) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨value, same, encoded⟩ := Endpoint.emitAck_output _ _ selected
+    have actual' : (Endpoint.emitAck step.before policy).output = some output := by
+      simpa only [step.computed, event, evaluate] using actual
+    have equal : value = output := Option.some.inj (same.symm.trans actual')
+    subst output
+    exact ⟨(Endpoint.emit_transport _ _ _ encoded).2.2.1, (Endpoint.emit_transport _ _ _ encoded).2.2.2.1⟩
+  | dispatchAck policy event accepted actual =>
+    have selected : (Endpoint.dispatchAck step.before policy).decision = .accepted (.dispatchAck) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨value, same, encoded⟩ := Endpoint.dispatchAck_output _ _ selected
+    have actual' : (Endpoint.dispatchAck step.before policy).output = some output := by
+      simpa only [step.computed, event, evaluate] using actual
+    have equal : value = output := Option.some.inj (same.symm.trans actual')
+    subst output
+    exact ⟨(Endpoint.emit_transport _ _ _ encoded).2.2.1, (Endpoint.emit_transport _ _ _ encoded).2.2.2.1⟩
+  | retry count policy event accepted actual =>
+    have selected : (Endpoint.timeout step.before policy).decision = .accepted (.retry count) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨_, _, value, _, _, _, same, encoded, _, _, _⟩ := Endpoint.timeout_output _ _ _ selected
+    have actual' : (Endpoint.timeout step.before policy).output = some output := by
+      simpa only [step.computed, event, evaluate] using actual
+    have equal : value = output := Option.some.inj (same.symm.trans actual')
+    subst output
+    exact ⟨(Endpoint.emitAt_transport _ _ _ _ encoded).2.2.1, (Endpoint.emitAt_transport _ _ _ _ encoded).2.2.2.1⟩
+
+
+theorem OutputOrigin.ack_coherent (origin : OutputOrigin step output) : Endpoint.AckCoherent step.before := by
+  apply Endpoint.ackReady_coherent
+  cases origin with
+  | send count policy event accepted actual =>
+    apply Endpoint.send_ackReady step.before count policy
+    simpa only [step.computed, event, evaluate] using accepted
+  | retry count policy event accepted actual =>
+    apply Endpoint.timeout_ackReady step.before policy count
+    simpa only [step.computed, event, evaluate] using accepted
+  | ack policy event accepted actual =>
+    apply Endpoint.pureAck_ackReady step.before policy false .emitAck
+    simpa only [step.computed, event, evaluate, Endpoint.emitAck] using accepted
+  | dispatchAck policy event accepted actual =>
+    apply Endpoint.pureAck_ackReady step.before policy true .dispatchAck
+    simpa only [step.computed, event, evaluate, Endpoint.dispatchAck] using accepted
+
+theorem OutputOrigin.ack_state (origin : OutputOrigin step output) :
+    step.result.state.ackReaction = step.before.ackReaction.map (fun reaction =>
+      AckReaction.outputState reaction step.before.now step.before.core.receiveNext
+        step.before.core.capacity step.before.core.window step.before.effectiveMSS) := by
+  cases origin with
+  | send count policy event accepted actual =>
+    have selected : (Endpoint.send step.before count policy).decision = .accepted (.send count) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨_, _, _, _, _, changed⟩ := Endpoint.send_accepted step.before count policy selected
+    simp only [step.computed, event, evaluate, changed]
+    rfl
+  | retry count policy event accepted actual =>
+    have selected : (Endpoint.timeout step.before policy).decision = .accepted (.retry count) := by
+      simpa only [step.computed, event, evaluate] using accepted
+    obtain ⟨_, _, _, _, _, _, _, _, _, _, _, _, _, changed⟩ := Endpoint.timeout_accepted step.before policy count selected
+    simp only [step.computed, event, evaluate, changed]
+    rfl
+  | ack policy event accepted actual =>
+    have selected : (Endpoint.pureAck step.before policy false).decision = .accepted .emitAck := by
+      simpa only [step.computed, event, evaluate, Endpoint.emitAck] using accepted
+    have changed := Endpoint.pureAck_state step.before policy false .emitAck selected
+    simp only [step.computed, event, evaluate, Endpoint.emitAck, changed]
+    rfl
+  | dispatchAck policy event accepted actual =>
+    have selected : (Endpoint.pureAck step.before policy true).decision = .accepted .dispatchAck := by
+      simpa only [step.computed, event, evaluate, Endpoint.dispatchAck] using accepted
+    have changed := Endpoint.pureAck_state step.before policy true .dispatchAck selected
+    simp only [step.computed, event, evaluate, Endpoint.dispatchAck, changed]
+    rfl
+
 
 structure OutputAt (steps : List Step) where
   prior : List Step
@@ -464,6 +638,11 @@ theorem range (value : OutputAt steps) (chain : Chain initial steps final) (empt
     refine ⟨value.prior.flatMap Step.emitted, ?_, value.coordinate chain original⟩
     rw [(value.origin.fields original).1]
     exact ⟨[], by simp⟩
+  | dispatchAck policy event accepted actual =>
+    have original : NoRetry value.step := by intro other same; rw [event] at same; cases same
+    refine ⟨value.prior.flatMap Step.emitted, ?_, value.coordinate chain original⟩
+    rw [(value.origin.fields original).1]
+    exact ⟨[], by simp⟩
   | retry count policy event accepted actual =>
     have selected : (Endpoint.timeout value.step.before policy).decision = .accepted (.retry count) := by
       simpa only [value.step.computed, event, evaluate] using accepted
@@ -512,18 +691,18 @@ theorem Step.data (step : Step) (nonempty : step.acceptedPayload ≠ []) :
   | send count policy => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | read count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | emitAck policy => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
-  | enableRecovery | advanceClock _ | timeout _ =>
+  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ =>
     simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | receive input =>
     cases selected : step.result.decision with
     | reject reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
-    | unsupported reason | recoveryUnsupported reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
+    | unsupported reason | recoveryUnsupported reason | ackUnsupported reason => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
     | accepted action =>
       cases action with
       | write count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | send count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | read count => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
-      | emitAck | enableRecovery | advanceClock | retry _ => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
+      | emitAck | enableRecovery | advanceClock | retry _ | enableAck | dispatchAck => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event, selected] at nonempty
       | receive count size =>
         have accepted : (Endpoint.receive step.before input).decision = .accepted (.receive count size) := by
           simpa only [step.computed, event, evaluate] using selected
@@ -630,6 +809,8 @@ theorem OutputOrigin.pending_prefix (origin : OutputOrigin step output) (origina
     simpa only [Step.emitted, event, accepted, emitted] using List.take_prefix count step.before.pending
   | ack policy event accepted actual =>
     simp only [Step.emitted, event, emitted, List.nil_prefix]
+  | dispatchAck policy event accepted actual =>
+    simp only [Step.emitted, event, emitted, List.nil_prefix]
   | retry count policy event accepted actual => exact False.elim (original policy event)
 
 theorem OutputOrigin.nonempty_send (origin : OutputOrigin step output) (original : NoRetry step)
@@ -639,6 +820,10 @@ theorem OutputOrigin.nonempty_send (origin : OutputOrigin step output) (original
   | send count policy event accepted actual => exact ⟨count, policy, event, accepted⟩
   | ack policy event accepted actual =>
     have payload := ((OutputOrigin.ack policy event accepted actual).fields original).1
+    simp only [Step.emitted, event, emitted] at payload
+    exact False.elim (nonempty payload)
+  | dispatchAck policy event accepted actual =>
+    have payload := ((OutputOrigin.dispatchAck policy event accepted actual).fields original).1
     simp only [Step.emitted, event, emitted] at payload
     exact False.elim (nonempty payload)
   | retry count policy event accepted actual => exact False.elim (original policy event)
@@ -677,11 +862,11 @@ theorem Step.written_event (step : Step) (byte : UInt8) (member : byte ∈ step.
   | read count => simp [Step.written, ApplicationTrace.written, event] at member
   | emitAck policy => simp [Step.written, ApplicationTrace.written, event] at member
   | receive input => simp [Step.written, ApplicationTrace.written, event] at member
-  | enableRecovery | advanceClock _ | timeout _ => simp [Step.written, ApplicationTrace.written, event] at member
+  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ => simp [Step.written, ApplicationTrace.written, event] at member
   | write bytes =>
     cases selected : step.result.decision with
     | reject reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
-    | unsupported reason | recoveryUnsupported reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
+    | unsupported reason | recoveryUnsupported reason | ackUnsupported reason => simp [Step.written, ApplicationTrace.written, event, selected] at member
     | accepted action =>
       cases action with
       | write count =>
@@ -689,7 +874,7 @@ theorem Step.written_event (step : Step) (byte : UInt8) (member : byte ∈ step.
           simpa only [Step.written, ApplicationTrace.written, event, selected] using member⟩
       | send count => simp [Step.written, ApplicationTrace.written, event, selected] at member
       | read count => simp [Step.written, ApplicationTrace.written, event, selected] at member
-      | emitAck | enableRecovery | advanceClock | retry _ => simp [Step.written, ApplicationTrace.written, event, selected] at member
+      | emitAck | enableRecovery | advanceClock | retry _ | enableAck | dispatchAck => simp [Step.written, ApplicationTrace.written, event, selected] at member
       | receive count size => simp [Step.written, ApplicationTrace.written, event, selected] at member
 
 theorem received_original_byte_origin (sourceChain : Chain sourceInitial sourceSteps sourceFinal)

@@ -22,6 +22,8 @@ inductive Event where
   | write (payload : List UInt8)
   | send (count : Nat) (policyPermitted : Bool)
   | enableRecovery
+  | enableAck
+  | dispatchAck (policyPermitted : Bool)
   | advanceClock (millis : Nat)
   | timeout (policyPermitted : Bool)
   | read (count : Nat)
@@ -37,6 +39,8 @@ def Raw.json (raw : Raw) : Lean.Json := match raw.event with
   | .send count policy => Lean.Json.mkObj [("kind", Lean.toJson "send"),
       ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
   | .enableRecovery => Lean.Json.mkObj [("kind", Lean.toJson "enableRecovery")]
+  | .enableAck => Lean.Json.mkObj [("kind", Lean.toJson "enableAck")]
+  | .dispatchAck policy => Lean.Json.mkObj [("kind", Lean.toJson "dispatchAck"), ("policyPermitted", Lean.toJson policy)]
   | .advanceClock millis => Lean.Json.mkObj [("kind", Lean.toJson "advanceClock"), ("millis", Lean.toJson millis)]
   | .timeout policy => Lean.Json.mkObj [("kind", Lean.toJson "timeout"), ("policyPermitted", Lean.toJson policy)]
   | .read count => Lean.Json.mkObj [("kind", Lean.toJson "read"), ("count", Lean.toJson count)]
@@ -90,6 +94,12 @@ private def eventValueFromJson (json : Lean.Json) : Except String Event := do
     | "enableRecovery" => do
       Import.PacketFields.fields json ["kind"]
       return .enableRecovery
+    | "enableAck" => do
+      Import.PacketFields.fields json ["kind"]
+      return .enableAck
+    | "dispatchAck" => do
+      Import.PacketFields.fields json ["kind", "policyPermitted"]
+      return .dispatchAck (← (← json.getObjVal? "policyPermitted").getBool?)
     | "advanceClock" => do
       Import.PacketFields.fields json ["kind", "millis"]
       return .advanceClock (← (← json.getObjVal? "millis").getNat?)
@@ -122,6 +132,8 @@ inductive Matches : Event → T.Event → Prop where
   | write (payload) : Matches (.write payload) (.write payload)
   | send (count policy) : Matches (.send count policy) (.send count policy)
   | enableRecovery : Matches .enableRecovery .enableRecovery
+  | enableAck : Matches .enableAck .enableAck
+  | dispatchAck (policy) : Matches (.dispatchAck policy) (.dispatchAck policy)
   | advanceClock (millis) : Matches (.advanceClock millis) (.advanceClock millis)
   | timeout (policy) : Matches (.timeout policy) (.timeout policy)
   | read (count) : Matches (.read count) (.read count)
@@ -137,6 +149,8 @@ private def convert (raw : Raw) : Except String (Converted raw) :=
   | .write payload => .ok ⟨.write payload, selected ▸ .write payload⟩
   | .send count policy => .ok ⟨.send count policy, selected ▸ .send count policy⟩
   | .enableRecovery => .ok ⟨.enableRecovery, selected ▸ .enableRecovery⟩
+  | .enableAck => .ok ⟨.enableAck, selected ▸ .enableAck⟩
+  | .dispatchAck policy => .ok ⟨.dispatchAck policy, selected ▸ .dispatchAck policy⟩
   | .advanceClock millis => .ok ⟨.advanceClock millis, selected ▸ .advanceClock millis⟩
   | .timeout policy => .ok ⟨.timeout policy, selected ▸ .timeout policy⟩
   | .read count => .ok ⟨.read count, selected ▸ .read count⟩
@@ -177,14 +191,19 @@ private structure Run (before : E.State) (events : List Raw) where
   trace : Trace before events steps final remaining
 
 private def run (before : E.State) (valid : before.Valid) (stamp : Nat) :
-    (events : List Raw) → Except String (Run before events)
-  | [] => .ok ⟨before, [], [], .done before⟩
-  | raw :: events => do
+    (transportStarted : Bool) → (events : List Raw) → Except String (Run before events)
+  | _, [] => .ok ⟨before, [], [], .done before⟩
+  | transportStarted, raw :: events => do
+    if transportStarted && before.ackReaction.isNone then
+      match raw.event with
+      | .enableAck => throw "Enable ACK reactions before this endpoint's send or receive operations."
+      | _ => pure ()
     let converted ← convert raw
     let typed := Netlib.Protocol.TCP.ApplicationTrace.Step.make before valid converted.event stamp
     let head : Step := ⟨raw, typed, converted.source⟩
     if supported : head.supported = true then
-      let tail ← run typed.result.state typed.valid (stamp + 1) events
+      let transportStarted := transportStarted || match raw.event with | .send .. | .receive .. => true | _ => false
+      let tail ← run typed.result.state typed.valid (stamp + 1) transportStarted events
       return ⟨tail.final, head :: tail.steps, tail.remaining, .next head supported tail.trace⟩
     else
       have unsupported : head.supported = false := by cases result : head.supported <;> simp_all
@@ -192,7 +211,7 @@ private def run (before : E.State) (valid : before.Valid) (stamp : Nat) :
 
 def Input.check (input : Input) : Except String (Report input) := do
   if valid : input.seed.Valid then
-    let result ← run input.seed valid 0 input.events
+    let result ← run input.seed valid 0 false input.events
     return ⟨result.final, result.steps, result.remaining, valid, result.trace⟩
   else throw "The TCP seed must satisfy its buffer, cursor, window, MSS, and IP size limits."
 
@@ -296,14 +315,52 @@ def recoveryJson (state : Protocol.TCP.Recovery.State) : Lean.Json := Lean.Json.
   ("lastTimedOut", Lean.toJson state.lastTimedOut), ("timeoutCount", Lean.toJson state.timeoutCount),
   ("duplicateAcks", Lean.toJson state.duplicateAcks), ("flight", Lean.toJson (Protocol.TCP.Recovery.flight state))]
 
+def ownMSSJson : Protocol.TCP.MSS.Offer → Lean.Json
+  | .absent => Lean.Json.mkObj [("kind", Lean.toJson "absent")]
+  | .present value => Lean.Json.mkObj [("kind", Lean.toJson "present"), ("value", Lean.toJson value.word.val)]
+
+def ackDemandJson (value : Protocol.TCP.AckReaction.Demand) : Lean.Json := Lean.Json.mkObj [
+  ("kind", Lean.toJson (match value.kind with | .data => "data" | .sequence => "sequence" | .window => "window")),
+  ("cursor", Lean.toJson value.cursor.val), ("position", Lean.toJson value.position),
+  ("bytes", Lean.toJson value.bytes), ("minimumEdge", Lean.toJson value.minimumEdge)]
+
+def ackCauseJson (value : Theory.TimedReaction.Cause Unit Protocol.TCP.AckReaction.Demand) : Lean.Json := Lean.Json.mkObj [
+  ("id", Lean.toJson value.id), ("issuedAt", Lean.toJson value.issuedAt), ("due", Lean.toJson value.due),
+  ("demand", ackDemandJson value.demand)]
+
+def ackOutputJson (value : Protocol.TCP.AckReaction.Acknowledgment) : Lean.Json := Lean.Json.mkObj [
+  ("cursor", Lean.toJson value.cursor.val), ("position", Lean.toJson value.position), ("window", Lean.toJson value.window)]
+
+def ackReactionJson (value : Protocol.TCP.AckReaction.State) (capacity free outgoingMSS : Nat) : Lean.Json := Lean.Json.mkObj [
+  ("origin", Lean.toJson value.origin.val), ("rmss", Lean.toJson value.rmss),
+  ("advertisement", Lean.Json.mkObj [("frontier", Lean.toJson value.advertisement.frontier),
+    ("edge", Lean.toJson value.advertisement.edge), ("window", Lean.toJson value.window),
+    ("candidate", Lean.toJson (Protocol.TCP.AckReaction.candidate value capacity free outgoingMSS)),
+    ("free", Lean.toJson free), ("threshold", Lean.toJson (Protocol.TCP.ReceiveAdvertisement.threshold capacity outgoingMSS))]),
+  ("work", Lean.Json.mkObj [("nextID", Lean.toJson value.work.nextID),
+    ("nextDischarge", Lean.toJson value.work.nextDischarge), ("pendingDue", Lean.toJson value.due),
+    ("credit", Lean.toJson value.credit), ("pending", Lean.toJson (value.work.pending.map ackCauseJson)),
+    ("completed", Lean.toJson (value.work.completed.map fun completion => Lean.Json.mkObj [
+      ("id", Lean.toJson completion.id), ("time", Lean.toJson completion.time),
+      ("output", ackOutputJson completion.output), ("causes", Lean.toJson (completion.causes.map ackCauseJson))]))]),
+  ("fullSegments", Lean.toJson value.fullSegments), ("dataBytes", Lean.toJson value.dataBytes)]
+
 def stateJson (state : E.State) : Lean.Json := Lean.Json.mkObj ([
   ("core", TCPReceive.stateJson state.core), ("pendingHex", Lean.toJson (Import.EAPOL.bytesToHex state.pending)),
   ("pendingLimit", Lean.toJson state.pendingLimit), ("sendWindow", Lean.toJson state.sendWindow),
   ("sendWL1", Lean.toJson state.sendWL1.val), ("sendWL2", Lean.toJson state.sendWL2.val),
   ("effectiveMSS", Lean.toJson state.effectiveMSS), ("ipSendLimit", Lean.toJson state.ipSendLimit)] ++
-  match state.recovery with
+  (match state.recovery with
   | none => []
-  | some value => [("recovery", recoveryJson value), ("lastAckWindow", Lean.toJson state.lastAckWindow)])
+  | some value => [("recovery", recoveryJson value), ("lastAckWindow", Lean.toJson state.lastAckWindow)]) ++
+  match state.ackReaction with
+  | none => []
+  | some value => [("localReceiveMSS", ownMSSJson state.localReceiveMSS),
+    ("ackReaction", ackReactionJson value state.core.capacity state.core.window state.effectiveMSS)])
+
+def ackStopName : Protocol.TCP.AckReaction.Stop → String
+  | .disabled => "disabled" | .alreadyEnabled => "alreadyEnabled" | .noCredit => "noCredit"
+  | .early => "early" | .ledger => "ledger" | .deadline => "deadline" | .challenge => "challenge"
 
 def recoveryStopName : Protocol.TCP.Recovery.Stop → String
   | .backwardClock => "backwardClock" | .early => "early" | .idle => "idle" | .ledger => "ledger"
@@ -314,6 +371,7 @@ private def rejectName : E.Reject → String
   | .invalidSeed => "invalidSeed" | .pendingCapacity => "pendingCapacity" | .readBounds => "readBounds"
   | .sendBounds => "sendBounds" | .policy => "policy" | .encoding => "encoding"
   | .recovery reason => "recovery." ++ recoveryStopName reason
+  | .ack reason => "ack." ++ ackStopName reason
   | .input reason => "input." ++ match reason with
     | .invalidSeed => "invalidSeed" | .tuple => "tuple" | .sequence => "sequence"
     | .missingAck => "missingAck" | .acknowledgment => "acknowledgment"
@@ -322,6 +380,8 @@ private def acceptedJson : E.Accepted → List (String × Lean.Json)
   | .write count => [("operation", Lean.toJson "write"), ("count", Lean.toJson count)]
   | .send count => [("operation", Lean.toJson "send"), ("count", Lean.toJson count)]
   | .enableRecovery => [("operation", Lean.toJson "enableRecovery")]
+  | .enableAck => [("operation", Lean.toJson "enableAck")]
+  | .dispatchAck => [("operation", Lean.toJson "dispatchAck")]
   | .advanceClock => [("operation", Lean.toJson "advanceClock")]
   | .retry count => [("operation", Lean.toJson "retry"), ("count", Lean.toJson count)]
   | .read count => [("operation", Lean.toJson "read"), ("count", Lean.toJson count)]
@@ -335,6 +395,8 @@ def decisionJson : E.Decision → Lean.Json
   | .unsupported reason => TCPReceive.decisionJson (.blocked (.unsupported reason))
   | .recoveryUnsupported reason => Lean.Json.mkObj [
       ("kind", Lean.toJson "unsupported"), ("reason", Lean.toJson ("recovery." ++ recoveryStopName reason))]
+  | .ackUnsupported reason => Lean.Json.mkObj [
+      ("kind", Lean.toJson "unsupported"), ("reason", Lean.toJson ("ack." ++ ackStopName reason))]
 
 def outputJson : Option Protocol.TCP.EstablishedReceive.Input → Lean.Json
   | none => .null

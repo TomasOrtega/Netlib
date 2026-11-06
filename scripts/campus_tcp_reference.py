@@ -1114,7 +1114,7 @@ def replay(value, driver=None):
                             wrap(startup.passive_seed),
                             index,
                         )
-            elif service["sourceKind"] not in ("send", "emitAck", "retry"):
+            elif service["sourceKind"] not in ("send", "emitAck", "retry", "dispatchAck"):
                 decision = {"kind": "unsupported", "reason": "startupCopy"}
             else:
                 result = evaluate(

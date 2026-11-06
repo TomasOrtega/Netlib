@@ -101,7 +101,8 @@ Retries use the installed range observations on the standby.
 The receiver discards an old duplicate without adding its payload again.
 Only an explicit later ACK output can acknowledge that duplicate.
 ACK output scheduling remains explicit in the example.
-General ACK scheduling and its required time bounds remain OPEN.
+The [ACK extension](TCP_ACK.md) adds checked local reaction deadlines and receive-window suppression.
+General scheduling and eventual delivery remain OPEN.
 Current Logoff denial prevents later gateway output despite a valid cached range.
 
 The report retains exact attempts, clocks, timing records, estimator values, deadlines, and unique FlightSize.

@@ -399,6 +399,9 @@ private def sameOutputEvent (first second : AppStep) : Except String { _value : 
   | .emitAck firstPolicy, .emitAck secondPolicy =>
     if same : firstPolicy = secondPolicy then .ok ⟨(), by rw [same]⟩
     else .error "The source ACK differs from its final peer trace."
+  | .dispatchAck firstPolicy, .dispatchAck secondPolicy =>
+    if same : firstPolicy = secondPolicy then .ok ⟨(), by rw [same]⟩
+    else .error "The source ACK dispatch differs from its final peer trace."
   | .timeout firstPolicy, .timeout secondPolicy =>
     if same : firstPolicy = secondPolicy then .ok ⟨(), by rw [same]⟩
     else .error "The source timeout differs from its final peer trace."
@@ -480,7 +483,7 @@ def receives (report : M.Report input events) (peer : List AppStep) (actor : M.A
     | .emitAck policy =>
       let tail ← receives report peer actor rest
       return .other head (by intro packet same; rw [event] at same; cases same) tail
-    | .enableRecovery | .advanceClock _ | .timeout _ =>
+    | .enableRecovery | .advanceClock _ | .timeout _ | .enableAck | .dispatchAck _ =>
       let tail ← receives report peer actor rest
       return .other head (by intro packet same; rw [event] at same; cases same) tail
 

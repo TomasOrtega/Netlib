@@ -648,4 +648,184 @@ theorem receive_rewrite_decision (state : State) (value : Input) (target : Packe
   rw [receive_rewrite state value target ttl valid tuple transport]
   exact ⟨rfl, rfl⟩
 
+
+def gateWithWindow (state : State) (header : Packet.Header) (segment : Segment) (window : Nat) : Gate :=
+  if ¬state.Valid then .blocked (.reject .invalidSeed) none
+  else if header ≠ state.inbound then .blocked (.reject .tuple) none
+  else if let some reason := control segment then .blocked (.unsupported reason) none
+  else gateTailAt state.receiveNext window state.sendUna state.sent.length segment
+
+def withAckWindow (result : Result) (window : Nat) : Result :=
+  { result with ack := result.ack.map (fun request => { request with window }) }
+
+def evaluateWithWindow (state : State) (header : Packet.Header) (segment : Segment) (window : Nat) : Result :=
+  match gateWithWindow state header segment window with
+  | .blocked reason kind => withAckWindow (blocked state reason kind) window
+  | .next count =>
+    if segment.payload.length > window then blocked state (.unsupported .trimming)
+    else
+      let result := finish state segment count
+      withAckWindow result (window - match result.decision with | .accepted _ size => size | _ => 0)
+
+def receiveWithWindow (state : State) (value : Input) (window : Nat) : Result :=
+  evaluateWithWindow state value.packet.header value.packet.segment window
+
+theorem gateWithWindow_count (state : State) (header : Packet.Header) (segment : Segment) (window count : Nat)
+    (selected : gateWithWindow state header segment window = .next count) :
+    acknowledgedCount state segment.acknowledgment = some count := by
+  unfold gateWithWindow at selected
+  split at selected
+  · cases selected
+  · split at selected
+    · cases selected
+    · cases controls : control segment with
+      | some reason => simp [controls] at selected
+      | none =>
+        simp only [controls] at selected
+        unfold gateTailAt at selected
+        split at selected
+        · cases selected
+        · split at selected
+          · cases selected
+          · cases acknowledgment : acknowledgedCountAt state.sendUna state.sent.length segment.acknowledgment with
+            | none => simp [acknowledgment] at selected
+            | some amount =>
+              simp only [acknowledgment, Gate.next.injEq] at selected
+              cases selected
+              simpa only [acknowledgedCount] using acknowledgment
+
+theorem receiveWithWindow_effects (state : State) (value : Input) (window : Nat) :
+    Effects state value.packet.segment (receiveWithWindow state value window) := by
+  unfold receiveWithWindow evaluateWithWindow
+  cases selected : gateWithWindow state value.packet.header value.packet.segment window with
+  | blocked reason kind => rfl
+  | next count =>
+    by_cases outside : value.packet.segment.payload.length > window
+    · simp only [outside, ite_true]
+      rfl
+    · simpa only [outside, ite_false, Effects, withAckWindow] using
+        finish_effects state value.packet.segment count (gateWithWindow_count state _ _ window count selected)
+
+theorem receiveWithWindow_blocked_preserves (state : State) (value : Input) (window : Nat) (reason : Block)
+    (selected : (receiveWithWindow state value window).decision = .blocked reason) :
+    (receiveWithWindow state value window).state = state := by
+  simpa only [Effects, selected] using receiveWithWindow_effects state value window
+
+theorem receiveWithWindow_accepted (state : State) (value : Input) (window count size : Nat)
+    (selected : (receiveWithWindow state value window).decision = .accepted count size) :
+    acknowledgedCount state value.packet.segment.acknowledgment = some count ∧
+      count ≤ state.sent.length ∧ size = value.packet.segment.payload.length ∧
+      value.packet.segment.payload.length ≤ state.window ∧
+      (receiveWithWindow state value window).state = commit state value.packet.segment.payload count := by
+  simpa only [Effects, selected] using receiveWithWindow_effects state value window
+
+theorem receiveWithWindow_payload_bound (state : State) (value : Input) (window count size : Nat)
+    (selected : (receiveWithWindow state value window).decision = .accepted count size) :
+    value.packet.segment.payload.length ≤ window := by
+  unfold receiveWithWindow evaluateWithWindow at selected
+  simp only [withAckWindow] at selected
+  cases chosen : gateWithWindow state value.packet.header value.packet.segment window with
+  | blocked reason kind => simp [chosen, blocked] at selected
+  | next amount =>
+    simp only [chosen] at selected
+    split at selected
+    · simp [blocked] at selected
+    · omega
+
+theorem receiveWithWindow_in_order (state : State) (value : Input) (window count size : Nat)
+    (selected : (receiveWithWindow state value window).decision = .accepted count size)
+    (nonempty : value.packet.segment.payload ≠ []) : value.packet.segment.sequence = state.receiveNext := by
+  unfold receiveWithWindow evaluateWithWindow at selected
+  simp only [withAckWindow] at selected
+  cases chosen : gateWithWindow state value.packet.header value.packet.segment window with
+  | blocked reason kind => simp [chosen, blocked] at selected
+  | next amount =>
+    simp only [chosen] at selected
+    split at selected
+    · simp [blocked] at selected
+    · unfold finish at selected
+      split at selected
+      · simp [blocked] at selected
+      · rename_i ordered
+        by_cases same : value.packet.segment.sequence = state.receiveNext
+        · exact same
+        · exact False.elim (ordered ⟨nonempty, same⟩)
+
+theorem receiveWithWindow_valid (state : State) (value : Input) (window : Nat) (valid : state.Valid) :
+    (receiveWithWindow state value window).state.Valid := by
+  cases selected : (receiveWithWindow state value window).decision with
+  | blocked reason => rw [receiveWithWindow_blocked_preserves state value window reason selected]; exact valid
+  | accepted count size =>
+    obtain ⟨_, bounded, _, fits, after⟩ := receiveWithWindow_accepted state value window count size selected
+    rw [after]
+    exact commit_valid state value.packet.segment.payload count valid fits bounded
+
+theorem gateWithWindow_rebind (state : State) (header : Packet.Header) (segment : Segment) (window : Nat)
+    (valid : state.Valid) (transport : header.protocol = Packet.Protocol.tcp) :
+    gateWithWindow (state.rebind header) header segment window = gateWithWindow state state.inbound segment window := by
+  have rebound := state.rebind_valid header valid transport
+  unfold gateWithWindow
+  rw [ite_eq_right (not_not_intro rebound), ite_eq_right (not_not_intro valid)]
+  rw [ite_eq_right (show ¬header ≠ (state.rebind header).inbound from not_not_intro rfl)]
+  rw [ite_eq_right (show ¬state.inbound ≠ state.inbound from not_not_intro rfl)]
+  cases controls : control segment <;> rfl
+
+theorem evaluateWithWindow_rebind (state : State) (header : Packet.Header) (segment : Segment) (window : Nat)
+    (valid : state.Valid) (transport : header.protocol = Packet.Protocol.tcp) :
+    evaluateWithWindow (state.rebind header) header segment window =
+      (evaluateWithWindow state state.inbound segment window).rebind header := by
+  unfold evaluateWithWindow
+  rw [gateWithWindow_rebind state header segment window valid transport]
+  cases selected : gateWithWindow state state.inbound segment window with
+  | blocked reason kind => rfl
+  | next count =>
+    by_cases outside : segment.payload.length > window
+    · simp only [outside, ite_true]
+      rfl
+    · simp only [outside, ite_false]
+      rw [finish_rebind state header segment count]
+      rfl
+
+theorem evaluateWithWindow_rewrite_segment (state : State) (header : Packet.Header) (value : DecodedIPv4)
+    (target : Packet.Header) (window : Nat) :
+    evaluateWithWindow state header (TCPRewrite.segment value target) window =
+      evaluateWithWindow state header value.segment window := by
+  have fields := TCPRewrite.segment_transport value target
+  have sequence := fields.1
+  have acknowledgment := fields.2.1
+  have flags := fields.2.2.2.1
+  have options := fields.2.2.2.2.2.2
+  have payload := TCPRewrite.segment_payload value target
+  have sequenceTest : ReceiveWindow.acceptsSegment state.receiveNext window (TCPRewrite.segment value target) =
+      ReceiveWindow.acceptsSegment state.receiveNext window value.segment := by
+    simp only [ReceiveWindow.acceptsSegment, ReceiveWindow.segmentLength, sequence, flags, payload]
+  have controls : control (TCPRewrite.segment value target) = control value.segment := by
+    simp only [control, flags, options]
+  have gates : gateWithWindow state header (TCPRewrite.segment value target) window =
+      gateWithWindow state header value.segment window := by
+    simp only [gateWithWindow, gateTailAt, sequenceTest, controls, flags, acknowledgment]
+  have finishTest (count : Nat) : finish state (TCPRewrite.segment value target) count = finish state value.segment count := by
+    simp only [finish, sequence, payload]
+  unfold evaluateWithWindow
+  rw [gates]
+  cases selected : gateWithWindow state header value.segment window with
+  | blocked reason kind => rfl
+  | next count =>
+    simp only [payload]
+    split
+    · rfl
+    · simp only [finishTest count]
+
+theorem receiveWithWindow_rewrite (state : State) (value : Input) (window : Nat) (target : Packet.Header) (ttl : UInt8)
+    (valid : state.Valid) (tuple : value.packet.header = state.inbound)
+    (transport : target.protocol = Packet.Protocol.tcp) :
+    receiveWithWindow (state.rebind target) (value.rewrite target ttl transport) window =
+      (receiveWithWindow state value window).rebind target := by
+  let result := TCPRewrite.rewrite value.packet target ttl value.valid transport
+  change evaluateWithWindow (state.rebind target) result.packet.header result.packet.segment window =
+    (evaluateWithWindow state value.packet.header value.packet.segment window).rebind target
+  rw [result.header transport]
+  change evaluateWithWindow (state.rebind target) target (TCPRewrite.segment value.packet target) window = _
+  rw [evaluateWithWindow_rewrite_segment, evaluateWithWindow_rebind state target value.packet.segment window valid transport, tuple]
+
 end Netlib.Protocol.TCP.EstablishedReceive
