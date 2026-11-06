@@ -119,8 +119,9 @@ Old pending packets and earlier drops can remain in the initial report.
 At quantum `10` and service bound `2`, the actual read occurs within `650` evaluated slots.
 It also proves one nonempty release and read, actual sender retirement, and existing typed byte origins.
 
-The 400-byte and 600-byte held-gap prefix and planned gateway transfer remain open.
-Additional copies and multiple active ranges need broader progress profiles.
+The [held-gap result](TCP_GAP_PROGRESS.md) retains both actual 400-byte and 600-byte cuts and their old pending packets.
+It permits two shared data and ACK drops per selected task and retires both sender records.
+Additional copies, more flights, and planned gateway transfer need broader progress profiles.
 Clock guards, receive space, read service, current policy, and route ownership remain explicit conditions.
 Native time and physical delivery remain external.
 See the [campus progress design](research/CAMPUS_PROGRESS.md) for these proof obligations.

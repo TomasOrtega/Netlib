@@ -126,7 +126,7 @@ Generated tests retain the same actual startup, setup, and indexed suffix traces
 They cover all 21 zero-, one-, and two-loss patterns, zero-window ACK loss, and old pending work with earlier drops.
 Separate cases reject service omissions, early or denied timeouts, overdue ACK clocks, a third selected drop, and a third timeout.
 
-The real 400-byte and 600-byte held-gap prefix remains a later extension.
+The [held-gap result](TCP_GAP_PROGRESS.md) starts at the actual two-record 400-byte and 600-byte cuts.
 Planned gateway transfer, additional copies, multiple flights, competing applications, persist, and fast recovery remain open.
 The fresh-range theorem does not reset or replace that held-gap prefix.
 

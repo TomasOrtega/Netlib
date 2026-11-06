@@ -117,6 +117,7 @@ The [bounded-progress design](research/CAMPUS_PROGRESS.md) identifies the next a
 The [custody extension](PACKET_CUSTODY.md) records pending packets, explicit loss, and copies.
 It also supplies general bounded-service theorems.
 The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) covers one fresh range with two combined data or ACK drops.
-Progress through held gaps and physical correspondence remain open.
+The [held-gap proof](TCP_GAP_PROGRESS.md) starts at both actual two-record campus cuts.
+Progress through sparse holes and physical correspondence remain open.
 General overlap handling, broader congestion control, close, and native TCP tracking refinement also remain open.
 All seven programs and the full campus objective remain OPEN.

@@ -115,7 +115,7 @@ Completion does not require discharge of that cause.
 
 The [recovery progress extension](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks, two combined data-and-ACK drops, and actual timer retries.
 Competing streams, congestion control, and planned gateway transfer remain open for this progress proof.
-The existing 400-byte and 600-byte held-gap campus prefix is a later extension.
+The [held-gap extension](TCP_GAP_PROGRESS.md) starts at both actual two-record campus cuts.
 This first round does not replace or reset that prefix.
 Native transmission, physical time, kernel refinement, and full protocol conformance remain external obligations.
 See the [broader progress design](research/CAMPUS_PROGRESS.md), [enabled operations](TCP_ENABLED_OPERATIONS.md), and [packet custody](PACKET_CUSTODY.md).

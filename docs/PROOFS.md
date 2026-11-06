@@ -210,6 +210,18 @@ At `q = 10` and `B = 2`, the bound is `650` evaluated slots.
 Under `q * (7 * B) < 1000`, it keeps sender time before the actual stored deadline through resolution.
 The [recovery progress guide](TCP_RECOVERY_PROGRESS.md) states the clock, native preflight, and service assumptions.
 
+`TCP.EndpointHeadTimeoutEnabled` derives the actual lower head retry with the upper record unchanged.
+`TCP.EndpointGapReceiveEnabled` derives ordered gap release with both actual retained headers.
+`TCP.EndpointOldSpanEnabled` handles later lower retries behind the combined receive cursor.
+`Check.CampusTCPGapProgressStart` retains actual startup, both sends, the upper receipt, and the selected old lower link.
+`Check.CampusTCPGapProgressProgress` proves the adapter from either actual held-gap cut with current standby ownership.
+`Check.CampusTCPGapProgressBounded` identifies the read in the supplied prefix and retires both sender records.
+At `q = 10`, `B = 2`, and allowance `2`, the bounds are `644` forward slots and `624` reverse slots.
+`Check.CampusTCPGapProgressOrigins` retains selected output sources and constructs typed per-byte origins.
+`Check.CampusTCPGapProgressBookkeeping` charges all selected data and ACK drops to the same suffix allowance.
+`Check.CampusTCPGapProgressTiming` derives actual path resolution and timer margins.
+The [held-gap progress guide](TCP_GAP_PROGRESS.md) states the limits of these independent cut applications.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

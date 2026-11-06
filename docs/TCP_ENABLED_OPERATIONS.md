@@ -111,6 +111,8 @@ The [recovery adapter](TCP_RECOVERY_PROGRESS.md) now charges failed attempts to 
 It covers at most two combined data and ACK drops with advancing logical clocks and no additional copies.
 Actual timer ticks and due timeout outputs need service.
 Under `q * (7 * B) < 1000`, each live attempt resolves before its actual sender deadline.
-The existing 400-byte and 600-byte held gaps and bounded planned transfer remain open.
+The [held-gap adapter](TCP_GAP_PROGRESS.md) extends these operations to both actual two-record campus cuts.
+It derives gap fill, head-only retry, old-span ACK work, and complete sender retirement.
+Sparse holes, more flights, and bounded planned transfer remain open.
 See the [progress design](research/CAMPUS_PROGRESS.md) and [custody guide](PACKET_CUSTODY.md).
 All seven programs and the full campus objective remain OPEN.
