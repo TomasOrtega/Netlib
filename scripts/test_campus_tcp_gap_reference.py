@@ -507,20 +507,20 @@ class CorpusAndAuditTests(unittest.TestCase):
 
     def test_released_suffix_cannot_claim_the_current_receipt(self):
         report = copy.deepcopy(self.main)
-        released = report["steps"][58]["reassembly"]["releasedRuns"]
+        released = report["steps"][59]["reassembly"]["releasedRuns"]
         released[1]["receiptID"] = released[0]["receiptID"]
         with self.assertRaises(AssertionError):
             checks.audit(report, "changed receipt owner")
 
     def test_stored_arrival_cannot_be_replaced_with_release_time(self):
         report = copy.deepcopy(self.main)
-        report["steps"][58]["reassembly"]["releasedRuns"][1]["receivedAt"] = 1100
+        report["steps"][59]["reassembly"]["releasedRuns"][1]["receivedAt"] = 1100
         with self.assertRaises(AssertionError):
             checks.audit(report, "changed arrival clock")
 
     def test_released_bytes_cannot_be_replaced_with_current_payload(self):
         report = copy.deepcopy(self.main)
-        frame = report["steps"][58]["reassembly"]
+        frame = report["steps"][59]["reassembly"]
         frame["releasedHex"] = frame["releasedRuns"][0]["payloadHex"]
         with self.assertRaises(AssertionError):
             checks.audit(report, "changed released prefix")
@@ -532,7 +532,7 @@ class CorpusAndAuditTests(unittest.TestCase):
             if case["id"] == "queued-header-retains-original-receipt-clock"
         )
         report = reference.replay(case["input"])
-        report["steps"][64]["state"]["server"]["recovery"]["lastSample"]["acknowledgedAt"] = 1100
+        report["steps"][65]["state"]["server"]["recovery"]["lastSample"]["acknowledgedAt"] = 1100
         with self.assertRaises(AssertionError):
             checks.audit(report, "changed sample clock")
 

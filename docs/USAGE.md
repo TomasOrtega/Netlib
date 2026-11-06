@@ -43,6 +43,7 @@ Use `examples/tcp-ack/trace.json` for [checked ACK reactions and receive-window 
 Use `examples/tcp-receive-gaps/trace.json` for [automatic future storage and release from separate receipts](TCP_RECEIVE_GAPS.md).
 Use `examples/tcp-receive-gaps/deferred-clock.json` to separate ACK receipt time from later header processing.
 Use `examples/tcp-sparse-admission/trace.json` for [unseen ingress holes through gateway transfer](TCP_SPARSE_ADMISSION.md).
+The campus commands also report [automatic packet custody and explicit copy and loss actions](PACKET_CUSTODY.md).
 
 ## Interface-bound campus admission
 

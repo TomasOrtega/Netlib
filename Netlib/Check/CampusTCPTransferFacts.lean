@@ -26,10 +26,10 @@ theorem checkpoint_origin (step : M.Step input) (event : step.event = .stageChec
       checkpoint.snapshot.cut = step.before.primary.history.length ∧
       step.result.state.cache = some checkpoint ∧
       step.result.state.connection = step.before.connection ∧ step.result.state.work = step.before.work := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   have selected : effect.checkpoint = some checkpoint := by simpa only [result] using present
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at computed
   repeat' first
     | (cases computed <;> simp only at selected <;> cases selected)
     | (split at computed)
@@ -63,10 +63,10 @@ structure InstallationOrigin (step : M.Step input) (executionNS : IngressAttachm
 theorem installation_origin (step : M.Step input) (executionNS : IngressAttachment.NamespaceRef)
     (event : step.event = .installCheckpoint executionNS) (value : M.InstalledCheckpoint)
     (present : step.result.installation = some value) : InstallationOrigin step executionNS value := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   have selected : effect.installation = some value := by simpa only [result] using present
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at computed
   repeat' first
     | (cases computed <;> simp only at selected <;> cases selected)
     | (split at computed)
@@ -92,9 +92,9 @@ theorem fence_origin (step : M.Step input) (event : step.event = .fencePrimary) 
       step.before.owners.server = .standby ∧ step.before.outstanding .primary = 0 ∧
       step.result.state.primaryFenced = true ∧ step.result.state.work = step.before.work ∧
       step.result.state.connection = step.before.connection := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at computed
   repeat' first
     | (cases computed)
     | (split at computed)
@@ -109,9 +109,9 @@ theorem resume_origin (step : M.Step input) (event : step.event = .resume) :
       step.before.owners.client = .standby ∧ step.before.owners.server = .standby ∧
       step.result.state.assignmentPaused = false ∧ step.result.state.connection = step.before.connection ∧
       step.result.state.work = step.before.work := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at computed
   repeat' first
     | (cases computed)
     | (split at computed)
@@ -126,9 +126,9 @@ theorem route_origin (step : M.Step input) (actor : Check.CampusTCPModel.Actor) 
     step.before.assignmentPaused = true ∧ step.before.primarySealed = true ∧ gateway = .standby ∧
       step.result.state.owner actor = .standby ∧ step.result.state.routeEpoch = step.before.routeEpoch + 1 ∧
       step.result.state.work = step.before.work ∧ step.result.state.connection = step.before.connection := by
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.transferControl] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.transferControl] at computed
   repeat' first
     | (cases computed)
     | (split at computed)
@@ -145,9 +145,9 @@ theorem assignment_origin (step : M.Step input) (index : Nat) (ingress : Ingress
       (step.before.owner produced.actor = .primary → step.before.primarySealed = false ∧ step.before.primaryFenced = false) ∧
       (step.before.owner produced.actor = .standby → step.before.installation.isSome = true) := by
   obtain ⟨produced, found, work⟩ := CampusTCPFacts.assign_origin step index ingress event
-  obtain ⟨effect, computed, result⟩ := step.processed
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
   rw [event] at computed
-  simp only [Check.CampusTCPModel.process, Check.CampusTCPModel.get, found, bind, Except.bind] at computed
+  simp only [Check.CampusTCPModel.processCore, Check.CampusTCPModel.get, found, bind, Except.bind] at computed
   repeat' first
     | (cases computed)
     | (split at computed)

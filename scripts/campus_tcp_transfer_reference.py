@@ -299,6 +299,7 @@ def replay(value, driver=None):
     endpoints = {"client": None, "server": None}
     established = {"client": None, "server": None}
     outputs, tickets, services, steps, reads = [], [], [], [], []
+    custody = base.Custody()
     supported = compliant = True
 
     def comparisons(gateway):
@@ -349,6 +350,7 @@ def replay(value, driver=None):
             "outputs": len(outputs),
             "pendingTickets": [row["id"] for row in tickets if row["pending"]],
             "services": len(services),
+            "custody": custody.snapshot(),
             "gateways": {
                 name: {
                     "configuration": gateway.configuration,
@@ -629,8 +631,18 @@ def replay(value, driver=None):
                     endpoints[actor], {"kind": "receive", "rawIPv4Hex": event["rawIPv4Hex"]}
                 )
                 endpoints[actor], decision = result.state, result.decision
+        elif kind in ("copyPacket", "dropPacket"):
+            pass
         else:
             raise ValueError("The campus transfer event kind is unknown.")
+        if kind == "assign":
+            custody.consume("ingress", event["output"], "assigned")
+        elif kind == "deliver":
+            custody.consume("link", event["service"], "delivered")
+        elif kind == "copyPacket":
+            custody.copy(event["packet"])
+        elif kind == "dropPacket":
+            custody.resolve(event["packet"], "dropped")
         if output is not None:
             attempt = None if driver is None else driver.attempt(before_endpoint, event)
             outputs.append(
@@ -646,6 +658,9 @@ def replay(value, driver=None):
                     **output,
                 }
             )
+            custody.mint("ingress", len(outputs) - 1, output["rawIPv4Hex"])
+        if kind == "serve" and service is not None and service["output"] is not None:
+            custody.mint("link", service["id"], service["output"]["rawIPv4Hex"])
         steps.append(
             {
                 "index": index,
@@ -677,6 +692,8 @@ def replay(value, driver=None):
         "services": services,
         "reads": reads,
         "remainingEvents": events[len(steps) :],
+        "packets": custody.inventory(),
+        "custodyAssurance": custody.assurance(),
     }
 
 
@@ -727,6 +744,8 @@ def projection(report):
             if row["event"]["kind"] in CONTROLS
         ],
         "remainingEvents": report["remainingEvents"],
+        "packets": report["packets"],
+        "custodyAssurance": report["custodyAssurance"],
     }
 
 

@@ -2,6 +2,7 @@ import Netlib.Check.CampusTCPHistory
 import Netlib.Check.TCPHandshake
 import Netlib.Protocol.TCP.ApplicationTraceFacts
 import Netlib.Theory.Outstanding
+import Netlib.Theory.PacketCustody
 import Netlib.Examples.CampusDirect
 
 /-!
@@ -260,6 +261,26 @@ theorem Receipt.bytePath (value : Receipt input) :
   have generated := value.emission.bytePath value.served.ticket.value.source
   exact .trans generated (.direct value.bytes)
 
+inductive Transit (input : Input) where
+  | ingress (outputIndex : Nat) (produced : Produced input.active input.passive)
+  | link (serviceIndex : Nat) (served : Served input)
+      (emission : W.Emission served.ticket.value.source.packet)
+      (emitted : served.evidence.output = some emission)
+
+def Transit.bytes : Transit input → List UInt8
+  | .ingress _ produced => produced.source.bytes
+  | .link _ _ emission _ => emission.bytes
+
+def Transit.ingressAt (index : Nat) : Transit input → Bool
+  | .ingress source _ => source == index
+  | .link .. => false
+
+def Transit.linkAt (index : Nat) : Transit input → Bool
+  | .link source .. => source == index
+  | .ingress .. => false
+
+abbrev Custody (input : Input) := Theory.PacketCustody.State (Transit input)
+
 structure State (input : Input) where
   time : Nat := 0
   authentication : Nat := 0
@@ -278,6 +299,7 @@ structure State (input : Input) where
   work : Work.State (Ticket input.active input.passive) := .initial
   services : List (Served input) := []
   receipts : List (Receipt input) := []
+  custody : Custody input := .initial
 
 def Input.initial (input : Input) : State input :=
   { primary := Local.initial input.primary, standby := Local.initial (input.deployment .standby) }
@@ -339,6 +361,8 @@ inductive Event where
   | assign (output : Nat) (ingress : I.InterfaceRef)
   | serve (ticket : Nat) (observed : Option (List UInt8 × Option (List UInt8)))
   | deliver (service : Nat) (bytes : List UInt8) (policy : Bool)
+  | copyPacket (packet : Nat)
+  | dropPacket (packet : Nat)
 
 inductive Error where
   | input (reason : String)
@@ -526,7 +550,7 @@ def transferControl (input : Input) (before : State input) (event : Event) : Exc
     return { state := { before with assignmentPaused := false } }
   | _ => throw (.input "The event is not a planned transfer control.")
 
-def process (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
+def processCore (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
   match event with
   | .authentication index =>
     if index ≠ before.authentication then throw (.input "Consume the next authentication observation exactly once.")
@@ -553,6 +577,7 @@ def process (input : Input) (before : State input) (event : Event) : Except Erro
   | .timeout actor policy => applyApplication input before actor (.timeout policy)
   | .read actor count => applyApplication input before actor (.read count)
   | .emitAck actor policy => applyApplication input before actor (.emitAck policy)
+  | .copyPacket _ | .dropPacket _ => return { state := before }
   | .assign index ingress =>
     if before.assignmentPaused then throw (.input "New assignments are paused for the selected transfer.")
     let produced ← get before.outputs index "The endpoint output reference is missing."
@@ -610,6 +635,42 @@ def process (input : Input) (before : State input) (event : Event) : Except Erro
         return { result with state := { result.state with receipts := before.receipts ++ [receipt] }, receipt := some receipt }
     else throw (.input "Receiver bytes must equal the selected actual gateway emission.")
 
+def prepareCustody (before : State input) (event : Event) : Except Error (Custody input) := do
+  match event with
+  | .assign index _ =>
+    let some id := before.custody.pendingID (Transit.ingressAt index)
+      | throw (.input "No pending ingress packet remains for this endpoint output.")
+    let result ← (Theory.PacketCustody.resolve before.custody id .assigned).mapError (fun reason => .input reason.describe)
+    return result.state
+  | .deliver index bytes _ =>
+    let some id := before.custody.pendingID (Transit.linkAt index)
+      | throw (.input "No pending receiver-link packet remains for this gateway service.")
+    let result ← (Theory.PacketCustody.resolve before.custody id .delivered).mapError (fun reason => .input reason.describe)
+    if bytes = result.item.value.payload.bytes then return result.state
+    else throw (.input "Receiver bytes must equal the selected actual gateway emission.")
+  | .copyPacket id =>
+    let result ← (Theory.PacketCustody.copy before.custody id).mapError (fun reason => .input reason.describe)
+    return result.state
+  | .dropPacket id =>
+    let result ← (Theory.PacketCustody.resolve before.custody id .dropped).mapError (fun reason => .input reason.describe)
+    return result.state
+  | _ => return before.custody
+
+def finishCustody (before : State input) (effect : Effect input) (custody : Custody input) : Custody input :=
+  let after := match effect.output with
+    | none => custody
+    | some produced => Theory.PacketCustody.mint custody (.ingress before.outputs.length produced)
+  match effect.service with
+  | none => after
+  | some served => match emitted : served.evidence.output with
+    | none => after
+    | some emission => Theory.PacketCustody.mint after (.link before.services.length served emission emitted)
+
+def process (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
+  let result ← processCore input before event
+  let custody ← prepareCustody before event
+  return { result with state := { result.state with custody := finishCustody before result custody } }
+
 def step (input : Input) (before : State input) (event : Event) : Except Error (Effect input) := do
   let result ← process input before event
   return { result with state := { result.state with time := before.time + 1 } }
@@ -620,25 +681,32 @@ structure Step (input : Input) where
   result : Effect input
   computed : step input before event = .ok result
 
-theorem Step.processed (value : Step input) :
-    ∃ effect, process input value.before value.event = .ok effect ∧
-      value.result = { effect with state := { effect.state with time := value.before.time + 1 } } := by
+theorem Step.transaction (value : Step input) :
+    ∃ effect custody, processCore input value.before value.event = .ok effect ∧
+      prepareCustody value.before value.event = .ok custody ∧
+      value.result = { effect with state := { effect.state with
+        custody := finishCustody value.before effect custody, time := value.before.time + 1 } } := by
   have accepted := value.computed
-  unfold step at accepted
-  cases observed : process input value.before value.event with
+  unfold step process at accepted
+  cases observed : processCore input value.before value.event with
   | error reason => simp [observed, bind, Except.bind] at accepted
   | ok result =>
-    simp only [observed, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at accepted
-    exact ⟨result, rfl, accepted.symm⟩
+    simp only [observed, bind, Except.bind] at accepted
+    cases prepared : prepareCustody value.before value.event with
+    | error reason => simp [prepared] at accepted
+    | ok custody =>
+      simp only [prepared, pure, Except.pure, Except.ok.injEq] at accepted
+      exact ⟨result, custody, rfl, rfl, accepted.symm⟩
+
+theorem Step.processed (value : Step input) :
+    ∃ effect custody, processCore input value.before value.event = .ok effect ∧
+      value.result = { effect with state := { effect.state with custody, time := value.before.time + 1 } } := by
+  obtain ⟨effect, custody, computed, _, result⟩ := value.transaction
+  exact ⟨effect, finishCustody value.before effect custody, computed, result⟩
 
 theorem Step.clock (value : Step input) : value.result.state.time = value.before.time + 1 := by
-  have accepted := value.computed
-  unfold step at accepted
-  cases observed : process input value.before value.event with
-  | error reason => simp [observed, bind, Except.bind] at accepted
-  | ok result =>
-    simp only [observed, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at accepted
-    rw [← accepted]
+  obtain ⟨effect, custody, _, result⟩ := value.processed
+  rw [result]
 
 inductive Trace (input : Input) : State input → List Event → List (Step input) → State input → List Event → Prop where
   | done (state) : Trace input state [] [] state []

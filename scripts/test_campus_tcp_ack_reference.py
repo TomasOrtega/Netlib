@@ -457,7 +457,7 @@ class CampusTests(unittest.TestCase):
         self.assertEqual(denied["output"]["decoded"]["segment"]["window"], 496)
 
     def test_current_denial_preserves_local_generation_and_buffered_reads(self):
-        self.assertEqual(self.report["evaluatedEvents"], 153)
+        self.assertEqual(self.report["evaluatedEvents"], 154)
         self.assertEqual((len(self.report["outputs"]), len(self.report["services"])), (21, 22))
         self.assertEqual(
             [row["disposition"] for row in self.report["services"][-2:]], ["earlyDrop"] * 2
@@ -526,7 +526,7 @@ class CampusTests(unittest.TestCase):
             with self.subTest(case=name):
                 with self.assertRaisesRegex(ValueError, "before this endpoint"):
                     reference.replay(errors[name]["input"])
-        policy = errors["dispatch-policy-is-strict-boolean"]["input"]["events"][64][
+        policy = errors["dispatch-policy-is-strict-boolean"]["input"]["events"][65][
             "policyPermitted"
         ]
         self.assertIs(type(policy), int)

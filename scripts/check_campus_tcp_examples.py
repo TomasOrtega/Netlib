@@ -67,6 +67,8 @@ def projection(report):
                 "services",
                 "reads",
                 "remainingEvents",
+                "packets",
+                "custodyAssurance",
             )
         },
         "decisions": report.get("decisions", [decision(step) for step in report["steps"]]),
@@ -74,6 +76,7 @@ def projection(report):
 
 
 def audit_bytes(report, name):
+    audit_custody(report, name)
     steps = report["steps"]
     outputs = report["outputs"]
     services = report["services"]
@@ -138,6 +141,36 @@ def audit_bytes(report, name):
             assert received[actor].startswith(read[actor]), (name, index, "earlier receipts")
             peer = "server" if actor == "client" else "client"
             assert written[peer].startswith(read[actor]), (name, index, "application prefix")
+
+
+def audit_custody(report, name):
+    custody = reference.Custody()
+    assert report["initial"]["custody"] == custody.snapshot(), (name, "initial custody")
+    outputs = {row["index"]: row for row in report["outputs"]}
+    services = {row["index"]: row for row in report["services"]}
+    for step in report["steps"]:
+        index, event = step["index"], step["event"]
+        assert step["before"]["custody"] == custody.snapshot(), (name, index, "custody before")
+        kind = event["kind"]
+        if kind == "assign":
+            custody.consume("ingress", event["output"], "assigned")
+        elif kind == "deliver":
+            packet = custody.consume("link", event["service"], "delivered")
+            assert packet.raw == event["rawIPv4Hex"], (name, index, "custody bytes")
+        elif kind == "copyPacket":
+            custody.copy(event["packet"])
+        elif kind == "dropPacket":
+            custody.resolve(event["packet"], "dropped")
+        if index in outputs:
+            output = outputs[index]
+            custody.mint("ingress", output["id"], output["rawIPv4Hex"])
+        if index in services and services[index]["output"] is not None:
+            service = services[index]
+            custody.mint("link", service["id"], service["output"]["rawIPv4Hex"])
+        assert step["state"]["custody"] == custody.snapshot(), (name, index, "custody after")
+    assert report["final"]["custody"] == custody.snapshot(), (name, "final custody")
+    assert report["packets"] == custody.inventory(), (name, "packet inventory")
+    assert report["custodyAssurance"] == custody.assurance(), (name, "custody assurance")
 
 
 def expected_assurance(oracle):
@@ -215,6 +248,8 @@ def expected_projection(report):
                 "services",
                 "reads",
                 "remainingEvents",
+                "packets",
+                "custodyAssurance",
             )
         },
         "decisions": [step["decision"] for step in report["steps"]],

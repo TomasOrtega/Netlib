@@ -8,7 +8,7 @@ The campus report retains startup, gateway delivery, application, and transfer e
 lake exe netlib campus-tcp examples/tcp-ack/trace.json --json
 ```
 
-The example has 153 joint events, 21 endpoint outputs, and 22 gateway services.
+The example has 154 joint events, 21 endpoint outputs, and 22 gateway services.
 The client reads 3600 bytes; the server reads 1600 bytes.
 Each endpoint has five ACK causes.
 The server covers its first two causes with one data output.
@@ -93,7 +93,9 @@ Each host keeps a separate clock context.
 Equal example readings do not establish clock synchronization.
 
 The example carries a pending cause through planned gateway transfer.
-It also covers delayed ACKs, data and ACK loss, whole old duplicates, suppressed small reads, and window growth.
+It also covers delayed ACKs, retained packets without receipts, whole old duplicates, suppressed small reads, and window growth.
+An explicit `copyPacket` action creates the repeated packet before its second assignment.
+The [packet-custody trace](PACKET_CUSTODY.md) separately uses actual data and ACK drop actions.
 The separate fixtures include zero-window reopening.
 After Logoff, local ACK generation can meet its deadline while the gateway correctly denies delivery.
 The independent [research and evidence](research/TCP_ACK.md) checks bytes, state, causes, and timing without Lean-derived expected values.

@@ -423,6 +423,8 @@ def projection(report):
                 "services",
                 "reads",
                 "remainingEvents",
+                "packets",
+                "custodyAssurance",
             )
         },
         "decisions": [step["decision"] for step in report["steps"]],
