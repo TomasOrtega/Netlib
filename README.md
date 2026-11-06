@@ -41,7 +41,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Check rewrites and timed flow authorization | [Stateful models](docs/STATEFUL.md) |
 | Check 5G admission traces | [5G](docs/FIVEG.md) |
 | Analyze policies and set search budgets | [Solver](docs/SOLVER.md) |
-| Inspect formal guarantees | [Proof inventory](docs/PROOFS.md), [Enabled TCP operations](docs/TCP_ENABLED_OPERATIONS.md) |
+| Inspect formal guarantees | [Proof inventory](docs/PROOFS.md), [Enabled TCP operations](docs/TCP_ENABLED_OPERATIONS.md), [Bounded TCP round](docs/TCP_ROUND_PROGRESS.md) |
 | Run checks or publish documentation | [Build and deployment](docs/TOOLING.md) |
 | Review the model and its limits | [Specification](docs/SPECIFICATION.md) |
 | Review the full research objective | [Roadmap](docs/ROADMAP.md) |

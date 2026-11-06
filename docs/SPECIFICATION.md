@@ -404,7 +404,8 @@ It separates covered prefix, greatest end, unique bytes, and cumulative ACK posi
 Source indices derive from actual committed observations and survive exact checkpoint installation.
 The campus checker automatically retains [packet custody](PACKET_CUSTODY.md) for each actual endpoint output and gateway emission.
 Assignment and delivery consume pending identities; copies and drops are explicit actions.
-A general bounded-service theorem is available, but complete TCP progress under a fault model remains open.
+The [bounded-round proof](TCP_ROUND_PROGRESS.md) gives completion of one fresh range by `9 * B` evaluated slots under its fixed-clock action and service contract.
+Progress with additional copies, losses, advancing clocks, held gaps, and gateway transfer remains open.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive current endpoint and gateway actions from their actual preceding states.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.

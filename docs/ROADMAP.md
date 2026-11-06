@@ -130,7 +130,9 @@ The [sparse gateway extension](TCP_SPARSE_ADMISSION.md) separates observed cover
 Actual first-source indices survive transfer, and unseen holes can fill on standby.
 The [custody extension](PACKET_CUSTODY.md) adds automatic packet identities, explicit loss and copies, and general bounded-service theorems.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive guarded endpoint and gateway actions and expose actual finite schedule slots.
-The [progress design](research/CAMPUS_PROGRESS.md) states the remaining concrete TCP scheduling, loss, clock, and service proof obligations.
+The [bounded round](TCP_ROUND_PROGRESS.md) proves one fresh range through all nine actual phases under fixed local clocks and a fixed primary gateway.
+It gives an actual read and sender retirement by `9 * B` evaluated slots under the action and service contract.
+The [progress design](research/CAMPUS_PROGRESS.md) retains the broader loss, clock, gap, and transfer obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.

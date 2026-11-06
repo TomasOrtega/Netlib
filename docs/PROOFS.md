@@ -171,7 +171,7 @@ The [sparse admission guide](TCP_SPARSE_ADMISSION.md) states the sequence, windo
 `Check.CampusTCPCustodyFacts` connects these laws to actual endpoint outputs and gateway emissions in the same campus trace.
 `Theory.BoundedProgress` proves universal rank-based completion under bounded persistent-demand service.
 Finite-prefix, sequential, concurrent, and transition-projection results retain their stated assumptions.
-A concrete TCP progress adapter remains open.
+A concrete TCP round adapter now proves completion under the selected action and service bounds.
 The [custody and service guide](PACKET_CUSTODY.md) defines this boundary.
 
 `TCP.AckReactionEnabled` proves time and pending-edge coverage guards.
@@ -186,7 +186,14 @@ It proves that the subsequent enabled ACK operation covers the new cursor.
 `Check.CampusTCPDeliveryEnabled` derives data and full-ACK delivery with actual receipts and endpoint frames.
 `Check.CampusTCPChronology` and the ticket invariant derive preceding-state guards from actual histories.
 `Check.CampusTCPSchedule` projects the same stored results to finite checked service slots.
-The [enabled-operation guide](TCP_ENABLED_OPERATIONS.md) states the remaining complete-transfer boundary.
+The [enabled-operation guide](TCP_ENABLED_OPERATIONS.md) states the local guard boundary.
+
+`Check.CampusTCPRoundStart` derives the initial NAT, lane, endpoint, and setup relations from actual startup.
+`Check.CampusTCPRoundPhaseForward` and `Check.CampusTCPRoundPhaseReverse` construct all nine actions at actual current cuts.
+`Check.CampusTCPRoundProgress` proves the concrete adapter laws through arbitrary admitted clock slots.
+`Check.CampusTCPRoundBounded` proves completion by `9 * B` evaluated slots and identifies the actual read in the supplied prefix.
+`Check.CampusTCPRoundPhaseHistory` proves exact release and read streams and one selected receive and nonempty read.
+The [bounded-round guide](TCP_ROUND_PROGRESS.md) states the fixed-clock, fixed-primary, and additional-copy/loss restrictions.
 
 ## Authenticated campus TCP path
 

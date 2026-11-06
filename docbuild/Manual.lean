@@ -2178,9 +2178,85 @@ Only evaluated operations supply checked service slots.
 An unsupported input suffix supplies none.
 A supported complete prefix can append an actual computed step without another model execution.
 
-A full transfer theorem must still derive readiness through every phase, actual covering ACK retirement, and application reads.
-The broader fault result must connect failed rounds to real custody drops and state clock, service, copy, and transfer conditions.
+The bounded-round proof now derives readiness through every phase, actual covering ACK retirement, and the read for one fresh range.
+The broader fault result must connect failed rounds to real custody drops and state advancing-clock, service, copy, and transfer conditions.
 Native correspondence and the full seven-program campus objective remain OPEN.
+
+# A bounded TCP round
+%%%
+tag := "tcp-round-progress"
+file := "tcp-round-progress"
+%%%
+
+One fresh client range completes through nine actual actions at a fixed primary gateway.
+Actual startup supplies the endpoint, NAT, zone, MSS, and admission relations.
+Five actual setup actions enable recovery and ACK reactions and write the selected bytes.
+Initial typed preflight comparisons and native route and filter permits remain explicit assumptions.
+
+The selected suffix permits its next packet or application action and actual same-clock operations.
+It adds no copy, drop, competing application operation, or configuration change.
+If each persistent next demand has service within `B` slots, completion has a bound of `9 * B` evaluated slots:
+
+```lean
+open Netlib.Check in
+example
+    {input : CampusTCPModel.Input}
+    {events : List CampusTCPModel.Event}
+    {report : CampusTCPModel.Report input events}
+    {complete : TCPHandshake.Completed
+      input.active input.passive}
+    {request : CampusTCPRoundStart.Request input}
+    {suffix remaining : List CampusTCPModel.Event}
+    {steps : List (CampusTCPModel.Step input)}
+    {final : CampusTCPModel.State input}
+    {bound : Nat}
+    (initial : CampusTCPRoundStart.Initial
+      report complete request)
+    (native : CampusTCPRoundStart.NativeEnv initial)
+    (trace : CampusTCPModel.Trace input initial.state
+      suffix steps final remaining)
+    (allowed : CampusTCPRoundBounded.Actions
+      initial native steps)
+    (service : CampusTCPRoundServiceBound.Serviced
+      (CampusTCPRoundPhaseBase.config initial native)
+      initial.state
+      CampusTCPRoundMonitor.Monitor.initial steps bound)
+    (enough : 9 * bound ≤ steps.length) :
+    ∃ actual ∈ steps.take (9 * bound),
+      actual.event = .read .server request.bytes.length ∧
+      actual.result.read = request.bytes :=
+  CampusTCPRoundBounded.read_by trace allowed service enough
+```
+
+The monitor reads the stored steps. It does not run an endpoint or gateway again.
+Every serving action advances the actual phase. Clock slots preserve its live demand.
+Unread input after an unsupported stop supplies no evaluated slots.
+
+Completion also retains the actual write:
+
+```lean
+open Netlib.Check in
+example
+    (done : CampusTCPRoundProgress.Completion
+      initial native current monitor) :
+    initial.start.writeStep ∈ current.report.steps :=
+  CampusTCPRoundPhaseHistory.Completion.write_member done
+```
+
+The origin corollaries construct the existing typed delivery and per-byte read witnesses from these actual records.
+Current-permission corollaries require compliance of the prepared report.
+They extend that past compliance through the new actions and clock slots.
+
+The full server history has one receive and one nonempty read.
+Its release and read streams equal the selected bytes.
+The sender's actual ledger is empty, its deadline is absent, and its retry count is zero.
+A read can leave new window ACK work pending.
+Old startup copies can remain in the initial history.
+The copy restriction applies to the selected suffix.
+
+Advancing clocks, loss, retries, the existing held-gap prefix, and bounded planned transfer remain open.
+Native transmission, physical time, and the full campus objective remain external obligations.
+All seven programs remain OPEN.
 
 # An authenticated campus TCP path
 %%%

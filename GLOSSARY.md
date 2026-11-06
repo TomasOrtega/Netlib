@@ -396,3 +396,20 @@ A supplied verification result bound to an authentication round, expected subjec
 
 **Local authentication round**:
 A model generation changed by reset events. It is separate from the eight-bit wire identifier and native producer-window labels.
+
+## Packet service and progress
+
+**Evaluated slot**:
+One stored model operation. An unread input event supplies no evaluated slot.
+
+**Persistent demand**:
+Work that remains pending until its selected action has service.
+
+**Service bound**:
+The number of evaluated slots within which a persistent demand must have service.
+
+**Report cut**:
+A stored prefix of one checked operation history and its actual final state.
+
+**TCP round**:
+The nine selected actions from a fresh data send through its covering ACK to the server read.

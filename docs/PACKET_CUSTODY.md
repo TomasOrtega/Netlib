@@ -108,10 +108,11 @@ No parser or replay inserts those copy events on behalf of an input.
 
 ## Remaining campus progress work
 
-The campus model has packet custody, but it has no concrete adapter that proves complete TCP transfer under bounded service and loss.
-The [enabled-operation extension](TCP_ENABLED_OPERATIONS.md) now derives the guarded local and gateway actions.
-The next result must derive actual receive release, covering ACK output, sender retirement, and application reads.
-It must also retain the actual current-policy and byte-origin evidence.
+The [bounded round](TCP_ROUND_PROGRESS.md) now connects packet custody to a concrete TCP adapter.
+It derives actual receive release, covering ACK output, sender retirement, and a read by `9 * B` evaluated slots.
+This first suffix fixes local clocks and primary ownership and permits no additional copy or drop.
+It retains the actual current-policy and byte-origin evidence.
+The broader loss and transfer proof remains open.
 
 The selected recovery model permits at most two timer retries per original range.
 Its combined failed-round budget must include both data loss and ACK loss.

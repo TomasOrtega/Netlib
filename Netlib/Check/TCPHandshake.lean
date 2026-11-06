@@ -158,6 +158,148 @@ structure Step (active passive : H.Local) where
   result : Effect active passive
   computed : evaluate active passive before index event = .ok result
 
+private theorem finish_input_origin (before : Acknowledged active passive) (index : Nat)
+    (ack : X.DeliverySpec) (complete : Completed active passive)
+    (computed : finish active passive before index ack = .ok complete) :
+    complete.input.times = ⟨before.answered.opened.index, before.answered.index, before.index, index⟩ ∧
+      complete.input.syn = before.answered.spec ∧ complete.input.synAck = before.spec ∧
+      complete.input.ack = ack := by
+  unfold finish at computed
+  simp only [bind, Except.bind] at computed
+  split at computed
+  · cases computed
+  · simp only [pure, Except.pure, Except.ok.injEq] at computed
+    cases computed
+    exact ⟨rfl, rfl, rfl, rfl⟩
+
+theorem final_input_origin (before : Acknowledged active passive) (index : Nat)
+    (bytes : List UInt8) (path : Path) (result : Effect active passive)
+    (computed : evaluate active passive (.acknowledged before) index (.synReceivedAck bytes path) = .ok result)
+    (complete : Completed active passive) (finished : result.state = .complete complete) :
+    complete.input.times = ⟨before.answered.opened.index, before.answered.index, before.index, index⟩ ∧
+      complete.input.syn = before.answered.spec ∧ complete.input.synAck = before.spec ∧
+      complete.input.ack.bytes = bytes := by
+  unfold evaluate at computed
+  simp only [bind, Except.bind] at computed
+  split at computed
+  · cases computed
+  · rename_i candidate decoded
+    split at computed
+    · simp only [pure, Except.pure, Except.ok.injEq] at computed
+      cases computed
+      cases finished
+    · split at computed
+      · cases computed
+      · split at computed
+        · cases computed
+        · rename_i completeValue accepted
+          simp only [pure, Except.pure, Except.ok.injEq] at computed
+          cases computed
+          cases finished
+          obtain ⟨times, syn, synAck, ack⟩ := finish_input_origin before index (spec candidate path) complete accepted
+          have same : candidate.bytes = bytes := by
+            unfold Protocol.TCP.EstablishedReceive.input at decoded
+            split at decoded
+            · cases decoded
+            · cases decoded; rfl
+          exact ⟨times, syn, synAck, by rw [ack]; exact same⟩
+
+theorem answered_input_origin (before : Opened active) (index : Nat) (bytes : List UInt8)
+    (path : Path) (policy : Bool) (result : Effect active passive)
+    (computed : evaluate active passive (.opened before) index (.listenSyn bytes path policy) = .ok result)
+    (after : Answered active passive) (answered : result.state = .answered after) :
+    after.opened = before ∧ after.index = index ∧ after.spec.bytes = bytes := by
+  unfold evaluate at computed
+  simp only [bind, Except.bind] at computed
+  split at computed
+  · cases computed
+  · rename_i candidate decoded
+    have same : candidate.bytes = bytes := by
+      unfold Protocol.TCP.EstablishedReceive.input at decoded
+      split at decoded
+      · cases decoded
+      · cases decoded; rfl
+    split at computed
+    · simp only [pure, Except.pure, Except.ok.injEq] at computed
+      cases computed; cases answered
+    · split at computed
+      · cases computed
+      · split at computed
+        · cases computed
+        · simp only [pure, Except.pure, Except.ok.injEq] at computed
+          cases computed; cases answered
+          exact ⟨rfl, rfl, same⟩
+
+theorem acknowledged_input_origin (before : Answered active passive) (index : Nat) (bytes : List UInt8)
+    (path : Path) (policy : Bool) (result : Effect active passive)
+    (computed : evaluate active passive (.answered before) index (.synSentSynAck bytes path policy) = .ok result)
+    (after : Acknowledged active passive) (acknowledged : result.state = .acknowledged after) :
+    after.answered = before ∧ after.index = index ∧ after.spec.bytes = bytes := by
+  unfold evaluate at computed
+  simp only [bind, Except.bind] at computed
+  split at computed
+  · cases computed
+  · rename_i candidate decoded
+    have same : candidate.bytes = bytes := by
+      unfold Protocol.TCP.EstablishedReceive.input at decoded
+      split at decoded
+      · cases decoded
+      · cases decoded; rfl
+    split at computed
+    · simp only [pure, Except.pure, Except.ok.injEq] at computed
+      cases computed; cases acknowledged
+    · split at computed
+      · cases computed
+      · split at computed
+        · cases computed
+        · simp only [pure, Except.pure, Except.ok.injEq] at computed
+          cases computed; cases acknowledged
+          exact ⟨rfl, rfl, same⟩
+
+private def stageLevel : Stage active passive → Nat
+  | .idle => 0
+  | .opened _ => 1
+  | .answered _ => 2
+  | .acknowledged _ => 3
+  | .complete _ => 4
+
+private theorem evaluate_level (before : Stage active passive) (index : Nat) (event : Event)
+    (result : Effect active passive) (computed : evaluate active passive before index event = .ok result) :
+    stageLevel before ≤ stageLevel result.state ∧ stageLevel result.state ≤ stageLevel before + 1 := by
+  cases before <;> cases event <;> simp only [evaluate] at computed
+  all_goals repeat' first
+    | (solve | cases computed)
+    | (solve | cases computed; simp [stageLevel, failed])
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw] at computed)
+
+theorem four_step_stages (opened syn synAck ack : Step active passive)
+    (initial : opened.before = .idle)
+    (first : syn.before = opened.result.state) (second : synAck.before = syn.result.state)
+    (third : ack.before = synAck.result.state)
+    (complete : Completed active passive) (finished : ack.result.state = .complete complete) :
+    (∃ value, opened.result.state = .opened value) ∧
+      (∃ value, syn.result.state = .answered value) ∧
+      (∃ value, synAck.result.state = .acknowledged value) := by
+  have a := evaluate_level _ _ _ _ opened.computed
+  have b := evaluate_level _ _ _ _ syn.computed
+  have c := evaluate_level _ _ _ _ synAck.computed
+  have d := evaluate_level _ _ _ _ ack.computed
+  rw [initial] at a
+  rw [first] at b
+  rw [second] at c
+  rw [third, finished] at d
+  change 0 ≤ stageLevel opened.result.state ∧ stageLevel opened.result.state ≤ 1 at a
+  change stageLevel synAck.result.state ≤ 4 ∧ 4 ≤ stageLevel synAck.result.state + 1 at d
+  have openedLevel : stageLevel opened.result.state = 1 := by omega
+  have synLevel : stageLevel syn.result.state = 2 := by omega
+  have synAckLevel : stageLevel synAck.result.state = 3 := by omega
+  constructor
+  · cases state : opened.result.state <;> simp_all [stageLevel]
+  · constructor
+    · cases state : syn.result.state <;> simp_all [stageLevel]
+    · cases state : synAck.result.state <;> simp_all [stageLevel]
+
 def Step.supported (step : Step active passive) : Bool := match step.result.decision with
   | .phase | .failed (.unsupported _) => false
   | _ => true
