@@ -69,7 +69,7 @@ theorem At.suffix_trace (placement : At anchor current) :
   rw [cut, steps, List.drop_left] at trace
   exact ⟨extra, steps, trace, clocks⟩
 
-private theorem Trace.clock_history (trace : Trace input before selected steps final remaining)
+theorem Trace.clock_history (trace : Trace input before selected steps final remaining)
     (connection : before.connection = .application complete endpoints)
     (chronology : CampusTCPChronology.Chronological before)
     (clocks : ∀ actual ∈ steps, ∃ actor now, actual.event = .advanceClock actor now) :
@@ -199,7 +199,7 @@ theorem summary_clock (operation : T.Step) (event : operation.event = .advanceCl
     nonemptyRead, List.isEmpty_nil, Bool.not_true, Bool.false_eq_true, ↓reduceIte, List.filter_nil,
     Summary.empty, Netlib.Protocol.TCP.ApplicationTrace.Step.readBytes]
 
-private theorem summary_clocks (operations : List T.Step)
+theorem summary_clocks (operations : List T.Step)
     (clocks : ∀ operation ∈ operations, ∃ now, operation.event = .advanceClock now) : summary operations = .empty := by
   induction operations with
   | nil => rfl

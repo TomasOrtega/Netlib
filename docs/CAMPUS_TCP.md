@@ -63,7 +63,8 @@ Reported event fields come from typed values and use lowercase hex.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive selected local and gateway steps from actual preceding guards.
 They also expose the evaluated history as finite service slots.
 The [bounded-round proof](TCP_ROUND_PROGRESS.md) now composes one fresh range through all nine phases.
-The broader loss, advancing-clock, receive-gap, and gateway-transfer progress theorem remains open.
+The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks and two combined data-and-ACK drops for that fresh range.
+Receive-gap and gateway-transfer progress remain open.
 
 ## Current policy at service
 

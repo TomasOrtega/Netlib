@@ -413,3 +413,12 @@ A stored prefix of one checked operation history and its actual final state.
 
 **TCP round**:
 The nine selected actions from a fresh data send through its covering ACK to the server read.
+
+**TCP recovery attempt**:
+One data transmission and its covering ACK path, until ACK receipt at the sender or an explicit packet drop.
+
+**Packet resolution**:
+Assignment, delivery, or explicit drop of the selected pending packet.
+
+**Logical clock quantum**:
+The maximum permitted increase of a local clock in one evaluated slot.

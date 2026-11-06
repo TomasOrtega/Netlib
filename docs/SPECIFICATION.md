@@ -405,7 +405,8 @@ Source indices derive from actual committed observations and survive exact check
 The campus checker automatically retains [packet custody](PACKET_CUSTODY.md) for each actual endpoint output and gateway emission.
 Assignment and delivery consume pending identities; copies and drops are explicit actions.
 The [bounded-round proof](TCP_ROUND_PROGRESS.md) gives completion of one fresh range by `9 * B` evaluated slots under its fixed-clock action and service contract.
-Progress with additional copies, losses, advancing clocks, held gaps, and gateway transfer remains open.
+The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) covers advancing logical clocks and two additional drops across data and ACKs for one fresh range.
+Additional copies, held gaps, and gateway transfer remain open for progress.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive current endpoint and gateway actions from their actual preceding states.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.

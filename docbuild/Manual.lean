@@ -2075,7 +2075,8 @@ Sparse source assurance permits holes and reports prefix completeness separately
 The raw admission checker starts empty and checks supplied startup packets under a declared mapping and fixed permit routes.
 It supplies no endpoint-write or authentication claim.
 The next chapter adds packet custody and general bounded-service laws.
-Concrete TCP progress, native correspondence, and eventual delivery remain open.
+Later chapters prove bounded TCP progress for a fresh range, including two combined data or ACK drops.
+Progress through the existing held gaps and native correspondence remain open.
 All seven programs and the full campus objective remain OPEN.
 
 # Packet custody and bounded service
@@ -2127,9 +2128,10 @@ Sequential composition adds local bounds.
 Concurrent composition retains a service condition for each task.
 Physical time needs a separate clock correspondence.
 
-The campus model does not yet have a complete TCP progress adapter.
-That result must derive actual receive release, covering ACKs, sender retirement, and application reads.
-It must state its loss, copy, clock, receive-space, current-policy, and transfer conditions.
+Concrete TCP adapters derive actual receive release, covering ACKs, sender retirement, and application reads.
+The recovery adapter covers one fresh range with at most two selected data or ACK drops.
+Its copy, clock, receive-space, current-policy, and service conditions remain explicit.
+Held gaps and planned gateway transfer need a broader adapter.
 All seven programs and the full campus objective remain OPEN.
 
 # Enabled TCP operations
@@ -2179,7 +2181,8 @@ An unsupported input suffix supplies none.
 A supported complete prefix can append an actual computed step without another model execution.
 
 The bounded-round proof now derives readiness through every phase, actual covering ACK retirement, and the read for one fresh range.
-The broader fault result must connect failed rounds to real custody drops and state advancing-clock, service, copy, and transfer conditions.
+The recovery adapter connects failed attempts to real custody drops with advancing logical clocks and no additional copies.
+Held gaps and planned gateway transfer remain open.
 Native correspondence and the full seven-program campus objective remain OPEN.
 
 # A bounded TCP round
@@ -2254,9 +2257,108 @@ A read can leave new window ACK work pending.
 Old startup copies can remain in the initial history.
 The copy restriction applies to the selected suffix.
 
-Advancing clocks, loss, retries, the existing held-gap prefix, and bounded planned transfer remain open.
+The next chapter adds advancing clocks, selected losses, and actual timer retries.
+The existing held-gap prefix and bounded planned transfer remain open.
 Native transmission, physical time, and the full campus objective remain external obligations.
 All seven programs remain OPEN.
+
+# Bounded TCP recovery progress
+%%%
+tag := "tcp-recovery-progress"
+file := "tcp-recovery-progress"
+%%%
+
+One fresh client range completes with advancing logical clocks and at most two selected packet drops.
+The same actual startup, five setup actions, and application write supply the initial state.
+One shared loss allowance covers data ingress, data links, ACK ingress, and ACK links.
+The selected suffix adds no copy actions.
+Old pending startup packets and earlier drops can remain in the report.
+
+Let `q > 0` be the maximum local clock increase per evaluated slot.
+Each persistent demand needs service within `B` evaluated slots.
+The bound includes actual timer waits and retries:
+
+```lean
+open Netlib.Check.CampusTCPRecoveryRoundBounded in
+example : boundSlots 10 2 = 650 :=
+  boundSlots_ten_two
+```
+
+The general bound is `(25 + ceil(1000 / q) + ceil(2000 / q)) * B`.
+During a retry wait, a selected tick reaches `min (now + q) deadline`.
+Each failed attempt ends in a drop of its actual pending custody identity.
+A timeout needs the actual stored timer to be due and retry credit to remain.
+
+The read witness belongs to the supplied evaluated prefix:
+
+```lean
+open Netlib.Check in
+example
+    {input : CampusTCPModel.Input}
+    {events : List CampusTCPModel.Event}
+    {report : CampusTCPModel.Report input events}
+    {complete : TCPHandshake.Completed
+      input.active input.passive}
+    {request : CampusTCPRoundStart.Request input}
+    {suffix remaining : List CampusTCPModel.Event}
+    {steps : List (CampusTCPModel.Step input)}
+    {final : CampusTCPModel.State input}
+    {quantum bound : Nat}
+    (initial : CampusTCPRoundStart.Initial
+      report complete request)
+    (native : CampusTCPRoundStart.NativeEnv initial)
+    (positive : 0 < quantum)
+    (trace : CampusTCPModel.Trace input initial.state
+      suffix steps final remaining)
+    (allowed : CampusTCPRecoveryRoundBounded.Actions
+      initial native quantum steps)
+    (service : CampusTCPRecoveryRoundServiceBound.Serviced
+      (CampusTCPRecoveryRoundPhaseBase.config
+        initial native quantum)
+      initial.state
+      CampusTCPRecoveryRoundMonitor.Monitor.initial
+      steps bound)
+    (enough : CampusTCPRecoveryRoundBounded.boundSlots
+      quantum bound ≤ steps.length) :
+    ∃ actual ∈ steps.take
+      (CampusTCPRecoveryRoundBounded.boundSlots
+        quantum bound),
+      actual.event = .read .server request.bytes.length ∧
+      actual.result.read = request.bytes :=
+  CampusTCPRecoveryRoundBounded.read_by
+    positive trace allowed service enough
+```
+
+The monitor reads the actual stored results.
+It does not run an endpoint or gateway again.
+An omitted action leaves work pending and does not consume the loss allowance.
+Unread input after an unsupported stop supplies no evaluated slots.
+
+A repeated data packet can reach the gateway before the receiver has released any bytes.
+After ACK loss, a whole-old receipt releases no new bytes and creates fresh immediate ACK work.
+Known-range admission permits the retry after an actual zero-window ACK.
+Every timeout output retains its actual original write and creates a fresh custody identity.
+
+Each live path reaches an actual selected drop or client ACK receipt within `7 * B` slots after output.
+If `q * (7 * B) < 1000`, sender time stays before the actual stored attempt deadline through resolution.
+The proof derives this result from the actual original send or retry and the same service contract.
+It also excludes a client timeout before that resolution.
+Waiting after a drop remains part of the main completion bound.
+
+The server has one nonempty release and one nonempty read with exactly the selected bytes.
+The sender's actual sent buffer and recovery ledger are empty after retirement.
+The deadline is absent and the timeout count is zero.
+The retired RTO retains actual backoff, and Karn suppression prevents an RTT sample from the retried range.
+A read can leave new window ACK work pending.
+
+Initial typed preflight comparisons and native route and filter permits remain explicit assumptions.
+Current-permission results extend compliance of the prepared report through the actual passed suffix.
+The existing typed delivery and per-byte read origins come from actual records.
+
+The 400-byte and 600-byte held-gap prefix and planned gateway transfer remain open.
+Additional copies, multiple active ranges, persist, and fast recovery need further profiles.
+Logical time does not establish physical timing or native delivery.
+All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path
 %%%
