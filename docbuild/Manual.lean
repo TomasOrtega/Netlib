@@ -2075,7 +2075,7 @@ Sparse source assurance permits holes and reports prefix completeness separately
 The raw admission checker starts empty and checks supplied startup packets under a declared mapping and fixed permit routes.
 It supplies no endpoint-write or authentication claim.
 The next chapter adds packet custody and general bounded-service laws.
-Later chapters prove bounded TCP progress for a fresh range and both actual two-record held-gap cuts.
+Later chapters prove bounded TCP progress for a fresh range, both held-gap cuts, and two original records before either send.
 Each task permits two combined data or ACK drops.
 Progress through sparse holes and native correspondence remain open.
 All seven programs and the full campus objective remain OPEN.
@@ -2183,7 +2183,8 @@ A supported complete prefix can append an actual computed step without another m
 
 The bounded-round proof now derives readiness through every phase, actual covering ACK retirement, and the read for one fresh range.
 The recovery adapter connects failed attempts to real custody drops with advancing logical clocks and no additional copies.
-Held gaps and planned gateway transfer remain open.
+Later chapters prove progress through held gaps and from the write before both original sends.
+Planned gateway transfer during progress remains open.
 Native correspondence and the full seven-program campus objective remain OPEN.
 
 # A bounded TCP round
@@ -2259,7 +2260,7 @@ Old startup copies can remain in the initial history.
 The copy restriction applies to the selected suffix.
 
 The next chapter adds advancing clocks, selected losses, and actual timer retries.
-A later chapter retains both actual held-gap cuts.
+Later chapters retain both actual held-gap cuts and start before either original send.
 Bounded planned transfer remains open.
 Native transmission, physical time, and the full campus objective remain external obligations.
 All seven programs remain OPEN.
@@ -2358,8 +2359,10 @@ Current-permission results extend compliance of the prepared report through the 
 The existing typed delivery and per-byte read origins come from actual records.
 
 The next chapter starts at the actual 400-byte and 600-byte held-gap cuts.
+The two-record chapter starts earlier, before either original send, and permits both delivery orders.
 Planned gateway transfer remains open for progress.
-Additional copies, multiple active ranges, persist, and fast recovery need further profiles.
+The later two-record chapter covers two active ranges.
+Additional copies, more than two original records, persist, and fast recovery need further profiles.
 Logical time does not establish physical timing or native delivery.
 All seven programs and the full campus objective remain OPEN.
 
@@ -2449,8 +2452,81 @@ A lossless ACK can take a valid RTT sample.
 
 The two cut theorems are independent applications.
 One shared allowance across a sequential exchange in both directions needs a new reverse setup and allowance composition.
-Sparse holes, more flights, additional copies, competing applications, gateway transfer, persist, and fast recovery remain open.
+The next chapter starts before either original send and permits both delivery orders.
+Sparse holes, more than two original records, additional copies, competing applications, gateway transfer, persist, and fast recovery remain open.
 Logical time does not establish physical timing or native delivery.
+All seven programs and the full campus objective remain OPEN.
+
+# Bounded progress for two original TCP records
+%%%
+tag := "tcp-two-record-progress"
+file := "tcp-two-record-progress"
+%%%
+
+The task starts at the actual accepted write of `lower ++ upper`, before either original send.
+Both ranges are nonempty and fit the stated MSS, window, storage, and sequence bounds.
+The proof retains earlier endpoint, allocation, recovery, and gateway histories.
+
+Both original paths can have pending work.
+Their assignment, service, and delivery actions can alternate.
+If lower arrives first, the receiver releases lower and can send a partial ACK.
+That ACK retires only the lower head record.
+If upper arrives first, the receiver holds its actual header and receipt time.
+Lower arrival then releases `lower ++ upper` in order.
+The final read returns exactly these bytes, in either case.
+
+One shared allowance `D ≤ 2` covers selected ingress and link drops of either original, retries, and gap, partial, or full ACK packets.
+No additional copies or competing writes are permitted.
+Each real timeout uses a recorded loss cause for its current head.
+Its target is `max(stored deadline, head.lastAt + current RTO)`.
+The selected sender tick reaches `min(now + q, target)`.
+
+Partial retirement retains the literal tail, `lastTimedOut`, and `timeoutCount`.
+A later timeout of the different tail identity starts that head's count at one.
+Karn suppression retains an earlier sample and prevents a new sample from a retried head.
+Full retirement empties the sent buffer and ledger and clears the deadline and timeout metadata.
+The final retired estimator and RTO need no fixed cap.
+
+Let `B` bound service of each persistent next demand, and let `q > 0` bound each logical endpoint clock increase.
+The sufficient slot bound is:
+
+```
+H = 16 * B
+C = max(initial RTO, sampleCap(initial estimator, H * q))
+T = ceil((2^D * C) / q)
+N = H + B * ((D + 1) * T + 8 * D + 7)
+```
+
+The original stage reaches a non-original phase by slot `H`.
+Actual clock age derives `C`, which stays fixed through the remaining recovery stage while a head remains outstanding.
+Retries at the handoff can already be positive.
+The supplied trace must contain at least `N` evaluated slots and pass the action and service checks.
+The resulting read belongs to that same stored prefix.
+
+The public checked theorem retains its actual completed report:
+
+```lean
+open Netlib.Check.CampusTCPTwoProgressBounded in
+#check complete_by_checked
+```
+
+Both endpoint routes keep the selected primary or installed standby owner during the suffix.
+Current native preflight comparisons and route and filter permits remain explicit initial premises.
+Current ACK time guards constrain advancing clocks.
+Typed origins connect every read byte to the selected application write and its actual original or retry output.
+Service permission results also require compliance of the initial report and extend it through the passed suffix.
+
+The 68 generated cases use `q = 10` and `B = 3` and finish in 15 through 329 slots.
+They cover both directions, both delivery orders, and selected drop edges.
+These cases do not enumerate all allowed schedules or replace the universal theorem.
+Two further cases append actual allowed clocks at the current sender time until `N`.
+They apply the public bounded theorem in both directions and retain the same result's read slot and byte origins with service permissions.
+No fixture schema or runtime protocol behavior changes.
+
+Each direction has its own selected cut and allowance.
+A sequential exchange with one shared allowance across both directions remains open.
+More original records, sparse holes, extra copies, competing applications, gateway transfer during progress, persist, and fast recovery remain open.
+Logical time and supplied native observations do not prove physical timing, native delivery, or kernel refinement.
 All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path

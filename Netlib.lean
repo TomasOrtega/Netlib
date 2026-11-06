@@ -352,6 +352,7 @@ import Netlib.Check.CampusTCPGapProgressState
 import Netlib.Check.CampusTCPGapProgressTiming
 import Netlib.Check.CampusTCPGapProgressWire
 import Netlib.Check.CampusTCPGapTimeout
+import Netlib.Check.CampusTCPTwoProgressBounded
 import Netlib.Protocol.TCP.EndpointGapReceiveEnabled
 import Netlib.Protocol.TCP.EndpointHeadTimeoutEnabled
 import Netlib.Protocol.TCP.EndpointOldSpanEnabled

@@ -133,6 +133,9 @@ The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive guarded endpoin
 The [bounded round](TCP_ROUND_PROGRESS.md) proves one fresh range through all nine actual phases under fixed local clocks and a fixed primary gateway.
 It gives an actual read and sender retirement by `9 * B` evaluated slots under the action and service contract.
 The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks, two shared data-and-ACK drops, and actual timeout retries for that fresh range.
+The [two-record progress proof](TCP_TWO_RECORD_PROGRESS.md) starts before both original sends and permits both delivery orders and alternating path work.
+It derives partial head retirement, actual tail retries, and the exact combined read under one shared allowance of two selected data or ACK drops.
+The selected gateway owner stays fixed, and earlier histories remain retained.
 The [progress design](research/CAMPUS_PROGRESS.md) retains broader copy, gap, transfer, and native time obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
