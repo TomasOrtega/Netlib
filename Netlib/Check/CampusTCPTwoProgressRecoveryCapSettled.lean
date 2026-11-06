@@ -90,7 +90,9 @@ theorem ready_read_hop_cap (ready : Ready core) :
       bytes := record.bytes
       originals := record.originals
       originalTimes := record.originalTimes
-      writer := record.writer }
+      writer := record.writer
+      senderDuplicate := ready.read_duplicate record
+      gatewayComplete := ready.read_gateway record }
     exact ⟨⟨actual, record.value.move, record.value.event, .done done⟩, complete_cap done⟩
 
 private theorem observed_read_done (monitor : M.Monitor) (actual : Step input)

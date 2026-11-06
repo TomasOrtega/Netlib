@@ -162,6 +162,11 @@ def after_send (active : Active core) (value : Ack.AckSent core lane actual) (se
       rw [sender_recovery value]
       exact active.zeroAck lane selected coordinate
     ackNonempty := fun _ => active.ackNonempty (by rw [selected]; rfl)
+    ackGateway := by
+      intro nextLane pending phase
+      rw [value.observed] at pending
+      have impossible := (congrArg (fun state => state.phase) (Option.some.inj pending)).trans phase
+      cases impossible
     upperMissing := by
       intro zero missing done
       obtain ⟨position, chosen⟩ := active.upperMissing zero missing (by simpa only [value.observed] using done)

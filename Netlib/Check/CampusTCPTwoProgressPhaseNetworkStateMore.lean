@@ -55,6 +55,9 @@ def retry_assigned (active : Active core) (path : DataIngress initial current pa
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 def retry_served (active : Active core) (path : DataTicket initial native current part monitor.retry)
     (source : SelectedOutput initial current path.output.produced) (head : Recovery.Outstanding) (rest : List Recovery.Outstanding)
@@ -78,6 +81,9 @@ def retry_served (active : Active core) (path : DataTicket initial native curren
   · unfold AckState
     rw [frame.ackNone.mpr ackNone]
     exact PUnit.unit
+  · intro _ pending _
+    rw [frame.ackNone.mpr ackNone] at pending
+    cases pending
 
 private theorem actor_ne (first second : Produced input.active input.passive)
     (data : first.actor = sender) (ack : second.actor = sender.other) : first ≠ second := by
@@ -175,6 +181,11 @@ def ack_assigned (active : Active core) (path : AckIngress initial current (rece
     unfold AckState
     rw [ack]
     exact .ticket value.value.ticket
+  · intro nextLane pending phase
+    rw [observed] at pending
+    have impossible := value.value.ticket.phase.symm.trans
+      ((congrArg (fun state => state.phase) (Option.some.inj pending)).trans phase)
+    cases impossible
 
 def ack_served (active : Active core) (path : AckTicket initial native current (received.bytes lower upper).length lane)
     (pending : monitor.ack = some lane) (value : N.AckServed core path actual) : Active value.advance.nextCore := by
@@ -195,5 +206,8 @@ def ack_served (active : Active core) (path : AckTicket initial native current (
     unfold AckState
     rw [ack]
     exact .link value.value.link
+  · intro _ _ _
+    rw [value.gateway]
+    exact value.value.acknowledged
 
 end Netlib.Check.CampusTCPTwoProgressPhaseNetworkState

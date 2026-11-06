@@ -123,6 +123,14 @@ def assemble (active : Active core) (drop : P.Dropped core produced packetID tar
   have runtime : result.next.live.senderFlight.recovery = core.live.senderFlight.recovery := by
     have slots := congrArg (fun value => (endpoint value sender).recovery) drop.selected.appended.endpoints
     exact Option.some.inj (result.next.live.senderFlight.runtime.symm.trans (slots.trans core.live.senderFlight.runtime))
+  have gatewayFrame : beforeService input drop.selected.appended.move.after.report.final gateway =
+      beforeService input current.report.final gateway := by
+    rw [drop.selected.appended.move.final]
+    exact drop.selected.appended.facts.beforeService gateway
+  have session : result.next.live.gatewayState.gateway.session = core.live.gatewayState.gateway.session := by
+    have phase := result.next.live.gatewayState.gateway.phase
+    rw [gatewayFrame, core.live.gatewayState.gateway.phase] at phase
+    exact (Admission.Phase.data.inj phase).symm
   exact {
     mode := normal.shape.mode
     preparing := active.preparing, nonempty := active.nonempty
@@ -131,6 +139,9 @@ def assemble (active : Active core) (drop : P.Dropped core produced packetID tar
     recoveryHead := fun mode waiting => active.recoveryHead (recovery_fields drop mode waiting).1
       (recovery_fields drop mode waiting).2
     serial := normal.shape.serial, ackNonempty := normal.shape.ackNonempty, waiting := normal.shape.waiting
+    ackGateway := fun lane pending phase => by
+      rw [session]
+      exact active.ackGateway lane (ackFrom lane (normal.ack.symm ▸ pending)) phase
     runnable := normal.runnable, originalOpen := normal.originalOpen
     debt, upperMissing
     zeroAck := fun lane pending retired => by

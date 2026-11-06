@@ -100,7 +100,7 @@ private theorem retry_fields (live : Live initial current stage timeouts receive
     (value : CampusTCPGapTimeout.TimeoutMove current sender live.senderFlight.recovery head rest actual) :
     W.DataFields initial (part.offset lower) (part.bytes lower upper) value.facts.produced := by
   have fields := value.facts.source_fields
-  refine ⟨?_, ?_, ?_, ?_, fields.2.2.2.2.1, ?_⟩
+  refine ⟨?_, ?_, ?_, ?_, fields.2.2.2.2.1, ?_, ?_⟩
   · rw [fields.1, live.senderFlight.inbound]
     exact initial.input_tuple sender
   · exact fields.2.1.trans (selected.sequence live.senderFlight)
@@ -108,6 +108,11 @@ private theorem retry_fields (live : Live initial current stage timeouts receive
   · exact fields.2.2.2.1.trans (selected.payload live.senderFlight)
   · rw [fields.2.2.2.2.2]
     decide
+  · rw [value.facts.production]
+    change CampusTCPTwoProgressReceiver.advertisedFloor initial ≤ value.facts.packet.packet.segment.window.val
+    rw [value.facts.window]
+    exact Nat.le_trans live.senderFlight.advertised
+      (Endpoint.offeredWindow_le_outputWindow _ live.senderFlight.prepared.1)
 
 private theorem retry_at (live : Live initial current stage timeouts received)
     (space : V.Reserved initial (endpoint current.endpoints sender) stage)

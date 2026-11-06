@@ -2451,7 +2451,7 @@ Karn suppression retains the stored estimator for a retried range.
 A lossless ACK can take a valid RTT sample.
 
 The two cut theorems are independent applications.
-One shared allowance across a sequential exchange in both directions needs a new reverse setup and allowance composition.
+The later two-way chapter composes a sequential exchange with one shared allowance and an actual reverse write.
 The next chapter starts before either original send and permits both delivery orders.
 Sparse holes, more than two original records, additional copies, competing applications, gateway transfer, persist, and fast recovery remain open.
 Logical time does not establish physical timing or native delivery.
@@ -2523,10 +2523,85 @@ Two further cases append actual allowed clocks at the current sender time until 
 They apply the public bounded theorem in both directions and retain the same result's read slot and byte origins with service permissions.
 No fixture schema or runtime protocol behavior changes.
 
-Each direction has its own selected cut and allowance.
-A sequential exchange with one shared allowance across both directions remains open.
+Each one-way application has its own selected cut and allowance.
+The next chapter composes both directions on the same report with one shared allowance.
 More original records, sparse holes, extra copies, competing applications, gateway transfer during progress, persist, and fast recovery remain open.
 Logical time and supplied native observations do not prove physical timing, native delivery, or kernel refinement.
+All seven programs and the full campus objective remain OPEN.
+
+# Bounded TCP progress in both directions
+%%%
+tag := "tcp-two-way-progress"
+file := "tcp-two-way-progress"
+%%%
+
+One actual report contains the forward read, one accepted reverse write, and the reverse read.
+The forward task starts before either original send.
+Each leg permits both delivery orders under the two-record selector's path and ACK discipline.
+One whole action check and one persistent-service condition cover both legs and the write.
+
+One allowance `D ≤ 2` covers selected original data, retry, and ACK drops at ingress or link custody.
+The reverse allowance is `D - forwardDrops`, using the actual forward log.
+The global log and timeout count do not reset at the write.
+Each timeout uses a distinct earlier selected loss cause; unused forward causes supply no reverse credit.
+Total timeout outputs are at most actual selected drops, which are at most `D`.
+
+The caller supplies primitive reverse reserves at the initial forward cut.
+These cover empty unread data at the forward sender, reverse pending capacity, MSS, endpoint send window, and offered receive space.
+The gateway peer window and bounded sequence epoch must also fit the reverse bytes.
+Both reverse ranges are nonempty.
+The proof derives the reverse initial state from the actual changed forward state and the same stored write.
+No future successful setup or readiness result is supplied.
+The write retains the endpoint clocks, recovery history, ACK reaction work, receipt identities, and earlier observations.
+
+Let `B` bound persistent-demand service and `q > 0` bound guarded logical clock increases.
+Use the preceding chapter's formula for each leg.
+The sufficient total is:
+
+```
+N = forwardSlots(D) + B + reverseSlots(D)
+```
+
+The static reverse term uses the initial forward receiver's RTO and estimator.
+Actual recovery retains those fields through the forward leg and write.
+The reverse leg uses the remaining allowance, so its actual bound is at most this static term.
+The final adaptive forward-sender RTO and the final retired estimator need no fixed cap.
+The actual trace must contain at least `N` evaluated slots and meet the one whole action and service contract.
+Each endpoint clock is at most its initial value plus `N * q`.
+
+The public checked theorem returns the exact recorded prefix:
+
+```lean
+open Netlib.Check.CampusTCPTwoExchangeBounded in
+#check complete_by_checked
+```
+
+`complete_by_cached` accepts the action check from one pass and the service check with cached tables of pending demands and events.
+These checks are proved exactly equal to the reference checks for every input and bound, including `B = 0`.
+They avoid repeated prefix folds and retain the same contract, `Result` type, sufficient bound, and test cases.
+
+Its result retains the same initial report followed by `steps.take N`.
+The actual slots satisfy `forwardRead < reverseWrite < reverseRead < N`.
+Both reads return their exact selected byte lists.
+Both final endpoints satisfy the modeled idle conditions, including empty sent data and recovery ledgers and cleared timeout metadata.
+ACK reaction work and unrelated pending custody can remain.
+The reverse selected writer is the application operation in that same write step.
+
+Both per-byte source and service-permission results need only initial report compliance.
+The proof extends that compliance through the actual forward suffix, reverse write, and reverse suffix.
+Each read byte retains its selected write, original or retry output, actual receipt, and permitted gateway service.
+
+The test source defines three continuations with forward/reverse drop splits `0/2`, `1/1`, and `2/0`.
+Each checks the same whole trace and shared log.
+Two cases append allowed clocks at the current endpoint time to `10605` slots for `q = 10`, `B = 3`, and `D = 2`.
+Their source applies the public bounded theorem to that same extended report.
+These cases do not enumerate all allowed schedules or replace the universal result.
+
+Both routes retain the selected primary or installed standby owner.
+Current native preflight comparisons, budget `100000`, route and filter permits, and retained gateway observations remain explicit.
+Configuration, policy, authentication, attachments, and ownership stay fixed during progress.
+Sparse holes, more ranges, copies, concurrent applications, gateway transfer, persist, and fast recovery remain open.
+Logical time and supplied native observations do not prove physical timing, native delivery, kernel refinement, or broader protocol semantics.
 All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path

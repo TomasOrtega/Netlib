@@ -90,6 +90,9 @@ structure Active (core : Core initial native quantum allowance current monitor s
     ∀ part head rest, CampusTCPTwoProgressRetry.HeadRange sent part head rest → head.retried = true
   serial : monitor.ack.isSome = true → monitor.retry.phase = .done
   ackNonempty : monitor.ack.isSome = true → received ≠ .empty
+  ackGateway : ∀ lane, monitor.ack = some lane → lane.phase = .ackLink →
+    (core.live.gatewayState.gateway.session.lane sender.direction).acknowledged =
+      initial.geometry.«prefix» + (received.bytes lower upper).length
   waiting : monitor.waiting = true → monitor.ack = none ∧ monitor.retry.phase = .done
   runnable : monitor.mode = .recovery → monitor.waiting = false → monitor.ack = none → monitor.retry.phase ≠ .done
   originalOpen : monitor.mode = .originals → monitor.ack = none → ¬(monitor.lower.phase = .done ∧ monitor.upper.phase = .done)
@@ -154,6 +157,10 @@ def Active.ofBoth {before : CampusTCPTwoProgressPreparation.PendingUpper initial
       cases mode
     serial := ?_
     ackNonempty := ?_
+    ackGateway := by
+      intro lane pending _
+      rw [value.ack] at pending
+      cases pending
     waiting := ?_
     runnable := ?_
     originalOpen := ?_

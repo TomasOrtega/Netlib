@@ -156,6 +156,7 @@ import NetlibTest.CampusTCPRoundTheorem
 import NetlibTest.CampusTCPRecoveryRound
 import NetlibTest.CampusTCPGapProgress
 import NetlibTest.CampusTCPTwoProgressEvidence
+import NetlibTest.CampusTCPTwoExchangePlans
 import NetlibTest.TCPEndpointClockEnabled
 import NetlibTest.GatewayEnabled
 import NetlibTest.TCPReceiveEnabled
@@ -349,6 +350,7 @@ def main : IO Unit := do
   NetlibTest.CampusTCPRecoveryRound.run
   NetlibTest.CampusTCPGapProgress.run
   NetlibTest.CampusTCPTwoProgressPlans.run
+  NetlibTest.CampusTCPTwoExchangePlans.run
   NetlibTest.TCPEndpointClockEnabled.run
   NetlibTest.GatewayEnabled.run
   NetlibTest.TCPReceiveEnabled.run

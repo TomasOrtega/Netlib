@@ -136,6 +136,9 @@ The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) adds advancing logical c
 The [two-record progress proof](TCP_TWO_RECORD_PROGRESS.md) starts before both original sends and permits both delivery orders and alternating path work.
 It derives partial head retirement, actual tail retries, and the exact combined read under one shared allowance of two selected data or ACK drops.
 The selected gateway owner stays fixed, and earlier histories remain retained.
+The [two-way progress proof](TCP_TWO_WAY_PROGRESS.md) composes both reads and one actual reverse write on the same report.
+One whole action and service contract uses a shared allowance of two selected drops across both directions.
+Initial reserves derive the reverse setup; the result retains both byte lists, actual writers, service permissions, and final idle endpoints within one static bound.
 The [progress design](research/CAMPUS_PROGRESS.md) retains broader copy, gap, transfer, and native time obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 

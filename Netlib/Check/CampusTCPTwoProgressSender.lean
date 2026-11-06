@@ -2,6 +2,7 @@ import Netlib.Check.CampusTCPTwoProgressStart
 import Netlib.Protocol.TCP.EndpointPartialAckEnabled
 import Netlib.Protocol.TCP.EndpointZeroAckEnabled
 import Netlib.Protocol.TCP.EndpointClockEnabled
+import Netlib.Protocol.TCP.EndpointWindowFloor
 
 /-!
 # Current sender state for two original records
@@ -148,6 +149,7 @@ structure Flight (initial : TwoWriteInitial cut sender gateway lower upper) (sta
   timedHead : stage.TimedHead recovery.lastTimedOut
   retried : ∀ entry ∈ recovery.outstanding, entry.retried = true → 0 < timeouts
   quiet : stage.hasOutput = true → reaction.work.pending = []
+  advertised : Endpoint.offeredWindow (source initial) ≤ Endpoint.offeredWindow state
   originalWindow : stage.preparing = true → state.sendWindow = (source initial).sendWindow
   headWindow : ∀ head, stage.ledger.head? = some head → head.count ≤ state.sendWindow
   armed : stage.ledger ≠ [] → recovery.deadline.isSome = true
@@ -243,6 +245,7 @@ def initial_flight (initial : TwoWriteInitial cut sender gateway lower upper) :
   timedHead := initial.senderState.idle.timedOut
   retried := by simp only [initial.senderState.idle.outstanding, List.not_mem_nil, false_implies, implies_true]
   quiet := by intro impossible; cases impossible
+  advertised := Nat.le_refl _
   originalWindow := fun _ => rfl
   headWindow := by intro head impossible; cases impossible
   armed := by intro impossible; exact False.elim (impossible rfl)
@@ -275,6 +278,7 @@ def Flight.clock (flight : Flight initial state stage timeouts) (frame : Endpoin
   timedHead := flight.timedHead
   retried := flight.retried
   quiet := flight.quiet
+  advertised := by rw [frame.offeredWindow]; exact flight.advertised
   originalWindow := fun preparing => frame.sendWindow.trans (flight.originalWindow preparing)
   headWindow := by intro head present; rw [frame.sendWindow]; exact flight.headWindow head present
   armed := flight.armed
@@ -304,6 +308,10 @@ private theorem send_storage (flight : Flight initial state stage timeouts) (cou
   simpa only [Endpoint.StorageCoherent, Endpoint.State.StorageValid, Endpoint.sendState, Endpoint.outputState,
     Endpoint.State.now, flight.runtime, Option.map_some, Option.getD_some, Recovery.sent, EstablishedReceive.State.window] using
     Endpoint.outputState_storage_coherent state flight.prepared flight.storage
+
+private theorem send_advertised (flight : Flight initial state stage timeouts) (count : Nat) :
+    Endpoint.offeredWindow (source initial) ≤ Endpoint.offeredWindow (Endpoint.sendState state count) :=
+  Nat.le_trans flight.advertised (Endpoint.offeredWindow_le_outputState state flight.prepared.1)
 
 private theorem send_ready (flight : Flight initial state stage timeouts) (positive : 0 < count)
     (pending : count ≤ stage.pending.length) (batch : stage.sent.length + count ≤ lower.length + upper.length)
@@ -409,6 +417,7 @@ theorem Flight.first_send (flight : Flight initial state .written timeouts) (sta
     timedHead := flight.timedHead
     retried := by simp only [ledger, List.mem_singleton, forall_eq, Original.entry, Bool.false_eq_true, false_implies]
     quiet := fun _ => AckReaction.outputState_pending _ _ _ _ _ _
+    advertised := send_advertised flight _
     originalWindow := fun _ => flight.originalWindow rfl
     headWindow := ?_
     armed := ?_
@@ -479,6 +488,7 @@ theorem Flight.second_send (flight : Flight initial state (.lower first) timeout
       simp only [List.mem_cons, List.not_mem_nil, or_false] at member
       rcases member with same | same <;> subst entry <;> cases impossible
     quiet := fun _ => AckReaction.outputState_pending _ _ _ _ _ _
+    advertised := send_advertised flight _
     originalWindow := by intro impossible; cases impossible
     headWindow := ?_, armed := ?_
     idle := by intro impossible; cases impossible
@@ -596,6 +606,7 @@ def Flight.retry (flight : Flight initial state stage timeouts) (head : Recovery
     timedHead := stage.retry_timed flight.headFixed head rest selected recovering _
     retried := by intro entry member repeated; omega
     quiet := fun _ => AckReaction.outputState_pending _ _ _ _ _ _
+    advertised := Nat.le_trans flight.advertised (Endpoint.offeredWindow_le_outputState state flight.prepared.1)
     originalWindow := ?_
     headWindow := ?_
     armed := fun _ => rfl
@@ -884,6 +895,7 @@ private noncomputable def ack_frame (flight : Flight initial state stage timeout
   timedHead := ack_timed flight retiring counted current same
   retried := ack_retried flight retiring counted current same
   quiet := fun _ => flight.quiet retiring.fields.2.2.2.2
+  advertised := by rw [received.offeredWindow]; exact flight.advertised
   originalWindow := by intro impossible; rw [retiring.fields.2.2.2.1] at impossible; cases impossible
   headWindow := ack_head_space flight retiring received oldWindow incomingWindow
   armed := ack_armed flight retiring counted current same
@@ -1012,6 +1024,7 @@ def Flight.zero_ack_received (flight : Flight initial state stage timeouts)
     timedHead := timed.symm ▸ flight.timedHead
     retried := by simpa only [ledger] using flight.retried
     quiet := flight.quiet
+    advertised := by rw [received.offeredWindow]; exact flight.advertised
     originalWindow := ?_
     headWindow := fun head present => received.window_space (flight.headWindow head present) (incoming head present)
     armed := fun nonempty => deadline.symm ▸ flight.armed nonempty
