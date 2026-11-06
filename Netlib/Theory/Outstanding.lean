@@ -162,6 +162,36 @@ private theorem take_completes (pending : List (Item α)) (item : Item α) (memb
       obtain ⟨result, accepted⟩ := ih inside
       exact ⟨_, by simp only [take, same, dite_false, accepted, bind, Except.bind, pure, Except.pure]; rfl⟩
 
+private theorem take_pending (pending : List (Item α)) (id : Nat) (result : Taken pending id)
+    (computed : take pending id = .ok result) :
+    result.rest = pending.eraseP (fun item => item.id == id) := by
+  induction pending with
+  | nil => simp [take] at computed
+  | cons head tail ih =>
+    by_cases same : head.id = id
+    · simp only [take, same, dite_true, pure, Except.pure, Except.ok.injEq] at computed
+      cases computed
+      simp only [List.eraseP_cons, same, beq_self_eq_true, ↓reduceIte]
+    · simp only [take, same, dite_false] at computed
+      cases selected : take tail id with
+      | error reason => simp [selected, bind, Except.bind] at computed
+      | ok chosen =>
+        simp only [selected, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at computed
+        cases computed
+        simp only [List.eraseP_cons, beq_iff_eq, same, ↓reduceIte]
+        exact congrArg (head :: ·) (ih chosen selected)
+
+theorem complete_pending (before : State α) (id : Nat) (result : Completed before id)
+    (computed : complete before id = .ok result) :
+    result.state.pending = before.pending.eraseP (fun item => item.id == id) := by
+  unfold complete at computed
+  cases selected : take before.pending id with
+  | error reason => simp [selected, bind, Except.bind] at computed
+  | ok chosen =>
+    simp only [selected, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at computed
+    cases computed
+    exact take_pending before.pending id chosen selected
+
 theorem complete_completes (before : State α) (item : Item α) (member : item ∈ before.pending) :
     ∃ result, complete before item.id = .ok result := by
   obtain ⟨result, accepted⟩ := take_completes before.pending item member

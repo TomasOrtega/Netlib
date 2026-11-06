@@ -222,6 +222,15 @@ At `q = 10`, `B = 2`, and allowance `2`, the bounds are `644` forward slots and 
 `Check.CampusTCPGapProgressTiming` derives actual path resolution and timer margins.
 The [held-gap progress guide](TCP_GAP_PROGRESS.md) states the limits of these independent cut applications.
 
+`Check.CampusTCPTwoProgressStart` starts after the actual accepted write and before either original send.
+Its action selector permits either current original path, including alternating assignment, service, and delivery.
+`TCP.EndpointPartialAckEnabled` retires the lower head while retaining the literal upper record and timeout metadata.
+`TCP.EndpointFutureReceiveEnabled` and the gap receive laws cover both delivery orders.
+`Check.CampusTCPTwoProgressRecoveryCapped` derives one fixed pending-head RTO cap from the actual original-stage handoff.
+`Check.CampusTCPTwoProgressRecoveryBounded` proves actual completion under one shared allowance of at most two data or ACK drops.
+The completed witness retains exact `lower ++ upper` read bytes, full sender retirement, selected write origins, and conditional current service permissions.
+The [two-record progress guide](TCP_TWO_RECORD_PROGRESS.md) states the bound and fixed-owner action profile.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

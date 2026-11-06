@@ -408,7 +408,10 @@ The [bounded-round proof](TCP_ROUND_PROGRESS.md) gives completion of one fresh r
 The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) covers advancing logical clocks and two additional drops across data and ACKs for one fresh range.
 The [held-gap progress proof](TCP_GAP_PROGRESS.md) retains both actual two-record campus cuts and their prior histories.
 It permits two shared data and ACK drops per selected task with advancing logical clocks.
-Additional copies, sparse holes, more flights, and gateway transfer remain open for progress.
+The [two-record progress proof](TCP_TWO_RECORD_PROGRESS.md) starts at the actual accepted write before either original send.
+It permits both delivery orders, partial ACK retirement, and retries of the remaining head under the same two-drop suffix allowance.
+The bound derives a fixed pending-head RTO cap at the actual original-stage handoff and retains the same supplied trace.
+Additional copies, sparse holes, more than two original records, and gateway transfer remain open for progress.
 The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive current endpoint and gateway actions from their actual preceding states.
 Queued headers retain their original receipt clocks and are processed in sequence order.
 Novel input bytes, ordered release, and cumulative ACK retirement have separate counts.

@@ -17,6 +17,8 @@ The [first bounded round](../TCP_ROUND_PROGRESS.md) now proves the concrete adap
 It fixes local clocks and primary ownership and permits no additional copy or drop on the selected suffix.
 The [recovery progress extension](../TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks and two combined data-and-ACK drops for the fresh range.
 The [held-gap extension](../TCP_GAP_PROGRESS.md) retains both actual two-record campus cuts with advancing clocks and two shared drops per task.
+The [two-record extension](../TCP_TWO_RECORD_PROGRESS.md) starts before either original send, permits both delivery orders and alternating original-path work, and derives partial retirement and tail retries.
+It uses one shared two-drop allowance per selected direction and a fixed RTO cap derived at the actual original-stage handoff.
 Broader copy, sparse-hole, physical-clock, and transfer results below remain OPEN.
 See the [custody and service guide](../PACKET_CUSTODY.md) for the current proof boundary.
 The source links below describe the earlier design basis.
@@ -342,7 +344,7 @@ See [RFC 2212, Introduction and End-to-End Behavior](https://www.rfc-editor.org/
 
 ## Subsequent work
 
-After this result, extend the progress interface to multiple outstanding segments and broader ingress reordering.
+Extend the two-record result to more outstanding segments and broader ingress reordering.
 Then add persist, fast recovery, connection failure, close processing, and congestion behavior with their required conditions.
 Replace selected service bounds with proved queue and scheduler contracts.
 Connect native clocks, physical channels, and deployment operations through explicit correspondence proofs.
