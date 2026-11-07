@@ -3043,6 +3043,65 @@ It does not prove wire bytes, checksums, TTL, TCP, application delivery, physica
 Native commands, source authenticity, cryptographic signatures, negotiation, and topology privacy require separate evidence.
 The [packet update guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/FEDERATED_PACKETS.md) gives the strict schema, native example, and full model boundary.
 
+# Finite packets through shared updates
+%%%
+tag := "federated-cohorts"
+file := "federated-cohorts"
+%%%
+
+`Netlib.Federation.Cohort.checkJson` checks a fixed initial packet group across two native update plans.
+Each immutable packet has a unique ID and its own fixed header.
+Finite FIFO queues share receiver capacity.
+Each flight reserves its receiver slot.
+Shared updates check every held packet and receiver reservation, including queue tails.
+
+The class checker covers the complete product of each packet's selected native partition.
+Each component certificate is constructed once per packet profile.
+Table sharing compares full keyed component rows, including unreachable rows.
+A kernel proof of whole joint-row equality permits reuse while every independent tuple retains a certificate entry.
+The budget reserves signature comparisons first and charges the full graph estimate for each tuple, including reused tables.
+Sparse discovery checks every reachable successor and requires a live row at each nonterminal key.
+Its potential adds the checked component ranks and both remaining update counts.
+That sum also handles an empty cohort.
+Each positive recorded cut has a successful canonical joint action.
+One persistent-demand service contract gives a deadline in global action slots.
+
+The checked result keeps the first actual whole-group completion within both bounds:
+
+```lean
+open Netlib in
+open Federation in
+open Cohort in
+example {input : Input} {profile : Profile}
+    {certificate : Certified input profile}
+    {headers :
+      Vector Packet.Header certificate.prepared.size}
+    {actions : List InFlight.Action} {bound : Nat}
+    (value :
+      CheckedExecution certificate headers actions bound) :
+    value.completion ≤ value.report.prefix.length ∧
+      value.completion ≤
+        Progress.deadline
+          (certificate.cellAt headers
+            value.accepted).checked
+          bound :=
+  ⟨value.within, value.deadline⟩
+```
+
+Every packet projection retains all global slots.
+Its common history, native PEP visits, receipt index, and old send origin refer to the same report.
+Queue facts retain exact membership, capacity bounds, and arrival-order FIFO effects.
+Whole-group completion requires every actual receipt and both final plans.
+A short service suffix cannot replace missing completion.
+
+State and edge limits apply per class graph.
+The work budget covers native checks, component profiles, the full header product, all graphs, and replay service checks.
+These are structural estimates, not formal runtime or processor-cycle bounds.
+Capacity values, topology, identity bindings, FIFO discipline, and atomic updates are supplied assumptions.
+The model excludes later admission, loss, copies, NAT, link rates, physical time, and TCP.
+It also excludes live kernel behavior, cryptographic identity, and topology privacy.
+The [cohort guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/FEDERATED_COHORTS.md) gives the strict schema and full boundary.
+
 # Documentation process
 %%%
 tag := "documentation"

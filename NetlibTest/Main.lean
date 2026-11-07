@@ -202,6 +202,9 @@ import NetlibTest.FederatedDiagnostics
 import NetlibTest.FederatedPacketFixture
 import NetlibTest.FederatedPacketGraph
 import NetlibTest.FederatedPacket
+import NetlibTest.FederatedCohortFixture
+import NetlibTest.FederatedCohortGraph
+import NetlibTest.FederatedCohort
 
 open Netlib
 
@@ -399,4 +402,7 @@ def main : IO Unit := do
   NetlibTest.FederatedPacketFixture.run
   NetlibTest.FederatedPacketGraph.run
   NetlibTest.FederatedPacket.run
+  NetlibTest.FederatedCohortFixture.run
+  NetlibTest.FederatedCohortGraph.run
+  NetlibTest.FederatedCohort.run
   IO.println "Netlib tests passed."
