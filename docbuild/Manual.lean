@@ -2945,6 +2945,54 @@ A later read returns earlier received bytes; ACK ingress and denied retries can 
 The [TCP revocation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/TCP_REVOCATION.md) states the native, lifetime, copy, and service assumptions.
 Kernel correspondence, physical timing, cryptography, and wireless enforcement remain open.
 
+# Independent native network plans
+%%%
+tag := "federation"
+file := "federation"
+%%%
+
+`Netlib.Federation.Deployment.certifyJson` checks raw JSON for two independent native update plans.
+`certify` accepts the typed input.
+Each plan retains a fixed public contract and every declared native revision.
+Typed borders bind egress and ingress roles, exact contract IDs, versions, and packet cases.
+Peer cases must agree on their IDs, selectors, and principal/resource/operation requests.
+
+Upper graph cuts prove isolation and mediation.
+Must graph paths expand into actual native walks.
+The certificate covers all selected headers and every pair of local cursors.
+Each adjacent native step has exact route, nftables, or declared border evidence.
+Same-side gateway checks retain native enforcement by the exact operator and public gateway labels.
+
+The following example applies to an arbitrary admitted trace:
+
+```lean
+open Netlib.Federation in
+example {input : Input}
+    (checked : Deployment.Checked input)
+    {events : List (Netlib.Protocol.Transition.ProductLabel
+      input.left.Operation input.right.Operation)}
+    {current : input.left.Cursor × input.right.Cursor}
+    (trace :
+      (Plan.interleaving input.left input.right).Trace
+      (Plan.jointInitial input.left input.right)
+      events current) :
+    Deployment.ExecutionFacts checked events current :=
+  checked.interleaving_guarantees trace
+```
+
+The result retains the native query guarantees, local operation order, counts, and revision sources.
+`Checked.prefix_guarantees` gives the same facts at every trace prefix.
+The finite example checks six native snapshots, four queries, and all nine revision pairs.
+Each first update adds a private relay; each second update changes only its revision ID.
+
+The work limit admits an explicit estimate for input rows, partitions, borders, and graph checks.
+It is not a proved runtime or processor-cycle bound.
+The model uses fixed headers for selected unfragmented IPv4 forwarding with main-table routes.
+Snapshot changes are atomic in the model.
+Supplied topology, principal identities, and port bindings must match the deployment.
+Kernel execution, live update commands, packets in flight, timing, NAT, signatures, negotiation, and topology confidentiality remain outside this result.
+The [federation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/FEDERATION.md) gives the strict schema, example, and full model boundary.
+
 # Documentation process
 %%%
 tag := "documentation"

@@ -4,6 +4,26 @@ Run `lake build` locally to verify the Lean declarations. The library adds no
 axioms and uses no `sorry` or `native_decide`. Tests in
 `NetlibTest/Core/Reasoning.lean` use kernel reduction or the general theorems below.
 
+## Independent native network plans
+
+`Federation.Deployment.certifyJson` checks raw input for two native update plans, fixed public contracts, and typed borders.
+`certify` accepts the corresponding typed input.
+Every initial and intermediate revision retains a local native certificate.
+Public upper cuts prove safety; checked must paths prove actual native availability.
+The complete work admission estimate includes input rows, borders, packet partitions, and graph search terms.
+It is not a proved runtime bound.
+
+`Checked.snapshot` covers every local cursor pair, every retained query, and all selected headers.
+Reach results keep the public witness and prove an actual native walk with route, firewall, or border origins for every adjacent step.
+Same-side gateway checks derive native enforcement by the exact operator and public gateway labels.
+`interleaving_guarantees` and `prefix_guarantees` also retain actual local traces, operation order, counts, and revision sources.
+
+The finite case checks six native snapshots, four queries, and all nine revision pairs.
+Its private paths change without changes to the public contracts.
+Atomic snapshots, supplied topology and identity bindings, and the fixed-header Linux transit profile remain assumptions.
+Kernel execution, live update commands, packets in flight, timing, NAT, signatures, negotiation, and topology confidentiality remain outside this result.
+The [federation guide](FEDERATION.md) states the input schema and full boundary.
+
 ## Native stateful failover
 
 `Protocol.ConntrackReplication` selects a record from a valid source table and checks a collision-free install into another valid table.

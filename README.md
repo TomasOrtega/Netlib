@@ -33,6 +33,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Check packet bytes, forwarding, and identity policies | [Packet forwarding](docs/REASSEMBLY.md), [Wire bytes](docs/WIRE.md), [Data plane](docs/DATAPLANE.md) |
 | Check every packet in a traffic class | [Traffic classes](docs/TRAFFIC.md) |
 | Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |
+| Compose independent operators and their update plans | [Federation](docs/FEDERATION.md) |
 | Audit native conntrack records and tuple associations | [Conntrack](docs/CONNTRACK.md) |
 | Check tracked forwarding and operational cutovers | [Lifecycle](docs/LIFECYCLE.md), [Stateful failover](docs/STATEFUL_FAILOVER.md), [Safe handoff](docs/SAFE_HANDOFF.md), [Campus deployment](docs/CAMPUS_DEPLOYMENT.md) |
 | Prove bounded session revocation and queue drain | [Campus revocation](docs/CAMPUS_REVOCATION.md), [TCP revocation](docs/TCP_REVOCATION.md) |
