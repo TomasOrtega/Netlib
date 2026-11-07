@@ -64,7 +64,8 @@ The [enabled-operation proofs](TCP_ENABLED_OPERATIONS.md) derive selected local 
 They also expose the evaluated history as finite service slots.
 The [bounded-round proof](TCP_ROUND_PROGRESS.md) now composes one fresh range through all nine phases.
 The [recovery progress proof](TCP_RECOVERY_PROGRESS.md) adds advancing logical clocks and two combined data-and-ACK drops for that fresh range.
-Receive-gap and gateway-transfer progress remain open.
+The [held-gap proof](TCP_GAP_PROGRESS.md) covers two original ranges.
+The [transfer exchange proof](TCP_TRANSFER_PROGRESS.md) adds one planned gateway transfer and both application reads under one shared loss allowance.
 
 ## Current policy at service
 

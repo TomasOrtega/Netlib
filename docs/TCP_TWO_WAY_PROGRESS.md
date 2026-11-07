@@ -4,6 +4,8 @@ Netlib proves one sequential exchange on the same actual campus report.
 The forward receiver reads its two original ranges.
 One actual accepted write then starts the reverse leg, whose receiver reads its two ranges.
 One action selector and one persistent-service condition cover both legs and that write.
+This theorem keeps the selected gateway owner fixed.
+The [transfer progress theorem](TCP_TRANSFER_PROGRESS.md) covers one planned change from primary to standby during the forward leg.
 All seven programs and the full campus objective remain OPEN.
 
 ## Guarantee
@@ -104,6 +106,6 @@ Two cases append actual allowed clocks at the current endpoint time to the suffi
 Their source applies the public bounded theorem to that same extended report.
 These selected cases do not replace the universal proof.
 
-More original ranges, sparse holes, extra copies, concurrent applications, gateway transfer during progress, persist, and fast recovery remain open.
+More original ranges, sparse holes, extra copies, concurrent applications, other transfer profiles, persist, and fast recovery remain open.
 Logical time and supplied native observations do not establish physical timing, native delivery, or kernel refinement.
 The result does not complete broader protocol semantics, authentication composition, or the full campus objective.

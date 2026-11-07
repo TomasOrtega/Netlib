@@ -4,7 +4,8 @@ These proofs derive supported operations from the preceding state.
 They use the existing endpoint, gateway, and campus computations.
 The scheduling condition must still supply those operations.
 The [bounded-round proof](TCP_ROUND_PROGRESS.md) composes these operations for one fresh range.
-The broader TCP fault and transfer result remains OPEN.
+The [transfer exchange proof](TCP_TRANSFER_PROGRESS.md) adds a selected loss profile and one planned gateway transfer.
+Broader fault and transfer profiles remain OPEN.
 
 ## Endpoint guards
 
@@ -113,6 +114,7 @@ Actual timer ticks and due timeout outputs need service.
 Under `q * (7 * B) < 1000`, each live attempt resolves before its actual sender deadline.
 The [held-gap adapter](TCP_GAP_PROGRESS.md) extends these operations to both actual two-record campus cuts.
 It derives gap fill, head-only retry, old-span ACK work, and complete sender retirement.
-Sparse holes, more flights, and bounded planned transfer remain open.
+The [transfer exchange proof](TCP_TRANSFER_PROGRESS.md) adds bounded planned transfer for two original ranges in each direction.
+Sparse holes, more flights, and other transfer profiles remain open.
 See the [progress design](research/CAMPUS_PROGRESS.md) and [custody guide](PACKET_CUSTODY.md).
 All seven programs and the full campus objective remain OPEN.

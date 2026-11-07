@@ -149,6 +149,7 @@ The milestone changes no fixture schema or runtime protocol behavior.
 
 The one-way cases above use separate selected cuts and allowances.
 The [two-way progress result](TCP_TWO_WAY_PROGRESS.md) composes the forward read, one actual reverse write, and reverse read on the same report with one shared allowance.
-More than two original records, sparse holes, extra copies, concurrent applications, gateway transfer during progress, persist, and fast recovery also remain open.
+The [transfer exchange result](TCP_TRANSFER_PROGRESS.md) permits one planned gateway transfer during forward progress.
+More than two original records, sparse holes, extra copies, concurrent applications, other transfer profiles, persist, and fast recovery also remain open.
 
 See the [held-gap result](TCP_GAP_PROGRESS.md), [fresh-range recovery](TCP_RECOVERY_PROGRESS.md), and [campus progress design](research/CAMPUS_PROGRESS.md).

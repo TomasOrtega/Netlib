@@ -124,7 +124,9 @@ An empty pending set is tested against actual stored work.
 This does not prove that every TCP queue has a supported drain order.
 The example exhibits one successful drain.
 The [bounded recovery extension](TCP_RECOVERY.md) retains host timers and exact retry ranges through this gateway transfer.
-General scheduling, broader loss recovery, congestion control, other options, close processing, and long sequence reuse remain open.
+The [transfer progress theorem](TCP_TRANSFER_PROGRESS.md) proves both reads and one reverse write under one bounded-service contract and shared allowance `D ≤ 2`.
+It starts after the actual forward write and derives the seven controls, current primary drain, and standby continuation on the same trace.
+Scheduling outside that profile, broader loss recovery, congestion control, other options, close processing, and long sequence reuse remain open.
 
 The model has fixed declared gateway lifetimes.
 It does not establish dynamic namespace replacement or native tracker reconstruction.

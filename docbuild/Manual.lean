@@ -2184,7 +2184,7 @@ A supported complete prefix can append an actual computed step without another m
 The bounded-round proof now derives readiness through every phase, actual covering ACK retirement, and the read for one fresh range.
 The recovery adapter connects failed attempts to real custody drops with advancing logical clocks and no additional copies.
 Later chapters prove progress through held gaps and from the write before both original sends.
-Planned gateway transfer during progress remains open.
+A later chapter adds planned gateway transfer under its selected action and service contract.
 Native correspondence and the full seven-program campus objective remain OPEN.
 
 # A bounded TCP round
@@ -2261,7 +2261,7 @@ The copy restriction applies to the selected suffix.
 
 The next chapter adds advancing clocks, selected losses, and actual timer retries.
 Later chapters retain both actual held-gap cuts and start before either original send.
-Bounded planned transfer remains open.
+A later chapter proves bounded planned transfer for two original ranges in each direction.
 Native transmission, physical time, and the full campus objective remain external obligations.
 All seven programs remain OPEN.
 
@@ -2360,7 +2360,7 @@ The existing typed delivery and per-byte read origins come from actual records.
 
 The next chapter starts at the actual 400-byte and 600-byte held-gap cuts.
 The two-record chapter starts earlier, before either original send, and permits both delivery orders.
-Planned gateway transfer remains open for progress.
+The later transfer progress chapter covers one planned change from primary to standby.
 The later two-record chapter covers two active ranges.
 Additional copies, more than two original records, persist, and fast recovery need further profiles.
 Logical time does not establish physical timing or native delivery.
@@ -2453,7 +2453,7 @@ A lossless ACK can take a valid RTT sample.
 The two cut theorems are independent applications.
 The later two-way chapter composes a sequential exchange with one shared allowance and an actual reverse write.
 The next chapter starts before either original send and permits both delivery orders.
-Sparse holes, more than two original records, additional copies, competing applications, gateway transfer, persist, and fast recovery remain open.
+Sparse holes, more than two original records, additional copies, competing applications, other transfer profiles, persist, and fast recovery remain open.
 Logical time does not establish physical timing or native delivery.
 All seven programs and the full campus objective remain OPEN.
 
@@ -2525,7 +2525,7 @@ No fixture schema or runtime protocol behavior changes.
 
 Each one-way application has its own selected cut and allowance.
 The next chapter composes both directions on the same report with one shared allowance.
-More original records, sparse holes, extra copies, competing applications, gateway transfer during progress, persist, and fast recovery remain open.
+More original records, sparse holes, extra copies, competing applications, other transfer profiles, persist, and fast recovery remain open.
 Logical time and supplied native observations do not prove physical timing, native delivery, or kernel refinement.
 All seven programs and the full campus objective remain OPEN.
 
@@ -2600,8 +2600,79 @@ These cases do not enumerate all allowed schedules or replace the universal resu
 Both routes retain the selected primary or installed standby owner.
 Current native preflight comparisons, budget `100000`, route and filter permits, and retained gateway observations remain explicit.
 Configuration, policy, authentication, attachments, and ownership stay fixed during progress.
-Sparse holes, more ranges, copies, concurrent applications, gateway transfer, persist, and fast recovery remain open.
+The next chapter permits one planned transfer during the forward leg.
+Sparse holes, more ranges, copies, concurrent applications, other transfer profiles, persist, and fast recovery remain open.
 Logical time and supplied native observations do not prove physical timing, native delivery, kernel refinement, or broader protocol semantics.
+All seven programs and the full campus objective remain OPEN.
+
+# Bounded TCP progress through gateway transfer
+%%%
+tag := "tcp-transfer-progress"
+file := "tcp-transfer-progress"
+%%%
+
+One actual report contains the forward read, seven planned controls, one reverse write, and the reverse read.
+One whole action check and one persistent-service condition cover these operations and both data paths.
+The task starts after the selected accepted forward write and before either original send.
+Earlier endpoint, gateway, writer, receipt, and recovery histories remain retained.
+
+The initial state supplies two nonempty forward ranges and their endpoint, MSS, window, storage, and sequence guards.
+Both routes select the primary, assignments are enabled, and no primary ticket is pending.
+The primary is neither sealed nor fenced.
+The standby transport pair is empty, with a current guard namespace that matches its declared deployment.
+Current native checks cover both gateways and actors, with comparison budget `100000`.
+Both nonempty reverse ranges must fit the original endpoint and gateway reserves.
+The initial forward sender has no unread bytes.
+
+The first original path that delivers or drops triggers transfer before its ACK work.
+This includes a lower ingress drop before the upper send.
+The actual control order is:
+
+```
+pause, capture, install, client route, server route, fence, resume
+```
+
+Actual primary tickets have service during the pause before capture and installation.
+The selected profile derives at most one such ticket; it does not require an empty queue at the trigger.
+Installation copies the actual transport history.
+Current target permission and native checks remain separate.
+Both delivery orders remain possible under the path and ACK discipline.
+
+One shared allowance `D ≤ 2` covers selected data and ACK drops in both directions.
+The reverse task uses `D - actualForwardDrops`.
+Each timeout uses a distinct earlier supported loss cause for its current head.
+A lost zero ACK uses allowance but supplies no timeout credit.
+The suffix has no new copies or competing writes.
+
+Let `B` bound persistent-demand service in evaluated slots and `q > 0` bound guarded logical clock increases.
+The sufficient static bound is `N = forwardSlots(D) + B + reverseSlots(D)`.
+The forward term includes transfer and derives its RTO cap for an outstanding head by `24 * B`.
+The reverse term uses the initial forward receiver's RTO and estimator, with an original-stage bound of `16 * B`.
+No final retired RTO or estimator cap is required.
+
+```lean
+open Netlib.Check.CampusTCPTwoTransferExchangeResult in
+#check complete_by
+```
+
+The supplied actual trace must contain at least `N` evaluated slots.
+The returned report ends at an actual `result.slot ≤ N` and has exactly the initial history followed by `steps.take result.slot`.
+The forward read, actual reverse write, and reverse read have strictly ordered slots before `N`.
+Both reads return their selected byte lists.
+Timeout outputs by either actor are at most actual selected drops, which are at most `D`.
+Dropped custody identities are distinct.
+The seven actual control slots are strictly ordered, and final routing selects the installed standby.
+Each endpoint clock is at most its initial value plus `N * q`.
+
+Both endpoints have empty pending, sent, unread, held, and recovery data stores, with cleared timeout metadata.
+Window ACK work created by a read can remain pending.
+Earlier unrelated custody can remain.
+Per-byte results identify both actual selected writers, outputs, receipts, and services.
+Service permissions require only initial report compliance, extended through the same actual suffix.
+
+The profile retains configuration, policy, authentication, attachments, and declared gateway lifetimes.
+More ranges, sparse holes, new copies, concurrent applications, other transfer profiles, persist, and fast recovery remain open.
+Logical clocks and supplied observations do not prove physical timing, native delivery, kernel refinement, or full standards compliance.
 All seven programs and the full campus objective remain OPEN.
 
 # An authenticated campus TCP path
@@ -2726,6 +2797,7 @@ Logoff with current standby denial blocks later output while retaining the copie
 This is modeled planned transfer with fixed declared gateway lifetimes.
 It does not establish native migration, physical fencing, reliable synchronization, unexpected failure recovery, or general TCP drain progress.
 The bounded recovery chapter adds explicit host timers and exact retries through this transfer.
+The transfer progress chapter proves both reads and the reverse write under one shared loss allowance and bounded-service contract.
 Other options, broader recovery, congestion control, native clocks, and the full campus demonstration remain open.
 All seven research programs remain OPEN.
 

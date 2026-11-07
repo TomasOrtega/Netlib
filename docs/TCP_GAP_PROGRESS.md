@@ -126,7 +126,8 @@ Guard cases reject omitted service, early or denied timeouts, overdue ACK clocks
 
 The two cut results are independent applications.
 They do not establish one shared drop allowance across a sequential exchange in both directions.
-That result needs a new reverse setup from the changed forward state and a shared remaining allowance.
+The [two-way result](TCP_TWO_WAY_PROGRESS.md) derives that reverse setup from the changed forward state with a shared remaining allowance.
 
-Progress through sparse holes, more flights, additional copies, competing applications, gateway transfer, persist, and fast recovery remains open.
+The [transfer exchange result](TCP_TRANSFER_PROGRESS.md) permits one planned gateway transfer during forward progress.
+Progress through sparse holes, more flights, additional copies, competing applications, other transfer profiles, persist, and fast recovery remains open.
 See the [fresh-range result](TCP_RECOVERY_PROGRESS.md), [receive gaps](TCP_RECEIVE_GAPS.md), and [progress design](research/CAMPUS_PROGRESS.md).
