@@ -127,7 +127,8 @@ They cover all 21 zero-, one-, and two-loss patterns, zero-window ACK loss, and 
 Separate cases reject service omissions, early or denied timeouts, overdue ACK clocks, a third selected drop, and a third timeout.
 
 The [held-gap result](TCP_GAP_PROGRESS.md) starts at the actual two-record 400-byte and 600-byte cuts.
-Planned gateway transfer, additional copies, multiple flights, competing applications, persist, and fast recovery remain open.
+The [transfer exchange result](TCP_TRANSFER_PROGRESS.md) covers one planned gateway transfer for two original ranges in each direction.
+Other transfer profiles, additional copies, more flights, competing applications, persist, and fast recovery remain open.
 The fresh-range theorem does not reset or replace that held-gap prefix.
 
 See the [progress design](research/CAMPUS_PROGRESS.md), [recovery model](TCP_RECOVERY.md), and [custody guide](PACKET_CUSTODY.md).

@@ -238,6 +238,14 @@ The static bound adds both leg bounds and one service window; its reverse term u
 The result retains strictly ordered read/write slots, both exact byte lists, final idle endpoints, selected writers, and service permissions from initial compliance.
 The [two-way progress guide](TCP_TWO_WAY_PROGRESS.md) states the complete contract and remaining scope.
 
+`Check.CampusTCPTwoTransferExchangeResult.complete_by` adds one planned transfer from primary to standby during the forward leg.
+It derives the current primary drain and seven ordered controls from the same actual trace and one whole service condition.
+Initial endpoint and gateway reserves derive the actual reverse setup; both legs share the selected drop allowance `D ≤ 2`.
+The returned report ends at an actual slot no later than the computed static bound.
+`Check.CampusTCPTwoTransferExchangeFacts` retains both selected writers, conditional service permissions, standby routing, endpoint data emptiness, and exact control slots.
+Window ACK work created by a read can remain pending.
+The [transfer progress guide](TCP_TRANSFER_PROGRESS.md) states the initial assumptions and selected action profile.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

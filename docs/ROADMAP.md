@@ -139,7 +139,10 @@ The selected gateway owner stays fixed, and earlier histories remain retained.
 The [two-way progress proof](TCP_TWO_WAY_PROGRESS.md) composes both reads and one actual reverse write on the same report.
 One whole action and service contract uses a shared allowance of two selected drops across both directions.
 Initial reserves derive the reverse setup; the result retains both byte lists, actual writers, service permissions, and final idle endpoints within one static bound.
-The [progress design](research/CAMPUS_PROGRESS.md) retains broader copy, gap, transfer, and native time obligations.
+The [transfer progress proof](TCP_TRANSFER_PROGRESS.md) adds one planned transfer from primary to standby during the forward leg.
+One whole trace and service condition derive the primary drain, seven ordered controls, both reads, and reverse write under that shared allowance.
+The actual returned prefix is within the static bound and retains both selected writers, current service permissions, and final standby routing.
+The [progress design](research/CAMPUS_PROGRESS.md) retains broader copy, gap, other transfer, and native time obligations.
 Broader startup, congestion control, recovery, native correspondence, and automatic TCP failover continuity remain open.
 
 The [conntrack adapter](CONNTRACK.md) now reads visible XML records and full-status Netlink capture JSON.
