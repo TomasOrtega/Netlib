@@ -35,6 +35,7 @@ Lean builds run locally. CI checks source files and saved documentation.
 | Import Linux forwarding snapshots | [Linux](docs/LINUX.md) |
 | Audit native conntrack records and tuple associations | [Conntrack](docs/CONNTRACK.md) |
 | Check tracked forwarding and operational cutovers | [Lifecycle](docs/LIFECYCLE.md), [Stateful failover](docs/STATEFUL_FAILOVER.md), [Safe handoff](docs/SAFE_HANDOFF.md), [Campus deployment](docs/CAMPUS_DEPLOYMENT.md) |
+| Prove bounded session revocation and queue drain | [Campus revocation](docs/CAMPUS_REVOCATION.md) |
 | Compile packet or session requirements to a firewall | [Compiler](docs/COMPILER.md), [Session enforcement](docs/SESSION_FIREWALL.md) |
 | Bind current sessions to input interfaces and fragment admission | [Ingress attachments](docs/INGRESS_ATTACHMENTS.md), [Fragment admission](docs/FRAGMENT_ADMISSION.md) |
 | Check TCP bytes and campus transfer | [Campus TCP path](docs/CAMPUS_TCP.md), [Startup recovery](docs/TCP_STARTUP_RECOVERY.md), [Sparse gateway observations](docs/TCP_SPARSE_ADMISSION.md), [Receive gaps](docs/TCP_RECEIVE_GAPS.md), [Packet custody](docs/PACKET_CUSTODY.md) |
