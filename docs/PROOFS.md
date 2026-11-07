@@ -47,6 +47,39 @@ The profile covers one fixed-header packet with atomic model updates, no loss, n
 Wire bytes, TCP, application delivery, physical time, live kernel execution, and cryptographic identity remain outside this result.
 The [packet update guide](FEDERATED_PACKETS.md) states the schema, complete example, and full boundary.
 
+## Finite packets through shared updates
+
+`Federation.Cohort.checkJson` checks a fixed initial packet group, native plans, capacities, literal actions, and joint service.
+Packet IDs are unique, and each packet keeps its own fixed header.
+FIFO heads control sends and receipts.
+Every flight reserves a receiver slot.
+Shared updates check all held packets and pending receivers, including queue tails.
+
+Each packet retains its own complete native header partition.
+The class checker covers the full product of those selected partitions.
+Each component certificate is constructed once per packet profile.
+Joint tables are shared only after complete keyed component signatures are equal, including unreachable rows.
+A kernel theorem derives whole joint-row equality; every independent tuple retains its own covered entry.
+The budget reserves signature comparisons first and charges the full graph estimate for every tuple, including reused tables.
+Sparse joint graphs retain every reachable successor and reject incomplete discovery or a nonterminal dead end.
+The potential is the sum of checked component ranks and both remaining update counts.
+It strictly decreases on every non-idle move and handles an empty cohort.
+Every positive recorded cut has an actual supported canonical joint action.
+
+Completion requires all actual endpoint receipts and both final plans.
+The result keeps the first completion within the report and the derived slot deadline.
+A finite service check cannot create missing completion.
+Each packet's projected history keeps every global slot and its exact old send index.
+Common histories, prefix safety, matched isolation, and separate native PEP visits refer to that same global execution.
+Queue facts retain exact membership, capacity bounds, and arrival-order FIFO effects.
+
+State and edge limits apply to each class graph.
+The work budget covers native admission, all component profiles, the full header product, all graphs, and replay service checks.
+It is an explicit structural estimate, not a formal runtime bound.
+Supplied buffers, topology, identity bindings, FIFO discipline, and atomic snapshots remain assumptions.
+The model excludes new admissions, loss, copies, NAT, link rates, physical timing, TCP, kernel execution, cryptographic identity, and topology privacy.
+The [cohort guide](FEDERATED_COHORTS.md) states the schema and full boundary.
+
 ## Native stateful failover
 
 `Protocol.ConntrackReplication` selects a record from a valid source table and checks a collision-free install into another valid table.
