@@ -195,6 +195,10 @@ import NetlibTest.CampusTCPStartupMonitor
 import NetlibTest.CampusTCPStartupEndToEnd
 import NetlibTest.CampusRevocation
 import NetlibTest.CampusTCPRevocation
+import NetlibTest.FederatedNativeFixture
+import NetlibTest.FederatedDeployment
+import NetlibTest.FederatedBudget
+import NetlibTest.FederatedDiagnostics
 
 open Netlib
 
@@ -385,4 +389,8 @@ def main : IO Unit := do
   NetlibTest.CampusTCPStartupEndToEnd.run
   NetlibTest.CampusRevocation.run
   NetlibTest.CampusTCPRevocation.run
+  NetlibTest.FederatedNativeFixture.run
+  NetlibTest.FederatedDeployment.run
+  NetlibTest.FederatedBudget.run
+  NetlibTest.FederatedDiagnostics.run
   IO.println "Netlib tests passed."

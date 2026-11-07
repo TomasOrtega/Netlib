@@ -1,0 +1,3407 @@
+{
+  "schema": 1,
+  "scope": "two-domain-ipv4-transit",
+  "left": {
+    "contract": {
+      "id": "campus",
+      "version": 1,
+      "nodes": [
+        {
+          "id": "client",
+          "role": "endpoint"
+        },
+        {
+          "id": "pep",
+          "role": "enforcement"
+        },
+        {
+          "id": "east",
+          "role": "egress"
+        },
+        {
+          "id": "management",
+          "role": "endpoint"
+        },
+        {
+          "id": "inside",
+          "role": "internal"
+        }
+      ],
+      "cases": [
+        {
+          "id": "app",
+          "selector": {
+            "source": {
+              "address": 3221225984,
+              "length": 24
+            },
+            "destination": {
+              "address": 3325256704,
+              "length": 24
+            },
+            "protocol": 6,
+            "sourcePorts": {
+              "first": 4096,
+              "last": 65535
+            },
+            "destinationPorts": {
+              "first": 443,
+              "last": 443
+            }
+          },
+          "request": {
+            "principal": "alice",
+            "resource": "documents",
+            "operation": "read"
+          },
+          "upper": [
+            {
+              "source": "client",
+              "target": "pep"
+            },
+            {
+              "source": "pep",
+              "target": "east"
+            },
+            {
+              "source": "pep",
+              "target": "inside"
+            },
+            {
+              "source": "inside",
+              "target": "east"
+            }
+          ],
+          "must": [
+            {
+              "source": "client",
+              "target": "pep"
+            },
+            {
+              "source": "pep",
+              "target": "east"
+            }
+          ]
+        }
+      ]
+    },
+    "initial": {
+      "id": "campus-r0",
+      "snapshot": {
+        "schema": 1,
+        "scope": "main-table-ipv4-transit",
+        "intent": {
+          "schema": 1,
+          "devices": [
+            {
+              "id": "ingress",
+              "zone": "users",
+              "role": "ingress"
+            },
+            {
+              "id": "gateway",
+              "zone": "boundary",
+              "role": "pep"
+            },
+            {
+              "id": "egress",
+              "zone": "services",
+              "role": "egress"
+            },
+            {
+              "id": "management",
+              "zone": "management",
+              "role": "router"
+            },
+            {
+              "id": "fabric0",
+              "zone": "private",
+              "role": "router"
+            }
+          ],
+          "groups": [
+            {
+              "name": "peps",
+              "members": [
+                "gateway"
+              ]
+            }
+          ],
+          "principals": [
+            {
+              "id": "alice",
+              "authenticated": true
+            },
+            {
+              "id": "bob",
+              "authenticated": false
+            }
+          ],
+          "resources": [
+            "documents"
+          ],
+          "operations": [
+            "read"
+          ],
+          "permissions": [
+            {
+              "principal": "alice",
+              "resource": "documents",
+              "operation": "read"
+            },
+            {
+              "principal": "bob",
+              "resource": "documents",
+              "operation": "read"
+            }
+          ],
+          "requests": [
+            {
+              "id": "alice-read",
+              "principal": "alice",
+              "resource": "documents",
+              "operation": "read"
+            },
+            {
+              "id": "bob-read",
+              "principal": "bob",
+              "resource": "documents",
+              "operation": "read"
+            }
+          ],
+          "traffic": [
+            {
+              "id": "https",
+              "source": 3221225994,
+              "destination": 3325256714,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 443
+            },
+            {
+              "id": "ssh",
+              "source": 3221225994,
+              "destination": 3325256714,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 22
+            },
+            {
+              "id": "management",
+              "source": 3221225994,
+              "destination": 3405803786,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 443
+            }
+          ],
+          "enforcement": "group:peps",
+          "requirements": [
+            {
+              "id": "AVAILABLE",
+              "kind": "reach",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "alice-read",
+              "gateways": null
+            },
+            {
+              "id": "IDENTITY",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "bob-read",
+              "gateways": null
+            },
+            {
+              "id": "GATEWAY",
+              "kind": "mediated",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "alice-read",
+              "gateways": "group:peps"
+            },
+            {
+              "id": "NO_SSH",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "ssh",
+              "request": "alice-read",
+              "gateways": null
+            },
+            {
+              "id": "MANAGEMENT",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:management",
+              "traffic": "management",
+              "request": "alice-read",
+              "gateways": null
+            }
+          ]
+        },
+        "routers": [
+          {
+            "node": "ingress",
+            "routeVersion": "6.19.0",
+            "bindings": [
+              {
+                "device": "edge0",
+                "nextNode": "gateway",
+                "gateway": "10.1.0.2"
+              }
+            ],
+            "routes": [
+              {
+                "dst": "default",
+                "gateway": "10.1.0.2",
+                "dev": "edge0",
+                "protocol": "static",
+                "flags": []
+              }
+            ],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "accept"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "gateway",
+            "routeVersion": "6.19.0",
+            "bindings": [
+              {
+                "device": "service0",
+                "nextNode": "egress",
+                "gateway": null
+              }
+            ],
+            "routes": [
+              {
+                "dst": "198.51.100.0/24",
+                "dev": "service0",
+                "protocol": "static",
+                "scope": "link",
+                "flags": []
+              }
+            ],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                },
+                {
+                  "rule": {
+                    "family": "ip",
+                    "table": "filter",
+                    "chain": "forward",
+                    "handle": 3,
+                    "expr": [
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "ip",
+                              "field": "saddr"
+                            }
+                          },
+                          "right": {
+                            "prefix": {
+                              "addr": "192.0.2.0",
+                              "len": 24
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "ip",
+                              "field": "daddr"
+                            }
+                          },
+                          "right": {
+                            "prefix": {
+                              "addr": "198.51.100.0",
+                              "len": 24
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "tcp",
+                              "field": "dport"
+                            }
+                          },
+                          "right": 443
+                        }
+                      },
+                      {
+                        "accept": null
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "egress",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "management",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "fabric0",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "projection": [
+        {
+          "localNode": "ingress",
+          "publicNode": "client"
+        },
+        {
+          "localNode": "gateway",
+          "publicNode": "pep"
+        },
+        {
+          "localNode": "egress",
+          "publicNode": "east"
+        },
+        {
+          "localNode": "management",
+          "publicNode": "management"
+        },
+        {
+          "localNode": "fabric0",
+          "publicNode": "inside"
+        }
+      ],
+      "anchors": [
+        {
+          "publicNode": "client",
+          "localNode": "ingress"
+        },
+        {
+          "publicNode": "pep",
+          "localNode": "gateway"
+        },
+        {
+          "publicNode": "east",
+          "localNode": "egress"
+        },
+        {
+          "publicNode": "management",
+          "localNode": "management"
+        },
+        {
+          "publicNode": "inside",
+          "localNode": "fabric0"
+        }
+      ]
+    },
+    "updates": [
+      {
+        "id": "campus-r1",
+        "snapshot": {
+          "schema": 1,
+          "scope": "main-table-ipv4-transit",
+          "intent": {
+            "schema": 1,
+            "devices": [
+              {
+                "id": "ingress",
+                "zone": "users",
+                "role": "ingress"
+              },
+              {
+                "id": "gateway",
+                "zone": "boundary",
+                "role": "pep"
+              },
+              {
+                "id": "egress",
+                "zone": "services",
+                "role": "egress"
+              },
+              {
+                "id": "management",
+                "zone": "management",
+                "role": "router"
+              },
+              {
+                "id": "relay",
+                "zone": "private",
+                "role": "router"
+              }
+            ],
+            "groups": [
+              {
+                "name": "peps",
+                "members": [
+                  "gateway"
+                ]
+              }
+            ],
+            "principals": [
+              {
+                "id": "alice",
+                "authenticated": true
+              },
+              {
+                "id": "bob",
+                "authenticated": false
+              }
+            ],
+            "resources": [
+              "documents"
+            ],
+            "operations": [
+              "read"
+            ],
+            "permissions": [
+              {
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "requests": [
+              {
+                "id": "alice-read",
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "id": "bob-read",
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "traffic": [
+              {
+                "id": "https",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              },
+              {
+                "id": "ssh",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 22
+              },
+              {
+                "id": "management",
+                "source": 3221225994,
+                "destination": 3405803786,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              }
+            ],
+            "enforcement": "group:peps",
+            "requirements": [
+              {
+                "id": "AVAILABLE",
+                "kind": "reach",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "IDENTITY",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "bob-read",
+                "gateways": null
+              },
+              {
+                "id": "GATEWAY",
+                "kind": "mediated",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": "group:peps"
+              },
+              {
+                "id": "NO_SSH",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "ssh",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "MANAGEMENT",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:management",
+                "traffic": "management",
+                "request": "alice-read",
+                "gateways": null
+              }
+            ]
+          },
+          "routers": [
+            {
+              "node": "ingress",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "edge0",
+                  "nextNode": "gateway",
+                  "gateway": "10.1.0.2"
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "default",
+                  "gateway": "10.1.0.2",
+                  "dev": "edge0",
+                  "protocol": "static",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "accept"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "gateway",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "relay",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "egress",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "management",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "relay",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "egress",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "projection": [
+          {
+            "localNode": "ingress",
+            "publicNode": "client"
+          },
+          {
+            "localNode": "gateway",
+            "publicNode": "pep"
+          },
+          {
+            "localNode": "egress",
+            "publicNode": "east"
+          },
+          {
+            "localNode": "management",
+            "publicNode": "management"
+          },
+          {
+            "localNode": "relay",
+            "publicNode": "inside"
+          }
+        ],
+        "anchors": [
+          {
+            "publicNode": "client",
+            "localNode": "ingress"
+          },
+          {
+            "publicNode": "pep",
+            "localNode": "gateway"
+          },
+          {
+            "publicNode": "east",
+            "localNode": "egress"
+          },
+          {
+            "publicNode": "management",
+            "localNode": "management"
+          },
+          {
+            "publicNode": "inside",
+            "localNode": "relay"
+          }
+        ]
+      },
+      {
+        "id": "campus-r2",
+        "snapshot": {
+          "schema": 1,
+          "scope": "main-table-ipv4-transit",
+          "intent": {
+            "schema": 1,
+            "devices": [
+              {
+                "id": "ingress",
+                "zone": "users",
+                "role": "ingress"
+              },
+              {
+                "id": "gateway",
+                "zone": "boundary",
+                "role": "pep"
+              },
+              {
+                "id": "egress",
+                "zone": "services",
+                "role": "egress"
+              },
+              {
+                "id": "management",
+                "zone": "management",
+                "role": "router"
+              },
+              {
+                "id": "relay",
+                "zone": "private",
+                "role": "router"
+              }
+            ],
+            "groups": [
+              {
+                "name": "peps",
+                "members": [
+                  "gateway"
+                ]
+              }
+            ],
+            "principals": [
+              {
+                "id": "alice",
+                "authenticated": true
+              },
+              {
+                "id": "bob",
+                "authenticated": false
+              }
+            ],
+            "resources": [
+              "documents"
+            ],
+            "operations": [
+              "read"
+            ],
+            "permissions": [
+              {
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "requests": [
+              {
+                "id": "alice-read",
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "id": "bob-read",
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "traffic": [
+              {
+                "id": "https",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              },
+              {
+                "id": "ssh",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 22
+              },
+              {
+                "id": "management",
+                "source": 3221225994,
+                "destination": 3405803786,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              }
+            ],
+            "enforcement": "group:peps",
+            "requirements": [
+              {
+                "id": "AVAILABLE",
+                "kind": "reach",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "IDENTITY",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "bob-read",
+                "gateways": null
+              },
+              {
+                "id": "GATEWAY",
+                "kind": "mediated",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": "group:peps"
+              },
+              {
+                "id": "NO_SSH",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "ssh",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "MANAGEMENT",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:management",
+                "traffic": "management",
+                "request": "alice-read",
+                "gateways": null
+              }
+            ]
+          },
+          "routers": [
+            {
+              "node": "ingress",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "edge0",
+                  "nextNode": "gateway",
+                  "gateway": "10.1.0.2"
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "default",
+                  "gateway": "10.1.0.2",
+                  "dev": "edge0",
+                  "protocol": "static",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "accept"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "gateway",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "relay",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "egress",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "management",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "relay",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "egress",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "projection": [
+          {
+            "localNode": "ingress",
+            "publicNode": "client"
+          },
+          {
+            "localNode": "gateway",
+            "publicNode": "pep"
+          },
+          {
+            "localNode": "egress",
+            "publicNode": "east"
+          },
+          {
+            "localNode": "management",
+            "publicNode": "management"
+          },
+          {
+            "localNode": "relay",
+            "publicNode": "inside"
+          }
+        ],
+        "anchors": [
+          {
+            "publicNode": "client",
+            "localNode": "ingress"
+          },
+          {
+            "publicNode": "pep",
+            "localNode": "gateway"
+          },
+          {
+            "publicNode": "east",
+            "localNode": "egress"
+          },
+          {
+            "publicNode": "management",
+            "localNode": "management"
+          },
+          {
+            "publicNode": "inside",
+            "localNode": "relay"
+          }
+        ]
+      }
+    ]
+  },
+  "right": {
+    "contract": {
+      "id": "provider",
+      "version": 1,
+      "nodes": [
+        {
+          "id": "west",
+          "role": "ingress"
+        },
+        {
+          "id": "pep",
+          "role": "enforcement"
+        },
+        {
+          "id": "service",
+          "role": "endpoint"
+        },
+        {
+          "id": "management",
+          "role": "endpoint"
+        },
+        {
+          "id": "inside",
+          "role": "internal"
+        }
+      ],
+      "cases": [
+        {
+          "id": "app",
+          "selector": {
+            "source": {
+              "address": 3221225984,
+              "length": 24
+            },
+            "destination": {
+              "address": 3325256704,
+              "length": 24
+            },
+            "protocol": 6,
+            "sourcePorts": {
+              "first": 4096,
+              "last": 65535
+            },
+            "destinationPorts": {
+              "first": 443,
+              "last": 443
+            }
+          },
+          "request": {
+            "principal": "alice",
+            "resource": "documents",
+            "operation": "read"
+          },
+          "upper": [
+            {
+              "source": "west",
+              "target": "pep"
+            },
+            {
+              "source": "pep",
+              "target": "service"
+            },
+            {
+              "source": "pep",
+              "target": "inside"
+            },
+            {
+              "source": "inside",
+              "target": "service"
+            }
+          ],
+          "must": [
+            {
+              "source": "west",
+              "target": "pep"
+            },
+            {
+              "source": "pep",
+              "target": "service"
+            }
+          ]
+        }
+      ]
+    },
+    "initial": {
+      "id": "provider-r0",
+      "snapshot": {
+        "schema": 1,
+        "scope": "main-table-ipv4-transit",
+        "intent": {
+          "schema": 1,
+          "devices": [
+            {
+              "id": "ingress",
+              "zone": "users",
+              "role": "ingress"
+            },
+            {
+              "id": "gateway",
+              "zone": "boundary",
+              "role": "pep"
+            },
+            {
+              "id": "egress",
+              "zone": "services",
+              "role": "egress"
+            },
+            {
+              "id": "management",
+              "zone": "management",
+              "role": "router"
+            },
+            {
+              "id": "fabric0",
+              "zone": "private",
+              "role": "router"
+            }
+          ],
+          "groups": [
+            {
+              "name": "peps",
+              "members": [
+                "gateway"
+              ]
+            }
+          ],
+          "principals": [
+            {
+              "id": "alice",
+              "authenticated": true
+            },
+            {
+              "id": "bob",
+              "authenticated": false
+            }
+          ],
+          "resources": [
+            "documents"
+          ],
+          "operations": [
+            "read"
+          ],
+          "permissions": [
+            {
+              "principal": "alice",
+              "resource": "documents",
+              "operation": "read"
+            },
+            {
+              "principal": "bob",
+              "resource": "documents",
+              "operation": "read"
+            }
+          ],
+          "requests": [
+            {
+              "id": "alice-read",
+              "principal": "alice",
+              "resource": "documents",
+              "operation": "read"
+            },
+            {
+              "id": "bob-read",
+              "principal": "bob",
+              "resource": "documents",
+              "operation": "read"
+            }
+          ],
+          "traffic": [
+            {
+              "id": "https",
+              "source": 3221225994,
+              "destination": 3325256714,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 443
+            },
+            {
+              "id": "ssh",
+              "source": 3221225994,
+              "destination": 3325256714,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 22
+            },
+            {
+              "id": "management",
+              "source": 3221225994,
+              "destination": 3405803786,
+              "protocol": 6,
+              "sourcePort": 50000,
+              "destinationPort": 443
+            }
+          ],
+          "enforcement": "group:peps",
+          "requirements": [
+            {
+              "id": "AVAILABLE",
+              "kind": "reach",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "alice-read",
+              "gateways": null
+            },
+            {
+              "id": "IDENTITY",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "bob-read",
+              "gateways": null
+            },
+            {
+              "id": "GATEWAY",
+              "kind": "mediated",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "https",
+              "request": "alice-read",
+              "gateways": "group:peps"
+            },
+            {
+              "id": "NO_SSH",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:egress",
+              "traffic": "ssh",
+              "request": "alice-read",
+              "gateways": null
+            },
+            {
+              "id": "MANAGEMENT",
+              "kind": "isolate",
+              "source": "node:ingress",
+              "target": "node:management",
+              "traffic": "management",
+              "request": "alice-read",
+              "gateways": null
+            }
+          ]
+        },
+        "routers": [
+          {
+            "node": "ingress",
+            "routeVersion": "6.19.0",
+            "bindings": [
+              {
+                "device": "edge0",
+                "nextNode": "gateway",
+                "gateway": "10.1.0.2"
+              }
+            ],
+            "routes": [
+              {
+                "dst": "default",
+                "gateway": "10.1.0.2",
+                "dev": "edge0",
+                "protocol": "static",
+                "flags": []
+              }
+            ],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "accept"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "gateway",
+            "routeVersion": "6.19.0",
+            "bindings": [
+              {
+                "device": "service0",
+                "nextNode": "egress",
+                "gateway": null
+              }
+            ],
+            "routes": [
+              {
+                "dst": "198.51.100.0/24",
+                "dev": "service0",
+                "protocol": "static",
+                "scope": "link",
+                "flags": []
+              }
+            ],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                },
+                {
+                  "rule": {
+                    "family": "ip",
+                    "table": "filter",
+                    "chain": "forward",
+                    "handle": 3,
+                    "expr": [
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "ip",
+                              "field": "saddr"
+                            }
+                          },
+                          "right": {
+                            "prefix": {
+                              "addr": "192.0.2.0",
+                              "len": 24
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "ip",
+                              "field": "daddr"
+                            }
+                          },
+                          "right": {
+                            "prefix": {
+                              "addr": "198.51.100.0",
+                              "len": 24
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "match": {
+                          "op": "==",
+                          "left": {
+                            "payload": {
+                              "protocol": "tcp",
+                              "field": "dport"
+                            }
+                          },
+                          "right": 443
+                        }
+                      },
+                      {
+                        "accept": null
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "egress",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "management",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "node": "fabric0",
+            "routeVersion": "6.19.0",
+            "bindings": [],
+            "routes": [],
+            "nftables": {
+              "nftables": [
+                {
+                  "metainfo": {
+                    "version": "1.1.3",
+                    "release_name": "Netlib scenario fixture",
+                    "json_schema_version": 1
+                  }
+                },
+                {
+                  "table": {
+                    "family": "ip",
+                    "name": "filter",
+                    "handle": 1
+                  }
+                },
+                {
+                  "chain": {
+                    "family": "ip",
+                    "table": "filter",
+                    "name": "forward",
+                    "handle": 2,
+                    "type": "filter",
+                    "hook": "forward",
+                    "prio": 0,
+                    "policy": "drop"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "projection": [
+        {
+          "localNode": "ingress",
+          "publicNode": "west"
+        },
+        {
+          "localNode": "gateway",
+          "publicNode": "pep"
+        },
+        {
+          "localNode": "egress",
+          "publicNode": "service"
+        },
+        {
+          "localNode": "management",
+          "publicNode": "management"
+        },
+        {
+          "localNode": "fabric0",
+          "publicNode": "inside"
+        }
+      ],
+      "anchors": [
+        {
+          "publicNode": "west",
+          "localNode": "ingress"
+        },
+        {
+          "publicNode": "pep",
+          "localNode": "gateway"
+        },
+        {
+          "publicNode": "service",
+          "localNode": "egress"
+        },
+        {
+          "publicNode": "management",
+          "localNode": "management"
+        },
+        {
+          "publicNode": "inside",
+          "localNode": "fabric0"
+        }
+      ]
+    },
+    "updates": [
+      {
+        "id": "provider-r1",
+        "snapshot": {
+          "schema": 1,
+          "scope": "main-table-ipv4-transit",
+          "intent": {
+            "schema": 1,
+            "devices": [
+              {
+                "id": "ingress",
+                "zone": "users",
+                "role": "ingress"
+              },
+              {
+                "id": "gateway",
+                "zone": "boundary",
+                "role": "pep"
+              },
+              {
+                "id": "egress",
+                "zone": "services",
+                "role": "egress"
+              },
+              {
+                "id": "management",
+                "zone": "management",
+                "role": "router"
+              },
+              {
+                "id": "relay",
+                "zone": "private",
+                "role": "router"
+              }
+            ],
+            "groups": [
+              {
+                "name": "peps",
+                "members": [
+                  "gateway"
+                ]
+              }
+            ],
+            "principals": [
+              {
+                "id": "alice",
+                "authenticated": true
+              },
+              {
+                "id": "bob",
+                "authenticated": false
+              }
+            ],
+            "resources": [
+              "documents"
+            ],
+            "operations": [
+              "read"
+            ],
+            "permissions": [
+              {
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "requests": [
+              {
+                "id": "alice-read",
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "id": "bob-read",
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "traffic": [
+              {
+                "id": "https",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              },
+              {
+                "id": "ssh",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 22
+              },
+              {
+                "id": "management",
+                "source": 3221225994,
+                "destination": 3405803786,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              }
+            ],
+            "enforcement": "group:peps",
+            "requirements": [
+              {
+                "id": "AVAILABLE",
+                "kind": "reach",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "IDENTITY",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "bob-read",
+                "gateways": null
+              },
+              {
+                "id": "GATEWAY",
+                "kind": "mediated",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": "group:peps"
+              },
+              {
+                "id": "NO_SSH",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "ssh",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "MANAGEMENT",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:management",
+                "traffic": "management",
+                "request": "alice-read",
+                "gateways": null
+              }
+            ]
+          },
+          "routers": [
+            {
+              "node": "ingress",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "edge0",
+                  "nextNode": "gateway",
+                  "gateway": "10.1.0.2"
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "default",
+                  "gateway": "10.1.0.2",
+                  "dev": "edge0",
+                  "protocol": "static",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "accept"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "gateway",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "relay",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "egress",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "management",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "relay",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "egress",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "projection": [
+          {
+            "localNode": "ingress",
+            "publicNode": "west"
+          },
+          {
+            "localNode": "gateway",
+            "publicNode": "pep"
+          },
+          {
+            "localNode": "egress",
+            "publicNode": "service"
+          },
+          {
+            "localNode": "management",
+            "publicNode": "management"
+          },
+          {
+            "localNode": "relay",
+            "publicNode": "inside"
+          }
+        ],
+        "anchors": [
+          {
+            "publicNode": "west",
+            "localNode": "ingress"
+          },
+          {
+            "publicNode": "pep",
+            "localNode": "gateway"
+          },
+          {
+            "publicNode": "service",
+            "localNode": "egress"
+          },
+          {
+            "publicNode": "management",
+            "localNode": "management"
+          },
+          {
+            "publicNode": "inside",
+            "localNode": "relay"
+          }
+        ]
+      },
+      {
+        "id": "provider-r2",
+        "snapshot": {
+          "schema": 1,
+          "scope": "main-table-ipv4-transit",
+          "intent": {
+            "schema": 1,
+            "devices": [
+              {
+                "id": "ingress",
+                "zone": "users",
+                "role": "ingress"
+              },
+              {
+                "id": "gateway",
+                "zone": "boundary",
+                "role": "pep"
+              },
+              {
+                "id": "egress",
+                "zone": "services",
+                "role": "egress"
+              },
+              {
+                "id": "management",
+                "zone": "management",
+                "role": "router"
+              },
+              {
+                "id": "relay",
+                "zone": "private",
+                "role": "router"
+              }
+            ],
+            "groups": [
+              {
+                "name": "peps",
+                "members": [
+                  "gateway"
+                ]
+              }
+            ],
+            "principals": [
+              {
+                "id": "alice",
+                "authenticated": true
+              },
+              {
+                "id": "bob",
+                "authenticated": false
+              }
+            ],
+            "resources": [
+              "documents"
+            ],
+            "operations": [
+              "read"
+            ],
+            "permissions": [
+              {
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "requests": [
+              {
+                "id": "alice-read",
+                "principal": "alice",
+                "resource": "documents",
+                "operation": "read"
+              },
+              {
+                "id": "bob-read",
+                "principal": "bob",
+                "resource": "documents",
+                "operation": "read"
+              }
+            ],
+            "traffic": [
+              {
+                "id": "https",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              },
+              {
+                "id": "ssh",
+                "source": 3221225994,
+                "destination": 3325256714,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 22
+              },
+              {
+                "id": "management",
+                "source": 3221225994,
+                "destination": 3405803786,
+                "protocol": 6,
+                "sourcePort": 50000,
+                "destinationPort": 443
+              }
+            ],
+            "enforcement": "group:peps",
+            "requirements": [
+              {
+                "id": "AVAILABLE",
+                "kind": "reach",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "IDENTITY",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "bob-read",
+                "gateways": null
+              },
+              {
+                "id": "GATEWAY",
+                "kind": "mediated",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "https",
+                "request": "alice-read",
+                "gateways": "group:peps"
+              },
+              {
+                "id": "NO_SSH",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:egress",
+                "traffic": "ssh",
+                "request": "alice-read",
+                "gateways": null
+              },
+              {
+                "id": "MANAGEMENT",
+                "kind": "isolate",
+                "source": "node:ingress",
+                "target": "node:management",
+                "traffic": "management",
+                "request": "alice-read",
+                "gateways": null
+              }
+            ]
+          },
+          "routers": [
+            {
+              "node": "ingress",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "edge0",
+                  "nextNode": "gateway",
+                  "gateway": "10.1.0.2"
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "default",
+                  "gateway": "10.1.0.2",
+                  "dev": "edge0",
+                  "protocol": "static",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "accept"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "gateway",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "relay",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "egress",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "management",
+              "routeVersion": "6.19.0",
+              "bindings": [],
+              "routes": [],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "node": "relay",
+              "routeVersion": "6.19.0",
+              "bindings": [
+                {
+                  "device": "service0",
+                  "nextNode": "egress",
+                  "gateway": null
+                }
+              ],
+              "routes": [
+                {
+                  "dst": "198.51.100.0/24",
+                  "dev": "service0",
+                  "protocol": "static",
+                  "scope": "link",
+                  "flags": []
+                }
+              ],
+              "nftables": {
+                "nftables": [
+                  {
+                    "metainfo": {
+                      "version": "1.1.3",
+                      "release_name": "Netlib scenario fixture",
+                      "json_schema_version": 1
+                    }
+                  },
+                  {
+                    "table": {
+                      "family": "ip",
+                      "name": "filter",
+                      "handle": 1
+                    }
+                  },
+                  {
+                    "chain": {
+                      "family": "ip",
+                      "table": "filter",
+                      "name": "forward",
+                      "handle": 2,
+                      "type": "filter",
+                      "hook": "forward",
+                      "prio": 0,
+                      "policy": "drop"
+                    }
+                  },
+                  {
+                    "rule": {
+                      "family": "ip",
+                      "table": "filter",
+                      "chain": "forward",
+                      "handle": 3,
+                      "expr": [
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "saddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "192.0.2.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "ip",
+                                "field": "daddr"
+                              }
+                            },
+                            "right": {
+                              "prefix": {
+                                "addr": "198.51.100.0",
+                                "len": 24
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "match": {
+                            "op": "==",
+                            "left": {
+                              "payload": {
+                                "protocol": "tcp",
+                                "field": "dport"
+                              }
+                            },
+                            "right": 443
+                          }
+                        },
+                        {
+                          "accept": null
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "projection": [
+          {
+            "localNode": "ingress",
+            "publicNode": "west"
+          },
+          {
+            "localNode": "gateway",
+            "publicNode": "pep"
+          },
+          {
+            "localNode": "egress",
+            "publicNode": "service"
+          },
+          {
+            "localNode": "management",
+            "publicNode": "management"
+          },
+          {
+            "localNode": "relay",
+            "publicNode": "inside"
+          }
+        ],
+        "anchors": [
+          {
+            "publicNode": "west",
+            "localNode": "ingress"
+          },
+          {
+            "publicNode": "pep",
+            "localNode": "gateway"
+          },
+          {
+            "publicNode": "service",
+            "localNode": "egress"
+          },
+          {
+            "publicNode": "management",
+            "localNode": "management"
+          },
+          {
+            "publicNode": "inside",
+            "localNode": "relay"
+          }
+        ]
+      }
+    ]
+  },
+  "intent": {
+    "borders": [
+      {
+        "source": {
+          "side": "left",
+          "node": "east"
+        },
+        "target": {
+          "side": "right",
+          "node": "west"
+        },
+        "sourceDomain": "campus",
+        "targetDomain": "provider",
+        "sourceVersion": 1,
+        "targetVersion": 1,
+        "cases": [
+          "app"
+        ]
+      }
+    ],
+    "queries": [
+      {
+        "id": "APP",
+        "kind": "reach",
+        "case": "app",
+        "source": {
+          "side": "left",
+          "node": "client"
+        },
+        "target": {
+          "side": "right",
+          "node": "service"
+        },
+        "gateways": []
+      },
+      {
+        "id": "CAMPUS_POLICY",
+        "kind": "mediated",
+        "case": "app",
+        "source": {
+          "side": "left",
+          "node": "client"
+        },
+        "target": {
+          "side": "right",
+          "node": "service"
+        },
+        "gateways": [
+          {
+            "side": "left",
+            "node": "pep"
+          }
+        ]
+      },
+      {
+        "id": "PROVIDER_POLICY",
+        "kind": "mediated",
+        "case": "app",
+        "source": {
+          "side": "left",
+          "node": "client"
+        },
+        "target": {
+          "side": "right",
+          "node": "service"
+        },
+        "gateways": [
+          {
+            "side": "right",
+            "node": "pep"
+          }
+        ]
+      },
+      {
+        "id": "MANAGEMENT",
+        "kind": "isolate",
+        "case": "app",
+        "source": {
+          "side": "left",
+          "node": "client"
+        },
+        "target": {
+          "side": "right",
+          "node": "management"
+        },
+        "gateways": []
+      }
+    ]
+  },
+  "limits": {
+    "cells": 100000,
+    "work": 1000000000
+  }
+}
