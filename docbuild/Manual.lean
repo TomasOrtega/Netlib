@@ -2903,6 +2903,48 @@ That suffix has no new emissions or delivery after completion.
 The [revocation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/CAMPUS_REVOCATION.md) and [public interface](../api/Netlib/Check/CampusRevocation.html#Netlib.Check.CampusRevocation.complete) state the full assumptions.
 Native kernel correspondence, physical timing, cryptographic correctness, and wireless enforcement remain open.
 
+# TCP transfer through session revocation
+%%%
+tag := "tcp-revocation"
+file := "tcp-revocation"
+%%%
+
+`CampusTCPRevocation.certifyTransfer` checks native startup paths, both reads, seven gateway-transfer controls, and later revocation in one report.
+One whole phased action and service contract retains the original physical loss allowance.
+Four actual installations establish the fixed forward and ingress targets at both gateways.
+Current supported serving operations are checked at every shutdown cut, including the terminal cut.
+These local witnesses do not construct a global scheduler.
+
+The certificate keeps the literal prior transfer and excludes network receipts after actual completion:
+
+```lean
+open Netlib.Check in
+open CampusTCPRevocation in
+example
+    {input : CampusTCPModel.Input}
+    {events : List CampusTCPModel.Event}
+    {report : CampusTCPModel.Report input events}
+    {config : CampusTCPStartupTransferMonitor.Config}
+    {transferEnd triggerCut bound : Nat}
+    (certificate : CertifiedTransfer report config
+      transferEnd triggerCut bound) :
+    (∃ joint : WithTransfer certificate.core.result,
+      joint.prior.transfer.current.report.steps =
+        report.steps.take transferEnd) ∧
+      CampusTCPRevocationReadOrigin.NoReceiptsAfter report
+        certificate.core.result.completion := by
+  obtain ⟨joint⟩ := certificate.transfer
+  exact ⟨⟨joint, joint.history⟩,
+    certificate.core.result.no_receipts_after⟩
+```
+
+The finite case retains startup and transfer through slot 95, Logoff through 102, four installations through 108, and the final old link through 109.
+It ends at 115 with one whole B12 contract and two shared losses.
+Stale permit service keeps its real output and false verdict.
+A later read returns earlier received bytes; ACK ingress and denied retries can remain.
+The [TCP revocation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/TCP_REVOCATION.md) states the native, lifetime, copy, and service assumptions.
+Kernel correspondence, physical timing, cryptography, and wireless enforcement remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

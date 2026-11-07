@@ -251,6 +251,14 @@ It derives the actual handoff, native session geometry, inherited timers, and bo
 Its result identifies the literal completed prefix, absolute deadline, and disjoint startup and data drop identities.
 The [startup recovery guide](TCP_STARTUP_RECOVERY.md) states the raw path, reserve, clock, service, and report-length assumptions.
 
+`Check.CampusTCPRevocation.certifyTransfer` in `CampusTCPRevocationTransfer` checks native startup prerequisites and the prior observed transfer on the same report.
+`WithTransfer.history`, `.streams`, and `.controls` retain its exact prefix, both reads, and seven controls.
+Four checked native installs and actual packet-custody resolution establish the shutdown cutoff under one whole phased action and service contract.
+`CampusTCPRevocationEnabled.check_witness` derives supported current serving operations at every checked shutdown cut, including the terminal cut.
+`Result.future`, `.no_receipts_after`, and `.whole_budget` exclude later link output and network receipts while retaining the original loss allowance.
+`CampusTCPRevocationReadOrigin.Report.read_origin_after_cut` locates the earlier receipt for each later read byte.
+The [TCP revocation guide](TCP_REVOCATION.md) states the selected trace, service, lifetime, copy, and native-refinement limits.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

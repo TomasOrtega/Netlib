@@ -394,10 +394,22 @@ private def continueData (initial : Run input config) (oldService : Nat) : IO (R
   IO.println s!"Startup through transfer: {current.report.steps.length} actual slots, 2 shared drops, 2 startup expiries and 1 data expiry."
   return current
 
-def runInput (source : Check.CampusTCP.Input) : IO Unit := do
+structure Completed where
+  source : Check.CampusTCP.Input
+  config : C.Config
+  events : List M.Event
+  report : M.Report source.model events
+  supported : report.supported = true
+  finished : report.remaining = []
+
+def completedInput (source : Check.CampusTCP.Input) : IO Completed := do
   let config ← load (configuration source)
   let (written, oldService) ← twoTimers source.model config
-  let _ ← continueData written oldService
+  let completed ← continueData written oldService
+  return ⟨source, config, completed.events, completed.report, completed.supported, completed.finished⟩
+
+def runInput (source : Check.CampusTCP.Input) : IO Unit := do
+  let _ ← completedInput source
 
 def run : IO Unit := do
   let source ← load (Check.CampusTCP.Input.parse (← IO.FS.readFile "examples/campus-tcp-transfer/trace.json"))

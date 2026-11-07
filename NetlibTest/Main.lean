@@ -194,6 +194,7 @@ import NetlibTest.CampusTCPStartupRecovery
 import NetlibTest.CampusTCPStartupMonitor
 import NetlibTest.CampusTCPStartupEndToEnd
 import NetlibTest.CampusRevocation
+import NetlibTest.CampusTCPRevocation
 
 open Netlib
 
@@ -383,4 +384,5 @@ def main : IO Unit := do
   NetlibTest.CampusTCPStartupMonitor.run
   NetlibTest.CampusTCPStartupEndToEnd.run
   NetlibTest.CampusRevocation.run
+  NetlibTest.CampusTCPRevocation.run
   IO.println "Netlib tests passed."
