@@ -2993,6 +2993,56 @@ Supplied topology, principal identities, and port bindings must match the deploy
 Kernel execution, live update commands, packets in flight, timing, NAT, signatures, negotiation, and topology confidentiality remain outside this result.
 The [federation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/FEDERATION.md) gives the strict schema, example, and full model boundary.
 
+# A packet through independent updates
+%%%
+tag := "federated-packets"
+file := "federated-packets"
+%%%
+
+`Netlib.Federation.InFlight.checkJson` checks raw packet observations across two independent native update plans.
+The reusable `certify` result covers all selected headers.
+Replay preserves literal actions, immutable packet identity, exact old send stamps, and actual receiver observations.
+Receiver fences guard local updates.
+Endpoint and border anchors stay fixed; internal and enforcement anchors may move coherently.
+
+The computed common history covers every admitted trace and prefix.
+It retains actual held-state witnesses, matched isolation, and separate native PEP visits for each operator.
+Computed ranks cover every enabled control successor.
+Each positive recorded cut has a supported concrete action.
+The service contract does not construct a global scheduler.
+
+The public execution keeps its actual completion cut within both bounds:
+
+```lean
+open Netlib in
+open Federation in
+open InFlight in
+example {input : Input} {profile : Profile}
+    {certificate : Certified input profile}
+    {header : Packet.Header} {actions : List Action}
+    {bound : Nat}
+    (value :
+      CheckedExecution certificate header actions bound) :
+    value.completion ≤ value.report.prefix.length ∧
+      value.completion ≤
+        Progress.deadline
+          (certificate.cellAt header value.accepted)
+          bound :=
+  ⟨value.within, value.deadline⟩
+```
+
+The native case completes after 19 actions with rank 19, service bound 12, and deadline 228.
+The bounded-idle case completes after 38 actions with the same bound and deadline.
+A send at slot 5 retains its old native origin after sender retirement and arrives at slot 7.
+The first completion must occur in recorded data, including when a short service suffix has no complete window.
+The original work budget covers staged native, fence, class, graph, rank, and replay estimates.
+Those estimates are not formal runtime or processor-cycle bounds.
+
+The profile models one fixed-header packet with atomic updates, no loss, no copies, and no NAT.
+It does not prove wire bytes, checksums, TTL, TCP, application delivery, physical time, or live kernel behavior.
+Native commands, source authenticity, cryptographic signatures, negotiation, and topology privacy require separate evidence.
+The [packet update guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/FEDERATED_PACKETS.md) gives the strict schema, native example, and full model boundary.
+
 # Documentation process
 %%%
 tag := "documentation"
