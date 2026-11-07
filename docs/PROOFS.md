@@ -24,6 +24,29 @@ Atomic snapshots, supplied topology and identity bindings, and the fixed-header 
 Kernel execution, live update commands, packets in flight, timing, NAT, signatures, negotiation, and topology confidentiality remain outside this result.
 The [federation guide](FEDERATION.md) states the input schema and full boundary.
 
+## A packet through independent updates
+
+`Federation.InFlight.checkJson` checks raw observations, native plans, retirement fences, all selected header classes, literal replay, and bounded service.
+The finite graph retains every enabled successor and computes ranks for its actual reachable states.
+Positive rank has a supported concrete action at the current cut.
+Completion requires actual endpoint receipt and both final local cursors.
+The selected cut is the first completion within the recorded report and computed deadline.
+A finite service check cannot replace missing completion or add padded slots.
+
+`Safety.common_history` and `prefix_history` cover every accepted header, actual trace, and prefix.
+The computed arrival history has actual held-state witnesses for every public vertex.
+Matched isolation and mediation queries retain exact native operator, revision, and gateway evidence.
+`Report.flight_source` and `arrival_source` identify the actual earlier raw send and its old native origin after sender retirement.
+Endpoint and border anchors stay fixed; internal and enforcement anchors can move under the checked coherence rules.
+
+The native case completes at cut 19 with rank 19 and bound 12; the bounded-idle case completes at 38.
+Both use deadline 228 and the original work budget.
+The admission estimate includes native data, fences, class analysis, graph generation, rank checks, and replay.
+It is not a formal runtime bound.
+The profile covers one fixed-header packet with atomic model updates, no loss, no copies, and no NAT.
+Wire bytes, TCP, application delivery, physical time, live kernel execution, and cryptographic identity remain outside this result.
+The [packet update guide](FEDERATED_PACKETS.md) states the schema, complete example, and full boundary.
+
 ## Native stateful failover
 
 `Protocol.ConntrackReplication` selects a record from a valid source table and checks a collision-free install into another valid table.
