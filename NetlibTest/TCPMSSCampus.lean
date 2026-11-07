@@ -1,4 +1,5 @@
 import Netlib.Check.CampusTCP
+import Netlib.Check.CampusTCPApplicationService
 import Netlib.Protocol.TCP.AdmissionMSSFacts
 
 namespace NetlibTest.TCPMSSCampus
@@ -14,15 +15,25 @@ end F
 private def verify (property : Prop) [Decidable property] (message : String) : Except String { _value : Unit // property } :=
   if accepted : property then .ok ⟨(), accepted⟩ else .error message
 
+private def ordinaryMode (actual : Check.CampusTCPModel.Step input) (served : M.Served input)
+    (present : actual.result.service = some served) :
+    Except String { _value : Unit // served.mode = TCP.AdmissionExecution.Mode.ordinary } := do
+  match connection : actual.before.connection with
+  | .recovering .. => throw "The selected service is still in startup recovery."
+  | .startup .. | .application .. =>
+    have selected := Check.CampusTCPOrigins.service_mode actual served present
+    return ⟨(), by simpa only [connection, Check.CampusTCPModel.Connection.admissionMode] using selected⟩
+
 structure DataService (report : M.Report input events) (time : Nat) (gateway : M.Gateway)
     (direction : FlowNAT.Direction) (size : Nat) where
   joint : F.At report time
   served : M.Served input
   present : joint.step.result.service = some served
   gatewayEq : served.ticket.value.gateway = gateway
+  ordinary : served.mode = TCP.AdmissionExecution.Mode.ordinary
   processing : Check.CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
     served.before served.ticket.value.source input.zone
-  selected : served.evidence.processing = some processing
+  selected : (Check.CampusTCPApplicationService.ordinaryEvidence served.evidence ordinary).processing = some processing
   session : TCP.Admission.Session
   phase : served.before.admission.phase = .data session
   directionEq : processing.prepared.attachment.direction = direction
@@ -61,7 +72,8 @@ private def dataService (report : M.Report input events) (time : Nat) (gateway :
   | none => throw "The selected data operation has no actual gateway service."
   | some served =>
     let gatewayEq ← verify (served.ticket.value.gateway = gateway) "The data service used a different gateway."
-    match selected : served.evidence.processing with
+    let ordinary ← ordinaryMode joint.step served present
+    match selected : (Check.CampusTCPApplicationService.ordinaryEvidence served.evidence ordinary.property).processing with
     | none => throw "The selected data service has no actual transport computation."
     | some processing =>
       match phase : served.before.admission.phase with
@@ -75,7 +87,7 @@ private def dataService (report : M.Report input events) (time : Nat) (gateway :
         | some emission =>
           let updated ← verify ((joint.step.result.state.resident gateway).transport.same
             ⟨processing.outcome.state, processing.nextAdmission⟩ = true) "The service state differs from its actual commit."
-          return ⟨joint, served, present, gatewayEq.property, processing, selected, session, phase,
+          return ⟨joint, served, present, gatewayEq.property, ordinary.property, processing, selected, session, phase,
             directionEq.property, sizeEq.property, clientOffer.property, serverOffer.property, emission, emitted,
             (TCP.Checkpoint.Gateway.same_correct _ _).mp updated.property⟩
       | _ => throw "The selected data service has no established gateway history."

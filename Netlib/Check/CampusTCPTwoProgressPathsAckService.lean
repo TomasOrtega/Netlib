@@ -70,7 +70,7 @@ private theorem acknowledged_after (live : Live initial current sent timeouts re
     (within : initial.geometry.«prefix» + count ≤ (live.gatewayState.gateway.session.lane sender.direction).observed)
     (oldAck : (live.gatewayState.gateway.session.lane sender.direction).acknowledged ≤ initial.geometry.«prefix» + count) :
     (view.gateway.session.lane sender.direction).acknowledged = initial.geometry.«prefix» + count := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   have previous : served.before = beforeService input current.report.final gateway := by
     rw [value.facts.current, value.selected]
   let selected := processingAt processing previous
@@ -84,7 +84,7 @@ private theorem acknowledged_after (live : Live initial current sent timeouts re
     cases sender <;> rfl
   have phase : selected.admitted.state.phase = .data view.gateway.session := by
     have phase := view.gateway.phase
-    rw [value.after_before processing present] at phase
+    rw [value.after_ordinary_before processing present] at phase
     change processing.nextAdmission.phase = .data view.gateway.session at phase
     rw [← processingAt_admission processing previous,
       CampusTCPRoundAdmission.Processing.committed_data selected live.gatewayState.gateway.session live.gatewayState.gateway.phase] at phase

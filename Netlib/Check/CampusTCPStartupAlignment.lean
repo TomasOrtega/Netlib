@@ -1,5 +1,7 @@
 import Netlib.Check.CampusTCPFacts
 import Netlib.Protocol.TCP.AdmissionMSSFacts
+import Netlib.Protocol.TCP.AdmissionExecutionControlFacts
+import Netlib.Check.CampusTCPStartupProductionFacts
 
 /-!
 # Endpoint and gateway alignment after actual startup
@@ -49,8 +51,8 @@ namespace Netlib.Check.CampusTCPService
 
 open Protocol
 
-theorem Evidence.processing_states (value : Evidence context before source zone ingress)
-    (processing : Processing context before source zone) (selected : value.processing = some processing) :
+theorem Evidence.processing_states (value : Evidence context before source zone ingress mode)
+    (processing : Processing context before source zone mode) (selected : value.processing = some processing) :
     value.tracker = processing.outcome.state ∧ value.admission = processing.nextAdmission := by
   cases operation : value.operation with
   | earlyDrop denied => simp only [Evidence.processing, operation] at selected; cases selected
@@ -59,10 +61,10 @@ theorem Evidence.processing_states (value : Evidence context before source zone 
     subst actual
     exact ⟨by simp only [Evidence.tracker, operation], by simp only [Evidence.admission, operation]⟩
 
-theorem Processing.output_committed (value : Processing context before source zone)
+theorem Processing.output_committed (value : Processing context before source zone mode)
     (emission : W.Emission source.packet) (output : value.outcome.output = some emission) :
-    value.nextAdmission = value.admitted.state := by
-  rcases TCP.Admission.commit_cases value.admitted value.outcome.state _ value.committed with
+    value.nextAdmission = TCP.AdmissionExecution.Result.state value.admitted := by
+  rcases TCP.AdmissionExecution.commit_cases (mode := mode) value.admitted value.outcome.state _ value.committed with
     same | ⟨_, fresh, absent⟩
   · exact same.1
   · obtain ⟨model, processed, same, emitted, _⟩ := TCP.WireForwarding.process_output
@@ -77,7 +79,7 @@ theorem Processing.output_committed (value : Processing context before source zo
       simp
     simp [confirmed] at absent
 
-theorem Processing.fresh_output_records (value : Processing context before source zone)
+theorem Processing.fresh_output_records (value : Processing context before source zone mode)
     (emission : W.Emission source.packet) (output : value.outcome.output = some emission)
     (fresh : value.prepared.attachment.fresh = true) :
     value.outcome.state.records = before.tracker.records ++ [⟨value.prepared.attachment.entry, false⟩] := by
@@ -89,14 +91,14 @@ theorem Processing.fresh_output_records (value : Processing context before sourc
   change model.state.records = _
   rw [records, prior]
 
-theorem Processing.output_target (value : Processing context before source zone)
+theorem Processing.output_target (value : Processing context before source zone mode)
     (emission : W.Emission source.packet) (output : value.outcome.output = some emission) :
     emission.target = value.prepared.attachment.entry.flow.output value.prepared.attachment.direction := by
   obtain ⟨model, processed, _, emitted, _⟩ := TCP.WireForwarding.process_output
     _ _ source.valid value.prepared value.outcome value.computed emission output
   exact ConntrackLifecycle.process_output _ _ model _ processed emitted
 
-theorem Processing.existing_state (value : Processing context before source zone)
+theorem Processing.existing_state (value : Processing context before source zone mode)
     (existing : value.prepared.attachment.fresh = false) : value.outcome.state = value.prepared.state := by
   apply TCP.WireForwarding.process_existing_state _ _ source.valid value.prepared value.outcome value.computed
   rw [TCP.WireForwarding.process_attachment _ _ source.valid value.prepared value.outcome value.computed]
@@ -170,6 +172,50 @@ theorem startup_inbound {input : M.Input} (complete : TCPHandshake.Completed inp
   · simp only [TCP.HandshakeExchange.Complete.passiveSeed, complete.certificate.passive.derived,
       TCP.Handshake.passiveSeed, complete.certificate.pending_fields.2.2.2]
 
+private theorem source_in_service_prefix
+    (value : CampusTCPFacts.StartupDelivery (input := input) report time actor packet kind) :
+    ∃ prior, CampusTCPModel.Trace input input.initial (prior.map (·.event)) prior value.service.joint.step.before [] ∧
+      ∃ producer ∈ prior, producer.result.output = some value.receive.receipt.served.ticket.value.produced := by
+  obtain ⟨prior, later, history, preceding, _, _⟩ :=
+    CampusTCPFacts.step_origin report value.service.joint.step value.service.joint.member
+  have pending : value.receive.receipt.served.ticket ∈ value.service.joint.step.before.work.pending := by
+    rw [value.service.ticket]
+    exact value.service.completed.member
+  rcases CampusTCPOrigins.Trace.pending_origin preceding value.receive.receipt.served.ticket pending with old | created
+  · simp only [CampusTCPModel.Input.initial, Theory.Outstanding.State.initial, List.not_mem_nil] at old
+  · obtain ⟨assignment, index, ingress, produced, member, event, selected, exactItem, _⟩ := created
+    obtain ⟨first, rest, split, prefixTrace⟩ := CampusTCPFacts.Trace.preceding preceding assignment member
+    rcases CampusTCPOrigins.Trace.outputs_origin prefixTrace produced (List.mem_of_getElem? selected) with old | created
+    · simp only [CampusTCPModel.Input.initial, List.not_mem_nil] at old
+    · obtain ⟨producer, member, emitted, _, _⟩ := created
+      have sameProduced : value.receive.receipt.served.ticket.value.produced = produced := by rw [exactItem]; rfl
+      refine ⟨prior, preceding, producer, ?_, ?_⟩
+      · rw [split]
+        exact List.mem_append_left _ member
+      · rw [sameProduced]
+        exact emitted
+
+private theorem startup_service_ordinary
+    (value : CampusTCPFacts.StartupDelivery (input := input) report time actor packet kind)
+    (notSyn : kind ≠ .syn) : value.receive.receipt.served.mode = .ordinary := by
+  rw [CampusTCPOrigins.service_mode value.service.joint.step value.receive.receipt.served value.service.present]
+  cases connected : value.service.joint.step.before.connection with
+  | startup stage pending => rfl
+  | application complete endpoints => rfl
+  | recovering current =>
+    obtain ⟨prior, preceding, producer, member, emitted⟩ := source_in_service_prefix value
+    have opens := CampusTCPStartupOrigins.Trace.recovering_startup_opens preceding rfl connected
+    have kindEq := value.sourceKind
+    cases produced : value.receive.receipt.served.ticket.value.produced with
+    | startup actual output present =>
+      have recorded := CampusTCPStartupProductionFacts.Step.startup_output_recorded producer actual output present
+        (by simpa only [produced] using emitted)
+      obtain ⟨remote, policy, event⟩ := opens actual (List.mem_filterMap.mpr ⟨producer, member, recorded⟩)
+      simp only [produced, CampusTCPFacts.startupKind, event, Option.some.injEq] at kindEq
+      exact False.elim (notSyn kindEq.symm)
+    | application actor actual output origin | recovery actual occurrence present =>
+      simp only [produced, CampusTCPFacts.startupKind, reduceCtorEq] at kindEq
+
 theorem Slice.lanes (history : CampusTCPFacts.StartupHistory (input := input) report complete)
     (slice : Slice history) :
     ∃ entry session,
@@ -185,7 +231,8 @@ theorem Slice.lanes (history : CampusTCPFacts.StartupHistory (input := input) re
       session.serverMSS = TCP.Handshake.receiveOffer input.passive ∧
       ∃ syn : CampusTCPService.Processing
           (input.contextFor history.syn.receive.receipt.served.ticket.value.gateway)
-          history.syn.receive.receipt.served.before history.syn.receive.receipt.served.ticket.value.source input.zone,
+          history.syn.receive.receipt.served.before history.syn.receive.receipt.served.ticket.value.source input.zone
+          history.syn.receive.receipt.served.mode,
         history.syn.receive.receipt.served.evidence.processing = some syn ∧ entry = syn.prepared.attachment.entry := by
   obtain ⟨syn, synSelected, synOutput⟩ := history.syn.receive.receipt.served.evidence.processed_of_output
     history.syn.receive.receipt.emission history.syn.receive.receipt.emitted
@@ -199,14 +246,19 @@ theorem Slice.lanes (history : CampusTCPFacts.StartupHistory (input := input) re
   have synCommitted := syn.output_committed _ synOutput
   have synAckCommitted := synAck.output_committed _ synAckOutput
   have ackCommitted := ack.output_committed _ ackOutput
-  obtain ⟨clientMSS, clientSelected, synPhase⟩ := syn.admitted.learned_syn slice.emptyAdmission
+  have synAckOrdinary := startup_service_ordinary history.synAck (by decide)
+  have ackOrdinary := startup_service_ordinary history.ack (by decide)
+  obtain ⟨clientMSS, clientSelected, synPhase⟩ := TCP.AdmissionExecution.Result.learned_syn syn.admitted slice.emptyAdmission
   have synAckBefore : history.synAck.receive.receipt.served.before.admission.phase =
       .syn syn.prepared.attachment.entry
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.sequence
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.window clientMSS := by
     rw [slice.synAckAdmission, synStates.2, synCommitted]
     exact synPhase
-  obtain ⟨serverMSS, serverSelected, synAckPhase⟩ := synAck.admitted.learned_synAck synAckBefore
+  obtain ⟨serverMSS, serverSelected, synAckPhase⟩ := TCP.Admission.Result.learned_synAck
+    (TCP.AdmissionExecution.Result.asLegacy synAck.admitted
+      (TCP.AdmissionExecution.Result.ordinary_legacy synAck.admitted synAckOrdinary)) synAckBefore
+  rw [TCP.AdmissionExecution.Result.asLegacy_state] at synAckPhase
   have ackBefore : history.ack.receive.receipt.served.before.admission.phase =
       .synAck syn.prepared.attachment.entry
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.sequence
@@ -215,7 +267,10 @@ theorem Slice.lanes (history : CampusTCPFacts.StartupHistory (input := input) re
         history.synAck.receive.receipt.served.ticket.value.source.packet.segment.window clientMSS serverMSS := by
     rw [slice.ackAdmission, synAckStates.2, synAckCommitted]
     exact synAckPhase
-  obtain ⟨session, phase, entry, original, reply, client, server⟩ := ack.admitted.established_lanes ackBefore
+  obtain ⟨session, phase, entry, original, reply, client, server⟩ := TCP.Admission.Result.established_lanes
+    (TCP.AdmissionExecution.Result.asLegacy ack.admitted
+      (TCP.AdmissionExecution.Result.ordinary_legacy ack.admitted ackOrdinary)) ackBefore
+  rw [TCP.AdmissionExecution.Result.asLegacy_state] at phase
   have synPacket := history.syn.receive.same.trans history.syn.packet
   have synAckPacket := history.synAck.receive.same.trans history.synAck.packet
   have ackPacket := history.ack.receive.same.trans history.ack.packet
@@ -295,23 +350,28 @@ theorem Slice.aligned (history : CampusTCPFacts.StartupHistory (input := input) 
   have ackStates := history.ack.receive.receipt.served.evidence.processing_states ack ackSelected
   have synCommitted := syn.output_committed _ synOutput
   have synAckCommitted := synAck.output_committed _ synAckOutput
-  have synAllowed := syn.admitted.admitted
+  have synAckOrdinary := startup_service_ordinary history.synAck (by decide)
+  have ackOrdinary := startup_service_ordinary history.ack (by decide)
+  have synAllowed := TCP.AdmissionExecution.Result.legacy_empty syn.admitted slice.emptyAdmission
   rw [slice.emptyAdmission] at synAllowed
   have synFresh : syn.prepared.attachment.fresh = true := synAllowed.1
   have synDirection : syn.prepared.attachment.direction = .original := synAllowed.2.1
-  obtain ⟨clientOffer, _, synPhase⟩ := syn.admitted.learned_syn slice.emptyAdmission
+  obtain ⟨clientOffer, _, synPhase⟩ := TCP.AdmissionExecution.Result.learned_syn syn.admitted slice.emptyAdmission
   have synAckBefore : history.synAck.receive.receipt.served.before.admission.phase =
       .syn syn.prepared.attachment.entry
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.sequence
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.window clientOffer := by
     rw [slice.synAckAdmission, synStates.2, synCommitted]
     exact synPhase
-  have synAckAllowed := synAck.admitted.admitted
+  have synAckAllowed := TCP.AdmissionExecution.Result.ordinary_legacy synAck.admitted synAckOrdinary
   rw [synAckBefore] at synAckAllowed
   have synAckEntry : synAck.prepared.attachment.entry = entry := synAckAllowed.1.trans synEntry.symm
   have synAckFresh : synAck.prepared.attachment.fresh = false := synAckAllowed.2.1
   have synAckDirection : synAck.prepared.attachment.direction = .reply := synAckAllowed.2.2.1
-  obtain ⟨serverOffer, _, synAckPhase⟩ := synAck.admitted.learned_synAck synAckBefore
+  obtain ⟨serverOffer, _, synAckPhase⟩ := TCP.Admission.Result.learned_synAck
+    (TCP.AdmissionExecution.Result.asLegacy synAck.admitted
+      (TCP.AdmissionExecution.Result.ordinary_legacy synAck.admitted synAckOrdinary)) synAckBefore
+  rw [TCP.AdmissionExecution.Result.asLegacy_state] at synAckPhase
   have ackBefore : history.ack.receive.receipt.served.before.admission.phase =
       .synAck syn.prepared.attachment.entry
         history.syn.receive.receipt.served.ticket.value.source.packet.segment.sequence
@@ -320,7 +380,7 @@ theorem Slice.aligned (history : CampusTCPFacts.StartupHistory (input := input) 
         history.synAck.receive.receipt.served.ticket.value.source.packet.segment.window clientOffer serverOffer := by
     rw [slice.ackAdmission, synAckStates.2, synAckCommitted]
     exact synAckPhase
-  have ackAllowed := ack.admitted.admitted
+  have ackAllowed := TCP.AdmissionExecution.Result.ordinary_legacy ack.admitted ackOrdinary
   rw [ackBefore] at ackAllowed
   have ackEntry : ack.prepared.attachment.entry = entry := ackAllowed.1.trans synEntry.symm
   have ackFresh : ack.prepared.attachment.fresh = false := ackAllowed.2.1

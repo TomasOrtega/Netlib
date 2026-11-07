@@ -197,8 +197,9 @@ private theorem application_read (before : State input) (actor : Actor) (event :
     | (cases computed)
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
-  simp only [unsupported] at recorded
-  cases recorded
+  all_goals
+    simp only [unsupported] at recorded
+    cases recorded
 
 private def ackMove (current : Cut input complete) (actual : Step input)
     (facts : CampusTCPRoundAck.AckFacts current.report.final complete current.endpoints sender.other actual) : Move current actual :=

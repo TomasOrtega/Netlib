@@ -18,12 +18,7 @@ variable {input : Input} {complete : H.Completed input.active input.passive}
 variable {cut current : Cut input complete} {gateway : Gateway}
 
 def retain_basis (basis : StartupBasis cut) (retained : cut.report.steps <+: current.report.steps) : StartupBasis current :=
-  { basis with
-    retained := by
-      obtain ⟨earlier, before⟩ := basis.retained
-      have old : basis.report.steps <+: cut.report.steps := ⟨earlier, before.symm⟩
-      obtain ⟨later, after⟩ := old.trans retained
-      exact ⟨later, after.symm⟩ }
+  CampusTCPStartupBasis.Basis.retain basis retained
 
 def gateway_start {basis : StartupBasis cut} {start : GatewayStart cut basis gateway}
     (value : CampusTCPTwoProgressGateway.Current start current)

@@ -1,5 +1,6 @@
 import Netlib.Check.CampusTCPCustodyFacts
 import Netlib.Check.CampusTCPServiceEnabled
+import Netlib.Check.CampusTCPStartupServiceEnabled
 
 /-!
 # Campus gateway service from pending work
@@ -17,6 +18,21 @@ variable {input : Input}
 def ServicePhaseReady (before : State input) (gateway : Gateway) : Prop :=
   (gateway = .primary → before.primarySealed = false ∧ before.primaryFenced = false) ∧
     (gateway = .standby → before.assignmentPaused = false ∧ before.installation.isSome = true)
+
+private def existingData_admission (ready : CampusTCPService.ExistingDataReady context before source zone ingress hit session hop)
+    (mode : Protocol.TCP.AdmissionExecution.Mode) :
+    CampusTCPService.ExistingAdmissionReady context before source zone ingress hit hop mode := by
+  refine ⟨ready.checks, ready.budget, ready.ingressPermit, ready.tracker, ?_, ready.ttl,
+    ready.forwardComparison, ready.guardComparison, ready.covered⟩
+  intro record member same
+  have allowed : Protocol.TCP.Admission.Allowed before.admission.phase
+      (Protocol.ConntrackLifecycle.selectedAttachment record hit.direction) source.packet.segment before.admission.observations := by
+    rw [ready.phase]
+    exact Protocol.TCP.Admission.DataReady.allowed session _ source.packet.segment before.admission.observations
+      (ready.binding record member same) rfl ready.data
+  cases mode with
+  | ordinary => exact allowed
+  | startupRecovery => exact Or.inl allowed
 
 theorem serve_enabled (before : State input) (item : Theory.Outstanding.Item (Ticket input.active input.passive))
     (valid : before.work.Valid) (member : item ∈ before.work.pending)
@@ -41,11 +57,12 @@ theorem serve_enabled (before : State input) (item : Theory.Outstanding.Item (Ti
     rw [selected]
     exact ready
   obtain ⟨evidence, emission, computed, emitted, passed, _, _, processing, processingAt, nextHop⟩ :=
-    CampusTCPService.run_existing_enabled (input.contextFor completed.item.value.gateway)
+    CampusTCPService.run_existing_admission_enabled (input.contextFor completed.item.value.gateway)
       (beforeService input before completed.item.value.gateway) completed.item.value.source input.zone
-      completed.item.value.ingress hit session completed.item.value.produced.actor.nextHop readySelected
+      completed.item.value.ingress hit completed.item.value.produced.actor.nextHop
+      (existingData_admission readySelected before.connection.admissionMode)
   let served : Served input := ⟨before.time, completed.item,
-    beforeService input before completed.item.value.gateway, evidence, computed, true⟩
+    beforeService input before completed.item.value.gateway, before.connection.admissionMode, evidence, computed, true⟩
   have route : served.routeMatched = true := by
     simp only [Served.routeMatched, served, processingAt]
     split

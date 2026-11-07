@@ -12,7 +12,7 @@ export Check.CampusTCPTransferFacts (assure checkpoint_origin installation_origi
 end F
 
 def serverSent : Check.CampusTCPModel.Connection active passive → Option (List UInt8)
-  | .startup .. => none
+  | .startup .. | .recovering .. => none
   | .application _ endpoints => some endpoints.server.current.core.sent
 
 structure Demonstration (input : Check.CampusTCP.Input) where

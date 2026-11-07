@@ -249,6 +249,9 @@ private theorem evaluate_signature (state : Endpoint.State) (event : Application
   | enableRecovery =>
     simp only [ApplicationTrace.evaluate, Endpoint.enableRecovery]
     repeat' first | (solve | rfl) | (solve | unfold Endpoint.recoveryBlocked; split <;> rfl) | split
+  | enableStartupRecovery data =>
+    simp only [ApplicationTrace.evaluate, Endpoint.enableStartupRecovery]
+    repeat' first | (solve | rfl) | (solve | unfold Endpoint.recoveryBlocked; split <;> rfl) | split
   | advanceClock millis =>
     simp only [ApplicationTrace.evaluate, Endpoint.advanceClock]
     repeat' first

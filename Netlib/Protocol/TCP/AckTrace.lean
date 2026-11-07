@@ -224,7 +224,7 @@ theorem request_source (step : A.Step) (demand : AckReaction.Demand) (delay : Na
     have consumed : readRequest step.before step.result = some (demand, delay) := by
       simpa only [request, event] using selected
     exact .inr ⟨count, rfl, readRequest_kind _ _ _ _ consumed⟩
-  | write _ | send _ _ | emitAck _ | dispatchAck _ | timeout _ | advanceClock _ | enableAck | enableRecovery =>
+  | write _ | send _ _ | emitAck _ | dispatchAck _ | timeout _ | advanceClock _ | enableAck | enableRecovery | enableStartupRecovery _ =>
     simp [request, event] at selected
 
 theorem output_fields (result : Endpoint.Result) (metadata : AckReaction.Acknowledgment)
@@ -309,7 +309,7 @@ theorem request_delay (step : A.Step) (demand : AckReaction.Demand) (delay : Nat
   cases event : step.event with
   | receive input => exact receiveRequest_delay _ _ _ _ _ (by simpa only [request, event] using selected)
   | read count => exact readRequest_delay _ _ _ _ (by simpa only [request, event] using selected)
-  | write _ | send _ _ | emitAck _ | dispatchAck _ | timeout _ | advanceClock _ | enableAck | enableRecovery =>
+  | write _ | send _ _ | emitAck _ | dispatchAck _ | timeout _ | advanceClock _ | enableAck | enableRecovery | enableStartupRecovery _ =>
     simp [request, event] at selected
 
 theorem request_none_of_origin (origin : ApplicationTrace.OutputOrigin step packet) :

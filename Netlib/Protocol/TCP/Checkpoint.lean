@@ -1,4 +1,4 @@
-import Netlib.Protocol.TCP.Admission
+import Netlib.Protocol.TCP.AdmissionExecution
 import Netlib.Protocol.TCP.WireForwarding
 
 /-!
@@ -18,6 +18,9 @@ end C
 namespace A
 export Netlib.Protocol.TCP.Admission (State Lane Seen Phase)
 end A
+namespace X
+export Netlib.Protocol.TCP.AdmissionExecution (Mode Result step commit)
+end X
 namespace W
 export Netlib.Protocol.TCP.WireForwarding (Input Outcome)
 end W
@@ -107,19 +110,19 @@ structure Request where
 def Request.wire (request : Request) : W.Input :=
   ⟨request.zone, request.source.packet, request.candidate⟩
 
-structure Transition (before : Gateway) where
+structure Transition (before : Gateway) (mode : X.Mode := .ordinary) where
   request : Request
   pipeline : C.Pipeline
   prepared : C.Prepared request.wire.lifecycle
   attached : C.prepare before.tracker request.wire.lifecycle = .ok prepared
-  admitted : Admission.Result before.admission request.source request.wire.lifecycle prepared
-  admissionComputed : Admission.step before.admission request.source request.wire.lifecycle prepared rfl = .ok admitted
+  admitted : X.Result mode before.admission request.source request.wire.lifecycle prepared
+  admissionComputed : X.step mode before.admission request.source request.wire.lifecycle prepared rfl = .ok admitted
   outcome : W.Outcome request.source.packet
   computed : WireForwarding.process pipeline request.wire request.source.valid prepared = .ok outcome
   nextAdmission : A.State
-  committed : Admission.commit admitted outcome.state = .ok nextAdmission
+  committed : X.commit admitted outcome.state = .ok nextAdmission
 
-def Transition.after (transition : Transition before) : Gateway :=
+def Transition.after (transition : Transition before mode) : Gateway :=
   ⟨transition.outcome.state, transition.nextAdmission⟩
 
 inductive Error where
@@ -145,23 +148,24 @@ def Error.message : Error → String
   | .staleCut => "The source transition cut changed after checkpoint capture."
   | .occupiedTarget => "The selected target tracker and TCP history must be empty."
 
-def run (before : Gateway) (pipeline : C.Pipeline) (request : Request) : Except Error (Transition before) := do
+def run (before : Gateway) (pipeline : C.Pipeline) (request : Request) (mode : X.Mode := .ordinary) :
+    Except Error (Transition before mode) := do
   match attached : C.prepare before.tracker request.wire.lifecycle with
   | .error reason => throw (.tracker reason)
   | .ok prepared =>
-    match admitted : Admission.step before.admission request.source request.wire.lifecycle prepared rfl with
+    match admitted : X.step mode before.admission request.source request.wire.lifecycle prepared rfl with
     | .error reason => throw (.admission reason)
     | .ok admission =>
       match computed : WireForwarding.process pipeline request.wire request.source.valid prepared with
       | .error reason => throw (.tracker reason)
       | .ok outcome =>
-        match committed : Admission.commit admission outcome.state with
+        match committed : X.commit admission outcome.state with
         | .error reason => throw (.admission reason)
         | .ok nextAdmission =>
           return ⟨request, pipeline, prepared, attached, admission, admitted, outcome, computed, nextAdmission, committed⟩
 
-theorem Transition.replay (transition : Transition before) :
-    run before transition.pipeline transition.request = .ok transition := by
+theorem Transition.replay (transition : Transition before mode) :
+    run before transition.pipeline transition.request mode = .ok transition := by
   unfold run
   split
   · rename_i reason failed
@@ -196,7 +200,7 @@ theorem Transition.replay (transition : Transition before) :
 
 inductive History : Gateway → Type where
   | initial : History Gateway.initial
-  | advance (history : History before) (transition : Transition before) : History transition.after
+  | advance {mode : X.Mode} (history : History before) (transition : Transition before mode) : History transition.after
 
 def History.length : History gateway → Nat
   | .initial => 0
@@ -351,10 +355,20 @@ theorem Installation.admission_continuation (installation : Installation snapsho
   rw [installation.admission]
   exact ⟨admitted, computed, rfl⟩
 
+theorem Installation.admission_continuation_mode (installation : Installation snapshot sourceHistory target)
+    (mode : X.Mode) (request : Request) (prepared : C.Prepared request.wire.lifecycle)
+    (admitted : X.Result mode snapshot.source.admission request.source request.wire.lifecycle prepared)
+    (computed : X.step mode snapshot.source.admission request.source request.wire.lifecycle prepared rfl = .ok admitted) :
+    ∃ continued : X.Result mode installation.state.admission request.source request.wire.lifecycle prepared,
+      X.step mode installation.state.admission request.source request.wire.lifecycle prepared rfl = .ok continued ∧
+      AdmissionExecution.Result.state continued = AdmissionExecution.Result.state admitted := by
+  rw [installation.admission]
+  exact ⟨admitted, computed, rfl⟩
+
 theorem Installation.continuation (installation : Installation snapshot sourceHistory target)
-    (transition : Transition snapshot.source) :
-    ∃ continued : Transition installation.state,
-      run installation.state transition.pipeline transition.request = .ok continued ∧
+    (transition : Transition snapshot.source mode) :
+    ∃ continued : Transition installation.state mode,
+      run installation.state transition.pipeline transition.request mode = .ok continued ∧
       continued.after = transition.after ∧ HEq continued.outcome transition.outcome := by
   rw [installation.copied]
   exact ⟨transition, transition.replay, rfl, HEq.rfl⟩

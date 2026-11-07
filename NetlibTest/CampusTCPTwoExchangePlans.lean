@@ -227,7 +227,7 @@ private def runLeg (witness : I.Witness report count sender gateway lower upper)
 
 private def writeFits (state : M.State input) (actor : M.Actor) (bytes : List UInt8) : Prop :=
   match state.connection with
-  | .startup .. => False
+  | .startup .. | .recovering .. => False
   | .application _ endpoints =>
     (Check.CampusTCPEnabled.endpoint endpoints actor).pending.length + bytes.length ≤
       (Check.CampusTCPEnabled.endpoint endpoints actor).pendingLimit

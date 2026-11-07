@@ -192,9 +192,9 @@ private theorem append_ack (prior : Prefix input events complete) (actor : Actor
   · rfl
   · cases actor
     · simp only [processCore, CampusTCPModel.enableAck, prior.connection, prior.clientBefore,
-        Bool.or_true, ↓reduceIte]
+        Bool.or_true, Bool.true_or, ↓reduceIte]
     · simp only [processCore, CampusTCPModel.enableAck, prior.connection, prior.serverBefore,
-        Bool.or_true, ↓reduceIte]
+        Bool.or_true, Bool.true_or, ↓reduceIte]
   · rfl
 
 private theorem append_write (prior : Prefix input events complete) (bytes : List UInt8)

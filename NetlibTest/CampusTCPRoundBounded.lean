@@ -33,6 +33,7 @@ def check (startup : M.Report input startupEvents) (supported : startup.supporte
     (enough : 9 * bound ≤ steps.length) : IO Unit := do
   match connection : startup.final.connection with
   | .startup .. => throw (IO.userError "The bounded initial prefix must complete startup.")
+  | .recovering .. => throw (IO.userError "The ordinary test prefix entered recovery.")
   | .application complete endpoints =>
     let clientEmpty ← load (T.verify (endpoints.client.steps = []) "The bounded initial client has prior operations.")
     let serverEmpty ← load (T.verify (endpoints.server.steps = []) "The bounded initial server has prior operations.")

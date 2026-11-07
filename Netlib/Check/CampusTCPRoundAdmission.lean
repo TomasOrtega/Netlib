@@ -229,15 +229,23 @@ theorem DataGeometry.covering_ack_retirement (dataGeometry : DataGeometry initia
     ackGeometry.reply, ackGeometry.entry.trans dataGeometry.entry,
     ackGeometry.clientMSS.trans dataGeometry.clientMSS, ackGeometry.serverMSS.trans dataGeometry.serverMSS⟩
 
-theorem Processing.committed_data (processing : CampusTCPService.Processing context before source zone)
+theorem Processing.existing_data (processing : CampusTCPService.Processing context before source zone mode)
     (session : Admission.Session) (phase : before.admission.phase = .data session) :
-    processing.nextAdmission = processing.admitted.state := by
-  have allowed : Allowed (.data session) processing.prepared.attachment source.packet.segment before.admission.observations := by
-    simpa only [phase, WireForwarding.Source.asInput] using processing.admitted.admitted
-  have existing : processing.prepared.attachment.fresh = false := allowed.2.1
-  exact (processing.admitted.existing_committed _ existing _ processing.committed).1
+    processing.prepared.attachment.fresh = false := by
+  cases fresh : processing.prepared.attachment.fresh with
+  | false => rfl
+  | true =>
+    have empty := AdmissionExecution.Result.fresh_phase processing.admitted fresh
+    rw [phase] at empty
+    cases empty
 
-theorem Processing.original_empty_geometry (processing : CampusTCPService.Processing context before source zone)
+theorem Processing.committed_data (processing : CampusTCPService.Processing context before source zone mode)
+    (session : Admission.Session) (phase : before.admission.phase = .data session) :
+    processing.nextAdmission = AdmissionExecution.state processing.admitted := by
+  exact (AdmissionExecution.Result.existing_committed processing.admitted _
+    (Processing.existing_data processing session phase) _ processing.committed).1
+
+theorem Processing.original_empty_geometry (processing : CampusTCPService.Processing context before source zone mode)
     (session : Admission.Session) (phase : before.admission.phase = .data session)
     (direction : processing.prepared.attachment.direction = .original)
     (originalCoverage : session.original.coverage = Coverage.initial)
@@ -251,11 +259,13 @@ theorem Processing.original_empty_geometry (processing : CampusTCPService.Proces
     (epoch : source.packet.segment.payload.length + 2 < Seq.halfSpace) :
     ∃ after : Admission.Session, processing.nextAdmission.phase = .data after ∧
       DataGeometry session after source.packet.segment before.admission.observations.length := by
-  obtain ⟨after, phaseAfter, geometry⟩ := Result.original_empty_geometry processing.admitted session phase direction
+  obtain ⟨after, phaseAfter, geometry⟩ := Result.original_empty_geometry (AdmissionExecution.Result.dataLegacy processing.admitted phase profile) session phase direction
     originalCoverage originalAck replyCoverage replyAck sequence acknowledgment profile nonempty mss window epoch
-  exact ⟨after, by rw [Processing.committed_data processing session phase]; exact phaseAfter, geometry⟩
+  have actualPhase := (congrArg Admission.State.phase
+    (AdmissionExecution.Result.dataLegacy_state processing.admitted phase profile)).symm.trans phaseAfter
+  exact ⟨after, by rw [Processing.committed_data processing session phase]; exact actualPhase, geometry⟩
 
-theorem Processing.reply_covering_geometry (processing : CampusTCPService.Processing context before source zone)
+theorem Processing.reply_covering_geometry (processing : CampusTCPService.Processing context before source zone mode)
     (session : Admission.Session) (phase : before.admission.phase = .data session)
     (direction : processing.prepared.attachment.direction = .reply)
     (geometry : DataGeometry prior session data dataSource)
@@ -264,13 +274,15 @@ theorem Processing.reply_covering_geometry (processing : CampusTCPService.Proces
     (acknowledgment : source.packet.segment.acknowledgment = prior.original.base.add data.payload.length) :
     ∃ after : Admission.Session, processing.nextAdmission.phase = .data after ∧
       AckGeometry session after source.packet.segment := by
-  obtain ⟨after, phaseAfter, acknowledged⟩ := Result.reply_covering_geometry processing.admitted session phase direction
+  obtain ⟨after, phaseAfter, acknowledged⟩ := Result.reply_covering_geometry (AdmissionExecution.Result.dataLegacy processing.admitted phase profile) session phase direction
     geometry profile empty sequence acknowledgment
-  exact ⟨after, by rw [Processing.committed_data processing session phase]; exact phaseAfter, acknowledged⟩
+  have actualPhase := (congrArg Admission.State.phase
+    (AdmissionExecution.Result.dataLegacy_state processing.admitted phase profile)).symm.trans phaseAfter
+  exact ⟨after, by rw [Processing.committed_data processing session phase]; exact actualPhase, acknowledged⟩
 
 theorem Evidence.state_of_processing
-    (evidence : CampusTCPService.Evidence context before source zone ingress)
-    (processing : CampusTCPService.Processing context before source zone)
+    (evidence : CampusTCPService.Evidence context before source zone ingress mode)
+    (processing : CampusTCPService.Processing context before source zone mode)
     (present : evidence.processing = some processing) :
     evidence.tracker = processing.outcome.state ∧ evidence.admission = processing.nextAdmission := by
   cases selected : evidence.operation with

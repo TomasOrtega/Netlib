@@ -1,3 +1,4 @@
+import Netlib.Check.CampusTCPApplicationService
 import Netlib.Check.CampusTCPRecoveryRoundNetwork
 import Netlib.Check.CampusTCPDeliveryEnabled
 
@@ -130,7 +131,7 @@ theorem serve_repeated_at (current : Cut input complete) (item : O.Item (Ticket 
     CampusTCPRecoveryRoundNetwork.Report.serve_repeated_enabled current.report item member phase hit session ready
   exact ⟨actual, served, emission, emitted, ⟨serviceMove facts⟩⟩
 
-def afterProcessing (processing : CampusTCPService.Processing context before source zone) : CampusTCPService.Before :=
+def afterProcessing (processing : CampusTCPService.Processing context before source zone mode) : CampusTCPService.Before :=
   { before with tracker := processing.outcome.state, admission := processing.nextAdmission }
 
 private theorem before_eq (before after : CampusTCPService.Before) (environment : before.environment = after.environment)
@@ -145,7 +146,7 @@ private theorem before_eq (before after : CampusTCPService.Before) (environment 
 
 theorem Service.after_before (value : Service current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone served.mode) (present : served.evidence.processing = some processing) :
     beforeService input value.move.after.report.final item.value.gateway = afterProcessing processing := by
   have environment := CampusTCPRoundEnvironment.service_environment _ _ value.environment item.value.gateway
   apply before_eq
@@ -154,6 +155,33 @@ theorem Service.after_before (value : Service current item hit session actual se
     exact value.facts.tracker processing present
   · rw [value.move.final]
     exact value.facts.admission processing present
+
+theorem Service.ordinary_mode (value : Service current item hit session actual served emission emitted) :
+    served.mode = AdmissionExecution.Mode.ordinary := by
+  simpa only [current.connection, Connection.admissionMode] using value.facts.mode
+
+def Service.ordinaryEvidence (value : Service current item hit session actual served emission emitted) :=
+  CampusTCPApplicationService.ordinaryEvidence served.evidence value.ordinary_mode
+
+theorem Service.ordinary_processing (value : Service current item hit session actual served emission emitted) :
+    ∃ processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
+        served.before served.ticket.value.source input.zone,
+      value.ordinaryEvidence.processing = some processing ∧
+        processing.outcome.nextHop = some item.value.produced.actor.nextHop ∧
+        processing.prepared.attachment.entry = session.entry ∧
+        processing.prepared.attachment.direction = hit.direction ∧ processing.prepared.attachment.fresh = false :=
+  CampusTCPApplicationService.ordinary_processing value.facts value.ordinary_mode
+
+theorem Service.after_ordinary_before (value : Service current item hit session actual served emission emitted)
+    (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
+      served.before served.ticket.value.source input.zone)
+    (present : value.ordinaryEvidence.processing = some processing) :
+    beforeService input value.move.after.report.final item.value.gateway = afterProcessing processing := by
+  have original := CampusTCPApplicationService.restoreProcessing_present served.evidence processing value.ordinary_mode present
+  have after := value.after_before (CampusTCPApplicationService.restoreProcessing processing value.ordinary_mode) original
+  have fields := CampusTCPApplicationService.restoreProcessing_fields processing value.ordinary_mode
+  rw [after]
+  simp only [afterProcessing, fields.1, fields.2]
 
 theorem Service.link_pending (value : Service current item hit session actual served emission emitted) :
     CampusTCPDeliveryEnabled.LinkPending value.move.after.report.final current.report.final.services.length := by

@@ -1,3 +1,4 @@
+import Netlib.Check.CampusTCPApplicationService
 import Netlib.Check.CampusTCPGapProgressState
 import Netlib.Check.CampusTCPRecoveryRoundNetwork
 
@@ -184,7 +185,7 @@ theorem serve_repeated_at (initial : GapInitial cut sender lower upper) (native 
     CampusTCPRecoveryRoundNetwork.Report.serve_repeated_enabled current.report item member phase hit session ready
   exact ⟨actual, served, emission, emitted, ⟨serviceMove anchor standby facts⟩⟩
 
-def afterProcessing (processing : CampusTCPService.Processing context before source zone) : CampusTCPService.Before :=
+def afterProcessing (processing : CampusTCPService.Processing context before source zone mode) : CampusTCPService.Before :=
   { before with tracker := processing.outcome.state, admission := processing.nextAdmission }
 
 private theorem before_eq (before after : CampusTCPService.Before) (environment : before.environment = after.environment)
@@ -199,7 +200,7 @@ private theorem before_eq (before after : CampusTCPService.Before) (environment 
 
 theorem ServiceMove.after_before (value : ServiceMove initial current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone served.mode) (present : served.evidence.processing = some processing) :
     beforeService input value.move.after.report.final .standby = afterProcessing processing := by
   have previous : served.before = beforeService input current.report.final .standby := by
     rw [value.facts.current, value.standby]
@@ -214,6 +215,33 @@ theorem ServiceMove.after_before (value : ServiceMove initial current item hit s
     have admission := value.facts.admission processing present
     rw [value.standby] at admission
     exact admission
+
+theorem ServiceMove.ordinary_mode (value : ServiceMove initial current item hit session actual served emission emitted) :
+    served.mode = AdmissionExecution.Mode.ordinary := by
+  simpa only [current.connection, Connection.admissionMode] using value.facts.mode
+
+def ServiceMove.ordinaryEvidence (value : ServiceMove initial current item hit session actual served emission emitted) :=
+  CampusTCPApplicationService.ordinaryEvidence served.evidence value.ordinary_mode
+
+theorem ServiceMove.ordinary_processing (value : ServiceMove initial current item hit session actual served emission emitted) :
+    ∃ processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
+        served.before served.ticket.value.source input.zone,
+      value.ordinaryEvidence.processing = some processing ∧
+        processing.outcome.nextHop = some item.value.produced.actor.nextHop ∧
+        processing.prepared.attachment.entry = session.entry ∧
+        processing.prepared.attachment.direction = hit.direction ∧ processing.prepared.attachment.fresh = false :=
+  CampusTCPApplicationService.ordinary_processing value.facts value.ordinary_mode
+
+theorem ServiceMove.after_ordinary_before (value : ServiceMove initial current item hit session actual served emission emitted)
+    (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
+      served.before served.ticket.value.source input.zone)
+    (present : value.ordinaryEvidence.processing = some processing) :
+    beforeService input value.move.after.report.final .standby = afterProcessing processing := by
+  have original := CampusTCPApplicationService.restoreProcessing_present served.evidence processing value.ordinary_mode present
+  have after := value.after_before (CampusTCPApplicationService.restoreProcessing processing value.ordinary_mode) original
+  have fields := CampusTCPApplicationService.restoreProcessing_fields processing value.ordinary_mode
+  rw [after]
+  simp only [afterProcessing, fields.1, fields.2]
 
 theorem ServiceMove.link_pending (value : ServiceMove initial current item hit session actual served emission emitted) :
     CampusTCPDeliveryEnabled.LinkPending value.move.after.report.final current.report.final.services.length := by

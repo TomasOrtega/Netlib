@@ -151,7 +151,7 @@ private theorem data_acknowledged (core : Core initial native quantum allowance 
     (path : P.DataTicket initial native current part lane) (served : D.DataServed core.live path actual) :
     (served.next.gatewayState.gateway.session.lane sender.direction).acknowledged =
       (core.live.gatewayState.gateway.session.lane sender.direction).acknowledged := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := served.value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := served.value.ordinary_processing
   have previous : served.served.before = beforeService input current.report.final gateway := by
     rw [served.value.facts.current, served.value.selected]
   let selected := processingAt processing previous
@@ -160,7 +160,7 @@ private theorem data_acknowledged (core : Core initial native quantum allowance 
     exact attached
   have phase : selected.admitted.state.phase = .data served.next.gatewayState.gateway.session := by
     have phase := served.next.gatewayState.gateway.phase
-    rw [served.value.after_before processing present] at phase
+    rw [served.value.after_ordinary_before processing present] at phase
     change processing.nextAdmission.phase = .data served.next.gatewayState.gateway.session at phase
     rw [← processingAt_admission processing previous,
       CampusTCPRoundAdmission.Processing.committed_data selected core.live.gatewayState.gateway.session core.live.gatewayState.gateway.phase] at phase

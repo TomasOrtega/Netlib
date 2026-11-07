@@ -28,6 +28,23 @@ private theorem startup_work (before : State input) (event : Check.TCPHandshake.
     | (split at computed)
     | (dsimp only [bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_work (before : State input) (event : TCPHandshakeRecovery.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.state.work = before.work := by
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [runRecovery, connection, pure, Except.pure, Except.ok.injEq] at computed
+    subst effect
+    rfl
+  | recovering current =>
+    simp only [runRecovery, connection] at computed
+    split at computed
+    · cases computed
+    · split at computed
+      all_goals
+        simp only [pure, Except.pure, Except.ok.injEq] at computed
+        subst effect
+        rfl
+
 private theorem delivery_work (delivery : CampusTCPRoundDelivery.Delivery report complete endpoints index served emission emitted) :
     delivery.step.result.state.work = report.final.work := by
   obtain ⟨effect, custody, computed, final⟩ := delivery.step.processed
@@ -37,6 +54,7 @@ private theorem delivery_work (delivery : CampusTCPRoundDelivery.Delivery report
     repeat' first
       | (solve | cases computed; dsimp only; exact (CampusTCPTimedTimeout.application_frames _ _ _ _ (by assumption)).1)
       | (solve | cases computed; dsimp only; exact startup_work _ _ _ (by assumption))
+      | (solve | cases computed; dsimp only; exact recovery_work _ _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,

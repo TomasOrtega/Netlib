@@ -51,6 +51,20 @@ private theorem startup_work (before : State input) (event : Check.TCPHandshake.
     | (split at computed)
     | (dsimp only [bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_work (before : State input) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.state.work = before.work := by
+  unfold runRecovery at computed
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [connection] at computed
+    cases computed
+    rfl
+  | recovering current =>
+    simp only [connection] at computed
+    split at computed
+    · cases computed
+    · split at computed <;> cases computed <;> rfl
+
 private theorem delivery_work (delivery : CampusTCPRoundDelivery.Delivery report complete endpoints index served emission emitted) :
     delivery.step.result.state.work = report.final.work := by
   obtain ⟨effect, custody, computed, final⟩ := delivery.step.processed
@@ -60,6 +74,7 @@ private theorem delivery_work (delivery : CampusTCPRoundDelivery.Delivery report
     repeat' first
       | (solve | cases computed; dsimp only; exact (CampusTCPTimedTimeout.application_frames _ _ _ _ (by assumption)).1)
       | (solve | cases computed; dsimp only; exact startup_work _ _ _ (by assumption))
+      | (solve | cases computed; dsimp only; exact recovery_work _ _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
@@ -113,11 +128,10 @@ private theorem application_read (before : State input) (actor : Actor) (event :
   unfold applyApplication at computed
   repeat' first
     | (solve | cases computed; simp_all only [Option.some.injEq, Prod.mk.injEq])
+    | (solve | cases computed; simp only [unsupported] at recorded; cases recorded)
     | (cases computed)
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
-  simp only [unsupported] at recorded
-  cases recorded
 
 private theorem delivery_read (delivery : D.Delivery current.report complete current.endpoints index served emission emitted)
     (found : current.report.final.services[index]? = some served) (application : D.ApplicationSource served.ticket.value.produced) :
@@ -152,6 +166,8 @@ private theorem delivery_read (delivery : D.Delivery current.report complete cur
         have read := application_read _ _ _ _ _ applied recorded
         have empty : delivery.localStep.result.read = [] := local_read delivery
         simpa only [final] using read.trans empty
+    · rename_i source occurrence present produced
+      simp only [D.ApplicationSource, produced] at application
 
 structure Received (initial : TwoWriteInitial cut sender gateway lower upper) (current : Cut input complete)
     (beforeStage afterStage : R.Stage) (chunk : List UInt8) (index : Nat) (served : Served input)

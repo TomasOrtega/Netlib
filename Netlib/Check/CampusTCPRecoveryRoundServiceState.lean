@@ -24,8 +24,20 @@ variable {hit : FlowNAT.Hit} {session : Admission.Session} {actual : Step input}
 variable {emission : WireForwarding.Emission served.ticket.value.source.packet}
 variable {emitted : served.evidence.output = some emission}
 
-def afterProcessing (processing : CampusTCPService.Processing context before source zone) : CampusTCPService.Before :=
+def afterProcessing (processing : CampusTCPService.Processing context before source zone mode) : CampusTCPService.Before :=
   { before with tracker := processing.outcome.state, admission := processing.nextAdmission }
+
+private def ordinaryProcessing (processing : CampusTCPService.Processing context before source zone mode)
+    (ordinary : mode = AdmissionExecution.Mode.ordinary) : CampusTCPService.Processing context before source zone :=
+  ordinary ▸ processing
+
+private theorem ordinaryProcessing_fields (processing : CampusTCPService.Processing context before source zone mode)
+    (ordinary : mode = AdmissionExecution.Mode.ordinary) :
+    (ordinaryProcessing processing ordinary).prepared = processing.prepared ∧
+      (ordinaryProcessing processing ordinary).outcome = processing.outcome ∧
+      afterProcessing (ordinaryProcessing processing ordinary) = afterProcessing processing := by
+  cases ordinary
+  exact ⟨rfl, rfl, rfl⟩
 
 private theorem before_eq (before after : CampusTCPService.Before)
     (environment : before.environment = after.environment) (tracker : before.tracker = after.tracker)
@@ -40,7 +52,7 @@ private theorem before_eq (before after : CampusTCPService.Before)
 
 theorem service_after_before (value : ServiceMove initial current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone)
+      served.before served.ticket.value.source input.zone served.mode)
     (present : served.evidence.processing = some processing) (primary : item.value.gateway = .primary) :
     beforeService input value.move.after.report.final .primary = afterProcessing processing := by
   have previous : served.before = beforeService input current.report.final .primary := by
@@ -81,11 +93,15 @@ theorem Live.original_service (live : Live initial current sentAt retries releas
     Nonempty (Live initial value.move.after sentAt retries released ×
       A.Observed initial.session request.bytes (beforeService input value.move.after.report.final .primary).admission) := by
   obtain ⟨processing, present, _, _, direction, _⟩ := value.facts.processing
+  have mode : served.mode = AdmissionExecution.Mode.ordinary := by
+    simpa only [current.connection, Connection.admissionMode] using value.facts.mode
+  let ordinary := ordinaryProcessing processing mode
+  have transferred := ordinaryProcessing_fields processing mode
   have previous : served.before = beforeService input current.report.final .primary := by
     rw [value.facts.current, primary]
   let old := live.gateway.frame previous.symm
-  obtain ⟨gateway, seen⟩ := old.original_processed processing direction fields rfl
-  have after := service_after_before value processing present primary
+  obtain ⟨gateway, seen⟩ := old.original_processed ordinary (by rw [transferred.1]; exact direction) fields rfl
+  have after := (service_after_before value processing present primary).trans transferred.2.2.symm
   let nextGateway := gateway.frame after.symm
   let nextSeen := seen.frame (congrArg CampusTCPService.Before.admission after.symm)
   refine ⟨⟨value.anchor, ?_, ?_, nextGateway, ?_, fun _ => ⟨nextSeen⟩⟩, nextSeen⟩
@@ -101,19 +117,23 @@ theorem Live.ack_service (live : Live initial current sentAt retries true)
     (fields : CampusTCPRoundPhaseBase.AckFields (complete := complete) (request := request) served.ticket.value.produced) :
     Nonempty (Live initial value.move.after sentAt retries true) := by
   obtain ⟨processing, present, _, _, direction, _⟩ := value.facts.processing
+  have mode : served.mode = AdmissionExecution.Mode.ordinary := by
+    simpa only [current.connection, Connection.admissionMode] using value.facts.mode
+  let ordinary := ordinaryProcessing processing mode
+  have transferred := ordinaryProcessing_fields processing mode
   have previous : served.before = beforeService input current.report.final .primary := by
     rw [value.facts.current, primary]
   let old := live.gateway.frame previous.symm
   obtain ⟨seen⟩ := live.observed rfl
   let beforeSeen := seen.frame (congrArg CampusTCPService.Before.admission previous.symm)
-  obtain ⟨nextSeen, _⟩ := beforeSeen.ack_processing processing direction fields.profile fields.payload
+  obtain ⟨nextSeen, _⟩ := beforeSeen.ack_processing ordinary (by rw [transferred.1]; exact direction) fields.profile fields.payload
     (fields.sequence.trans initial.aligned.replyBase.symm)
     (by rw [initial.aligned.originalBase]; exact fields.acknowledgment)
-  have records := CampusTCPRoundGateway.Processing.singleton_data_records processing old.admission.session
+  have records := CampusTCPRoundGateway.Processing.singleton_data_records ordinary old.admission.session
     old.admission.phase old.records
-  let gateway : GatewayState initial (afterProcessing processing) :=
-    ⟨processing.outcome.valid, records, .observed nextSeen⟩
-  have after := service_after_before value processing present primary
+  let gateway : GatewayState initial (afterProcessing ordinary) :=
+    ⟨ordinary.outcome.valid, records, .observed nextSeen⟩
+  have after := (service_after_before value processing present primary).trans transferred.2.2.symm
   let currentSeen := nextSeen.frame (congrArg CampusTCPService.Before.admission after.symm)
   refine ⟨⟨value.anchor, ?_, ?_, gateway.frame after.symm, ?_, fun _ => ⟨currentSeen⟩⟩⟩
   · rw [value.endpoints]

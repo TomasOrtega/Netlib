@@ -32,6 +32,25 @@ variable {input : Input} {complete : H.Completed input.active input.passive}
 variable {cut current next : Cut input complete} {actual : Step input}
 variable {cfg : M.Config} {monitor : M.Monitor}
 
+private theorem allowed_not_enableStartupRecovery (cfg : M.Config) (state : State input) (monitor : M.Monitor)
+    (actor : Actor) : ¬M.Allowed cfg state monitor (.enableStartupRecovery actor) := by
+  intro allowed
+  unfold M.Allowed CampusTCPTwoTransferMonitor.allowed at allowed
+  split at allowed
+  · cases allowed
+  · cases drain : CampusTCPTwoTransferMonitor.drainTicket state monitor with
+    | some ticket =>
+      simp only [drain, CampusTCPTwoTransferMonitor.drainServes, Bool.false_eq_true] at allowed
+    | none =>
+      simp only [drain] at allowed
+      cases control : CampusTCPTwoTransferMonitor.controlDemand monitor with
+      | none =>
+        simp only [control] at allowed
+        exact CampusTCPTwoExchangeClockBound.allowed_not_enableStartupRecovery (cfg.at state) state monitor.exchange actor allowed
+      | some kind =>
+        simp only [control] at allowed
+        cases kind <;> cases allowed
+
 theorem allowed_clock (cfg : M.Config) (state : State input) (monitor : M.Monitor)
     (actor : Actor) (millis : Nat) (allowed : M.Allowed cfg state monitor (.advanceClock actor millis)) :
     X.Allowed (cfg.at state) state monitor.exchange (.advanceClock actor millis) := by
@@ -52,11 +71,15 @@ theorem Move.local_clock_bound (move : Move current actual)
     (member : operation ∈ CampusTCPRecoveryRoundOrigins.localSteps actual.result.application actor) :
     CampusTCPTwoProgressClockAge.ClockBound cfg.exchange.forward.quantum operation := by
   have recorded := (CampusTCPRecoveryRoundOrigins.mem_localSteps _ _ _).mp member
-  intro millis event
-  have selected := CampusTCPTwoProgressSuffixAge.Step.clock_origin actual actor operation recorded millis event
-  have ordinary := allowed_clock cfg current.report.final monitor actor millis (by rw [← selected]; exact allowed)
-  exact CampusTCPTwoExchangeClockBound.Move.local_clock_bound move (cfg.at current.report.final)
-    (by rw [selected]; exact ordinary) actor operation member millis event
+  constructor
+  · intro millis event
+    have selected := CampusTCPTwoProgressSuffixAge.Step.clock_origin actual actor operation recorded millis event
+    have ordinary := allowed_clock cfg current.report.final monitor actor millis (by rw [← selected]; exact allowed)
+    exact (CampusTCPTwoExchangeClockBound.Move.local_clock_bound move (cfg.at current.report.final)
+      (by rw [selected]; exact ordinary) actor operation member).1 millis event
+  · intro data event
+    have selected := CampusTCPTwoProgressSuffixAge.Step.startupRecovery_origin actual actor operation recorded data event
+    exact False.elim (allowed_not_enableStartupRecovery cfg current.report.final monitor actor (selected ▸ allowed))
 
 theorem Move.actor_now_le (move : Move current actual)
     (allowed : M.Allowed cfg current.report.final monitor actual.event) (actor : Actor) :

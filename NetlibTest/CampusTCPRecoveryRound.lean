@@ -112,6 +112,7 @@ def setup (prior : Checked input origin) (bytes : List UInt8) : IO (SetupRun pri
 
 def startup (events : List M.Event) (prior : Checked input origin) : IO (Checked input origin) := do
   match prior.report.final.connection with
+  | .recovering .. => throw (IO.userError "The ordinary startup prefix entered recovery.")
   | .application .. => return prior
   | .startup .. =>
     match events with
@@ -132,6 +133,7 @@ def endpoint (state : M.State input) (actor : Check.CampusTCPModel.Actor) :
     Except String TCP.Endpoint.State :=
   match state.connection with
   | .startup .. => throw "The generated round has no completed startup."
+  | .recovering .. => throw "The ordinary generated round entered recovery."
   | .application _ endpoints => .ok (Check.CampusTCPEnabled.endpoint endpoints actor)
 
 
@@ -183,6 +185,7 @@ private def initialWitness (startup : M.Report input startupEvents) (supported :
       setupSteps prepared.final []) : IO { _value : Unit // InitialWitness startup prepared config } := do
   match connection : startup.final.connection with
   | .startup .. => throw (IO.userError "The bounded initial prefix must complete startup.")
+  | .recovering .. => throw (IO.userError "The ordinary bounded prefix entered recovery.")
   | .application complete endpoints =>
     let clientEmpty ← load (T.verify (endpoints.client.steps = []) "The bounded initial client has prior operations.")
     let serverEmpty ← load (T.verify (endpoints.server.steps = []) "The bounded initial server has prior operations.")
@@ -369,6 +372,7 @@ private def checkComplete (prepared final : M.State input) (steps : List (M.Step
     "A real full ACK and read must clear the selected range, timer, and receiver bytes."
   match final.connection with
   | .startup .. => throw (IO.userError "The final state must remain an application connection.")
+  | .recovering .. => throw (IO.userError "The ordinary final state entered recovery.")
   | .application _ endpoints =>
     ensure (endpoints.server.steps.flatMap TCP.ApplicationTrace.Step.releasedPayload == bytes &&
         endpoints.server.steps.flatMap TCP.ApplicationTrace.Step.readBytes == bytes &&

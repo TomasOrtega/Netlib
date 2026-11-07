@@ -121,7 +121,8 @@ def environment (state : State input) : Environment :=
 def TransportOnly : Event → Prop
   | .open .. | .write .. | .send .. | .enableRecovery .. | .enableAck .. | .dispatchAck ..
   | .advanceClock .. | .timeout .. | .read .. | .emitAck .. | .assign .. | .serve ..
-  | .deliver .. | .copyPacket .. | .dropPacket .. => True
+  | .deliver .. | .copyPacket .. | .dropPacket .. | .openRecovering .. | .startupClock ..
+  | .startupTimeout .. | .finishStartup | .enableStartupRecovery .. => True
   | _ => False
 
 theorem service_environment (before after : State input) (same : environment before = environment after)
@@ -160,16 +161,55 @@ private theorem application_environment (before : State input) (actor : Actor) (
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_environment (before : State input) (event : TCPHandshakeRecovery.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : environment before = environment effect.state := by
+  unfold runRecovery at computed
+  split at computed
+  · cases computed; rfl
+  · cases computed; rfl
+  · split at computed
+    · cases computed
+    · rename_i current connected result evaluated
+      cases result with
+      | mk state decision output receipt application =>
+        cases output <;> simp only [pure, Except.pure, Except.ok.injEq] at computed
+        all_goals subst effect; rfl
+
+private theorem openRecovery_environment (before : State input) (remote : Protocol.TCP.Handshake.Socket)
+    (policy : Bool) (effect : Effect input) (computed : openRecovering input before remote policy = .ok effect) :
+    environment before = environment effect.state := by
+  unfold openRecovering at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (solve | simpa only [environment] using recovery_environment _ _ _ computed)
+    | (cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem finishStartup_environment (before : State input) (effect : Effect input)
+    (computed : finishStartup input before = .ok effect) : environment before = environment effect.state := by
+  unfold finishStartup at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem startupHandoff_environment (before : State input) (actor : Actor) (effect : Effect input)
+    (computed : enableStartupRecovery input before actor = .ok effect) : environment before = environment effect.state := by
+  unfold enableStartupRecovery at computed
+  split at computed
+  · cases computed; rfl
+  · exact application_environment _ _ _ _ computed
+
 private theorem enableAck_environment (before : State input) (actor : Actor) (effect : Effect input)
     (computed : enableAck input before actor = .ok effect) : environment before = environment effect.state := by
   unfold enableAck at computed
-  split at computed
-  · exact application_environment _ _ _ _ computed
-  · cases actor <;> dsimp only at computed
-    all_goals
-      split at computed
-      · exact application_environment _ _ _ _ computed
-      · cases computed
+  repeat' first
+    | (solve | exact application_environment _ _ _ _ computed)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
 
 private theorem service_write (before : State input) (gateway : Gateway)
     (tracker : Protocol.ConntrackLifecycle.State) (admission : Protocol.TCP.Admission.State)
@@ -183,6 +223,10 @@ private theorem process_environment (before : State input) (event : Event) (effe
     environment before = environment effect.state := by
   cases event with
   | «open» remote policy => exact startup_environment _ _ _ computed
+  | openRecovering remote policy => exact openRecovery_environment _ _ _ _ computed
+  | startupClock actor millis | startupTimeout actor generation policy => exact recovery_environment _ _ _ computed
+  | finishStartup => exact finishStartup_environment _ _ computed
+  | enableStartupRecovery actor => exact startupHandoff_environment _ _ _ computed
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact application_environment _ _ _ _ computed
   | enableRecovery actor | advanceClock actor millis | timeout actor policy | dispatchAck actor policy =>
@@ -214,6 +258,7 @@ private theorem process_environment (before : State input) (event : Event) (effe
     repeat' first
       | (solve | cases computed; simpa only [environment] using startup_environment before _ _ (by assumption))
       | (solve | cases computed; simpa only [environment] using application_environment before _ _ _ (by assumption))
+      | (solve | cases computed; simpa only [environment] using recovery_environment before _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
@@ -272,7 +317,8 @@ def Trace.reframe_checks (trace : Trace input initial events steps final remaini
 def Nonservice : Event → Prop
   | .open .. | .write .. | .send .. | .enableRecovery .. | .enableAck .. | .dispatchAck ..
   | .advanceClock .. | .timeout .. | .read .. | .emitAck .. | .assign ..
-  | .deliver .. | .copyPacket .. | .dropPacket .. => True
+  | .deliver .. | .copyPacket .. | .dropPacket .. | .openRecovering .. | .startupClock ..
+  | .startupTimeout .. | .finishStartup | .enableStartupRecovery .. => True
   | _ => False
 
 private theorem startup_resident (before : State input) (event : Check.TCPHandshake.Event) (effect : Effect input)
@@ -295,23 +341,66 @@ private theorem application_resident (before : State input) (actor : Actor) (eve
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_resident (before : State input) (event : TCPHandshakeRecovery.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) (gateway : Gateway) : effect.state.resident gateway = before.resident gateway := by
+  unfold runRecovery at computed
+  split at computed
+  · cases computed; rfl
+  · cases computed; rfl
+  · split at computed
+    · cases computed
+    · rename_i current connected result evaluated
+      cases result with
+      | mk state decision output receipt application =>
+        cases output <;> simp only [pure, Except.pure, Except.ok.injEq] at computed
+        all_goals subst effect; rfl
+
+private theorem openRecovery_resident (before : State input) (remote : Protocol.TCP.Handshake.Socket)
+    (policy : Bool) (effect : Effect input) (computed : openRecovering input before remote policy = .ok effect) (gateway : Gateway) :
+    effect.state.resident gateway = before.resident gateway := by
+  unfold openRecovering at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (solve | simpa only [State.resident] using recovery_resident _ _ _ computed gateway)
+    | (cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem finishStartup_resident (before : State input) (effect : Effect input)
+    (computed : finishStartup input before = .ok effect) (gateway : Gateway) : effect.state.resident gateway = before.resident gateway := by
+  unfold finishStartup at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem startupHandoff_resident (before : State input) (actor : Actor) (effect : Effect input)
+    (computed : enableStartupRecovery input before actor = .ok effect) (gateway : Gateway) : effect.state.resident gateway = before.resident gateway := by
+  unfold enableStartupRecovery at computed
+  split at computed
+  · cases computed; rfl
+  · exact application_resident _ _ _ _ computed gateway
+
 private theorem enableAck_resident (before : State input) (actor : Actor) (effect : Effect input)
     (computed : enableAck input before actor = .ok effect) (gateway : Gateway) :
     effect.state.resident gateway = before.resident gateway := by
   unfold enableAck at computed
-  split at computed
-  · exact application_resident _ _ _ _ computed gateway
-  · cases actor <;> dsimp only at computed
-    all_goals
-      split at computed
-      · exact application_resident _ _ _ _ computed gateway
-      · cases computed
+  repeat' first
+    | (solve | exact application_resident _ _ _ _ computed gateway)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
 
 private theorem process_resident (before : State input) (event : Event) (effect : Effect input)
     (computed : processCore input before event = .ok effect) (selected : Nonservice event) (gateway : Gateway) :
     effect.state.resident gateway = before.resident gateway := by
   cases event with
   | «open» remote policy => exact startup_resident _ _ _ computed gateway
+  | openRecovering remote policy => exact openRecovery_resident _ _ _ _ computed gateway
+  | startupClock actor millis | startupTimeout actor generation policy => exact recovery_resident _ _ _ computed gateway
+  | finishStartup => exact finishStartup_resident _ _ computed gateway
+  | enableStartupRecovery actor => exact startupHandoff_resident _ _ _ computed gateway
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact application_resident _ _ _ _ computed gateway
   | enableRecovery actor | advanceClock actor millis | timeout actor policy | dispatchAck actor policy =>
@@ -334,6 +423,7 @@ private theorem process_resident (before : State input) (event : Event) (effect 
     repeat' first
       | (solve | cases computed; simpa only [State.resident] using startup_resident before _ _ (by assumption) gateway)
       | (solve | cases computed; simpa only [State.resident] using application_resident before _ _ _ (by assumption) gateway)
+      | (solve | cases computed; simpa only [State.resident] using recovery_resident before _ _ (by assumption) gateway)
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,

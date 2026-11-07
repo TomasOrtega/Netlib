@@ -1,6 +1,6 @@
 import Netlib.Check.SessionInstallation
 import Netlib.Check.IngressGuard
-import Netlib.Protocol.TCP.Admission
+import Netlib.Protocol.TCP.AdmissionExecution
 import Netlib.Protocol.TCP.WireForwarding
 
 /-!
@@ -21,6 +21,10 @@ end I
 namespace W
 export Protocol.TCP.WireForwarding (Source Input Outcome Emission)
 end W
+
+namespace X
+export Protocol.TCP.AdmissionExecution (Mode Result Allowed state step step_exists commit)
+end X
 
 abbrev Config := Check.ConntrackLifecycle.Config
 
@@ -79,46 +83,48 @@ structure Checks (context : Context) (before : Before) (ingress : I.InterfaceRef
 def Checks.decision (checks : Checks context before ingress) (source : W.Source) : Bool :=
   checks.guard.decision ⟨ingress, source.packet.header⟩
 
-structure Processing (context : Context) (before : Before) (source : W.Source) (zone : Nat) where
+structure Processing (context : Context) (before : Before) (source : W.Source) (zone : Nat)
+    (mode : X.Mode := .ordinary) where
   prepared : Protocol.ConntrackLifecycle.Prepared (packetInput before source zone).lifecycle
   attached : Protocol.ConntrackLifecycle.prepare before.tracker (packetInput before source zone).lifecycle = .ok prepared
-  admitted : TCP.Admission.Result before.admission source.asInput (packetInput before source zone).lifecycle prepared
-  admissionComputed : TCP.Admission.step before.admission source.asInput (packetInput before source zone).lifecycle
+  admitted : X.Result mode before.admission source.asInput (packetInput before source zone).lifecycle prepared
+  admissionComputed : X.step mode before.admission source.asInput (packetInput before source zone).lifecycle
     prepared rfl = .ok admitted
   outcome : W.Outcome source.packet
   computed : TCP.WireForwarding.process (before.configuration.pipeline context.routing) (packetInput before source zone)
     source.valid prepared = .ok outcome
   nextAdmission : TCP.Admission.State
-  committed : TCP.Admission.commit admitted outcome.state = .ok nextAdmission
+  committed : X.commit (mode := mode) admitted outcome.state = .ok nextAdmission
 
 inductive Operation (context : Context) (before : Before) (source : W.Source) (zone : Nat)
-    (ingress : I.InterfaceRef) (checks : Checks context before ingress) where
+    (ingress : I.InterfaceRef) (checks : Checks context before ingress) (mode : X.Mode := .ordinary) where
   | earlyDrop (denied : checks.decision source = false)
-  | processed (permitted : checks.decision source = true) (processing : Processing context before source zone)
+  | processed (permitted : checks.decision source = true) (processing : Processing context before source zone mode)
 
-structure Evidence (context : Context) (before : Before) (source : W.Source) (zone : Nat) (ingress : I.InterfaceRef) where
+structure Evidence (context : Context) (before : Before) (source : W.Source) (zone : Nat) (ingress : I.InterfaceRef)
+    (mode : X.Mode := .ordinary) where
   checks : Checks context before ingress
-  operation : Operation context before source zone ingress checks
+  operation : Operation context before source zone ingress checks mode
 
-def Evidence.passed (value : Evidence context before source zone ingress) : Bool :=
+def Evidence.passed (value : Evidence context before source zone ingress mode) : Bool :=
   value.checks.forward.passed && value.checks.guard.passed && coverage context source
 
-def Evidence.processing (value : Evidence context before source zone ingress) : Option (Processing context before source zone) :=
+def Evidence.processing (value : Evidence context before source zone ingress mode) : Option (Processing context before source zone mode) :=
   match value.operation with
   | .earlyDrop _ => none
   | .processed _ processing => some processing
 
-def Evidence.tracker (value : Evidence context before source zone ingress) : Protocol.ConntrackLifecycle.State :=
+def Evidence.tracker (value : Evidence context before source zone ingress mode) : Protocol.ConntrackLifecycle.State :=
   match value.operation with
   | .earlyDrop _ => before.tracker
   | .processed _ processing => processing.outcome.state
 
-def Evidence.admission (value : Evidence context before source zone ingress) : TCP.Admission.State :=
+def Evidence.admission (value : Evidence context before source zone ingress mode) : TCP.Admission.State :=
   match value.operation with
   | .earlyDrop _ => before.admission
   | .processed _ processing => processing.nextAdmission
 
-def Evidence.output (value : Evidence context before source zone ingress) : Option (W.Emission source.packet) :=
+def Evidence.output (value : Evidence context before source zone ingress mode) : Option (W.Emission source.packet) :=
   match value.operation with
   | .earlyDrop _ => none
   | .processed _ processing => processing.outcome.output
@@ -149,7 +155,7 @@ private theorem ingress_source (value : IngressGuard.Checked now executionNS att
     | (split at computed <;> try simp [bind, Except.bind, pure, throw] at computed)
 
 def run (context : Context) (before : Before) (source : W.Source) (zone : Nat) (ingress : I.InterfaceRef)
-    (budget : Nat := 100000) : Except Error (Evidence context before source zone ingress) := do
+    (budget : Nat := 100000) (mode : X.Mode := .ordinary) : Except Error (Evidence context before source zone ingress mode) := do
   if afterBound : before.after ≤ context.authentication.observations.length then
     if currentLive : ingress ∈ before.live then
       if namespaceEq : ingress.ns = context.executionNS then
@@ -164,14 +170,14 @@ def run (context : Context) (before : Before) (source : W.Source) (zone : Nat) (
           match attached : Protocol.ConntrackLifecycle.prepare before.tracker (packetInput before source zone).lifecycle with
           | .error reason => throw (.input reason.describe)
           | .ok prepared =>
-            match admitted : TCP.Admission.step before.admission source.asInput (packetInput before source zone).lifecycle prepared rfl with
+            match admitted : X.step mode before.admission source.asInput (packetInput before source zone).lifecycle prepared rfl with
             | .error reason => throw (admissionError reason)
             | .ok admission =>
               match computed : TCP.WireForwarding.process (before.configuration.pipeline context.routing)
                   (packetInput before source zone) source.valid prepared with
               | .error reason => throw (.input reason.describe)
               | .ok outcome =>
-                match committed : TCP.Admission.commit admission outcome.state with
+                match committed : X.commit (mode := mode) admission outcome.state with
                 | .error reason => throw (admissionError reason)
                 | .ok nextAdmission =>
                   return ⟨checks, .processed permitted ⟨prepared, attached, admission, admitted, outcome, computed,
@@ -185,8 +191,8 @@ def run (context : Context) (before : Before) (source : W.Source) (zone : Nat) (
 theorem run_of_parts (context : Context) (before : Before) (source : W.Source) (zone : Nat)
     (ingress : I.InterfaceRef) (checks : Checks context before ingress)
     (permitted : checks.decision source = true)
-    (processing : Processing context before source zone) :
-    run context before source zone ingress checks.budget = .ok ⟨checks, .processed permitted processing⟩ := by
+    (processing : Processing context before source zone mode) :
+    run context before source zone ingress checks.budget mode = .ok ⟨checks, .processed permitted processing⟩ := by
   have checked_ready {α : Type} (value : Except String α) (result : α) (computed : value = .ok result) :
       checked value = .ok ⟨result, computed⟩ := by
     cases value with
@@ -234,11 +240,11 @@ theorem Checks.actual_decision (checks : Checks context before ingress) (source 
   unfold Checks.decision IngressGuard.Checked.decision
   rw [checks.guardSource]
 
-theorem Evidence.passed_parts (value : Evidence context before source zone ingress) (passed : value.passed = true) :
+theorem Evidence.passed_parts (value : Evidence context before source zone ingress mode) (passed : value.passed = true) :
     value.checks.forward.passed = true ∧ value.checks.guard.passed = true ∧ coverage context source = true := by
   simpa only [Evidence.passed, Bool.and_eq_true, and_assoc] using passed
 
-theorem Evidence.processed_of_output (value : Evidence context before source zone ingress)
+theorem Evidence.processed_of_output (value : Evidence context before source zone ingress mode)
     (emission : W.Emission source.packet) (output : value.output = some emission) :
     ∃ processing, value.processing = some processing ∧ processing.outcome.output = some emission := by
   cases selected : value.operation with
@@ -247,27 +253,27 @@ theorem Evidence.processed_of_output (value : Evidence context before source zon
     exact ⟨processing, by simp only [Evidence.processing, selected],
       by simpa only [Evidence.output, selected] using output⟩
 
-theorem Evidence.ingress_permitted (value : Evidence context before source zone ingress)
+theorem Evidence.ingress_permitted (value : Evidence context before source zone ingress mode)
     (emission : W.Emission source.packet) (output : value.output = some emission) :
     value.checks.decision source = true := by
   cases selected : value.operation with
   | earlyDrop denied => simp only [Evidence.output, selected, reduceCtorEq] at output
   | processed permitted processing => exact permitted
 
-theorem Evidence.early_preserves (value : Evidence context before source zone ingress)
+theorem Evidence.early_preserves (value : Evidence context before source zone ingress mode)
     (denied : value.checks.decision source = false) :
     value.tracker = before.tracker ∧ value.admission = before.admission ∧ value.output = none := by
   cases selected : value.operation with
   | earlyDrop blocked => simp only [Evidence.tracker, Evidence.admission, Evidence.output, selected, and_self]
   | processed permitted processing => simp only [denied, Bool.false_eq_true] at permitted
 
-theorem Processing.wire_step (value : Processing context before source zone) :
+theorem Processing.wire_step (value : Processing context before source zone mode) :
     TCP.WireForwarding.step (before.configuration.pipeline context.routing) before.tracker
       (packetInput before source zone) = .ok value.outcome :=
   TCP.WireForwarding.step_of_process _ _ _ source.bytes source.encoded source.valid value.prepared value.attached
     value.outcome value.computed
 
-theorem Processing.current_permission (value : Processing context before source zone)
+theorem Processing.current_permission (value : Processing context before source zone mode)
     (checks : Checks context before ingress) (passed : checks.forward.passed = true)
     (emission : W.Emission source.packet) (emitted : value.outcome.output = some emission) :
     ∃ requirement ∈ context.requirements, requirement.test.Holds value.outcome.afterDestination ∧
@@ -281,7 +287,7 @@ theorem Processing.current_permission (value : Processing context before source 
   rw [← destination] at permission
   exact permission
 
-theorem Evidence.current_permission (value : Evidence context before source zone ingress) (passed : value.passed = true)
+theorem Evidence.current_permission (value : Evidence context before source zone ingress mode) (passed : value.passed = true)
     (emission : W.Emission source.packet) (output : value.output = some emission) :
     ∃ processing, value.processing = some processing ∧
       ∃ requirement ∈ context.requirements, requirement.test.Holds processing.outcome.afterDestination ∧
@@ -290,7 +296,7 @@ theorem Evidence.current_permission (value : Evidence context before source zone
   obtain ⟨processing, selected, emitted⟩ := value.processed_of_output emission output
   exact ⟨processing, selected, processing.current_permission value.checks (value.passed_parts passed).1 emission emitted⟩
 
-theorem Evidence.ingress_permission (value : Evidence context before source zone ingress) (passed : value.passed = true)
+theorem Evidence.ingress_permission (value : Evidence context before source zone ingress mode) (passed : value.passed = true)
     (emission : W.Emission source.packet) (output : value.output = some emission) :
     ∃ attachment ∈ before.attachments,
       IngressAttachment.allows (current context before) attachment ⟨ingress, source.packet.header⟩ = true ∧
@@ -301,11 +307,11 @@ theorem Evidence.ingress_permission (value : Evidence context before source zone
     ⟨ingress, source.packet.header⟩ value.checks.currentLive value.checks.namespaceEq
     ((coverage_correct context source).mp (value.passed_parts passed).2.2) (value.ingress_permitted emission output)
 
-theorem Evidence.bytePath (value : Evidence context before source zone ingress)
+theorem Evidence.bytePath (value : Evidence context before source zone ingress mode)
     (emission : W.Emission source.packet) (_output : value.output = some emission) :
     TCP.ApplicationTrace.BytePath source.asInput emission.asInput := emission.bytePath source
 
-theorem Evidence.output_none_of_denied (value : Evidence context before source zone ingress) (passed : value.passed = true)
+theorem Evidence.output_none_of_denied (value : Evidence context before source zone ingress mode) (passed : value.passed = true)
     (denied : ∀ requirement ∈ context.requirements,
       (current context before).state.session.permits context.authentication.context requirement.scope = false) :
     value.output = none := by
@@ -316,20 +322,20 @@ theorem Evidence.output_none_of_denied (value : Evidence context before source z
     have permitted := (Session.permits_iff _ _ _).mpr valid
     simp only [denied requirement member, Bool.false_eq_true] at permitted
 
-theorem Evidence.output_none_of_unauthorized (value : Evidence context before source zone ingress) (passed : value.passed = true)
+theorem Evidence.output_none_of_unauthorized (value : Evidence context before source zone ingress mode) (passed : value.passed = true)
     (unauthorized : (current context before).state.auth.authorized = false) : value.output = none := by
   apply value.output_none_of_denied passed
   intro requirement member
   exact EAPSession.unauthorized_denied context.authentication.context (current context before).state requirement.scope
     (current_safe context before).2.1 unauthorized
 
-theorem Evidence.output_none_without_credential (value : Evidence context before source zone ingress) (passed : value.passed = true)
+theorem Evidence.output_none_without_credential (value : Evidence context before source zone ingress mode) (passed : value.passed = true)
     (missing : (current context before).state.session.credential = none) : value.output = none := by
   apply value.output_none_of_denied passed
   intro requirement member
   simp only [Session.permits, Session.claims, missing, Bool.and_false]
 
-theorem Evidence.output_facts (value : Evidence context before source zone ingress)
+theorem Evidence.output_facts (value : Evidence context before source zone ingress mode)
     (emission : W.Emission source.packet) (output : value.output = some emission) :
     ∃ processing, value.processing = some processing ∧
       emission.target = processing.outcome.attachment.entry.flow.output processing.outcome.attachment.direction ∧

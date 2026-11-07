@@ -359,10 +359,10 @@ private theorem processing_before (value : Service current item hit session actu
 private theorem admission_after (value : Service current item hit session actual served emission emitted)
     (located : item.value.gateway = location)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (beforeService input value.move.after.report.final location).admission =
       (processingAt processing (processing_before value located)).nextAdmission := by
-  have after := value.after_before processing present
+  have after := value.after_ordinary_before processing present
   rw [located] at after
   rw [after, processingAt_admission]
   rfl
@@ -370,10 +370,10 @@ private theorem admission_after (value : Service current item hit session actual
 private theorem tracker_after (value : Service current item hit session actual served emission emitted)
     (located : item.value.gateway = location)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (beforeService input value.move.after.report.final location).tracker =
       (processingAt processing (processing_before value located)).outcome.state := by
-  have after := value.after_before processing present
+  have after := value.after_ordinary_before processing present
   rw [located] at after
   rw [after, processingAt_outcome]
   rfl
@@ -388,7 +388,7 @@ private theorem lower_service (view : ViewAt initial current location) (retained
     (payload : served.ticket.value.source.packet.segment.payload = lower) :
     ∃ result : ViewAt initial value.move.after location, result.ranges.upperRun = view.ranges.upperRun ∧
       ∃ run, result.ranges.lowerRun = some run := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by
     rw [processingAt_attachment]
@@ -408,7 +408,7 @@ private theorem upper_service (view : ViewAt initial current location) (retained
     (payload : served.ticket.value.source.packet.segment.payload = upper) :
     ∃ result : ViewAt initial value.move.after location, result.ranges.lowerRun = view.ranges.lowerRun ∧
       ∃ run, result.ranges.upperRun = some run := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by
     rw [processingAt_attachment]
@@ -425,7 +425,7 @@ private theorem repeat_service (view : ViewAt initial current location) (retaine
       served.ticket.value.source.packet.segment (beforeService input current.report.final location).admission.observations) :
     ∃ result : ViewAt initial value.move.after location, result.ranges.lowerRun = view.ranges.lowerRun ∧
       result.ranges.upperRun = view.ranges.upperRun := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by
     rw [processingAt_attachment]
@@ -437,7 +437,7 @@ private theorem service_phase (view : ViewAt initial current location)
     (value : Service current item hit view.gateway.session actual served emission emitted) (located : item.value.gateway = location)
     (after : ViewAt initial value.move.after location)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (processingAt processing (processing_before value located)).admitted.state.phase = .data after.gateway.session := by
   have phase := after.gateway.phase
   rw [admission_after value located processing present,
@@ -447,7 +447,7 @@ private theorem service_phase (view : ViewAt initial current location)
 theorem data_reserved (view : ViewAt initial current location) (space : Reserved view)
     (value : Service current item ⟨view.gateway.session.entry.flow, sender.direction⟩ view.gateway.session actual served emission emitted)
     (located : item.value.gateway = location) (after : ViewAt initial value.move.after location) : Reserved after := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by rw [processingAt_attachment]; exact attached
   have result := CampusTCPTwoProgressGatewayWindow.result_sender_space selected.admitted view.gateway.phase
@@ -570,7 +570,7 @@ private theorem ack_reserved (view : ViewAt initial current location) (space : R
     (located : item.value.gateway = location) (after : ViewAt initial value.move.after location)
     (fields : CampusTCPTwoProgressWire.AckFields initial count item.value.produced)
     (within : initial.geometry.«prefix» + count ≤ (view.gateway.session.lane sender.direction).observed) : Reserved after := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.other.direction := by rw [processingAt_attachment]; exact attached
   have peerLane : ∀ session : Admission.Session, session.peer selected.prepared.attachment.direction = session.lane sender.direction := by
@@ -599,7 +599,7 @@ private theorem acknowledged_after (view : ViewAt initial current location)
     (within : initial.geometry.«prefix» + count ≤ (view.gateway.session.lane sender.direction).observed)
     (oldAck : (view.gateway.session.lane sender.direction).acknowledged ≤ initial.geometry.«prefix» + count) :
     (after.gateway.session.lane sender.direction).acknowledged = initial.geometry.«prefix» + count := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.other.direction := by rw [processingAt_attachment]; exact attached
   have peerLane : ∀ session : Admission.Session, session.peer selected.prepared.attachment.direction = session.lane sender.direction := by
@@ -646,7 +646,7 @@ theorem serve_ack_at (view : ViewAt initial current location) (retained : Retain
     exact ack_ready view retained checks fields within (by omega)
   obtain ⟨actual, served, emission, emitted, ⟨value⟩⟩ := CampusTCPTwoTransferNetwork.serve_at current item member phase
     ⟨view.gateway.session.entry.flow, sender.other.direction⟩ view.gateway.session ready
-  obtain ⟨processing, present, _, _, _, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, _, _⟩ := value.ordinary_processing
   obtain ⟨after, lowerRun, upperRun⟩ := view.empty_service retained.retained (processingAt processing (processing_before value located))
     (by rw [value.facts.ticket]; exact fields.payload)
     (admission_after value located processing present) (tracker_after value located processing present)

@@ -25,7 +25,7 @@ private def fixturePayload (start count : Nat) : List UInt8 :=
   (List.range count).map (fun index => UInt8.ofNat ((start + index) % 251))
 
 private def endpoint (actor : M.Actor) : M.Connection active passive → Option TCP.Endpoint.State
-  | .startup .. => none
+  | .startup .. | .recovering .. => none
   | .application _ endpoints => some (match actor with | .client => endpoints.client.current | .server => endpoints.server.current)
 
 structure Point (steps : List A.Step) (time : Nat) where

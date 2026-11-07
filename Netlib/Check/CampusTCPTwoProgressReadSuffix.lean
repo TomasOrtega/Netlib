@@ -46,14 +46,11 @@ private theorem chain_suffix (before : ApplicationTrace.Chain initialState prior
   rw [← chain_end_eq before]
   exact chain_drop whole
 
-private def receives_suffix {input : Input} {events : List Event} {report : Report input events}
+private theorem receives_suffix {input : Input} {events : List Event} {report : Report input events}
     {peer : List T.Step} {actor : Actor} (prior later : List T.Step)
-    (history : CampusTCPFacts.Receives report peer actor (prior ++ later)) :
-    CampusTCPFacts.Receives report peer actor later :=
-  match prior, history with
-  | [], history => history
-  | _ :: rest, .receive _ _ _ _ tail => receives_suffix rest later tail
-  | _ :: rest, .other _ _ tail => receives_suffix rest later tail
+    (history : CampusTCPReceiveHistory.PayloadReceives report peer actor (prior ++ later)) :
+    CampusTCPReceiveHistory.PayloadReceives report peer actor later :=
+  fun operation member => history operation (List.mem_append_right prior member)
 
 theorem Completed.suffix_chain (done : Completed initial current first second timeouts) :
     ApplicationTrace.Chain (endpoint cut.endpoints sender.other) done.history.operations
@@ -63,10 +60,10 @@ theorem Completed.suffix_chain (done : Completed initial current first second ti
   exact chain_suffix (endpoint_chain cut sender.other) whole
 
 theorem Completed.suffix_receives (done : Completed initial current first second timeouts) :
-    Nonempty (CampusTCPFacts.Receives current.report (applicationSteps current.endpoints sender) sender.other done.history.operations) := by
-  obtain ⟨receives⟩ := done.receives
+    CampusTCPReceiveHistory.PayloadReceives current.report (applicationSteps current.endpoints sender) sender.other done.history.operations := by
+  have receives := done.receives
   rw [done.history.steps] at receives
-  exact ⟨receives_suffix (applicationSteps cut.endpoints sender.other) done.history.operations receives⟩
+  exact receives_suffix (applicationSteps cut.endpoints sender.other) done.history.operations receives
 
 theorem Completed.suffix_order (done : Completed initial current first second timeouts) :
     ApplicationTrace.Chronological done.history.operations := by
@@ -85,10 +82,10 @@ abbrev SuffixReadOrigin (done : Completed initial current first second timeouts)
 theorem Completed.suffix_read_origin (done : Completed initial current first second timeouts)
     (index : Nat) (byte : UInt8) (selected : (lower ++ upper)[index]? = some byte) :
     Nonempty (SuffixReadOrigin done index byte) := by
-  obtain ⟨receives⟩ := Completed.suffix_receives done
-  have history : ApplicationTrace.DeliveryHistory (applicationSteps current.endpoints sender) done.history.operations :=
-    ⟨endpoint_order current sender, Completed.suffix_order done, receives.delivered⟩
-  apply CampusTCPGapFacts.read_origin (Completed.suffix_chain done) (endpoint_chain current sender) history receives
+  have receives := Completed.suffix_receives done
+  have history := CampusTCPGapFacts.payload_delivery_history receives
+    (endpoint_order current sender) (Completed.suffix_order done)
+  apply CampusTCPGapFacts.payload_read_origin (Completed.suffix_chain done) (endpoint_chain current sender) history receives
     initial.receiverState.unread initial.receiverState.held (seed_empty_sent complete sender) (seed_empty_pending complete sender)
     done.operation (Completed.reader_suffix done) (lower ++ upper).length done.history.streams.readEvent index byte
   rw [done.history.streams.readBytes]

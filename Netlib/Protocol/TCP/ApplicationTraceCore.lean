@@ -1,4 +1,5 @@
 import Netlib.Protocol.TCP.EndpointReceiveFacts
+import Netlib.Protocol.TCP.EndpointStartupRecovery
 
 /-!
 # Application byte histories for the bounded TCP endpoint
@@ -26,6 +27,7 @@ inductive Event where
   | timeout (policyPermitted : Bool)
   | enableAck
   | dispatchAck (policyPermitted : Bool)
+  | enableStartupRecovery (data : HandshakeTimer.Data)
 
 def evaluate (before : Model) : Event → Endpoint.Result
   | .write bytes => Endpoint.write before bytes
@@ -38,6 +40,11 @@ def evaluate (before : Model) : Event → Endpoint.Result
   | .timeout policy => Endpoint.timeout before policy
   | .enableAck => Endpoint.enableAck before
   | .dispatchAck policy => Endpoint.dispatchAck before policy
+  | .enableStartupRecovery data => Endpoint.enableStartupRecovery before data
+
+theorem evaluate_startupRecovery_default (before : Model) :
+    evaluate before (.enableStartupRecovery ⟨0, 1000, none, false⟩) = evaluate before .enableRecovery :=
+  Endpoint.enableStartupRecovery_default before
 
 theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
     (evaluate before event).state.Valid := by
@@ -52,6 +59,7 @@ theorem evaluate_valid (before : Model) (valid : before.Valid) (event : Event) :
   | timeout policy => exact Endpoint.timeout_valid before policy valid
   | enableAck => exact Endpoint.enableAck_valid before valid
   | dispatchAck policy => exact Endpoint.dispatchAck_valid before policy valid
+  | enableStartupRecovery data => exact Endpoint.enableStartupRecovery_valid before data valid
 
 theorem evaluate_storage_valid (before : Model) (event : Event) (valid : before.StorageValid) :
     (evaluate before event).state.StorageValid := by
@@ -66,6 +74,7 @@ theorem evaluate_storage_valid (before : Model) (event : Event) (valid : before.
   | timeout policy => exact Endpoint.timeout_storage_valid before policy valid
   | enableAck => exact Endpoint.enableAck_storage_valid before valid
   | dispatchAck policy => exact Endpoint.dispatchAck_storage_valid before policy valid
+  | enableStartupRecovery data => exact Endpoint.enableStartupRecovery_storage_valid before data valid
 
 structure Step where
   before : Model
@@ -123,6 +132,18 @@ def Step.acceptedPayload (step : Step) : List UInt8 := ApplicationTrace.accepted
 def Step.releasedPayload (step : Step) : List UInt8 := ApplicationTrace.releasedPayload step.before step.event step.result
 
 def Step.readBytes (step : Step) : List UInt8 := step.result.read
+
+theorem Step.startupRecovery_bytes (step : Step) (data : HandshakeTimer.Data)
+    (event : step.event = .enableStartupRecovery data) :
+    step.written = [] ∧ step.emitted = [] ∧ step.acknowledged = [] ∧ step.acceptedPayload = [] ∧
+      step.releasedPayload = [] ∧ step.readBytes = [] := by
+  refine ⟨by simp only [Step.written, ApplicationTrace.written, event],
+    by simp only [Step.emitted, ApplicationTrace.emitted, event],
+    by simp only [Step.acknowledged, ApplicationTrace.acknowledged, event],
+    by simp only [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event],
+    by simp only [Step.releasedPayload, ApplicationTrace.releasedPayload, event], ?_⟩
+  simpa only [Step.readBytes, step.computed, event, evaluate] using
+    (Endpoint.enableStartupRecovery_quiet step.before data).2.1
 
 def Balanced (before : Model) (event : Event) (result : Endpoint.Result) : Prop :=
   before.pending ++ written event result = emitted before event result ++ result.state.pending ∧
@@ -252,6 +273,16 @@ private theorem evaluate_balanced (before : Model) (event : Event) :
     · split
       · exact recoveryBlocked_balanced _ _ _
       · simp [FramedBalanced, Balanced, written, emitted, acknowledged, releasedPayload]
+  | enableStartupRecovery data =>
+    change FramedBalanced before (.enableStartupRecovery data) (Endpoint.enableStartupRecovery before data)
+    unfold Endpoint.enableStartupRecovery
+    split
+    · exact rejected_balanced _ _ _
+    · split
+      · exact recoveryBlocked_balanced _ _ _
+      · split
+        · exact recoveryBlocked_balanced _ _ _
+        · simp [FramedBalanced, Balanced, written, emitted, acknowledged, releasedPayload, Endpoint.startupRecoveryState]
   | advanceClock millis =>
     change FramedBalanced before (.advanceClock millis) (Endpoint.advanceClock before millis)
     unfold Endpoint.advanceClock
@@ -707,7 +738,8 @@ theorem Step.data (step : Step) (nonempty : step.acceptedPayload ≠ []) :
   cases event : step.event with
   | write bytes | send bytes _ | read bytes | emitAck bytes | advanceClock bytes | timeout bytes | dispatchAck bytes =>
     simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
-  | enableRecovery | enableAck => simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
+  | enableRecovery | enableAck | enableStartupRecovery _ =>
+    simp [Step.acceptedPayload, ApplicationTrace.acceptedPayload, event] at nonempty
   | receive input =>
     cases selected : step.result.decision with
     | reject reason | unsupported reason | recoveryUnsupported reason | ackUnsupported reason =>

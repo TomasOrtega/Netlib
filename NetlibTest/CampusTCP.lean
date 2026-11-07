@@ -93,6 +93,7 @@ private def fixtureCases : IO Unit := do
     let input ← load (Check.CampusTCP.Input.fromJson (← load (row.getObjVal? "input")))
     let report ← load (check input)
     match report.final.connection with
+    | .recovering _ => throw (IO.userError "An ordinary fixture must not enter startup recovery.")
     | .startup stage _ =>
       ensure stage.passiveSeed.isNone "Pending startup cannot expose a passive application state."
       match F.assure report with

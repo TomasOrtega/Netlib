@@ -425,6 +425,7 @@ def applicationDelivery (report : M.Report input events) (peer : List AppStep) (
   have lineage := service_lineage received service
   match production : received.receipt.served.ticket.value.produced with
   | .startup .. => throw "A startup copy cannot supply an application delivery history."
+  | .recovery .. => throw "A recovery control requires its startup receipt history."
   | .application sourceActor sourceStep output origin =>
     let source ← TCP.ApplicationTrace.findOutput peer sourceStep.stamp
     if before : source.val.step.before = sourceStep.before then
@@ -497,7 +498,7 @@ def receives (report : M.Report input events) (peer : List AppStep) (actor : M.A
     | .emitAck policy =>
       let tail ← receives report peer actor rest
       return .other head (by intro packet same; rw [event] at same; cases same) tail
-    | .enableRecovery | .advanceClock _ | .timeout _ | .enableAck | .dispatchAck _ =>
+    | .enableRecovery | .enableStartupRecovery _ | .advanceClock _ | .timeout _ | .enableAck | .dispatchAck _ =>
       let tail ← receives report peer actor rest
       return .other head (by intro packet same; rw [event] at same; cases same) tail
 
@@ -526,7 +527,7 @@ inductive StartupKind where
   deriving Repr, BEq, DecidableEq
 
 def startupKind : M.Produced active passive → Option StartupKind
-  | .application .. => none
+  | .application .. | .recovery .. => none
   | .startup step _ _ => match step.event with
     | .activeOpen .. => some .syn
     | .listenSyn .. => some .synAck
@@ -608,7 +609,7 @@ theorem Assurance.with_environment (value : Assurance report)
 def assure (report : M.Report input events) : Except String (Assurance report) := do
   if compliant : report.compliant = true then
     match selected : report.final.connection with
-    | .startup .. => throw "The startup exchange is pending."
+    | .startup .. | .recovering _ => throw "The startup exchange is pending."
     | .application complete endpoints =>
       let startup ← startupHistory report complete
       let client ← receives report endpoints.server.steps .client endpoints.client.steps

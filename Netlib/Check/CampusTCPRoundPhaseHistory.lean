@@ -1,4 +1,5 @@
 import Netlib.Check.CampusTCPRoundProgress
+import Netlib.Check.CampusTCPApplicationHistory
 
 /-!
 # Actual endpoint history through the scheduled round
@@ -20,6 +21,7 @@ def connectionSteps (connection : Connection active passive) (actor : Actor) : L
   match connection with
   | .startup .. => []
   | .application _ endpoints => applicationSteps endpoints actor
+  | .recovering current => current.applicationSteps actor.recoverySide
 
 private theorem stateAt_append (state : State input) (prior later : List (Step input)) :
     CampusTCPSchedule.stateAt state (prior ++ later) prior.length =

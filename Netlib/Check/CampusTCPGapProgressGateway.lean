@@ -1,6 +1,7 @@
 import Netlib.Check.CampusTCPGapProgressStart
 import Netlib.Protocol.TCP.AdmissionRepeatEnabled
 import Netlib.Protocol.TCP.CheckpointCoverageFacts
+import Netlib.Protocol.TCP.AdmissionExecutionDataFacts
 
 /-!
 # Current two-lane coverage through held-gap retries
@@ -136,7 +137,7 @@ theorem history_nonempty_profile (history : Checkpoint.History gateway) (index :
     Admission.DataProfile seen.segment := by
   let origin := history.observationOrigin index seen selected
   rw [origin.segment] at nonempty ⊢
-  exact allowed_nonempty_profile origin.transition.admitted.admitted nonempty
+  exact allowed_nonempty_profile (AdmissionExecution.Result.nonempty_legacy origin.transition.admitted nonempty) nonempty
 
 theorem Current.known_of_slice (current : Current start cut) (direction : Admission.Direction)
     (segment : Segment) (run : Admission.Coverage.Run Nat)

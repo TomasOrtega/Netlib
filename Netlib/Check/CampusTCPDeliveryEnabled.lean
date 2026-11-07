@@ -42,7 +42,7 @@ end E
 variable {input : Input}
 
 def ApplicationSource : Produced input.active input.passive → Prop
-  | .startup .. => False
+  | .startup .. | .recovery .. => False
   | .application .. => True
 
 def LinkPending (before : State input) (index : Nat) : Prop :=
@@ -116,6 +116,8 @@ private theorem deliver_core_of_application (before : State input) (index : Nat)
     · rename_i actor source sourceOutput origin produced
       simp only [applied]
       exact ⟨_, _, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+    · rename_i source occurrence present produced
+      simp only [ApplicationSource, produced] at application
 
 namespace A
 export CampusTCPEnabled (endpoint applicationSteps endpoint_valid application_quiet application_frame)

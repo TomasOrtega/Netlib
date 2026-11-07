@@ -41,18 +41,18 @@ private theorem before_eq (value : ServiceMove initial current item hit session 
 
 private theorem admission_after (value : ServiceMove initial current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (beforeService input value.move.after.report.final gateway).admission =
       (processingAt processing (before_eq value)).nextAdmission := by
-  rw [value.after_before processing present, processingAt_admission]
+  rw [value.after_ordinary_before processing present, processingAt_admission]
   rfl
 
 private theorem tracker_after (value : ServiceMove initial current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (beforeService input value.move.after.report.final gateway).tracker =
       (processingAt processing (before_eq value)).outcome.state := by
-  rw [value.after_before processing present, processingAt_outcome]
+  rw [value.after_ordinary_before processing present, processingAt_outcome]
   rfl
 
 theorem lower_service (view : View initial current)
@@ -68,7 +68,7 @@ theorem lower_service (view : View initial current)
         run.sourceID = (view.gateway.session.lane sender.direction).coverage.nextID ∧
         run.metadata = (beforeService input current.report.final gateway).admission.observations.length ∧
         run.position = initial.geometry.«prefix» ∧ run.bytes = lower := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (before_eq value)
   have selectedDirection : selected.prepared.attachment.direction = sender.direction := by
     rw [processingAt_attachment]
@@ -91,7 +91,7 @@ theorem upper_service (view : View initial current)
         run.sourceID = (view.gateway.session.lane sender.direction).coverage.nextID ∧
         run.metadata = (beforeService input current.report.final gateway).admission.observations.length ∧
         run.position = initial.geometry.«prefix» + lower.length ∧ run.bytes = upper := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (before_eq value)
   have selectedDirection : selected.prepared.attachment.direction = sender.direction := by
     rw [processingAt_attachment]
@@ -106,7 +106,7 @@ theorem empty_service (view : View initial current)
     (empty : served.ticket.value.source.packet.segment.payload = []) :
     ∃ result : View initial value.move.after, result.ranges.lowerRun = view.ranges.lowerRun ∧
       result.ranges.upperRun = view.ranges.upperRun := by
-  obtain ⟨processing, present, _, _, _, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, _, _⟩ := value.ordinary_processing
   exact view.empty_service (processingAt processing (before_eq value)) empty
     (admission_after value processing present) (tracker_after value processing present)
 
@@ -116,7 +116,7 @@ theorem repeat_service (view : View initial current)
       served.ticket.value.source.packet.segment (beforeService input current.report.final gateway).admission.observations) :
     ∃ result : View initial value.move.after, result.ranges.lowerRun = view.ranges.lowerRun ∧
       result.ranges.upperRun = view.ranges.upperRun := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (before_eq value)
   have selectedDirection : selected.prepared.attachment.direction = hit.direction := by
     rw [processingAt_attachment]

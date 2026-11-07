@@ -100,6 +100,7 @@ private def inspect (report : M.Report input events) : IO (Nat × Nat × Nat) :=
             | _ => pure ()
       match connection : cut.final.connection with
       | .startup .. => pure ()
+      | .recovering .. => throw (IO.userError "The ordinary delivery test prefix entered recovery.")
       | .application complete endpoints =>
         for index in List.range cut.final.services.length do
           match found : cut.final.services[index]? with

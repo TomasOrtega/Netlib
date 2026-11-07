@@ -22,7 +22,7 @@ variable {input : Input} {events : List CampusTCPModel.Event} {report : Report i
 variable {complete : H.Completed input.active input.passive} {request : Request input}
 variable {initial : Initial report complete request} {native : NativeEnv initial}
 
-private theorem Processing.repeated_attachment (processing : CampusTCPService.Processing context before source zone)
+private theorem Processing.repeated_attachment (processing : CampusTCPService.Processing context before source zone mode)
     (ready : CampusTCPService.ExistingRepeatedReady context before source zone ingress hit session hop) :
     processing.prepared.attachment.entry = session.entry ∧
       processing.prepared.attachment.direction = hit.direction ∧ processing.prepared.attachment.fresh = false := by
@@ -53,11 +53,12 @@ theorem Report.serve_repeated_enabled (report : Report input events)
     rw [selected]
     exact ready
   obtain ⟨evidence, emission, computed, emitted, passed, target, _, processing, processingAt, nextHop⟩ :=
-    CampusTCPService.run_existing_repeated_enabled (input.contextFor completed.item.value.gateway)
+    CampusTCPService.run_existing_admission_enabled (input.contextFor completed.item.value.gateway)
       (beforeService input before completed.item.value.gateway) completed.item.value.source input.zone
-      completed.item.value.ingress hit session completed.item.value.produced.actor.nextHop readySelected
+      completed.item.value.ingress hit completed.item.value.produced.actor.nextHop
+      (readySelected.admissionReady before.connection.admissionMode)
   let served : Served input := ⟨before.time, completed.item,
-    beforeService input before completed.item.value.gateway, evidence, computed, true⟩
+    beforeService input before completed.item.value.gateway, before.connection.admissionMode, evidence, computed, true⟩
   have route : served.routeMatched = true := by
     simp only [Served.routeMatched, served, processingAt]
     split

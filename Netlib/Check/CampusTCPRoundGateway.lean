@@ -137,14 +137,11 @@ def reply_ready
   exact existing_ready native current same source input.zone (header.trans aligned.serverInput) aligned.replyZone
     valid records session (geometry.entry.trans aligned.entryEq) phase (.inr ready) ttl
 
-theorem Processing.singleton_data_records (processing : CampusTCPService.Processing context before source zone)
+theorem Processing.singleton_data_records (processing : CampusTCPService.Processing context before source zone mode)
     (session : TCP.Admission.Session) (phase : before.admission.phase = .data session)
     (records : before.tracker.records = [⟨entry, true⟩]) :
     processing.outcome.state.records = [⟨entry, true⟩] := by
-  have allowed : TCP.Admission.Allowed (.data session) processing.prepared.attachment
-      source.asInput.packet.segment before.admission.observations := by
-    simpa only [phase] using processing.admitted.admitted
-  have existing : processing.prepared.attachment.fresh = false := allowed.2.1
+  have existing := CampusTCPRoundAdmission.Processing.existing_data processing session phase
   rw [processing.existing_state existing]
   cases direction : processing.prepared.attachment.direction with
   | original =>
@@ -159,8 +156,8 @@ theorem Processing.singleton_data_records (processing : CampusTCPService.Process
     split <;> rfl
 
 theorem Evidence.singleton_data_records
-    (evidence : CampusTCPService.Evidence context before source zone ingress)
-    (processing : CampusTCPService.Processing context before source zone)
+    (evidence : CampusTCPService.Evidence context before source zone ingress mode)
+    (processing : CampusTCPService.Processing context before source zone mode)
     (present : evidence.processing = some processing) (session : TCP.Admission.Session)
     (phase : before.admission.phase = .data session) (records : before.tracker.records = [⟨entry, true⟩]) :
     evidence.tracker.Valid ∧ evidence.tracker.records = [⟨entry, true⟩] := by

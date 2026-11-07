@@ -2801,6 +2801,53 @@ The transfer progress chapter proves both reads and the reverse write under one 
 Other options, broader recovery, congestion control, native clocks, and the full campus demonstration remain open.
 All seven research programs remain OPEN.
 
+# TCP startup recovery through gateway transfer
+%%%
+tag := "tcp-startup-recovery"
+file := "tcp-startup-recovery"
+%%%
+
+One actual report starts at cold TCP startup and continues through both reads and all seven planned transfer controls.
+`CampusTCPStartupTransferBound.complete` requires one whole action check and one service check, with `L ≤ 2`, `q > 0`, and `B > 0`.
+Raw preparation, endpoint reserves, namespace equality, and fixed native paths refer to the same actual preparation cut.
+The report must contain at least `totalSlots config B` evaluated slots.
+
+The theorem derives data entry, current session geometry, and timer bounds from that report.
+The handoff preserves actual endpoint histories, `sendWL1`, `sendWL2`, clocks, RTOs, estimators, and the recovery archive.
+The data allowance is `L - actualStartupDrops`.
+Two startup expiries and one data expiry can accompany two physical drops.
+The result retains the exact whole-report prefix, both selected byte streams, and the physical loss bound:
+
+```lean
+open Netlib.Check in
+open CampusTCPStartupTransferBound in
+example
+    {input : CampusTCPModel.Input}
+    {events : List CampusTCPModel.Event}
+    {config : CampusTCPStartupTransferMonitor.Config}
+    {whole : CampusTCPModel.Report input events}
+    {bound : Nat}
+    (value : Result config whole bound) :
+    let transfer := value.transfer
+    let reverse := transfer.reverse.value.completed.reader
+    transfer.current.report.steps =
+        whole.steps.take
+          (value.entrySlot + 1 + transfer.slot) ∧
+      (transfer.readWrite.read.actual.result.read =
+          config.transfer.lower ++ config.transfer.upper ∧
+        reverse.result.read =
+          config.transfer.reverseLower ++
+            config.transfer.reverseUpper) ∧
+      transfer.current.report.final.custody.dropped ≤
+        config.transfer.lossAllowance :=
+  ⟨value.history, value.streams, value.whole_budget⟩
+```
+
+Read-created window ACK work can remain pending after both reads.
+The result does not establish support for an arbitrary later tail.
+The [startup recovery guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/TCP_STARTUP_RECOVERY.md) and [API declaration](../api/Netlib/Check/CampusTCPStartupTransferBound.html#Netlib.Check.CampusTCPStartupTransferBound.complete) state the raw assumptions and horizon.
+Native kernel correspondence, physical timing, automatic recovery, and all seven full research programs remain open.
+
 # Documentation process
 %%%
 tag := "documentation"
