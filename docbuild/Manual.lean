@@ -2848,6 +2848,61 @@ The result does not establish support for an arbitrary later tail.
 The [startup recovery guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/TCP_STARTUP_RECOVERY.md) and [API declaration](../api/Netlib/Check/CampusTCPStartupTransferBound.html#Netlib.Check.CampusTCPStartupTransferBound.complete) state the raw assumptions and horizon.
 Native kernel correspondence, physical timing, automatic recovery, and all seven full research programs remain open.
 
+# Bounded campus session revocation
+%%%
+tag := "campus-revocation"
+file := "campus-revocation"
+%%%
+
+One actual report retains the authentication trigger, both checked policy installations, packet processing, and FIFO delivery.
+`CampusRevocation.complete` derives completion from one whole action check and one whole service check with positive bound `B`.
+If the trigger cut is `a` and its actual queue length is `K`, sufficient report length is `a + 2*B + (K + 2*B)*B`.
+`certify` can accept an earlier recorded completion without padding the report.
+The finite case certifies cut 25 in 34 actual steps, with a sufficient deadline of 35.
+
+Stale processing before both installations retains its original false policy verdict.
+The FIFO stores actual computed emission bytes, separately from outstanding route assignments.
+The completion result preserves the literal report prefix and its delivered bytes:
+
+```lean
+open Netlib.Check in
+open CampusRevocationModel in
+open CampusRevocationTargets in
+open CampusRevocationControl in
+example
+    {input : CampusRevocationModel.Input} {budget : Nat}
+    {events : List Event} {cut bound : Nat}
+    (report : Report input budget events)
+    (targets : Targets input
+      (CampusDeployment.State.authentication
+        (stateAt input.initial report.steps cut).campus))
+    (positive : 0 < bound)
+    (trigger :
+      CampusRevocationTrigger.triggerAt
+        report.steps cut = true)
+    (permitted : actions report cut targets = true)
+    (serviced : service report cut targets bound = true)
+    (enough : deadline report cut bound ≤
+      report.steps.length) :
+    let value := CampusRevocation.complete report cut bound
+      targets positive trigger permitted serviced enough
+    (Report.cut report value.slot value.bounds.2.2).steps =
+        report.steps.take value.slot ∧
+      value.current.queue.delivered.map Datagram.bytes =
+        (arrivals (report.steps.take value.slot)).map
+          Datagram.bytes := by
+  let value := CampusRevocation.complete report cut bound
+    targets positive trigger permitted serviced enough
+  exact ⟨value.history, value.delivered_bytes⟩
+```
+
+After completion, both stored targets remain installed throughout the checked suffix.
+Later packet calls use the actual persistent trackers and require an unfenced gateway.
+Primary processing also requires a primary that has not been withdrawn.
+That suffix has no new emissions or delivery after completion.
+The [revocation guide](https://github.com/TomasOrtega/Netlib/blob/main/docs/CAMPUS_REVOCATION.md) and [public interface](../api/Netlib/Check/CampusRevocation.html#Netlib.Check.CampusRevocation.complete) state the full assumptions.
+Native kernel correspondence, physical timing, cryptographic correctness, and wireless enforcement remain open.
+
 # Documentation process
 %%%
 tag := "documentation"

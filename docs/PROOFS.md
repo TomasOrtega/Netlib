@@ -365,6 +365,14 @@ The native example records 26 operations, eight datagrams, and seven protected t
 Its joint model timeline has 21 authentication operations, 23 network operations, and one withdrawal.
 The [campus deployment guide](CAMPUS_DEPLOYMENT.md) separates these results from cryptography, wireless deployment, anti-spoofing, physical correspondence, and automatic recovery obligations.
 
+`Check.CampusRevocation.complete` derives both checked deny installations and the actual emission FIFO drain.
+It uses one whole action check and one whole service check.
+The deadline uses the queue length at the actual Logoff, revoke, or close cut.
+`certify` can accept an earlier recorded completion without padding.
+The result retains exact history and delivered bytes, then excludes new arrivals and delivery throughout the checked suffix.
+Ordinary packet processing preserves the gateway availability guards and actual persistent trackers.
+The [revocation guide](CAMPUS_REVOCATION.md) states the selected UDP scope and remaining deployment assumptions.
+
 ## Requirements and logic
 
 `Netlib/Core/Logic.lean` defines a Boolean evaluator and propositional semantics
