@@ -66,7 +66,7 @@ theorem Step.delivery_application_frame (actual : Step input) (complete : H.Comp
             served.ticket.value.produced.actor.other (.receive emission.asInput) applicationEffect localStep applied localRecorded
         have sameReceipt : receipt = (⟨actual.before.time, index, served, emission, emitted,
             emission.asInput, rfl, served.ticket.value.produced.actor.other, rfl,
-            applicationEffect.application.map (·.2)⟩ : Receipt input) := by
+            applicationEffect.application.map (·.2), none⟩ : Receipt input) := by
           simpa only [final, Option.some.injEq] using receiptAt.symm
         refine ⟨localBefore, localEvent, stamp, ?_, ?_⟩
         · rw [final]
@@ -79,6 +79,8 @@ theorem Step.delivery_application_frame (actual : Step input) (complete : H.Comp
               | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at applied)
           exact noService
         · rw [final, sameReceipt]
+    · rename_i source occurrence present produced
+      simp only [D.ApplicationSource, produced] at application
 
 variable {input : Input} {events : List CampusTCPModel.Event}
 

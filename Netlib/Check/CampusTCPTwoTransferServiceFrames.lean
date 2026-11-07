@@ -35,10 +35,10 @@ private theorem processing_phase (view : ViewAt initial current location)
     (value : Service current item hit view.gateway.session actual served emission emitted) (located : item.value.gateway = location)
     (after : ViewAt initial value.move.after location)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing) :
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing) :
     (processingAt processing (processing_before value located)).admitted.state.phase = .data after.gateway.session := by
   have phase := after.gateway.phase
-  have afterBefore := value.after_before processing present
+  have afterBefore := value.after_ordinary_before processing present
   rw [located] at afterBefore
   rw [afterBefore] at phase
   change processing.nextAdmission.phase = .data after.gateway.session at phase
@@ -50,7 +50,7 @@ theorem data_acknowledged (view : ViewAt initial current location)
     (value : Service current item ⟨view.gateway.session.entry.flow, sender.direction⟩ view.gateway.session actual served emission emitted)
     (located : item.value.gateway = location) (after : ViewAt initial value.move.after location) :
     (after.gateway.session.lane sender.direction).acknowledged = (view.gateway.session.lane sender.direction).acknowledged := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by rw [processingAt_attachment]; exact attached
   have fields := CampusTCPTwoProgressGatewayWindow.result_window_fields selected.admitted view.gateway.phase
@@ -62,7 +62,7 @@ theorem data_peer_lane (view : ViewAt initial current location)
     (located : item.value.gateway = location) (after : ViewAt initial value.move.after location) :
     after.gateway.session.peer sender.direction =
       Admission.acknowledgedLane (view.gateway.session.peer sender.direction) served.ticket.value.source.packet.segment := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.direction := by rw [processingAt_attachment]; exact attached
   have fields := CampusTCPTwoProgressGatewayWindow.result_window_fields selected.admitted view.gateway.phase
@@ -95,7 +95,7 @@ theorem ack_peer_fields (view : ViewAt initial current location)
     (located : item.value.gateway = location) (after : ViewAt initial value.move.after location) :
     (after.gateway.session.peer sender.direction).acknowledged = (view.gateway.session.peer sender.direction).acknowledged ∧
       (after.gateway.session.peer sender.direction).peerWindow = (view.gateway.session.peer sender.direction).peerWindow := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   let selected := processingAt processing (processing_before value located)
   have direction : selected.prepared.attachment.direction = sender.other.direction := by rw [processingAt_attachment]; exact attached
   have senderPeer : ∀ session : Admission.Session,

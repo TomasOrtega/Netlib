@@ -187,6 +187,13 @@ import NetlibTest.CampusWithdrawal
 import NetlibTest.CampusDuplex
 import NetlibTest.CampusDirect
 
+import NetlibTest.TCPHandshakeRecovery
+import NetlibTest.TCPHandshakeRecoveryTrace
+import NetlibTest.TCPStartupCheckpoint
+import NetlibTest.CampusTCPStartupRecovery
+import NetlibTest.CampusTCPStartupMonitor
+import NetlibTest.CampusTCPStartupEndToEnd
+
 open Netlib
 
 def main : IO Unit := do
@@ -368,4 +375,10 @@ def main : IO Unit := do
   NetlibTest.CampusTCPService.run
   NetlibTest.CampusTCP.run
   NetlibTest.CampusTCPTransfer.run
+  NetlibTest.TCPHandshakeRecovery.run
+  NetlibTest.TCPHandshakeRecoveryTrace.run
+  NetlibTest.TCPStartupCheckpoint.run
+  NetlibTest.CampusTCPStartupRecovery.run
+  NetlibTest.CampusTCPStartupMonitor.run
+  NetlibTest.CampusTCPStartupEndToEnd.run
   IO.println "Netlib tests passed."

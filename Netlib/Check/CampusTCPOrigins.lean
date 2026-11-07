@@ -52,6 +52,9 @@ private theorem startup_produces (input : M.Input) (before : M.State input)
   · simp only [pure, Except.pure, Except.ok.injEq] at accepted
     cases accepted
     simp [Produces, Check.CampusTCPModel.unsupported]
+  · simp only [pure, Except.pure, Except.ok.injEq] at accepted
+    cases accepted
+    simp [Produces, Check.CampusTCPModel.unsupported]
   · split at accepted
     · cases accepted
     · split at accepted
@@ -67,6 +70,9 @@ private theorem application_produces (input : M.Input) (before : M.State input)
     (accepted : Check.CampusTCPModel.applyApplication input before actor event = .ok effect) : Produces before effect := by
   unfold Check.CampusTCPModel.applyApplication at accepted
   split at accepted
+  · simp only [pure, Except.pure, Except.ok.injEq] at accepted
+    cases accepted
+    simp [Produces, Check.CampusTCPModel.unsupported]
   · simp only [pure, Except.pure, Except.ok.injEq] at accepted
     cases accepted
     simp [Produces, Check.CampusTCPModel.unsupported]
@@ -88,17 +94,69 @@ private theorem application_produces (input : M.Input) (before : M.State input)
             cases accepted
             simp [Produces, Check.CampusTCPModel.publish, Check.CampusTCPModel.Produced.time, stamp]
 
+private theorem recovery_produces (input : M.Input) (before : M.State input)
+    (event : TCPHandshakeRecovery.Event) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.runRecovery input before event = .ok effect) : Produces before effect := by
+  unfold Check.CampusTCPModel.runRecovery at accepted
+  split at accepted
+  · cases accepted
+    simp [Produces, Check.CampusTCPModel.unsupported]
+  · cases accepted
+    simp [Produces, Check.CampusTCPModel.unsupported]
+  · split at accepted
+    · cases accepted
+    · rename_i result computed
+      have records := TCPHandshakeRecovery.evaluate_records computed
+      cases decision : result.decision <;> simp only [decision] at accepted
+      all_goals
+        split at accepted
+        · cases accepted
+          simp [Produces]
+        · rename_i emission present
+          cases accepted
+          refine ⟨rfl, rfl, rfl, ?_, rfl⟩
+          intro produced output
+          cases output
+          exact records.outputIndex emission present
+
+private theorem openRecovery_produces (input : M.Input) (before : M.State input)
+    (remote : TCP.Handshake.Socket) (policy : Bool) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.openRecovering input before remote policy = .ok effect) : Produces before effect := by
+  unfold Check.CampusTCPModel.openRecovering at accepted
+  repeat' first
+    | (solve | cases accepted; simp [Produces, Check.CampusTCPModel.unsupported])
+    | (solve | simpa only [Produces] using recovery_produces _ _ _ _ accepted)
+    | (cases accepted)
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+
+private theorem finishStartup_produces (input : M.Input) (before : M.State input) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.finishStartup input before = .ok effect) : Produces before effect := by
+  unfold Check.CampusTCPModel.finishStartup at accepted
+  repeat' first
+    | (solve | cases accepted; simp [Produces, Check.CampusTCPModel.unsupported])
+    | (cases accepted)
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+
+private theorem startupRecovery_produces (input : M.Input) (before : M.State input)
+    (actor : M.Actor) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.enableStartupRecovery input before actor = .ok effect) : Produces before effect := by
+  unfold Check.CampusTCPModel.enableStartupRecovery at accepted
+  split at accepted
+  · cases accepted
+    simp [Produces, Check.CampusTCPModel.unsupported]
+  · exact application_produces _ _ _ _ _ accepted
+
 private theorem enableAck_produces (input : M.Input) (before : M.State input)
     (actor : M.Actor) (effect : M.Effect input)
     (accepted : Check.CampusTCPModel.enableAck input before actor = .ok effect) : Produces before effect := by
   unfold Check.CampusTCPModel.enableAck at accepted
-  split at accepted
-  · exact application_produces _ _ _ _ _ accepted
-  · cases actor <;> simp only at accepted
-    all_goals
-      split at accepted
-      · exact application_produces _ _ _ _ _ accepted
-      · cases accepted
+  repeat' first
+    | (solve | exact application_produces _ _ _ _ _ accepted)
+    | (solve | cases accepted)
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
 
 def Assignment (before : M.State input) (event : M.Event)
     (item : O.Item (M.Ticket input.active input.passive)) : Prop :=
@@ -141,8 +199,13 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
     Changes before event effect := by
   cases event with
   | «open» remote policy => exact produces_changes _ (startup_produces _ _ _ _ accepted)
+  | openRecovering remote policy => exact produces_changes _ (openRecovery_produces _ _ _ _ _ accepted)
+  | startupClock actor millis | startupTimeout actor generation policy =>
+    exact produces_changes _ (recovery_produces _ _ _ _ accepted)
+  | finishStartup => exact produces_changes _ (finishStartup_produces _ _ _ accepted)
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact produces_changes _ (application_produces _ _ _ _ _ accepted)
+  | enableStartupRecovery actor => exact produces_changes _ (startupRecovery_produces _ _ _ _ accepted)
   | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
     exact produces_changes _ (application_produces _ _ _ _ _ accepted)
   | dispatchAck actor policy => exact produces_changes _ (application_produces _ _ _ _ _ accepted)
@@ -227,6 +290,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
       repeat' first
         | (solve | apply produces_changes; simpa only [Produces] using (startup_produces input before _ _ (by assumption)))
         | (solve | apply produces_changes; simpa only [Produces] using (application_produces input before _ _ _ (by assumption)))
+        | (solve | apply produces_changes; simpa only [Produces] using (recovery_produces input before _ _ (by assumption)))
         | (cases accepted)
         | (split at accepted)
         | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
@@ -282,17 +346,31 @@ theorem service_origin (step : M.Step input) (served : M.Served input)
       served.time = step.before.time :=
   (step_changes step).serviceOrigin served present
 
+theorem service_mode (step : M.Step input) (served : M.Served input)
+    (present : step.result.service = some served) : served.mode = step.before.connection.admissionMode := by
+  obtain ⟨id, observed, _, event, _⟩ := service_origin step served present
+  obtain ⟨effect, custody, computed, result⟩ := step.processed
+  have recorded : effect.service = some served := by simpa only [result] using present
+  rw [event] at computed
+  simp only [Check.CampusTCPModel.processCore] at computed
+  repeat' first
+    | (solve | cases computed; cases recorded; rfl)
+    | (solve | cases computed; cases recorded)
+    | (cases computed)
+    | (split at computed)
+    | (dsimp only [Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
 theorem service_run (step : M.Step input) (served : M.Served input)
     (present : step.result.service = some served) :
     ∃ evidence : Check.CampusTCPService.Evidence (input.contextFor served.ticket.value.gateway)
-        (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway) served.ticket.value.source input.zone served.ticket.value.ingress,
+        (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway) served.ticket.value.source input.zone served.ticket.value.ingress served.mode,
       Check.CampusTCPService.run (input.contextFor served.ticket.value.gateway) (Check.CampusTCPModel.beforeService input step.before served.ticket.value.gateway)
-        served.ticket.value.source input.zone served.ticket.value.ingress = .ok evidence := by
+        served.ticket.value.source input.zone served.ticket.value.ingress 100000 served.mode = .ok evidence := by
   obtain ⟨id, observed, completed, event, finished, ticket, before, time⟩ := service_origin step served present
   have computed : ∃ evidence : Check.CampusTCPService.Evidence (input.contextFor served.ticket.value.gateway) served.before
-      served.ticket.value.source input.zone served.ticket.value.ingress,
+      served.ticket.value.source input.zone served.ticket.value.ingress served.mode,
       Check.CampusTCPService.run (input.contextFor served.ticket.value.gateway) served.before served.ticket.value.source input.zone
-        served.ticket.value.ingress = .ok evidence := ⟨served.evidence, served.computed⟩
+        served.ticket.value.ingress 100000 served.mode = .ok evidence := ⟨served.evidence, served.computed⟩
   rw [← before]
   exact computed
 

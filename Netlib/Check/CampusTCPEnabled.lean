@@ -419,4 +419,53 @@ theorem Step.application_chronology (joint : Step input) (complete : H.Completed
     rw [opposite, other] at member
     exact Nat.lt_trans (earlier actor.other old member) (Nat.lt_succ_self _)
 
+theorem startup_data_floor (archive : RecoveryArchive active passive) (actor : Actor) :
+    1000 ≤ (archive.data actor).rto := by
+  cases actor
+  · exact (Protocol.TCP.HandshakeTimer.handoff_floor archive.current.activeValid archive.activeHandoff).1
+  · exact (Protocol.TCP.HandshakeTimer.handoff_floor archive.current.passiveValid archive.passiveHandoff).1
+
+theorem enableStartupRecovery_enabled (before : State input) (complete : H.Completed input.active input.passive)
+    (endpoints : Applications complete) (connection : before.connection = .application complete endpoints)
+    (actor : Actor) (archive : RecoveryArchive input.active input.passive)
+    (archived : before.recoveryArchive = some archive)
+    (earlier : ∀ old ∈ applicationSteps endpoints actor, old.stamp < before.time)
+    (disabled : (endpoint endpoints actor).recovery = none) (empty : (endpoint endpoints actor).core.sent = []) :
+    ∃ effect, step input before (.enableStartupRecovery actor) = .ok effect ∧ effect.supported = true ∧
+      effect.output = none ∧ effect.read = [] ∧
+      effect.application = some (actor, Protocol.TCP.ApplicationTrace.Step.make (endpoint endpoints actor)
+        (endpoint_valid endpoints actor) (.enableStartupRecovery (archive.data actor)) before.time) := by
+  let result : Protocol.TCP.Endpoint.Result :=
+    ⟨Protocol.TCP.Endpoint.startupRecoveryState (endpoint endpoints actor) (archive.data actor),
+      .accepted .enableRecovery, none, [], none⟩
+  have evaluated : Protocol.TCP.ApplicationTrace.evaluate (endpoint endpoints actor)
+      (.enableStartupRecovery (archive.data actor)) = result :=
+    Protocol.TCP.Endpoint.enableStartupRecovery_of_ready _ _ (endpoint_valid endpoints actor) disabled empty
+      (startup_data_floor archive actor)
+  obtain ⟨effect, computed, supported, quiet, read, recorded⟩ :=
+    application_quiet before complete endpoints connection actor (.enableStartupRecovery (archive.data actor))
+      earlier result .enableRecovery evaluated rfl rfl
+  obtain ⟨after, checked, supportEq, outputEq, applicationEq, readEq⟩ :=
+    finish_step before (.enableStartupRecovery actor) effect
+      (by simpa only [processCore, CampusTCPModel.enableStartupRecovery, archived] using computed) rfl
+  exact ⟨after, checked, supportEq.trans supported, outputEq.trans quiet, readEq.trans read, applicationEq.trans recorded⟩
+
+theorem Step.startupRecovery_frame (joint : Step input) (complete : H.Completed input.active input.passive)
+    (endpoints : Applications complete) (connection : joint.before.connection = .application complete endpoints)
+    (actor : Actor) (event : joint.event = .enableStartupRecovery actor)
+    (archive : RecoveryArchive input.active input.passive) (archived : joint.before.recoveryArchive = some archive)
+    (actual : T.Step) (recorded : joint.result.application = some (actor, actual)) :
+    ∃ after : Applications complete, joint.result.state.connection = .application complete after ∧
+      endpoint after actor = actual.result.state ∧ endpoint after actor.other = endpoint endpoints actor.other ∧
+      applicationSteps after actor = applicationSteps endpoints actor ++ [actual] ∧
+      applicationSteps after actor.other = applicationSteps endpoints actor.other ∧
+      actual.before = endpoint endpoints actor ∧ actual.event = .enableStartupRecovery (archive.data actor) ∧
+      actual.stamp = joint.before.time := by
+  obtain ⟨effect, custody, core, result⟩ := joint.processed
+  have applied : applyApplication input joint.before actor (.enableStartupRecovery (archive.data actor)) = .ok effect := by
+    simpa only [event, processCore, CampusTCPModel.enableStartupRecovery, archived] using core
+  have present : effect.application = some (actor, actual) := by simpa only [result] using recorded
+  simpa only [result] using CampusTCPEnabled.application_frame joint.before complete endpoints connection actor
+    (.enableStartupRecovery (archive.data actor)) effect actual applied present
+
 end Netlib.Check.CampusTCPEnabled

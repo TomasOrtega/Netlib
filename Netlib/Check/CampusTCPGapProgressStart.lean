@@ -225,8 +225,8 @@ theorem held_source (cut : Cut input complete) (actor : Actor) (run : ReceiveRea
     Nonempty (CampusTCPGapFacts.ReceiptDelivery cut.report (applicationSteps cut.endpoints actor.other)
       actor (applicationSteps cut.endpoints actor) run) := by
   obtain ⟨origin⟩ := (endpoint_chain cut actor).held_run_origin (seed_empty_held complete actor) run member
-  obtain ⟨receives⟩ := CampusTCPRecoveryRoundOrigins.Report.receives cut.report complete cut.endpoints cut.connection actor
-  exact CampusTCPGapFacts.receipt_delivery receives origin
+  have receives := CampusTCPRecoveryRoundOrigins.Report.receives cut.report complete cut.endpoints cut.connection actor
+  exact CampusTCPGapFacts.payload_receipt_delivery receives origin
 
 structure PendingLower (cut : Cut input complete) (original : Original cut actor lower) where
   serviceIndex : Nat

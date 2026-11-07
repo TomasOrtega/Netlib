@@ -1,5 +1,6 @@
 import Netlib.Check.CampusTCPGapProgressWire
 import Netlib.Protocol.TCP.CheckpointCoverageFacts
+import Netlib.Check.CampusTCPStartupBasisOrdinary
 
 /-!
 # Actual post-write cuts for two TCP records
@@ -16,7 +17,7 @@ open CampusTCPRound (Cut)
 variable {input : Input} {complete : H.Completed input.active input.passive}
   {cut : Cut input complete} {actor : Actor} {bytes lower upper : List UInt8}
 
-abbrev StartupBasis (cut : Cut input complete) := CampusTCPGapProgressStart.StartupBasis cut
+abbrev StartupBasis (cut : Cut input complete) := CampusTCPStartupBasis.Basis cut.report complete
 abbrev Identity (seed current : Admission.Session) := CampusTCPGapProgressStart.Identity seed current
 
 structure WrittenBatch (cut : Cut input complete) (actor : Actor) (bytes : List UInt8) where

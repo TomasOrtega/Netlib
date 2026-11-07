@@ -165,6 +165,20 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
     Import.PacketFields.fields json ["kind", "remote", "policyPermitted"]
     return .open (← TCPHandshake.socketFromJson (← json.getObjVal? "remote"))
       (← (← json.getObjVal? "policyPermitted").getBool?)
+  | "openRecovering" =>
+    Import.PacketFields.fields json ["kind", "remote", "policyPermitted"]
+    return .openRecovering (← TCPHandshake.socketFromJson (← json.getObjVal? "remote"))
+      (← (← json.getObjVal? "policyPermitted").getBool?)
+  | "startupClock" =>
+    Import.PacketFields.fields json ["kind", "actor", "millis"]
+    return .startupClock (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "millis").getNat?)
+  | "startupTimeout" =>
+    Import.PacketFields.fields json ["kind", "actor", "generation", "policyPermitted"]
+    return .startupTimeout (← actorFromJson (← json.getObjVal? "actor")) (← (← json.getObjVal? "generation").getNat?)
+      (← (← json.getObjVal? "policyPermitted").getBool?)
+  | "finishStartup" =>
+    Import.PacketFields.fields json ["kind"]
+    return .finishStartup
   | "write" =>
     Import.PacketFields.fields json ["kind", "actor", "payloadHex"]
     return .write (← actorFromJson (← json.getObjVal? "actor")) (← hex (← json.getObjVal? "payloadHex"))
@@ -175,6 +189,9 @@ private def eventFromJson (json : Lean.Json) : Except String Event := do
   | "enableRecovery" =>
     Import.PacketFields.fields json ["kind", "actor"]
     return .enableRecovery (← actorFromJson (← json.getObjVal? "actor"))
+  | "enableStartupRecovery" =>
+    Import.PacketFields.fields json ["kind", "actor"]
+    return .enableStartupRecovery (← actorFromJson (← json.getObjVal? "actor"))
   | "enableAck" =>
     Import.PacketFields.fields json ["kind", "actor"]
     return .enableAck (← actorFromJson (← json.getObjVal? "actor"))
@@ -255,6 +272,7 @@ def Input.check (input : Input) := input.model.check input.events
 
 inductive ApplicationStatus (report : CampusTCPModel.Report input events) where
   | pendingStartup (pending : ∃ stage incomplete, report.final.connection = .startup stage incomplete)
+  | pendingRecovery (pending : ∃ current, report.final.connection = .recovering current)
   | failed (reason : String)
   | checked (value : CampusTCPFacts.Assurance report)
 
@@ -262,17 +280,18 @@ def applicationStatus (report : CampusTCPModel.Report input events) : Applicatio
   if report.compliant then
     match selected : report.final.connection with
     | .startup stage incomplete => .pendingStartup ⟨stage, incomplete, selected⟩
+    | .recovering current => .pendingRecovery ⟨current, selected⟩
     | .application .. => match CampusTCPFacts.assure report with
       | .error reason => .failed reason
       | .ok value => .checked value
   else .failed "The actual joint replay is not compliant."
 
 def ApplicationStatus.passed : ApplicationStatus report → Bool
-  | .pendingStartup _ | .checked _ => true
+  | .pendingStartup _ | .pendingRecovery _ | .checked _ => true
   | .failed _ => false
 
 def ApplicationStatus.json : ApplicationStatus report → Lean.Json
-  | .pendingStartup _ => Lean.Json.mkObj [("status", Lean.toJson "pendingStartup")]
+  | .pendingStartup _ | .pendingRecovery _ => Lean.Json.mkObj [("status", Lean.toJson "pendingStartup")]
   | .failed reason => Lean.Json.mkObj [("status", Lean.toJson "failed"), ("reason", Lean.toJson reason)]
   | .checked value => Lean.Json.mkObj [
     ("status", Lean.toJson "checked"), ("startupReceipts", Lean.toJson (3 : Nat)),
@@ -325,7 +344,7 @@ def TransferStatus.json : TransferStatus report → Lean.Json
 
 def ackEnabled (report : CampusTCPModel.Report input events) : Bool :=
   match report.final.connection with
-  | .startup .. => false
+  | .startup .. | .recovering _ => false
   | .application _ endpoints => endpoints.client.current.ackReaction.isSome || endpoints.server.current.ackReaction.isSome
 
 inductive AckStatus (report : CampusTCPModel.Report input events) where
@@ -373,7 +392,7 @@ def AckStatus.json : AckStatus report → Lean.Json
 
 def receiveGapSeen (report : CampusTCPModel.Report input events) : Bool :=
   match report.final.connection with
-  | .startup .. => false
+  | .startup .. | .recovering _ => false
   | .application _ endpoints => endpoints.client.current.receiveStore.seenGap || endpoints.server.current.receiveStore.seenGap
 
 inductive ReceiveGapStatus (report : CampusTCPModel.Report input events) where
@@ -484,6 +503,9 @@ def eventKind : Event → String
   | .enableAck .. => "enableAck" | .dispatchAck .. => "dispatchAck"
   | .assign .. => "assign" | .serve .. => "serve" | .deliver .. => "deliver"
   | .copyPacket _ => "copyPacket" | .dropPacket _ => "dropPacket"
+  | .openRecovering .. => "openRecovering" | .startupClock .. => "startupClock"
+  | .startupTimeout .. => "startupTimeout" | .finishStartup => "finishStartup"
+  | .enableStartupRecovery .. => "enableStartupRecovery"
 
 def eventJson (event : Event) : Lean.Json :=
   Lean.Json.mkObj (("kind", Lean.toJson (eventKind event)) :: match event with
@@ -497,10 +519,15 @@ def eventJson (event : Event) : Lean.Json :=
     | .pause | .stageCheckpoint | .fencePrimary | .resume => []
     | .installCheckpoint executionNS => [("namespace", namespaceJson executionNS)]
     | .switchRoute actor gateway => [("actor", Lean.toJson (actorName actor)), ("gateway", Lean.toJson (gatewayName gateway))]
-    | .open remote policy => [("remote", TCPHandshake.socketJson remote), ("policyPermitted", Lean.toJson policy)]
+    | .open remote policy | .openRecovering remote policy =>
+      [("remote", TCPHandshake.socketJson remote), ("policyPermitted", Lean.toJson policy)]
+    | .startupClock actor millis => [("actor", Lean.toJson (actorName actor)), ("millis", Lean.toJson millis)]
+    | .startupTimeout actor generation policy => [("actor", Lean.toJson (actorName actor)),
+      ("generation", Lean.toJson generation), ("policyPermitted", Lean.toJson policy)]
+    | .finishStartup => []
     | .write actor bytes => [("actor", Lean.toJson (actorName actor)), ("payloadHex", Lean.toJson (Import.EAPOL.bytesToHex bytes))]
     | .send actor count policy => [("actor", Lean.toJson (actorName actor)), ("count", Lean.toJson count), ("policyPermitted", Lean.toJson policy)]
-    | .enableRecovery actor => [("actor", Lean.toJson (actorName actor))]
+    | .enableRecovery actor | .enableStartupRecovery actor => [("actor", Lean.toJson (actorName actor))]
     | .enableAck actor => [("actor", Lean.toJson (actorName actor))]
     | .dispatchAck actor policy => [("actor", Lean.toJson (actorName actor)), ("policyPermitted", Lean.toJson policy)]
     | .advanceClock actor millis => [("actor", Lean.toJson (actorName actor)), ("millis", Lean.toJson millis)]
@@ -516,17 +543,31 @@ def eventJson (event : Event) : Lean.Json :=
     | .deliver service bytes policy => [("service", Lean.toJson service),
         ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex bytes)), ("policyPermitted", Lean.toJson policy)])
 
+def recoveryStage : TCPHandshakeRecovery.Phase active passive → TCPHandshake.Stage active passive
+  | .idle => .idle
+  | .opened value => .opened value
+  | .answered value => .answered value
+  | .acknowledged value _ => .acknowledged value
+  | .complete value _ _ => .complete value
+
 def connectionStage : Connection active passive → TCPHandshake.Stage active passive
   | .startup stage _ => stage
   | .application complete _ => .complete complete
+  | .recovering current => recoveryStage current.phase
 
 def clientState : Connection active passive → Option TCP.Endpoint.State
   | .startup stage _ => stage.activeSeed
   | .application _ endpoints => some endpoints.client.current
+  | .recovering current => match current.phase with
+    | .acknowledged _ client | .complete _ client _ => some client.current
+    | phase => (recoveryStage phase).activeSeed
 
 def serverState : Connection active passive → Option TCP.Endpoint.State
   | .startup stage _ => stage.passiveSeed
   | .application _ endpoints => some endpoints.server.current
+  | .recovering current => match current.phase with
+    | .complete _ _ server => some server.current
+    | phase => (recoveryStage phase).passiveSeed
 
 private def field (json : Lean.Json) (name : String) : Lean.Json := match json.getObjVal? name with
   | .ok value => value | .error _ => .null
@@ -602,12 +643,13 @@ def stateJson (state : State input) : Lean.Json :=
 
 def producedKind : Produced active passive → String
   | .startup step _ _ => match step.event with | .activeOpen .. => "open" | _ => "startup"
+  | .recovery .. => "startupRecovery"
   | .application _ step _ _ => match step.event with
     | .send .. => "send" | .emitAck .. => "emitAck" | .timeout .. => "retry" | .dispatchAck .. => "dispatchAck" | _ => "invalid"
 
 def producedStartupOperation : Produced active passive → Option String
   | .startup step _ _ => some step.event.kind
-  | .application .. => none
+  | .application .. | .recovery .. => none
 
 def attemptJson (step : TCP.ApplicationTrace.Step) : Option Lean.Json := do
   let recovery ← step.before.recovery
@@ -624,7 +666,7 @@ def producedJson (value : Produced active passive) (id : Nat) : Lean.Json := Lea
   ("kind", Lean.toJson (producedKind value)), ("startupOperation", Lean.toJson (producedStartupOperation value)),
   ("rawIPv4Hex", Lean.toJson (Import.EAPOL.bytesToHex value.output.bytes)), ("decoded", TCPReceive.decodedJson value.output.packet)] ++
   match value with
-  | .startup .. => []
+  | .startup .. | .recovery .. => []
   | .application _ step _ _ => match attemptJson step with | none => [] | some attempt => [("attempt", attempt)])
 
 def disposition : TCP.WireForwarding.Disposition → String

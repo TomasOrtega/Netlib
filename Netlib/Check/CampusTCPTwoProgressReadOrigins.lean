@@ -19,20 +19,19 @@ abbrev ReadOrigin (done : Completed initial current first second timeouts) (inde
     sender.other (applicationSteps current.endpoints sender.other) done.operation index byte
 
 theorem Completed.receives (_done : Completed initial current first second timeouts) :
-    Nonempty (CampusTCPFacts.Receives current.report (applicationSteps current.endpoints sender) sender.other
-      (applicationSteps current.endpoints sender.other)) := by
+    CampusTCPReceiveHistory.PayloadReceives current.report (applicationSteps current.endpoints sender) sender.other
+      (applicationSteps current.endpoints sender.other) := by
   have actual := CampusTCPRecoveryRoundOrigins.Report.receives current.report complete current.endpoints current.connection sender.other
   cases sender <;> exact actual
 
 theorem Completed.read_origin (done : Completed initial current first second timeouts)
     (index : Nat) (byte : UInt8) (selected : (lower ++ upper)[index]? = some byte) :
     Nonempty (ReadOrigin done index byte) := by
-  obtain ⟨receives⟩ := done.receives
-  have history : ApplicationTrace.DeliveryHistory (applicationSteps current.endpoints sender)
-      (applicationSteps current.endpoints sender.other) :=
-    ⟨endpoint_order current sender, endpoint_order current sender.other, receives.delivered⟩
+  have receives := done.receives
+  have history := CampusTCPGapFacts.payload_delivery_history receives
+    (endpoint_order current sender) (endpoint_order current sender.other)
   obtain ⟨member, _, event, read⟩ := done.history.exact_read
-  apply CampusTCPGapFacts.read_origin (endpoint_chain current sender.other) (endpoint_chain current sender) history receives
+  apply CampusTCPGapFacts.payload_read_origin (endpoint_chain current sender.other) (endpoint_chain current sender) history receives
     (seed_empty_unread complete sender.other) (seed_empty_held complete sender.other)
     (seed_empty_sent complete sender) (seed_empty_pending complete sender)
     done.operation member (lower ++ upper).length event index byte

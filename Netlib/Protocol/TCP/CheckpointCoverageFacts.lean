@@ -1,4 +1,4 @@
-import Netlib.Protocol.TCP.AdmissionCoverageFacts
+import Netlib.Protocol.TCP.AdmissionExecutionCoverage
 import Netlib.Protocol.TCP.CheckpointObservationHistory
 
 /-!
@@ -14,7 +14,8 @@ theorem History.coverage_sources (history : History gateway) : gateway.admission
   induction history with
   | initial => exact Admission.State.initial_coverageSources
   | advance prior transition ih =>
-    exact transition.admitted.commit_coverageSources ih transition.outcome.state transition.nextAdmission transition.committed
+    exact AdmissionExecution.Result.commit_coverageSources transition.admitted ih transition.outcome.state
+      transition.nextAdmission transition.committed
 
 structure CoverageOrigin (history : History gateway) (session : Admission.Session)
     (direction : Admission.Direction) (run : Admission.Coverage.Run Nat) where

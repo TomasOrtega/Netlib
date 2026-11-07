@@ -1,9 +1,11 @@
 import Netlib.Check.CampusTCPFacts
+import Netlib.Check.CampusTCPRecoveryStartupOrigins
 
 /-!
 # Startup records in one actual campus history
 
-The projection reads stored startup records. It does not run the endpoints again.
+Ordinary histories specialize the actual sum of startup modes.
+The projection does not run the endpoints again.
 -/
 
 namespace Netlib.Check.CampusTCPStartupOrigins
@@ -12,180 +14,188 @@ open Packet Protocol CampusTCPModel
 namespace H
 export Check.TCPHandshake (Stage Step Completed Opened Answered Acknowledged Event)
 end H
+namespace R
+export CampusTCPRecoveryStartupOrigins (Stage Linked stage)
+end R
 
 variable {input : Input}
 
-def stage : Connection active passive → H.Stage active passive
-  | .startup value _ => value
-  | .application complete _ => .complete complete
+export CampusTCPRecoveryStartupOrigins (stage)
 
-@[simp] theorem stage_ofStage (value : H.Stage active passive) :
-    stage (Connection.ofStage value) = value := by cases value <;> rfl
+theorem Step.linked (actual : CampusTCPModel.Step input) : R.Linked actual.before actual.event actual.result :=
+  CampusTCPRecoveryStartupOrigins.Step.linked actual
 
-private def Linked (before : State input) (effect : Effect input) : Prop :=
-  match effect.startup with
-  | none => stage effect.state.connection = stage before.connection
-  | some actual => actual.before = stage before.connection ∧ actual.index = before.time ∧
-      stage effect.state.connection = actual.result.state
+abbrev StartupChain := @CampusTCPRecoveryStartupOrigins.Chain
 
-private theorem startup_linked (before : State input) (event : H.Event) (effect : Effect input)
-    (computed : startup input before event = .ok effect) : Linked before effect := by
-  unfold startup at computed
-  split at computed
-  · cases computed; rfl
-  · split at computed
-    · cases computed
-    · split at computed
-      all_goals
-        simp only [pure, Except.pure, Except.ok.injEq] at computed
-        cases computed
-        simp only [Linked, publish, stage_ofStage]
-        simp_all [stage]
+theorem Trace.startup_chain (trace : CampusTCPModel.Trace input initial events steps final remaining) :
+    CampusTCPRecoveryStartupOrigins.Chain (stage initial.connection) steps (stage final.connection) :=
+  CampusTCPRecoveryStartupOrigins.Trace.startup_chain trace
 
-private theorem application_linked (before : State input) (actor : Actor)
-    (event : TCP.ApplicationTrace.Event) (effect : Effect input)
-    (computed : applyApplication input before actor event = .ok effect) : Linked before effect := by
-  unfold applyApplication at computed
-  split at computed
-  · cases computed; rfl
-  · cases actor <;> simp only at computed
-    all_goals repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; simp_all [Linked, stage, publish])
-      | (split at computed)
-      | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw] at computed)
-
-private theorem application_no_startup (before : State input) (actor : Actor)
-    (event : TCP.ApplicationTrace.Event) (effect : Effect input)
-    (computed : applyApplication input before actor event = .ok effect) : effect.startup = none := by
-  unfold applyApplication at computed
-  split at computed
-  · cases computed; rfl
-  · cases actor <;> simp only at computed
-    all_goals repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; rfl)
-      | (split at computed)
-      | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw] at computed)
-
-private theorem enableAck_linked (before : State input) (actor : Actor) (effect : Effect input)
-    (computed : enableAck input before actor = .ok effect) : Linked before effect := by
-  unfold enableAck at computed
-  split at computed
-  · exact application_linked _ _ _ _ computed
-  · cases actor <;> dsimp only at computed
-    all_goals
-      split at computed
-      · exact application_linked _ _ _ _ computed
-      · cases computed
-
-@[simp] private theorem stage_write (before : State input) (gateway) (resident) :
-    stage (before.write gateway resident).connection = stage before.connection := by cases gateway <;> rfl
-
-private theorem process_linked (before : State input) (event : CampusTCPModel.Event) (effect : Effect input)
-    (computed : processCore input before event = .ok effect) : Linked before effect := by
-  cases event with
-  | «open» remote policy => exact startup_linked _ _ _ computed
-  | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
-    exact application_linked _ _ _ _ computed
-  | enableRecovery actor | advanceClock actor millis | timeout actor policy | dispatchAck actor policy =>
-    exact application_linked _ _ _ _ computed
-  | enableAck actor => exact enableAck_linked _ _ _ computed
-  | copyPacket id | dropPacket id => cases computed; rfl
-  | authentication index =>
-    simp only [processCore] at computed
-    repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; rfl)
-      | (split at computed)
-      | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
-  | install id | stage id | installGuard id | installAt gateway id | stageAt gateway id | installGuardAt gateway id =>
-    simp only [processCore, installConfiguration, stageAttachment, installIngress] at computed
-    repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; simp [Linked, stage_write])
-      | (split at computed)
-      | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
-  | pause | stageCheckpoint | installCheckpoint ns | switchRoute actor gateway | fencePrimary | resume =>
-    simp only [processCore, transferControl] at computed
-    repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; rfl)
-      | (split at computed)
-      | (dsimp only [Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
-  | assign index ingress | serve index observed =>
-    simp only [processCore] at computed
-    repeat' first
-      | (solve | cases computed)
-      | (solve | cases computed; simp [Linked, stage_write, unsupported])
-      | (split at computed)
-      | (dsimp only [CampusTCPModel.get, Except.mapError, bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
-  | deliver index bytes policy =>
-    simp only [processCore] at computed
-    repeat' first
-      | (solve | cases computed; have fresh := startup_linked before _ _ (by assumption); exact fresh)
-      | (solve | cases computed; have fresh := application_linked before _ _ _ (by assumption); exact fresh)
-      | (solve | cases computed)
-      | (split at computed)
-      | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
-          throw, throwThe, MonadExceptOf.throw] at computed)
-
-theorem Step.linked (actual : CampusTCPModel.Step input) :
-    match actual.result.startup with
-    | none => stage actual.result.state.connection = stage actual.before.connection
-    | some startupStep => startupStep.before = stage actual.before.connection ∧ startupStep.index = actual.before.time ∧
-        stage actual.result.state.connection = startupStep.result.state := by
-  obtain ⟨effect, custody, computed, result⟩ := actual.processed
-  simpa only [result, Linked] using process_linked actual.before actual.event effect computed
+theorem Report.startup_chain (report : CampusTCPModel.Report input events) :
+    CampusTCPRecoveryStartupOrigins.Chain (.ordinary .idle) report.steps (stage report.final.connection) :=
+  CampusTCPRecoveryStartupOrigins.Report.startup_chain report
 
 inductive Chain : H.Stage active passive → List (H.Step active passive) → H.Stage active passive → Prop where
   | done (value) : Chain value [] value
   | next (head : H.Step active passive) (tail : Chain head.result.state rest final) :
       Chain head.before (head :: rest) final
 
-theorem Trace.startup_chain (trace : CampusTCPModel.Trace input initial events steps final remaining) :
-    Chain (stage initial.connection) (steps.filterMap (·.result.startup)) (stage final.connection) := by
-  induction trace with
-  | done => exact .done _
-  | stop head _ _ =>
-    have linked := Step.linked head
-    cases found : head.result.startup with
-    | none =>
-      simp only [found] at linked
-      simpa [found, linked] using Chain.done (stage head.before.connection)
-    | some startupStep =>
-      simp only [found] at linked
-      simpa [found, linked.1, linked.2.2] using
-        Chain.next startupStep (Chain.done startupStep.result.state)
-  | next head _ _ ih =>
-    have linked := Step.linked head
-    cases found : head.result.startup with
-    | none =>
-      simp only [found] at linked
-      simpa [found, linked] using ih
-    | some startupStep =>
-      simp only [found] at linked
-      rw [linked.2.2] at ih
-      simpa [found, linked.1] using Chain.next startupStep ih
+private theorem evaluated_idle (before : H.Stage active passive) (index : Nat) (event : H.Event)
+    (result : TCPHandshake.Effect active passive)
+    (computed : TCPHandshake.evaluate active passive before index event = .ok result)
+    (idle : result.state = .idle) : before = .idle := by
+  cases before <;> cases event <;> simp only [TCPHandshake.evaluate] at computed
+  all_goals repeat' first
+    | (solve | rfl)
+    | (solve | cases computed)
+    | (solve | cases computed; cases idle)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
 
-theorem Report.startup_chain (report : CampusTCPModel.Report input events) :
-    Chain .idle (report.steps.filterMap (·.result.startup)) (stage report.final.connection) :=
-  Trace.startup_chain report.trace
+private theorem idle_event (actual : H.Step active passive) (idle : actual.result.state = .idle)
+    (supported : actual.supported = true) : ∃ remote policy, actual.event = .activeOpen remote policy := by
+  have before := evaluated_idle _ _ _ _ actual.computed idle
+  have computed := actual.computed
+  rw [before] at computed
+  cases event : actual.event with
+  | activeOpen remote policy => exact ⟨remote, policy, rfl⟩
+  | listenSyn bytes path policy | synSentSynAck bytes path policy | synReceivedAck bytes path =>
+    rw [event] at computed
+    simp only [TCPHandshake.evaluate] at computed
+    have decision : actual.result.decision = .phase :=
+      congrArg TCPHandshake.Effect.decision (Except.ok.inj computed).symm
+    simp only [TCPHandshake.Step.supported, decision, Bool.false_eq_true] at supported
+
+private def Closed : R.Stage active passive → Prop
+  | .recovering _ => True
+  | .ordinary (.complete _) => True
+  | _ => False
+
+private theorem linked_closed (linked : R.Linked before event effect) (closed : Closed (stage before.connection)) :
+    effect.startup = none ∧ Closed (stage effect.state.connection) := by
+  cases linked with
+  | quiet ordinary recovery same => exact ⟨ordinary, by rw [same]; exact closed⟩
+  | ordinary actual recorded recovery prior after stamp pending supported =>
+    rw [prior] at closed
+    cases phase : actual.before <;> simp only [phase, Closed] at closed
+    all_goals first
+      | exact False.elim closed
+      | (rw [phase] at pending; cases pending)
+  | recovery actual recorded ordinary prior after stamp => exact ⟨ordinary, by rw [after]; trivial⟩
+  | drain archive ordinary recovery event prior after retained stamp => exact ⟨ordinary, by rw [after]; trivial⟩
+
+private theorem trace_closed (trace : CampusTCPModel.Trace input initial events steps final remaining) :
+    Closed (stage initial.connection) → steps.filterMap (·.result.startup) = [] ∧ Closed (stage final.connection) := by
+  induction trace with
+  | done state => intro closed; exact ⟨rfl, closed⟩
+  | stop head blocked tail =>
+    intro closed
+    obtain ⟨absent, after⟩ := linked_closed (Step.linked head) closed
+    exact ⟨by simp [absent], after⟩
+  | next head supported rest ih =>
+    intro closed
+    obtain ⟨absent, after⟩ := linked_closed (Step.linked head) closed
+    obtain ⟨records, final⟩ := ih after
+    exact ⟨by simp [absent, records], final⟩
+
+private def Opens (actual : H.Step active passive) : Prop :=
+  ∃ remote policy, actual.event = .activeOpen remote policy
+
+private theorem ordinary_or_opens (trace : CampusTCPModel.Trace input initial events steps final remaining) :
+    ∀ first, stage initial.connection = .ordinary first →
+      (∃ last, stage final.connection = .ordinary last ∧ Chain first (steps.filterMap (·.result.startup)) last) ∨
+        (first = .idle ∧ ∀ actual ∈ steps.filterMap (·.result.startup), Opens actual) := by
+  induction trace with
+  | done state => intro first start; exact Or.inl ⟨first, start, .done first⟩
+  | stop head blocked tail =>
+    intro first start
+    cases linked : Step.linked head with
+    | quiet ordinary recovery same => exact Or.inl ⟨first, same.trans start, by simp [ordinary]; exact .done first⟩
+    | ordinary actual recorded recovery prior after stamp pending supported =>
+      have same : actual.before = first := by cases prior.symm.trans start; rfl
+      exact Or.inl ⟨actual.result.state, after, by simp [recorded, ← same]; exact .next actual (.done _)⟩
+    | recovery actual recorded ordinary prior after stamp =>
+      rcases prior with impossible | ⟨idle, seeded⟩
+      · rw [start] at impossible; cases impossible
+      · exact Or.inr ⟨(by cases start.symm.trans idle; rfl), by simp [ordinary]⟩
+    | drain archive ordinary recovery event prior after retained stamp =>
+      rw [prior] at start; cases start
+  | next head supported rest ih =>
+    intro first start
+    cases linked : Step.linked head with
+    | quiet ordinary recovery same =>
+      simpa [ordinary] using ih first (same.trans start)
+    | ordinary actual recorded recovery prior after stamp pending accepted =>
+      have same : actual.before = first := by cases prior.symm.trans start; rfl
+      rcases ih actual.result.state after with ⟨last, final, history⟩ | ⟨idle, opens⟩
+      · exact Or.inl ⟨last, final, by simp only [List.filterMap_cons, recorded]; rw [← same]; exact .next actual history⟩
+      · have before := evaluated_idle _ _ _ _ actual.computed idle
+        have opened : Opens actual := idle_event actual idle (accepted ▸ supported)
+        refine Or.inr ⟨same.symm.trans before, ?_⟩
+        intro selected member
+        simp only [List.filterMap_cons, recorded, List.mem_cons] at member
+        rcases member with rfl | member
+        · exact opened
+        · exact opens selected member
+    | recovery actual recorded ordinary prior after stamp =>
+      rcases prior with impossible | ⟨idle, seeded⟩
+      · rw [start] at impossible; cases impossible
+      · have closed : Closed (stage head.result.state.connection) := by rw [after]; trivial
+        have absent := (trace_closed rest closed).1
+        exact Or.inr ⟨by cases start.symm.trans idle; rfl, by simp [ordinary, absent]⟩
+    | drain archive ordinary recovery event prior after retained stamp =>
+      rw [prior] at start; cases start
+
+theorem Step.ordinary_linked (actual : CampusTCPModel.Step input) (head : H.Step input.active input.passive)
+    (recorded : actual.result.startup = some head) :
+    stage actual.before.connection = .ordinary head.before ∧ head.index = actual.before.time ∧
+      stage actual.result.state.connection = .ordinary head.result.state := by
+  cases Step.linked actual with
+  | quiet absent recovery same => rw [absent] at recorded; cases recorded
+  | ordinary selected present recovery prior after stamp pending supported =>
+    have same := Option.some.inj (present.symm.trans recorded)
+    subst selected
+    exact ⟨prior, stamp, after⟩
+  | recovery selected present absent prior after stamp => rw [absent] at recorded; cases recorded
+  | drain archive absent recovery event prior after retained stamp => rw [absent] at recorded; cases recorded
+
+private theorem application_no_startup (before : State input) (actor : Actor)
+    (event : TCP.ApplicationTrace.Event) (effect : Effect input)
+    (computed : applyApplication input before actor event = .ok effect) : effect.startup = none := by
+  unfold applyApplication at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure, throw] at computed)
+
+private theorem recovery_no_startup (before : State input) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.startup = none := by
+  cases connected : before.connection with
+  | startup value pending | application value pending =>
+    simp only [runRecovery, connected, pure, Except.pure, Except.ok.injEq] at computed
+    subst effect
+    rfl
+  | recovering current =>
+    simp only [runRecovery, connected] at computed
+    split at computed
+    · cases computed
+    · split at computed
+      all_goals
+        simp only [pure, Except.pure, Except.ok.injEq] at computed
+        subst effect
+        rfl
 
 private theorem startup_event (before : State input) (event : H.Event) (effect : Effect input)
     (computed : startup input before event = .ok effect) (actual : H.Step input.active input.passive)
     (recorded : effect.startup = some actual) : actual.event = event := by
   unfold startup at computed
-  split at computed
-  · cases computed; cases recorded
-  · split at computed
-    · cases computed
-    · split at computed
-      all_goals
-        simp only [pure, Except.pure, Except.ok.injEq] at computed
-        cases computed
-        cases recorded
-        rfl
+  repeat' first
+    | (solve | cases computed; cases recorded; rfl)
+    | (solve | cases computed; simp [unsupported] at recorded)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [pure, Except.pure] at computed)
 
 inductive ReceiveEvent : H.Event → Actor → CampusTCPFacts.StartupKind → List UInt8 → Prop where
   | syn (bytes policy) : ReceiveEvent (.listenSyn bytes .rewrite policy) .server .syn bytes
@@ -219,6 +229,7 @@ theorem Step.startup_receipt (joint : CampusTCPModel.Step input)
     | (solve | cases computed)
     | (solve | cases computed; cases present)
     | (solve | cases computed; have absent := application_no_startup joint.before _ _ _ (by assumption); rw [absent] at present; cases present)
+    | (solve | cases computed; have absent := recovery_no_startup joint.before _ _ (by assumption); rw [absent] at present; cases present)
     | (split at computed)
     | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
         throw, throwThe, MonadExceptOf.throw] at computed)
@@ -282,8 +293,7 @@ theorem ReceiveAt.delivery_exists (value : ReceiveAt report actual)
     Nonempty (F.StartupDelivery report actual.index actor packet kind) := by
   obtain ⟨receipt, recorded, sameBytes, receiver, sourceKind⟩ :=
     Step.startup_receipt value.joint actual value.recorded value.index value.bytes value.policy value.delivered received
-  have linked := Step.linked value.joint
-  simp only [value.recorded] at linked
+  have linked := Step.ordinary_linked value.joint actual value.recorded
   let delivery : F.DeliveryAt report actual.index actor := {
     joint := ⟨value.joint, value.member, linked.2.1.symm⟩
     service := value.index
@@ -319,8 +329,15 @@ private theorem Chain.empty_parts (history : Chain first [] final) : first = fin
 theorem Ordinary.history_exists (value : Ordinary report) (complete : H.Completed input.active input.passive)
     (endpoints : Applications complete) (connection : report.final.connection = .application complete endpoints) :
     Nonempty (F.StartupHistory report complete) := by
-  have history := Report.startup_chain report
-  rw [value.records, connection] at history
+  have history : Chain .idle (report.steps.filterMap (·.result.startup)) (.complete complete) := by
+    rcases ordinary_or_opens report.trace .idle rfl with ⟨last, final, history⟩ | ⟨idle, opens⟩
+    · have completed : stage report.final.connection = .ordinary (.complete complete) := by rw [connection]; rfl
+      have same : last = .complete complete := by cases final.symm.trans completed; rfl
+      exact same ▸ history
+    · obtain ⟨remote, policy, event⟩ := opens value.syn (by rw [value.records]; simp)
+      rw [value.synEvent] at event
+      cases event
+  rw [value.records] at history
   have first := Chain.cons_parts history
   have second := Chain.cons_parts first.2
   have third := Chain.cons_parts second.2
@@ -358,5 +375,18 @@ theorem Ordinary.history_exists (value : Ordinary report) (complete : H.Complete
   obtain ⟨synAck⟩ := value.synAckAt.delivery_exists (by rw [value.synAckEvent]; exact .synAck _ _) complete.certificate.synAck.input synAckPacket
   obtain ⟨ack⟩ := value.ackAt.delivery_exists (by rw [value.ackEvent]; exact .ack _) complete.certificate.ack.input ackPacket
   exact ⟨⟨synTime ▸ syn, synAckTime ▸ synAck, ackTime ▸ ack⟩⟩
+
+theorem Trace.recovering_startup_opens (trace : CampusTCPModel.Trace input initial events steps final remaining)
+    (start : stage initial.connection = .ordinary .idle) (connection : final.connection = .recovering current) :
+    ∀ actual ∈ steps.filterMap (·.result.startup), ∃ remote policy, actual.event = .activeOpen remote policy := by
+  rcases ordinary_or_opens trace .idle start with ⟨last, ended, _⟩ | ⟨_, opens⟩
+  · rw [connection] at ended
+    cases ended
+  · exact opens
+
+theorem Report.recovering_startup_opens (report : CampusTCPModel.Report input events)
+    (connection : report.final.connection = .recovering current) :
+    ∀ actual ∈ report.steps.filterMap (·.result.startup), ∃ remote policy, actual.event = .activeOpen remote policy :=
+  Trace.recovering_startup_opens report.trace rfl connection
 
 end Netlib.Check.CampusTCPStartupOrigins

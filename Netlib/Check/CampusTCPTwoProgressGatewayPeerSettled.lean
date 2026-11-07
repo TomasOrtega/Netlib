@@ -50,11 +50,11 @@ private theorem processing_phase (view : View initial current)
     (value : ServiceMove initial current item hit session actual served emission emitted)
     (next : View initial value.move.after)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone) (present : served.evidence.processing = some processing)
+      served.before served.ticket.value.source input.zone) (present : value.ordinaryEvidence.processing = some processing)
     (previous : served.before = beforeService input current.report.final gateway) :
     (processingAt processing previous).admitted.state.phase = .data next.gateway.session := by
   have phase := next.gateway.phase
-  rw [value.after_before processing present] at phase
+  rw [value.after_ordinary_before processing present] at phase
   change processing.nextAdmission.phase = .data next.gateway.session at phase
   rw [← processingAt_admission processing previous,
     CampusTCPRoundAdmission.Processing.committed_data (processingAt processing previous) view.gateway.session view.gateway.phase] at phase
@@ -65,7 +65,7 @@ theorem sender_service_settled (view : View initial current)
     (next : View initial value.move.after) (direction : hit.direction = sender.direction)
     (ack : served.ticket.value.source.packet.segment.acknowledgment = (endpoint cut.endpoints sender).core.receiveNext) :
     Settled next := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   have previous : served.before = beforeService input current.report.final gateway := by
     rw [value.facts.current, value.selected]
   let selected := processingAt processing previous
@@ -86,7 +86,7 @@ theorem receiver_service_settled (view : View initial current) (settled : Settle
     (next : View initial value.move.after) (direction : hit.direction = sender.other.direction)
     (lowerRun : next.ranges.lowerRun = view.ranges.lowerRun)
     (upperRun : next.ranges.upperRun = view.ranges.upperRun) : Settled next := by
-  obtain ⟨processing, present, _, _, attached, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attached, _⟩ := value.ordinary_processing
   have previous : served.before = beforeService input current.report.final gateway := by
     rw [value.facts.current, value.selected]
   let selected := processingAt processing previous

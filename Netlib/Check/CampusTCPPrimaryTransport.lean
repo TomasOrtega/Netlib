@@ -46,16 +46,61 @@ private theorem application_noService (before : State input) (actor : Actor) (ev
     | (split at computed)
     | (dsimp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_noService (before : State input) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : NoService before effect := by
+  unfold runRecovery at computed
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [connection] at computed
+    cases computed
+    exact ⟨rfl, rfl⟩
+  | recovering current =>
+    simp only [connection] at computed
+    split at computed
+    · cases computed
+    · split at computed <;> cases computed <;> exact ⟨rfl, rfl⟩
+
+private theorem openRecovery_noService (before : State input) (remote : Protocol.TCP.Handshake.Socket)
+    (policy : Bool) (effect : Effect input)
+    (computed : openRecovering input before remote policy = .ok effect) : NoService before effect := by
+  unfold openRecovering at computed
+  dsimp only at computed
+  split at computed
+  · dsimp only [bind, Except.bind, throw, throwThe, MonadExceptOf.throw] at computed
+    cases computed
+  · split at computed
+    · have quiet := recovery_noService _ _ _ computed
+      exact quiet
+    · cases computed; exact ⟨rfl, rfl⟩
+
+private theorem startupRecovery_noService (before : State input) (actor : Actor) (effect : Effect input)
+    (computed : enableStartupRecovery input before actor = .ok effect) : NoService before effect := by
+  unfold enableStartupRecovery at computed
+  split at computed
+  · cases computed; exact ⟨rfl, rfl⟩
+  · exact application_noService _ _ _ _ computed
+
+private theorem finishStartup_noService (before : State input) (effect : Effect input)
+    (computed : finishStartup input before = .ok effect) : NoService before effect := by
+  unfold finishStartup at computed
+  repeat' first
+    | (solve | cases computed; exact ⟨rfl, rfl⟩)
+    | cases computed
+    | split at computed
+    | dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed
+
 private theorem enableAck_noService (before : State input) (actor : Actor) (effect : Effect input)
     (computed : enableAck input before actor = .ok effect) : NoService before effect := by
   unfold enableAck at computed
   split at computed
   · exact application_noService _ _ _ _ computed
+  · exact application_noService _ _ _ _ computed
   · cases actor <;> dsimp only at computed
     all_goals
-      split at computed
-      · exact application_noService _ _ _ _ computed
-      · cases computed
+      repeat' first
+        | (solve | exact application_noService _ _ _ _ computed)
+        | cases computed
+        | split at computed
 
 private theorem install_noService (before : State input) (gateway : Gateway) (id : String) (effect : Effect input)
     (computed : installConfiguration input before gateway id = .ok effect) : NoService before effect := by
@@ -109,6 +154,11 @@ private theorem process_transport (before : State input) (event : Event) (effect
     effect.state.primary.transport = serviceTransport before.primary.transport effect.service.toList := by
   cases event with
   | «open» remote policy => exact no_service_transport _ _ (startup_noService _ _ _ computed)
+  | openRecovering remote policy => exact no_service_transport _ _ (openRecovery_noService _ _ _ _ computed)
+  | startupClock actor millis | startupTimeout actor generation policy =>
+    exact no_service_transport _ _ (recovery_noService _ _ _ computed)
+  | finishStartup => exact no_service_transport _ _ (finishStartup_noService _ _ computed)
+  | enableStartupRecovery actor => exact no_service_transport _ _ (startupRecovery_noService _ _ _ computed)
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact no_service_transport _ _ (application_noService _ _ _ _ computed)
   | enableRecovery actor | advanceClock actor millis | timeout actor policy | dispatchAck actor policy =>
@@ -146,6 +196,7 @@ private theorem process_transport (before : State input) (event : Event) (effect
     repeat' first
       | (solve | cases computed; apply no_service_transport; simpa only [NoService] using startup_noService before _ _ (by assumption))
       | (solve | cases computed; apply no_service_transport; simpa only [NoService] using application_noService before _ _ _ (by assumption))
+      | (solve | cases computed; apply no_service_transport; simpa only [NoService] using recovery_noService before _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,

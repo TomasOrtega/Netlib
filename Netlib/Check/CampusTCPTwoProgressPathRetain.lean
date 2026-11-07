@@ -129,11 +129,14 @@ theorem prepare_other (before : State input) (event : CampusTCPModel.Event) (cus
     cases copied : Theory.PacketCustody.copy before.custody id with
     | error reason => simp [prepareCustody, copied, Except.mapError, bind, Except.bind] at computed
     | ok copy =>
-      simp only [prepareCustody, copied, Except.mapError, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at computed
-      cases computed
-      apply pending_prefix before.custody copy.state _ predicate selected found
-      rw [copy.pending]
-      exact List.prefix_append _ _
+      simp only [prepareCustody, copied, Except.mapError, bind, Except.bind, pure, Except.pure] at computed
+      split at computed
+      · cases computed
+      · simp only [Except.ok.injEq] at computed
+        cases computed
+        apply pending_prefix before.custody copy.state _ predicate selected found
+        rw [copy.pending]
+        exact List.prefix_append _ _
   case dropPacket id =>
     cases resolution : Theory.PacketCustody.resolve before.custody id .dropped with
     | error reason => simp [prepareCustody, resolution, Except.mapError, bind, Except.bind] at computed
@@ -188,6 +191,20 @@ private theorem startup_work (before : State input) (event : Check.TCPHandshake.
     | (split at computed)
     | (dsimp only [bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_work (before : State input) (event : Check.TCPHandshakeRecovery.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.state.work = before.work := by
+  unfold runRecovery at computed
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [connection] at computed
+    cases computed
+    rfl
+  | recovering current =>
+    simp only [connection] at computed
+    split at computed
+    · cases computed
+    · split at computed <;> cases computed <;> rfl
+
 theorem Step.work_quiet (actual : Step input) (quiet : QuietWork actual.event) :
     actual.result.state.work = actual.before.work := by
   obtain ⟨effect, custody, computed, final⟩ := actual.processed
@@ -202,6 +219,7 @@ theorem Step.work_quiet (actual : Step input) (quiet : QuietWork actual.event) :
     | repeat' first
       | (solve | cases computed; dsimp only; exact (CampusTCPTimedTimeout.application_frames _ _ _ _ (by assumption)).1)
       | (solve | cases computed; dsimp only; exact startup_work _ _ _ (by assumption))
+      | (solve | cases computed; dsimp only; exact recovery_work _ _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,

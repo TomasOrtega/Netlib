@@ -1,5 +1,6 @@
 import Netlib.Check.CampusTCPHistory
 import Netlib.Check.TCPHandshake
+import Netlib.Check.TCPHandshakeRecoveryEvaluate
 import Netlib.Protocol.TCP.ApplicationTraceFacts
 import Netlib.Theory.Outstanding
 import Netlib.Theory.PacketCustody
@@ -23,6 +24,9 @@ end T
 namespace H
 export Netlib.Check.TCPHandshake (Stage Completed)
 end H
+namespace C
+export Netlib.Check.TCPHandshakeRecovery (State Step Emission Receipt Event)
+end C
 namespace W
 export Netlib.Protocol.TCP.WireForwarding (Source Emission)
 end W
@@ -41,6 +45,8 @@ def Actor.other : Actor → Actor | .client => .server | .server => .client
 def Actor.direction : Actor → FlowNAT.Direction | .client => .original | .server => .reply
 def Actor.nextHop : Actor → String | .client => "server" | .server => "client"
 def Actor.leg : Actor → StatefulFailover.Leg | .client => .client | .server => .server
+def Actor.recoverySide : Actor → TCPHandshakeRecovery.Side | .client => .active | .server => .passive
+def Actor.ofRecovery : TCPHandshakeRecovery.Side → Actor | .active => .client | .passive => .server
 
 structure Specification where
   id : String
@@ -115,8 +121,20 @@ structure Cursor (seed : TCP.Endpoint.State) where
 def Cursor.initial (seed : TCP.Endpoint.State) (valid : seed.Valid) : Cursor seed :=
   ⟨seed, valid, [], .nil seed, .nil⟩
 
+def Cursor.ofPreData (current : TCPHandshakeRecovery.PreData seed) : Cursor seed :=
+  ⟨current.current, current.valid, current.steps, current.chain, current.ordered⟩
+
 def Cursor.beforeTransport (cursor : Cursor seed) : Bool :=
   cursor.steps.all (fun step => match step.event with | .send .. | .receive .. => false | _ => true)
+
+def Cursor.beforeRecoveryTransport (cursor : Cursor seed) (drained : Nat) : Bool :=
+  cursor.steps.all fun step => match step.event with
+    | .send .. => false
+    | .receive packet =>
+      decide (step.stamp < drained) && decide (TCP.Handshake.Profile packet 16) &&
+        (match step.result.decision with | .accepted (.receive 0 0) => true | _ => false) &&
+        step.result.output.isNone && step.result.read.isEmpty
+    | _ => true
 
 theorem Cursor.beforeTransport_no_send (cursor : Cursor seed) (ready : cursor.beforeTransport = true)
     (step : T.Step) (member : step ∈ cursor.steps) (count : Nat) (policy : Bool) :
@@ -161,7 +179,12 @@ def Applications.initial (complete : H.Completed active passive) : Applications 
 
 inductive Connection (active passive : TCP.Handshake.Local) where
   | startup (stage : H.Stage active passive) (pending : stage.exchangeComplete = false)
+  | recovering (current : C.State active passive)
   | application (complete : H.Completed active passive) (endpoints : Applications complete)
+
+def Connection.admissionMode : Connection active passive → TCP.AdmissionExecution.Mode
+  | .recovering _ => .startupRecovery
+  | _ => .ordinary
 
 def Connection.ofStage : (stage : H.Stage active passive) → Connection active passive
   | .idle => .startup .idle rfl
@@ -175,17 +198,26 @@ inductive Produced (active passive : TCP.Handshake.Local) where
       (present : step.result.output = some output)
   | application (actor : Actor) (step : T.Step) (output : TCP.EstablishedReceive.Input)
       (origin : T.OutputOrigin step output)
+  | recovery (step : C.Step active passive) (emission : C.Emission)
+      (present : step.result.output = some emission)
 
 def Produced.actor : Produced active passive → Actor
   | .startup step _ _ => match step.event with | .listenSyn .. => .server | _ => .client
   | .application actor _ _ _ => actor
+  | .recovery _ emission _ => Actor.ofRecovery emission.actor
 
 def Produced.time : Produced active passive → Nat
   | .startup step _ _ => step.index
   | .application _ step _ _ => step.stamp
+  | .recovery _ emission _ => emission.index
 
 def Produced.output : Produced active passive → TCP.EstablishedReceive.Input
   | .startup _ output _ | .application _ _ output _ => output
+  | .recovery _ emission _ => emission.packet
+
+def Produced.isRecovery : Produced active passive → Bool
+  | .recovery .. => true
+  | _ => false
 
 def Produced.source (value : Produced active passive) : W.Source := TCP.WireForwarding.Source.ofInput value.output
 
@@ -231,8 +263,9 @@ structure Served (input : Input) where
   time : Nat
   ticket : Work.Item (Ticket input.active input.passive)
   before : CampusTCPService.Before
-  evidence : CampusTCPService.Evidence (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress
-  computed : CampusTCPService.run (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress = .ok evidence
+  mode : TCP.AdmissionExecution.Mode := .ordinary
+  evidence : CampusTCPService.Evidence (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress mode
+  computed : CampusTCPService.run (input.contextFor ticket.value.gateway) before ticket.value.source input.zone ticket.value.ingress 100000 mode = .ok evidence
   observed : Bool
 
 def Served.routeMatched (value : Served input) : Bool :=
@@ -255,6 +288,7 @@ structure Receipt (input : Input) where
   actor : Actor
   receiver : actor = served.ticket.value.produced.actor.other
   application : Option T.Step
+  recovery : Option C.Receipt := none
 
 theorem Receipt.bytePath (value : Receipt input) :
     TCP.ApplicationTrace.BytePath value.served.ticket.value.produced.output value.received := by
@@ -279,7 +313,27 @@ def Transit.linkAt (index : Nat) : Transit input → Bool
   | .link source .. => source == index
   | .ingress .. => false
 
+def Transit.isRecovery : Transit input → Bool
+  | .ingress _ produced => produced.isRecovery
+  | .link _ served _ _ => served.ticket.value.produced.isRecovery
+
 abbrev Custody (input : Input) := Theory.PacketCustody.State (Transit input)
+
+structure RecoveryArchive (active passive : TCP.Handshake.Local) where
+  time : Nat
+  current : C.State active passive
+  complete : H.Completed active passive
+  client : TCPHandshakeRecovery.PreData complete.certificate.activeSeed
+  server : TCPHandshakeRecovery.PreData complete.certificate.passiveSeed
+  phase : current.phase = .complete complete client server
+  activeData : TCP.HandshakeTimer.Data
+  activeHandoff : TCP.HandshakeTimer.handoff current.activeTimer = some activeData
+  passiveData : TCP.HandshakeTimer.Data
+  passiveHandoff : TCP.HandshakeTimer.handoff current.passiveTimer = some passiveData
+
+def RecoveryArchive.data (archive : RecoveryArchive active passive) : Actor → TCP.HandshakeTimer.Data
+  | .client => archive.activeData
+  | .server => archive.passiveData
 
 structure State (input : Input) where
   time : Nat := 0
@@ -295,6 +349,7 @@ structure State (input : Input) where
   cache : Option CachedCheckpoint := none
   installation : Option InstalledCheckpoint := none
   connection : Connection input.active input.passive := .startup .idle rfl
+  recoveryArchive : Option (RecoveryArchive input.active input.passive) := none
   outputs : List (Produced input.active input.passive) := []
   work : Work.State (Ticket input.active input.passive) := .initial
   services : List (Served input) := []
@@ -363,6 +418,11 @@ inductive Event where
   | deliver (service : Nat) (bytes : List UInt8) (policy : Bool)
   | copyPacket (packet : Nat)
   | dropPacket (packet : Nat)
+  | openRecovering (remote : TCP.Handshake.Socket) (policy : Bool)
+  | startupClock (actor : Actor) (millis : Nat)
+  | startupTimeout (actor : Actor) (generation : Nat) (policy : Bool)
+  | finishStartup
+  | enableStartupRecovery (actor : Actor)
 
 inductive Error where
   | input (reason : String)
@@ -386,6 +446,7 @@ structure Effect (input : Input) where
   service : Option (Served input) := none
   receipt : Option (Receipt input) := none
   startup : Option (TCPHandshake.Step input.active input.passive) := none
+  recovery : Option (C.Step input.active input.passive) := none
   application : Option (Actor × T.Step) := none
   read : List UInt8 := []
   checkpoint : Option CachedCheckpoint := none
@@ -405,6 +466,7 @@ def publish (before : State input) (production : Produced input.active input.pas
 def startup (input : Input) (before : State input) (event : TCPHandshake.Event) : Except Error (Effect input) := do
   match before.connection with
   | .application .. => return unsupported before "startupCopy"
+  | .recovering _ => return unsupported before "startupMode"
   | .startup stage _ =>
     match computed : TCPHandshake.evaluate input.active input.passive stage before.time event with
     | .error reason => throw (.input reason)
@@ -422,10 +484,42 @@ def startup (input : Input) (before : State input) (event : TCPHandshake.Event) 
         let produced := Produced.startup step output present
         return { outcome with state := publish after produced, output := some produced }
 
+def runRecovery (input : Input) (before : State input) (event : C.Event) : Except Error (Effect input) := do
+  match before.connection with
+  | .startup .. | .application .. => return unsupported before "startupRecoveryPhase"
+  | .recovering current =>
+    match computed : TCPHandshakeRecovery.evaluate current before.time event with
+    | .error reason => throw (.input reason)
+    | .ok result =>
+      let actual : C.Step input.active input.passive := ⟨current, before.time, event, result, computed⟩
+      let after := { before with connection := .recovering result.state }
+      let outcome : Effect input := {
+        state := after
+        recovery := some actual
+        application := result.application.map (fun pair => (Actor.ofRecovery pair.1, pair.2))
+        read := (result.application.map (fun pair => pair.2.result.read)).getD []
+        decision := match result.decision with
+          | .accepted => "accepted"
+          | .discarded => "startupDiscarded"
+          | .obsolete => "startupObsolete" }
+      match present : result.output with
+      | none => return outcome
+      | some emission =>
+        let produced := Produced.recovery actual emission present
+        return { outcome with state := publish after produced, output := some produced }
+
+def openRecovering (input : Input) (before : State input) (remote : TCP.Handshake.Socket) (policy : Bool) :
+    Except Error (Effect input) := do
+  if before.recoveryArchive.isSome then throw (.input "Startup recovery is already closed.")
+  match before.connection with
+  | .startup .idle _ =>
+    runRecovery input { before with connection := .recovering .initial } (.activeOpen remote policy)
+  | _ => return unsupported before "startupRecoveryOpen"
+
 def applyApplication (input : Input) (before : State input) (actor : Actor) (event : T.Event) :
     Except Error (Effect input) := do
   match before.connection with
-  | .startup .. => return unsupported before "phase"
+  | .startup .. | .recovering _ => return unsupported before "phase"
   | .application complete endpoints =>
     let (after, step) ← match actor with
       | .client => do
@@ -448,15 +542,52 @@ def applyApplication (input : Input) (before : State input) (actor : Actor) (eve
       let produced := Produced.application actor step actual.val actual.property
       return { result with state := publish next produced, output := some produced }
 
+def enableRecovery (input : Input) (before : State input) (actor : Actor) : Except Error (Effect input) :=
+  applyApplication input before actor .enableRecovery
+
+def enableStartupRecovery (input : Input) (before : State input) (actor : Actor) : Except Error (Effect input) :=
+  match before.recoveryArchive with
+  | none => .ok (unsupported before "startupRecoveryHandoff")
+  | some archive => applyApplication input before actor (.enableStartupRecovery (archive.data actor))
+
 def enableAck (input : Input) (before : State input) (actor : Actor) : Except Error (Effect input) := do
   match before.connection with
-  | .startup .. => applyApplication input before actor .enableAck
+  | .startup .. | .recovering _ => applyApplication input before actor .enableAck
   | .application _ endpoints =>
+    let recoveryReady := match before.recoveryArchive with
+      | none => false
+      | some archive => match actor with
+        | .client => endpoints.client.beforeRecoveryTransport archive.time
+        | .server => endpoints.server.beforeRecoveryTransport archive.time
     let permitted := match actor with
-      | .client => endpoints.client.current.ackReaction.isSome || endpoints.client.beforeTransport
-      | .server => endpoints.server.current.ackReaction.isSome || endpoints.server.beforeTransport
+      | .client => endpoints.client.current.ackReaction.isSome || endpoints.client.beforeTransport || recoveryReady
+      | .server => endpoints.server.current.ackReaction.isSome || endpoints.server.beforeTransport || recoveryReady
     if permitted then applyApplication input before actor .enableAck
     else throw (.input "Enable ACK reactions before this endpoint's send or receive operations.")
+
+def finishStartup (input : Input) (before : State input) : Except Error (Effect input) := do
+  if before.recoveryArchive.isSome then throw (.input "Startup recovery is already closed.")
+  if before.work.pending.any (fun item => item.value.produced.isRecovery) then
+    throw (.input "Process every recovery startup ticket before closing startup.")
+  if before.custody.pending.any (fun item => item.value.payload.isRecovery) then
+    throw (.input "Deliver or drop every recovery startup packet before closing startup.")
+  match before.connection with
+  | .startup .. | .application .. => return unsupported before "startupRecoveryDrain"
+  | .recovering current =>
+    match phase : current.phase with
+    | .idle | .opened _ | .answered _ | .acknowledged .. =>
+      throw (.input "Complete both startup acknowledgments before closing recovery startup.")
+    | .complete complete client server =>
+      match activeHandoff : TCP.HandshakeTimer.handoff current.activeTimer with
+      | none => throw (.input "The active startup timer is not acknowledged.")
+      | some activeData =>
+        match passiveHandoff : TCP.HandshakeTimer.handoff current.passiveTimer with
+        | none => throw (.input "The passive startup timer is not acknowledged.")
+        | some passiveData =>
+          let archive : RecoveryArchive input.active input.passive :=
+            ⟨before.time, current, complete, client, server, phase, activeData, activeHandoff, passiveData, passiveHandoff⟩
+          let endpoints : Applications complete := ⟨Cursor.ofPreData client, Cursor.ofPreData server⟩
+          return { state := { before with connection := .application complete endpoints, recoveryArchive := some archive } }
 
 def observe (seen : Option (List UInt8 × Option (List UInt8))) (source : W.Source)
     (output : Option (W.Emission source.packet)) : Bool :=
@@ -505,7 +636,7 @@ def transferControl (input : Input) (before : State input) (event : Event) : Exc
   | .stageCheckpoint =>
     if before.primarySealed || before.primaryFenced then throw (.input "The source is sealed against new checkpoints.")
     match before.connection with
-    | .startup .. => throw (.input "Finish the startup exchange before checkpoint staging.")
+    | .startup .. | .recovering _ => throw (.input "Finish the startup exchange before checkpoint staging.")
     | .application .. =>
       let snapshot ← (TCP.Checkpoint.capture before.primary.history).mapError (fun reason => .input reason.message)
       let checkpoint : CachedCheckpoint := ⟨before.checkpoints.length, before.time, snapshot⟩
@@ -568,6 +699,11 @@ def processCore (input : Input) (before : State input) (event : Event) : Except 
   | .pause | .stageCheckpoint | .installCheckpoint _ | .switchRoute .. | .fencePrimary | .resume =>
     transferControl input before event
   | .open remote policy => startup input before (.activeOpen remote policy)
+  | .openRecovering remote policy => openRecovering input before remote policy
+  | .startupClock actor millis => runRecovery input before (.advanceClock actor.recoverySide millis)
+  | .startupTimeout actor generation policy => runRecovery input before (.timeout actor.recoverySide generation policy)
+  | .finishStartup => finishStartup input before
+  | .enableStartupRecovery actor => enableStartupRecovery input before actor
   | .write actor bytes => applyApplication input before actor (.write bytes)
   | .send actor count policy => applyApplication input before actor (.send count policy)
   | .enableRecovery actor => applyApplication input before actor .enableRecovery
@@ -597,11 +733,12 @@ def processCore (input : Input) (before : State input) (event : Event) : Except 
       throw (.input "Resume the installed standby before packet service.")
     let origin := beforeService input before gateway
     let resident := before.resident gateway
-    match computed : CampusTCPService.run (input.contextFor gateway) origin completed.item.value.source input.zone completed.item.value.ingress with
+    let mode := before.connection.admissionMode
+    match computed : CampusTCPService.run (input.contextFor gateway) origin completed.item.value.source input.zone completed.item.value.ingress 100000 mode with
     | .error (.input reason) => throw (.input reason)
     | .error (.unsupported reason) => return unsupported before (admissionReason reason)
     | .ok evidence =>
-      let served : Served input := ⟨before.time, completed.item, origin, evidence, computed,
+      let served : Served input := ⟨before.time, completed.item, origin, mode, evidence, computed,
         observe observed completed.item.value.source evidence.output⟩
       let next := { resident with transport := ⟨evidence.tracker, evidence.admission⟩, history := evidence.history resident.history }
       let after := { before.write gateway next with
@@ -626,12 +763,18 @@ def processCore (input : Input) (before : State input) (event : Event) : Except 
           | .synSentSynAck .. => pure (TCPHandshake.Event.synReceivedAck bytes .rewrite)
           | .synReceivedAck .. => throw (.input "A final ACK receipt has no startup output.")
         let result ← startup input before event
-        let receipt : Receipt input := ⟨before.time, index, served, emission, chosen.property, received, same, actor, rfl, none⟩
+        let receipt : Receipt input := ⟨before.time, index, served, emission, chosen.property, received, same, actor, rfl, none, none⟩
         return { result with state := { result.state with receipts := before.receipts ++ [receipt] }, receipt := some receipt }
       | .application _ _ _ _ =>
         let result ← applyApplication input before actor (.receive received)
         let step := result.application.map (·.2)
-        let receipt : Receipt input := ⟨before.time, index, served, emission, chosen.property, received, same, actor, rfl, step⟩
+        let receipt : Receipt input := ⟨before.time, index, served, emission, chosen.property, received, same, actor, rfl, step, none⟩
+        return { result with state := { result.state with receipts := before.receipts ++ [receipt] }, receipt := some receipt }
+      | .recovery _ occurrence _ =>
+        let result ← runRecovery input before (.receive occurrence.index bytes .rewrite policy)
+        let step := result.application.map (·.2)
+        let control := result.recovery.bind (fun actual => actual.result.receipt)
+        let receipt : Receipt input := ⟨before.time, index, served, emission, chosen.property, received, same, actor, rfl, step, control⟩
         return { result with state := { result.state with receipts := before.receipts ++ [receipt] }, receipt := some receipt }
     else throw (.input "Receiver bytes must equal the selected actual gateway emission.")
 
@@ -650,6 +793,8 @@ def prepareCustody (before : State input) (event : Event) : Except Error (Custod
     else throw (.input "Receiver bytes must equal the selected actual gateway emission.")
   | .copyPacket id =>
     let result ← (Theory.PacketCustody.copy before.custody id).mapError (fun reason => .input reason.describe)
+    if before.recoveryArchive.isSome && result.source.value.payload.isRecovery then
+      throw (.input "A closed recovery startup packet cannot be copied again.")
     return result.state
   | .dropPacket id =>
     let result ← (Theory.PacketCustody.resolve before.custody id .dropped).mapError (fun reason => .input reason.describe)

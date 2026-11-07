@@ -83,6 +83,8 @@ private theorem deliver_core_of_application (before : State input) (index : Nat)
     · rename_i actor source sourceOutput origin produced
       simp only [applied]
       exact ⟨_, _, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+    · rename_i source occurrence present produced
+      simp only [D.ApplicationSource, produced] at application
 
 private theorem applyApplication_passed (before : State input) (actor : Actor) (event : T.Event)
     (effect : Effect input) (computed : applyApplication input before actor event = .ok effect) :

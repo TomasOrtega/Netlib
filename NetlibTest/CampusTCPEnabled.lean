@@ -56,6 +56,7 @@ private def sendFromStartup (input : Check.CampusTCP.Input) : IO Unit := do
   let report ← checkedPrefix input 32
   match connection : report.final.connection with
   | .startup .. => throw (IO.userError "The selected data send has no checked startup history.")
+  | .recovering .. => throw (IO.userError "The ordinary test prefix entered recovery.")
   | .application complete endpoints =>
     let chronological ← load (earlier endpoints .client report.final.time)
     let ready ← load (verify (TCP.Endpoint.SendReady (E.endpoint endpoints .client) 400) "The actual selected application prefix is not sendable.")
@@ -92,6 +93,7 @@ private def ackAfterReceipt (input : Check.CampusTCP.Input) : IO Unit := do
   let report ← checkedPrefix input 65
   match connection : report.final.connection with
   | .startup .. => throw (IO.userError "The selected ACK has no checked startup history.")
+  | .recovering .. => throw (IO.userError "The ordinary test prefix entered recovery.")
   | .application complete endpoints =>
     let chronological ← load (earlier endpoints .client report.final.time)
     let prepared ← load (verify (TCP.Endpoint.AckPrepared (E.endpoint endpoints .client)) "The actual receiver ACK guards fail.")
@@ -114,6 +116,7 @@ private def writeAndRead (input : Check.CampusTCP.Input) : IO Unit := do
   let beforeWrite ← checkedPrefix input 31
   match connection : beforeWrite.final.connection with
   | .startup .. => throw (IO.userError "The selected write has no checked startup history.")
+  | .recovering .. => throw (IO.userError "The ordinary test prefix entered recovery.")
   | .application complete endpoints =>
     let chronological ← load (earlier endpoints .client beforeWrite.final.time)
     let fits ← load (verify ((E.endpoint endpoints .client).pending.length + 2 ≤
@@ -126,6 +129,7 @@ private def writeAndRead (input : Check.CampusTCP.Input) : IO Unit := do
   let beforeRead ← checkedPrefix input 149
   match connection : beforeRead.final.connection with
   | .startup .. => throw (IO.userError "The selected read has no checked startup history.")
+  | .recovering .. => throw (IO.userError "The ordinary test prefix entered recovery.")
   | .application complete endpoints =>
     let chronological ← load (earlier endpoints .server beforeRead.final.time)
     let fits ← load (verify (400 ≤ (E.endpoint endpoints .server).core.received.length) "The actual read range is unavailable.")

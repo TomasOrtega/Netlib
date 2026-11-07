@@ -38,16 +38,60 @@ private theorem startup_none (before : State input) (event : TCPHandshake.Event)
 private theorem enableAck_none (before : State input) (actor : Actor) (effect : Effect input)
     (computed : enableAck input before actor = .ok effect) : effect.receipt = none := by
   unfold enableAck at computed
+  repeat' first
+    | (solve | exact application_none _ _ _ _ computed)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure] at computed)
+
+private theorem recovery_none (before : State input) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.receipt = none := by
+  unfold runRecovery at computed
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [connection] at computed
+    cases computed
+    rfl
+  | recovering current =>
+    simp only [connection] at computed
+    split at computed
+    · cases computed
+    · split at computed <;> cases computed <;> rfl
+
+private theorem openRecovery_none (before : State input) (remote : Handshake.Socket) (policy : Bool)
+    (effect : Effect input) (computed : openRecovering input before remote policy = .ok effect) : effect.receipt = none := by
+  unfold openRecovering at computed
+  repeat' first
+    | (solve | exact recovery_none _ _ _ computed)
+    | (solve | cases computed; rfl)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem finishStartup_none (before : State input) (effect : Effect input)
+    (computed : finishStartup input before = .ok effect) : effect.receipt = none := by
+  unfold finishStartup at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | (solve | cases computed)
+    | (split at computed)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
+
+private theorem startupRecovery_none (before : State input) (actor : Actor) (effect : Effect input)
+    (computed : enableStartupRecovery input before actor = .ok effect) : effect.receipt = none := by
+  unfold enableStartupRecovery at computed
   split at computed
+  · cases computed; rfl
   · exact application_none _ _ _ _ computed
-  · cases actor <;> dsimp only at computed
-    all_goals split at computed
-    all_goals first | exact application_none _ _ _ _ computed | cases computed
 
 private theorem process_none (before : State input) (event : Event) (effect : Effect input)
     (computed : processCore input before event = .ok effect) (nonDelivery : NonDelivery event) : effect.receipt = none := by
   cases event with
   | «open» remote policy => exact startup_none _ _ _ computed
+  | openRecovering remote policy => exact openRecovery_none _ _ _ _ computed
+  | startupClock actor millis | startupTimeout actor generation policy => exact recovery_none _ _ _ computed
+  | finishStartup => exact finishStartup_none _ _ computed
+  | enableStartupRecovery actor => exact startupRecovery_none _ _ _ computed
   | write actor bytes | send actor count policy | read actor count | emitAck actor policy | enableRecovery actor | advanceClock actor millis | timeout actor policy | dispatchAck actor policy =>
     exact application_none _ _ _ _ computed
   | enableAck actor => exact enableAck_none _ _ _ computed

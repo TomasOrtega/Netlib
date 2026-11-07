@@ -1,4 +1,5 @@
 import Netlib.Check.CampusTCP
+import Netlib.Check.CampusTCPApplicationService
 import Netlib.Protocol.TCP.AdmissionRecoveryFacts
 
 namespace NetlibTest.TCPRecoveryCampus
@@ -19,10 +20,16 @@ private def verify (property : Prop) [Decidable property] (message : String) : E
 
 def endpoint (actor : M.Actor) : M.Connection active passive → Option TCP.Endpoint.State
   | .startup .. => none
+  | .recovering current =>
+    match current.phase, actor with
+    | .acknowledged _ client, .client | .complete _ client _, .client => some client.current
+    | .complete _ _ server, .server => some server.current
+    | _, _ => none
   | .application _ endpoints => some (match actor with | .client => endpoints.client.current | .server => endpoints.server.current)
 
 def endpointSteps (actor : M.Actor) : M.Connection active passive → List A.Step
   | .startup .. => []
+  | .recovering current => current.applicationSteps actor.recoverySide
   | .application _ endpoints => match actor with | .client => endpoints.client.steps | .server => endpoints.server.steps
 
 def wirePayload (step : A.Step) : List UInt8 :=
@@ -164,13 +171,23 @@ private def recoveryAt (report : M.Report input events) (time : Nat) (actor : M.
   | some before, some after => return ⟨application, before, after, stored, updated⟩
   | _, _ => throw "The selected endpoint operation has no actual recovery state."
 
+private def ordinaryMode (actual : Check.CampusTCPModel.Step input) (served : M.Served input)
+    (present : actual.result.service = some served) :
+    Except String { _value : Unit // served.mode = TCP.AdmissionExecution.Mode.ordinary } := do
+  match connection : actual.before.connection with
+  | .recovering .. => throw "The selected service is still in startup recovery."
+  | .startup .. | .application .. =>
+    have selected := Check.CampusTCPOrigins.service_mode actual served present
+    return ⟨(), by simpa only [connection, Check.CampusTCPModel.Connection.admissionMode] using selected⟩
+
 structure RepeatedService (report : M.Report input events) (time : Nat) where
   joint : F.At report time
   served : M.Served input
   present : joint.step.result.service = some served
+  ordinary : served.mode = TCP.AdmissionExecution.Mode.ordinary
   processing : Check.CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
     served.before served.ticket.value.source input.zone
-  computed : served.evidence.processing = some processing
+  computed : (Check.CampusTCPApplicationService.ordinaryEvidence served.evidence ordinary).processing = some processing
   source : TCP.Admission.Session
   phase : served.before.admission.phase = .data source
   direction : processing.prepared.attachment.direction = .original
@@ -195,7 +212,8 @@ private def repeatedService (report : M.Report input events) (time : Nat) :
   match present : joint.step.result.service with
   | none => throw "The selected repeated range has no actual gateway service."
   | some served =>
-    match computed : served.evidence.processing with
+    let ordinary ← ordinaryMode joint.step served present
+    match computed : (Check.CampusTCPApplicationService.ordinaryEvidence served.evidence ordinary.property).processing with
     | none => throw "The repeated range has no actual admission computation."
     | some processing =>
       match phase : served.before.admission.phase with
@@ -204,7 +222,7 @@ private def repeatedService (report : M.Report input events) (time : Nat) :
         let known ← verify (TCP.Admission.KnownRange source.original source.entry .original
           served.ticket.value.source.packet.segment served.before.admission.observations)
           "The selected service has no exact retained first source."
-        return ⟨joint, served, present, processing, computed, source, phase, direction.property, known.property⟩
+        return ⟨joint, served, present, ordinary.property, processing, computed, source, phase, direction.property, known.property⟩
       | _ => throw "The repeated range has no established source history."
 
 def fixturePayload (start count : Nat) : List UInt8 :=

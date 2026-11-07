@@ -35,17 +35,26 @@ private theorem application_now (before : State input) (connection : before.conn
     (actor selected : Actor) (event : T.Event) (effect : Effect input)
     (computed : applyApplication input before actor event = .ok effect)
     (earlier : ∀ old ∈ applicationSteps endpoints actor, old.stamp < before.time)
-    (notClock : ∀ millis, event ≠ .advanceClock millis) : endpointNow effect.state selected = endpointNow before selected := by
+    (notClock : ∀ millis, event ≠ .advanceClock millis)
+    (notStartup : ∀ data, event ≠ .enableStartupRecovery data) :
+    endpointNow effect.state selected = endpointNow before selected := by
   have recorded := CampusTCPRoundLocal.application_recorded before complete endpoints connection actor event effect computed earlier
   obtain ⟨after, connected, changed, peer, _, _, _, _, _⟩ :=
     CampusTCPEnabled.application_frame before complete endpoints connection actor event effect _ computed recorded
   rw [endpointNow_application _ connected, endpointNow_application _ connection]
   by_cases same : selected = actor
   · rw [same, changed]
-    exact CampusTCPRecoveryRoundTiming.evaluate_now _ _ notClock
+    exact CampusTCPRecoveryRoundTiming.evaluate_now _ _ notClock notStartup
   · have other : selected = actor.other := by cases selected <;> cases actor <;> simp_all [Actor.other]
     rw [other]
     exact congrArg Endpoint.State.now peer
+
+private theorem recovery_now (before : State input) (connection : before.connection = .application complete endpoints)
+    (actor : Actor) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : endpointNow effect.state actor = endpointNow before actor := by
+  simp only [runRecovery, connection] at computed
+  cases computed
+  rfl
 
 private theorem delivery_now (before : State input) (connection : before.connection = .application complete endpoints)
     (earlier : ApplicationsBefore endpoints before.time) (actor : Actor) (index : Nat) (bytes : List UInt8) (policy : Bool)
@@ -59,10 +68,12 @@ private theorem delivery_now (before : State input) (connection : before.connect
             | rename_i applied after accepted
               exact application_now before connection _ actor _ after accepted (earlier _)
                 (by intro millis same; cases same)
+                (by intro data same; cases same)
             | rename_i applied after accepted
               simp only [connection, Except.ok.injEq] at accepted
               cases accepted
               rfl)
+    | (solve | cases computed; dsimp only; exact recovery_now before connection actor _ _ (by assumption))
     | (solve | cases computed; rfl)
     | (cases computed)
     | (split at computed)
@@ -85,7 +96,7 @@ theorem Step.action_now (actual : Step input) (before : actual.before = current.
   cases action with
   | send selected count policy =>
     exact application_now _ current.connection selected actor (.send count policy) effect core (allEarlier _)
-      (by intro millis same; cases same)
+      (by intro millis same; cases same) (by intro data same; cases same)
   | assign index ingress =>
     have unchanged := CampusTCPRoundClock.Step.connection_frame actual (event ▸ .assign index ingress)
     have same : effect.state.connection = current.report.final.connection := by simpa only [final, before] using unchanged
@@ -99,10 +110,10 @@ theorem Step.action_now (actual : Step input) (before : actual.before = current.
   | deliver index bytes policy => exact delivery_now _ current.connection allEarlier actor _ _ _ effect core
   | emitAck selected policy =>
     exact application_now _ current.connection selected actor (.emitAck policy) effect core (allEarlier _)
-      (by intro millis same; cases same)
+      (by intro millis same; cases same) (by intro data same; cases same)
   | read selected count =>
     exact application_now _ current.connection selected actor (.read count) effect core (allEarlier _)
-      (by intro millis same; cases same)
+      (by intro millis same; cases same) (by intro data same; cases same)
 
 theorem Step.timeout_now (actual : Step input) (before : actual.before = current.report.final)
     (actor selected : Actor) (event : actual.event = .timeout selected true) :
@@ -117,7 +128,7 @@ theorem Step.timeout_now (actual : Step input) (before : actual.before = current
     · exact earlier.2
   rw [final]
   exact application_now _ current.connection selected actor (.timeout true) effect core (allEarlier _)
-    (by intro millis same; cases same)
+    (by intro millis same; cases same) (by intro data same; cases same)
 
 theorem Step.drop_now (actual : Step input) (before : actual.before = current.report.final) (actor : Actor)
     (event : actual.event = .dropPacket packet) : endpointNow actual.result.state actor = endpointNow current.report.final actor := by

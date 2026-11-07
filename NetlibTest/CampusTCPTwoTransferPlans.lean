@@ -84,7 +84,7 @@ private def demandEvent (config : T.Config) : T.Demand → Except String M.Event
 
 private def history (state : M.State input) (actor : M.Actor) : Except String (List TCP.ApplicationTrace.Step) :=
   match state.connection with
-  | .startup .. => .error "The actual connection is not established."
+  | .startup .. | .recovering .. => .error "The actual connection is not established."
   | .application _ endpoints => .ok (Check.CampusTCPEnabled.applicationSteps endpoints actor)
 
 private def dropIDs (steps : List (M.Step input)) : List Nat := steps.filterMap fun actual =>

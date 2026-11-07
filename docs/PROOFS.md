@@ -246,6 +246,11 @@ The returned report ends at an actual slot no later than the computed static bou
 Window ACK work created by a read can remain pending.
 The [transfer progress guide](TCP_TRANSFER_PROGRESS.md) states the initial assumptions and selected action profile.
 
+`Check.CampusTCPStartupTransferBound.complete` extends this result from actual cold startup under one whole action check and one service check.
+It derives the actual handoff, native session geometry, inherited timers, and both reads with one physical loss allowance `L ≤ 2`.
+Its result identifies the literal completed prefix, absolute deadline, and disjoint startup and data drop identities.
+The [startup recovery guide](TCP_STARTUP_RECOVERY.md) states the raw path, reserve, clock, service, and report-length assumptions.
+
 ## Authenticated campus TCP path
 
 `Protocol.WireSource` shares checked immutable byte sources across UDP and TCP.

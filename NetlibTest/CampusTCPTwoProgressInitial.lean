@@ -27,7 +27,7 @@ variable {complete : Check.TCPHandshake.Completed input.active input.passive}
 
 private def completeTag : Check.CampusTCPModel.Connection input.active input.passive →
     Option (Check.TCPHandshake.Completed input.active input.passive)
-  | .startup .. => none
+  | .startup .. | .recovering .. => none
   | .application complete _ => some complete
 
 private theorem application_tag (before : M.State input) (endpoints : M.Applications complete)
@@ -63,9 +63,51 @@ private theorem enableAck_tag (before : M.State input) (endpoints : M.Applicatio
   cases actor
   all_goals
     dsimp only at computed
-    split at computed
-    · exact application_tag before endpoints connection _ _ effect computed
-    · cases computed
+    repeat' first
+      | (solve | exact application_tag before endpoints connection _ _ effect computed)
+      | cases computed
+      | split at computed
+
+private theorem recovery_tag (before : M.State input) (endpoints : M.Applications complete)
+    (connection : before.connection = .application complete endpoints)
+    (event : Check.CampusTCPModel.C.Event) (effect : Check.CampusTCPModel.Effect input)
+    (computed : Check.CampusTCPModel.runRecovery input before event = .ok effect) :
+    completeTag effect.state.connection = some complete := by
+  simp only [Check.CampusTCPModel.runRecovery, connection] at computed
+  cases computed
+  exact congrArg completeTag connection
+
+private theorem openRecovery_tag (before : M.State input) (endpoints : M.Applications complete)
+    (connection : before.connection = .application complete endpoints)
+    (remote : TCP.Handshake.Socket) (policy : Bool) (effect : Check.CampusTCPModel.Effect input)
+    (computed : Check.CampusTCPModel.openRecovering input before remote policy = .ok effect) :
+    completeTag effect.state.connection = some complete := by
+  simp only [Check.CampusTCPModel.openRecovering, connection] at computed
+  split at computed
+  · cases computed
+  · cases computed; exact congrArg completeTag connection
+
+private theorem startupRecovery_tag (before : M.State input) (endpoints : M.Applications complete)
+    (connection : before.connection = .application complete endpoints)
+    (actor : M.Actor) (effect : Check.CampusTCPModel.Effect input)
+    (computed : Check.CampusTCPModel.enableStartupRecovery input before actor = .ok effect) :
+    completeTag effect.state.connection = some complete := by
+  unfold Check.CampusTCPModel.enableStartupRecovery at computed
+  split at computed
+  · cases computed; exact congrArg completeTag connection
+  · exact application_tag before endpoints connection actor _ effect computed
+
+private theorem finishStartup_tag (before : M.State input) (endpoints : M.Applications complete)
+    (connection : before.connection = .application complete endpoints)
+    (effect : Check.CampusTCPModel.Effect input)
+    (computed : Check.CampusTCPModel.finishStartup input before = .ok effect) :
+    completeTag effect.state.connection = some complete := by
+  simp only [Check.CampusTCPModel.finishStartup, connection] at computed
+  repeat' first
+    | (solve | cases computed; exact congrArg completeTag connection)
+    | cases computed
+    | split at computed
+    | dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed
 
 @[simp] private theorem write_connection (before : M.State input) (gateway : Check.CampusTCPModel.Gateway)
     (resident : Check.CampusTCPModel.Local) : (before.write gateway resident).connection = before.connection := by
@@ -78,6 +120,11 @@ private theorem core_tag (before : M.State input) (endpoints : M.Applications co
     completeTag effect.state.connection = some complete := by
   cases event with
   | «open» remote policy => exact startup_tag before endpoints connection _ effect computed
+  | openRecovering remote policy => exact openRecovery_tag before endpoints connection remote policy effect computed
+  | startupClock actor millis | startupTimeout actor generation policy =>
+    exact recovery_tag before endpoints connection _ effect computed
+  | finishStartup => exact finishStartup_tag before endpoints connection effect computed
+  | enableStartupRecovery actor => exact startupRecovery_tag before endpoints connection actor effect computed
   | write actor bytes | send actor count policy | enableRecovery actor | dispatchAck actor policy
   | advanceClock actor millis | timeout actor policy | read actor count | emitAck actor policy =>
     exact application_tag before endpoints connection actor _ effect computed
@@ -94,6 +141,7 @@ private theorem core_tag (before : M.State input) (endpoints : M.Applications co
       | (solve | cases computed; simpa only [write_connection, completeTag] using congrArg completeTag connection)
       | (solve | cases computed; simpa only [completeTag] using application_tag before endpoints connection _ _ _ (by assumption))
       | (solve | cases computed; simpa only [completeTag] using startup_tag before endpoints connection _ _ (by assumption))
+      | (solve | cases computed; simpa only [completeTag] using recovery_tag before endpoints connection _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [Check.CampusTCPModel.get, Check.CampusTCPModel.parsed, Except.mapError,
@@ -116,6 +164,7 @@ private theorem trace_tag (trace : Check.CampusTCPModel.Trace input before event
     have tag := step_tag head endpoints connection
     cases connected : head.result.state.connection with
     | startup stage pending => simp only [connected, completeTag, reduceCtorEq] at tag
+    | recovering current => simp only [connected, completeTag, reduceCtorEq] at tag
     | application next updated =>
       simp only [connected, completeTag, Option.some.injEq] at tag
       cases tag
@@ -136,6 +185,7 @@ private def startupBasis (report : M.Report input events) (current : Prefix repo
       _ = _ := by rw [List.take_take, Nat.min_eq_left enough.property]
   match connection : startup.final.connection with
   | .startup .. => throw "The startup prefix is incomplete."
+  | .recovering .. => throw "The startup prefix is still recovering startup."
   | .application earlier endpoints =>
     let clientEmpty ← R.verify (endpoints.client.steps = []) "The startup client has prior application operations."
     let serverEmpty ← R.verify (endpoints.server.steps = []) "The startup server has prior application operations."
@@ -157,7 +207,7 @@ private def startupBasis (report : M.Report input events) (current : Prefix repo
         have same : selected = session := TCP.Admission.Phase.data.inj (selectedPhase.symm.trans phase)
         cases same
         simpa only [aligned.entryEq] using aligned
-      let basis : G.StartupBasis current.cut := {
+      let basis : Check.CampusTCPGapProgressStart.StartupBasis current.cut := {
         events := _, report := startup, supported := supported.property, finished := rfl
         connection := by cases completeEq; exact initialConnection
         ordinary := ordinary
@@ -167,7 +217,7 @@ private def startupBasis (report : M.Report input events) (current : Prefix repo
         entry := session.entry, session := session
         aligned := by simpa only [completeEq] using aligned
         phase := phase }
-      return basis
+      return Check.CampusTCPStartupBasis.Basis.ofOrdinary basis
     | _ => throw "The actual startup gateway is not in the data phase."
 
 def writtenBatch (cut : Check.CampusTCPRound.Cut input complete) (actor : M.Actor)

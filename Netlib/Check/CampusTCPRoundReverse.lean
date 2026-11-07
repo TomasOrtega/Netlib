@@ -342,6 +342,7 @@ theorem CompleteRound.write_retained (round : CompleteRound initial native) :
 private def connectionSteps (actor : Actor) : Connection active passive → List T.Step
   | .startup .. => []
   | .application _ endpoints => applicationSteps endpoints actor
+  | .recovering current => current.applicationSteps actor.recoverySide
 
 private theorem local_histories (actual : Step input) (complete : H.Completed input.active input.passive)
     (before after : Applications complete)
@@ -407,7 +408,7 @@ private theorem beforeTransport_released (cursor : Cursor seed) (ready : cursor.
   cases event : operation.event with
   | receive packet => exact False.elim (noReceive packet event)
   | write bytes | send count policy | read count | emitAck policy | enableRecovery | advanceClock millis
-  | timeout policy | enableAck | dispatchAck policy =>
+  | timeout policy | enableAck | dispatchAck policy | enableStartupRecovery data =>
     simp only [ApplicationTrace.Step.releasedPayload, ApplicationTrace.releasedPayload, event]
 
 theorem CompleteRound.data_release (round : CompleteRound initial native) :

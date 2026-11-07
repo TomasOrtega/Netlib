@@ -31,6 +31,7 @@ private theorem application_event (before : State input) (actor : Actor) (event 
   unfold applyApplication at computed
   split at computed
   · cases computed; intro selected operation recorded; cases recorded
+  · cases computed; intro selected operation recorded; cases recorded
   · cases actor
     all_goals
       simp only [parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at computed
@@ -59,9 +60,77 @@ private theorem enable_ack_event (before : State input) (actor : Actor) (effect 
   unfold enableAck at computed
   split at computed
   · exact application_event _ _ _ _ computed
+  · exact application_event _ _ _ _ computed
   · cases actor <;> dsimp only at computed
-    all_goals split at computed
-    all_goals first | exact application_event _ _ _ _ computed | cases computed
+    all_goals
+      repeat' first
+        | (solve | exact application_event _ _ _ _ computed)
+        | cases computed
+        | split at computed
+
+private theorem recovery_application_event (before : State input) (event : C.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) (actor : Actor) (operation : T.Step)
+    (recorded : effect.application = some (actor, operation)) :
+    ∃ packet, operation.event = .receive packet := by
+  unfold runRecovery at computed
+  cases connection : before.connection with
+  | startup stage pending | application complete endpoints =>
+    simp only [connection] at computed
+    cases computed
+    cases recorded
+  | recovering current =>
+    simp only [connection] at computed
+    split at computed
+    · cases computed
+    · rename_i result evaluated
+      have selected_event (selected : Actor) (operation : T.Step)
+          (recorded : result.application.map (fun pair => (Actor.ofRecovery pair.1, pair.2)) =
+            some (selected, operation)) : ∃ packet, operation.event = .receive packet := by
+        obtain ⟨pair, present, same⟩ := Option.map_eq_some_iff.mp recorded
+        have stepEq := congrArg Prod.snd same
+        obtain ⟨receipt, _, _, _, received, _⟩ := TCPHandshakeRecovery.evaluate_application_receipt evaluated present
+        exact ⟨_, stepEq ▸ received⟩
+      split at computed
+      ·
+        cases computed
+        exact selected_event _ _ recorded
+      ·
+        cases computed
+        exact selected_event _ _ recorded
+
+private theorem open_recovery_application_event (before : State input) (remote : Handshake.Socket)
+    (policy : Bool) (effect : Effect input)
+    (computed : openRecovering input before remote policy = .ok effect) (actor : Actor) (operation : T.Step)
+    (recorded : effect.application = some (actor, operation)) :
+    ∃ packet, operation.event = .receive packet := by
+  unfold openRecovering at computed
+  dsimp only at computed
+  split at computed
+  · dsimp only [bind, Except.bind, throw, throwThe, MonadExceptOf.throw] at computed
+    cases computed
+  · split at computed
+    · exact recovery_application_event _ _ _ computed actor operation recorded
+    · cases computed; cases recorded
+
+private theorem startup_recovery_event (before : State input) (actor : Actor) (effect : Effect input)
+    (computed : enableStartupRecovery input before actor = .ok effect) :
+    ∀ selected operation, effect.application = some (selected, operation) → selected = actor ∧
+      ∃ data, operation.event = .enableStartupRecovery data := by
+  unfold enableStartupRecovery at computed
+  split at computed
+  · cases computed; intro selected operation recorded; cases recorded
+  · intro selected operation recorded
+    obtain ⟨same, event⟩ := application_event _ _ _ _ computed selected operation recorded
+    exact ⟨same, _, event⟩
+
+private theorem finish_startup_none (before : State input) (effect : Effect input)
+    (computed : finishStartup input before = .ok effect) : effect.application = none := by
+  unfold finishStartup at computed
+  repeat' first
+    | (solve | cases computed; rfl)
+    | cases computed
+    | split at computed
+    | dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed
 
 private theorem process_clock_origin (before : State input) (event : CampusTCPModel.Event) (effect : Effect input)
     (computed : processCore input before event = .ok effect) (actor : Actor) (operation : T.Step)
@@ -78,11 +147,21 @@ private theorem process_clock_origin (before : State input) (event : CampusTCPMo
     have sameEvent := (application_event _ _ _ _ computed actor operation recorded).2
     have impossible := sameEvent.symm.trans clock
     cases impossible
+  | enableStartupRecovery selected =>
+    obtain ⟨data, handoff⟩ := (startup_recovery_event _ _ _ computed actor operation recorded).2
+    cases handoff.symm.trans clock
   | enableAck selected =>
     have sameEvent := (enable_ack_event _ _ _ computed actor operation recorded).2
     have impossible := sameEvent.symm.trans clock
     cases impossible
   | «open» remote policy => rw [startup_none _ _ _ computed] at recorded; cases recorded
+  | openRecovering remote policy =>
+    obtain ⟨packet, received⟩ := open_recovery_application_event _ _ _ _ computed actor operation recorded
+    cases received.symm.trans clock
+  | startupClock selected stamp | startupTimeout selected generation policy =>
+    obtain ⟨packet, received⟩ := recovery_application_event _ _ _ computed actor operation recorded
+    cases received.symm.trans clock
+  | finishStartup => rw [finish_startup_none _ _ computed] at recorded; cases recorded
   | deliver index bytes policy =>
     simp only [processCore] at computed
     repeat' first
@@ -93,6 +172,11 @@ private theorem process_clock_origin (before : State input) (event : CampusTCPMo
           have sameEvent := (application_event _ _ _ _ (by assumption) actor operation recorded).2
           have impossible := sameEvent.symm.trans clock
           cases impossible)
+      | (solve |
+          cases computed
+          dsimp only at recorded
+          obtain ⟨packet, received⟩ := recovery_application_event _ _ _ (by assumption) actor operation recorded
+          cases received.symm.trans clock)
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
@@ -114,6 +198,106 @@ theorem Step.clock_origin (actual : Step input) (actor : Actor) (operation : T.S
   obtain ⟨effect, custody, computed, result⟩ := actual.processed
   exact process_clock_origin actual.before actual.event effect computed actor operation
     (by simpa only [result] using recorded) millis clock
+
+private theorem process_startupRecovery_origin (before : State input) (event : CampusTCPModel.Event) (effect : Effect input)
+    (computed : processCore input before event = .ok effect) (actor : Actor) (operation : T.Step)
+    (recorded : effect.application = some (actor, operation)) (data : HandshakeTimer.Data) (clock : operation.event = .enableStartupRecovery data) :
+    event = .enableStartupRecovery actor := by
+  cases event with
+  | advanceClock selected stamp =>
+    obtain ⟨sameActor, sameEvent⟩ := application_event _ _ _ _ computed actor operation recorded
+    cases sameEvent.symm.trans clock
+  | write selected bytes | send selected count policy | read selected count | emitAck selected policy
+    | enableRecovery selected | timeout selected policy | dispatchAck selected policy =>
+    have sameEvent := (application_event _ _ _ _ computed actor operation recorded).2
+    have impossible := sameEvent.symm.trans clock
+    cases impossible
+  | enableStartupRecovery selected =>
+    have sameActor := (startup_recovery_event _ _ _ computed actor operation recorded).1
+    cases sameActor
+    rfl
+  | enableAck selected =>
+    have sameEvent := (enable_ack_event _ _ _ computed actor operation recorded).2
+    have impossible := sameEvent.symm.trans clock
+    cases impossible
+  | «open» remote policy => rw [startup_none _ _ _ computed] at recorded; cases recorded
+  | openRecovering remote policy =>
+    obtain ⟨packet, received⟩ := open_recovery_application_event _ _ _ _ computed actor operation recorded
+    cases received.symm.trans clock
+  | startupClock selected stamp | startupTimeout selected generation policy =>
+    obtain ⟨packet, received⟩ := recovery_application_event _ _ _ computed actor operation recorded
+    cases received.symm.trans clock
+  | finishStartup => rw [finish_startup_none _ _ computed] at recorded; cases recorded
+  | deliver index bytes policy =>
+    simp only [processCore] at computed
+    repeat' first
+      | (solve | cases computed; dsimp only at recorded; rw [startup_none _ _ _ (by assumption)] at recorded; cases recorded)
+      | (solve |
+          cases computed
+          dsimp only at recorded
+          have sameEvent := (application_event _ _ _ _ (by assumption) actor operation recorded).2
+          have impossible := sameEvent.symm.trans clock
+          cases impossible)
+      | (solve |
+          cases computed
+          dsimp only at recorded
+          obtain ⟨packet, received⟩ := recovery_application_event _ _ _ (by assumption) actor operation recorded
+          cases received.symm.trans clock)
+      | (cases computed)
+      | (split at computed)
+      | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
+          throw, throwThe, MonadExceptOf.throw] at computed)
+  | authentication index | install id | stage id | installGuard id | installAt gateway id | stageAt gateway id
+    | installGuardAt gateway id | assign index ingress | serve id observed | copyPacket id | dropPacket id
+    | pause | stageCheckpoint | installCheckpoint ns | switchRoute actor gateway | fencePrimary | resume =>
+    simp only [processCore, installConfiguration, stageAttachment, installIngress, transferControl] at computed
+    repeat' first
+      | (solve | cases computed; cases recorded)
+      | (cases computed)
+      | (split at computed)
+      | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,
+          throw, throwThe, MonadExceptOf.throw] at computed)
+
+theorem Step.startupRecovery_origin (actual : Step input) (actor : Actor) (operation : T.Step)
+    (recorded : actual.result.application = some (actor, operation)) (data : HandshakeTimer.Data)
+    (clock : operation.event = .enableStartupRecovery data) : actual.event = .enableStartupRecovery actor := by
+  obtain ⟨effect, custody, computed, result⟩ := actual.processed
+  exact process_startupRecovery_origin actual.before actual.event effect computed actor operation
+    (by simpa only [result] using recorded) data clock
+
+section
+open CampusTCPTwoProgressMonitor
+
+private theorem gap_no_enableStartupRecovery (demand : CampusTCPGapProgressMonitor.Demand) (actor : Actor) :
+    CampusTCPGapProgressMonitor.serves demand (.enableStartupRecovery actor) = false := by
+  cases demand <;> simp only [CampusTCPGapProgressMonitor.serves, CampusTCPRoundMonitor.actionOf,
+    reduceCtorEq, decide_false, Bool.false_or]
+
+private theorem demand_no_enableStartupRecovery (demand : Demand) (actor : Actor) :
+    serves demand (.enableStartupRecovery actor) = false := by
+  cases demand with
+  | single value => exact gap_no_enableStartupRecovery value actor
+  | originalChoice lower upper =>
+    cases lower <;> cases upper <;>
+      simp only [serves, servesOption, gap_no_enableStartupRecovery, Bool.or_self]
+
+theorem allowed_not_enableStartupRecovery (cfg : CampusTCPTwoProgressMonitor.Config) (state : State input) (monitor : Monitor) (actor : Actor) :
+    ¬Allowed cfg state monitor (.enableStartupRecovery actor) := by
+  intro allowed
+  have free : freeClock cfg state monitor (.enableStartupRecovery actor) = false := by
+    cases connection : state.connection <;>
+      simp only [freeClock, CampusTCPGapProgressMonitor.freeClock, connection, Bool.and_false]
+  unfold CampusTCPTwoProgressMonitor.Allowed CampusTCPTwoProgressMonitor.allowed at allowed
+  split at allowed
+  · cases allowed
+  · cases selected : nextDemand cfg state monitor with
+    | none =>
+      simp only [selected, free, Bool.false_or, Bool.false_and, Bool.false_eq_true] at allowed
+    | some demand =>
+      simp only [selected, demand_no_enableStartupRecovery, free, Bool.false_or, Bool.false_and,
+        Bool.false_eq_true] at allowed
+
+end
 
 private theorem chain_cons (chain : T.Chain before (head :: tail) after) :
     before = head.before ∧ T.Chain head.result.state tail after := by
@@ -147,12 +331,16 @@ theorem Move.local_clock_bound (move : Move current actual) (cfg : CampusTCPTwoP
   have chain := Move.application_chain move actor
   simp only [recorded, CampusTCPRecoveryRoundOrigins.localSteps, ite_true] at chain
   have localBefore := (chain_cons chain).1.symm
-  intro millis event
-  have selected := Step.clock_origin actual actor operation recorded millis event
-  rw [localBefore]
-  obtain ⟨_, _, _, upper, _⟩ := CampusTCPGapProgressClock.clock_allowed_fields cfg.toConfig current actor millis
-    (CampusTCPTwoProgressClock.allowed_guard cfg current monitor actor millis (by rw [← selected]; exact allowed))
-  exact upper
+  constructor
+  · intro millis event
+    have selected := Step.clock_origin actual actor operation recorded millis event
+    rw [localBefore]
+    obtain ⟨_, _, _, upper, _⟩ := CampusTCPGapProgressClock.clock_allowed_fields cfg.toConfig current actor millis
+      (CampusTCPTwoProgressClock.allowed_guard cfg current monitor actor millis (by rw [← selected]; exact allowed))
+    exact upper
+  · intro data event
+    have selected := Step.startupRecovery_origin actual actor operation recorded data event
+    exact False.elim (allowed_not_enableStartupRecovery cfg current.report.final monitor actor (selected ▸ allowed))
 
 private theorem local_length (application : Option (Actor × T.Step)) (actor : Actor) :
     (CampusTCPRecoveryRoundOrigins.localSteps application actor).length ≤ 1 := by
@@ -174,6 +362,7 @@ theorem Move.actor_now_le (move : Move current actual) (cfg : CampusTCPTwoProgre
 def nowAt (state : State input) (actor : Actor) : Nat :=
   match state.connection with
   | .startup .. => 0
+  | .recovering current => (current.timer actor.recoverySide).now
   | .application _ endpoints => (endpoint endpoints actor).now
 
 theorem nowAt_cut (current : Cut input complete) (actor : Actor) :

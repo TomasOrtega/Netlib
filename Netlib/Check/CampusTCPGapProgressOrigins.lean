@@ -235,8 +235,8 @@ theorem endpoint_order (current : Cut input complete) (actor : Actor) :
   · exact current.endpoints.server.ordered
 
 theorem Completed.receives (_done : CampusTCPGapProgressRetire.Completed initial current retries) :
-    Nonempty (CampusTCPFacts.Receives current.report (applicationSteps current.endpoints sender) sender.other
-      (applicationSteps current.endpoints sender.other)) := by
+    CampusTCPReceiveHistory.PayloadReceives current.report (applicationSteps current.endpoints sender) sender.other
+      (applicationSteps current.endpoints sender.other) := by
   have actual := CampusTCPRecoveryRoundOrigins.Report.receives current.report complete current.endpoints current.connection sender.other
   cases sender <;> exact actual
 
@@ -245,12 +245,13 @@ theorem Completed.read_origin (done : CampusTCPGapProgressRetire.Completed initi
     Nonempty (CampusTCPGapFacts.ReadOrigin current.report (seed complete sender)
       (applicationSteps current.endpoints sender) sender.other (applicationSteps current.endpoints sender.other)
       done.operation index byte) := by
-  obtain ⟨receives⟩ := Completed.receives done
-  have history : ApplicationTrace.DeliveryHistory (applicationSteps current.endpoints sender)
-      (applicationSteps current.endpoints sender.other) :=
-    ⟨endpoint_order current sender, endpoint_order current sender.other, receives.delivered⟩
+  have receives := Completed.receives done
+  have history : ApplicationTrace.PayloadDeliveryHistory (applicationSteps current.endpoints sender)
+      (applicationSteps current.endpoints sender.other) := by
+    have actual := CampusTCPReceiveHistory.Report.payload_history current.report sender.other
+    cases sender <;> simpa only [current.connection, CampusTCPApplicationHistory.connectionSteps, Actor.other] using actual
   obtain ⟨member, _, event, read⟩ := done.history.exact_read
-  apply CampusTCPGapFacts.read_origin (endpoint_chain current sender.other) (endpoint_chain current sender) history receives
+  apply CampusTCPGapFacts.payload_read_origin (endpoint_chain current sender.other) (endpoint_chain current sender) history receives
     (seed_empty_unread complete sender.other) (seed_empty_held complete sender.other)
     (seed_empty_sent complete sender) (seed_empty_pending complete sender)
     done.operation member (lower ++ upper).length event index byte
@@ -524,7 +525,7 @@ private theorem output_eq (left right : ApplicationTrace.OutputAt steps)
 
 private def produced_step : Produced input.active input.passive → Option T.Step
   | .application _ operation _ _ => some operation
-  | .startup .. => none
+  | .startup .. | .recovery .. => none
 
 theorem LowerSource.write_origin (source : LowerSource initial produced)
     (retained : cut.report.steps <+: current.report.steps)
@@ -810,8 +811,7 @@ theorem FirstReceipt.delivery_same
       rcases pair with ⟨actor, operation⟩
       have same : operation = first.operation := by simpa only [selected, Option.map_some, Option.some.injEq] using mapped
       exact ⟨actor, by simp only [same]⟩
-  obtain ⟨_, _, _, _, _, _, _, _, stamp, _, _⟩ := CampusTCPRecoveryRoundOrigins.Step.receive_origin
-    actual actor first.operation recorded packet received
+  have stamp := CampusTCPRecoveryRoundOrigins.Step.receive_stamp actual actor first.operation recorded packet received
   let actualAt : CampusTCPFacts.At current.report operation.stamp :=
     ⟨actual, member, stamp.symm.trans (congrArg ApplicationTrace.Step.stamp same).symm⟩
   have unique : delivery.receive.joint.step = actual := CampusTCPFacts.At.unique delivery.receive.joint actualAt

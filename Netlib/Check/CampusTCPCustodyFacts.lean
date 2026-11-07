@@ -155,9 +155,12 @@ theorem Step.copy (step : M.Step input) (id : Nat) (event : step.event = .copyPa
   cases copied : C.copy step.before.custody id with
   | error reason => simp [copied, Except.mapError, bind, Except.bind] at prepared
   | ok chosen =>
-    simp only [copied, Except.mapError, bind, Except.bind, pure, Except.pure, Except.ok.injEq] at prepared
-    subst custody
-    exact ⟨chosen, rfl, by rw [result]; rfl⟩
+    simp only [copied, Except.mapError, bind, Except.bind, pure, Except.pure] at prepared
+    split at prepared
+    · cases prepared
+    · simp only [Except.ok.injEq] at prepared
+      subst custody
+      exact ⟨chosen, rfl, by rw [result]; rfl⟩
 
 theorem Step.drop_not_repeat (step : M.Step input) (id : Nat) (event : step.event = .dropPacket id)
     (prior : C.History step.before.custody) : C.resolve step.result.state.custody id .dropped = .error .notPending := by
@@ -272,7 +275,7 @@ private theorem prepare_sources (before : M.State input) (event : M.Event) (afte
     | (solve | cases computed; intro item member; exact prior item ((by assumption : Theory.PacketCustody.Resolved _ _ _).items_perm.mem_iff.mpr member))
   all_goals
     cases computed
-    rename_i result accepted
+    rename_i result _ _
     intro item member
     rw [result.items] at member
     rcases List.mem_append.mp member with old | fresh

@@ -198,10 +198,12 @@ theorem advance_now_of_accepted (state : Endpoint.State) (millis : Nat)
     | split at accepted
 
 def ClockBound (quantum : Nat) (step : ApplicationTrace.Step) : Prop :=
-  ∀ millis, step.event = .advanceClock millis → millis ≤ step.before.now + quantum
+  (∀ millis, step.event = .advanceClock millis → millis ≤ step.before.now + quantum) ∧
+    (∀ data, step.event = .enableStartupRecovery data → data.now ≤ step.before.now + quantum)
 
 def isClock : ApplicationTrace.Event → Bool
   | .advanceClock _ => true
+  | .enableStartupRecovery _ => true
   | _ => false
 
 def clockCount (steps : List ApplicationTrace.Step) : Nat := steps.countP (fun step => isClock step.event)
@@ -217,6 +219,7 @@ theorem Step.nonclock_now_le (step : ApplicationTrace.Step) (nonclock : isClock 
   | timeout policy => rw [ApplicationTrace.evaluate, timeout_now]; exact Nat.le_refl _
   | enableRecovery => exact enable_recovery_now _
   | advanceClock millis => rw [event] at nonclock; cases nonclock
+  | enableStartupRecovery data => rw [event] at nonclock; cases nonclock
   | write bytes =>
     change (Endpoint.write step.before bytes).state.now ≤ step.before.now
     unfold Endpoint.write
@@ -239,7 +242,17 @@ theorem Step.now_le (step : ApplicationTrace.Step) (bounded : ClockBound quantum
   cases event : step.event with
   | advanceClock millis =>
     rw [step.computed, event]
-    exact Nat.le_trans (advance_now_le _ _) (Nat.max_le.mpr ⟨Nat.le_add_right _ _, bounded millis event⟩)
+    exact Nat.le_trans (advance_now_le _ _) (Nat.max_le.mpr ⟨Nat.le_add_right _ _, bounded.1 millis event⟩)
+  | enableStartupRecovery data =>
+    have requested := bounded.2 data event
+    rw [step.computed, event]
+    change (Endpoint.enableStartupRecovery step.before data).state.now ≤ step.before.now + quantum
+    unfold Endpoint.enableStartupRecovery
+    repeat' first
+      | (solve | exact Nat.le_add_right _ _)
+      | (solve | exact requested)
+      | (solve | rw [Endpoint.recoveryBlocked_state]; exact Nat.le_add_right _ _)
+      | split
   | _ =>
     have nonclock : isClock step.event = false := by rw [event]; rfl
     simpa only [isClock, Bool.false_eq_true, ite_false, Nat.add_zero] using Step.nonclock_now_le step nonclock
@@ -292,13 +305,16 @@ theorem clocked_local_bound {input : CampusTCPModel.Input}
     (clocked : CampusTCPTwoProgressClock.Clocked initial current cfg monitor actor millis actual)
     (allowed : CampusTCPTwoProgressMonitor.Allowed cfg current.report.final monitor (.advanceClock actor millis)) :
     ClockBound cfg.quantum clocked.base.value.operation := by
-  intro selected event
-  have same : millis = selected := ApplicationTrace.Event.advanceClock.inj (clocked.base.value.localEvent.symm.trans event)
-  subst selected
-  rw [clocked.base.value.localBefore]
-  obtain ⟨_, _, _, upper, _⟩ := CampusTCPGapProgressClock.clock_allowed_fields cfg.toConfig current actor millis
-    (CampusTCPTwoProgressClock.allowed_guard cfg current monitor actor millis allowed)
-  exact upper
+  constructor
+  · intro selected event
+    have same : millis = selected := ApplicationTrace.Event.advanceClock.inj (clocked.base.value.localEvent.symm.trans event)
+    subst selected
+    rw [clocked.base.value.localBefore]
+    obtain ⟨_, _, _, upper, _⟩ := CampusTCPGapProgressClock.clock_allowed_fields cfg.toConfig current actor millis
+      (CampusTCPTwoProgressClock.allowed_guard cfg current monitor actor millis allowed)
+    exact upper
+  · intro data event
+    cases clocked.base.value.localEvent.symm.trans event
 
 theorem clocked_actor_le {input : CampusTCPModel.Input}
     {complete : TCPHandshake.Completed input.active input.passive}

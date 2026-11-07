@@ -109,6 +109,7 @@ private def setup (prior : Checked input origin) (bytes : List UInt8) : IO (Setu
 
 private def startup (events : List M.Event) (prior : Checked input origin) : IO (Checked input origin) := do
   match prior.report.final.connection with
+  | .recovering .. => throw (IO.userError "The ordinary startup prefix entered recovery.")
   | .application .. => return prior
   | .startup .. =>
     match events with
@@ -119,6 +120,7 @@ private def endpoint (state : M.State input) (actor : Check.CampusTCPModel.Actor
     Except String TCP.Endpoint.State :=
   match state.connection with
   | .startup .. => throw "The generated round has no completed startup."
+  | .recovering .. => throw "The ordinary generated round entered recovery."
   | .application _ endpoints => .ok (Check.CampusTCPEnabled.endpoint endpoints actor)
 
 private def stall (prior : Checked input origin) (phase count : Nat) : IO (Checked input origin) := do
@@ -184,6 +186,7 @@ private def noReplay (current : Checked input origin) (index : Nat) (bytes : Lis
 private def checkSetup (current : Checked input origin) (bytes : List UInt8) : IO Unit := do
   match connection : current.report.final.connection with
   | .startup .. => throw (IO.userError "The selected initial prefix must complete TCP startup.")
+  | .recovering .. => throw (IO.userError "The ordinary initial prefix entered recovery.")
   | .application complete endpoints =>
     let client ← load (verify (endpoints.client.steps = []) "The first application cut already has client operations.")
     let server ← load (verify (endpoints.server.steps = []) "The first application cut already has server operations.")

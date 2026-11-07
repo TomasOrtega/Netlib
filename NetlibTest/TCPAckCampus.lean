@@ -37,11 +37,11 @@ private def findCause (state : Work) (id : Nat) : Except String (CauseCase state
     | some cause => return ⟨completion, List.mem_of_find?_eq_some group, cause, List.mem_of_find?_eq_some found⟩
 
 def workAt (actor : M.Actor) : M.Connection active passive → Work
-  | .startup .. => Theory.TimedReaction.initial ()
+  | .startup .. | .recovering .. => Theory.TimedReaction.initial ()
   | .application _ endpoints => TCP.AckTrace.work (match actor with | .client => endpoints.client.current | .server => endpoints.server.current)
 
 def nowAt (actor : M.Actor) : M.Connection active passive → Nat
-  | .startup .. => 0
+  | .startup .. | .recovering .. => 0
   | .application _ endpoints => (match actor with | .client => endpoints.client.current | .server => endpoints.server.current).now
 
 structure ApplicationAt (report : M.Report input events) (time : Nat) (actor : M.Actor) where

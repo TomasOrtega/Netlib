@@ -274,41 +274,59 @@ private theorem markReply_fixed (state : ConntrackLifecycle.State) (flow : FlowN
   cases state
   exact congrArg ConntrackLifecycle.State.mk unchanged
 
-variable {source : WireForwarding.Source}
+variable {source : WireForwarding.Source} {mode : AdmissionExecution.Mode}
+
+private theorem execution_identity (result : AdmissionExecution.Result mode before packet lifecycle prepared)
+    (phase : before.phase = .data session) :
+    ∃ after, (AdmissionExecution.state result).phase = .data after ∧ Identity session after := by
+  rcases AdmissionExecution.Result.legacy_or_stutter result with legacy | ⟨recovery, stutter⟩
+  · obtain ⟨after, afterPhase, identity⟩ :=
+      CampusTCPGapProgressGateway.result_identity (AdmissionExecution.Result.asLegacy result legacy) phase
+    have same := congrArg Admission.State.phase (AdmissionExecution.Result.asLegacy_state result legacy)
+    exact ⟨after, same.symm.trans afterPhase, identity⟩
+  · subst mode
+    refine ⟨session, ?_, CampusTCPGapProgressStart.Identity.refl _⟩
+    exact (AdmissionStartupRecovery.Result.phase result).trans
+      ((AdmissionStartupRecovery.nextPhase_stutter stutter result.admitted).trans phase)
 
 theorem Current.processing_tracker (current : Current start cut)
-    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone) :
+    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone mode) :
     processing.outcome.state = (beforeService input cut.report.final gateway).tracker := by
-  have allowed : Admission.Allowed (.data current.session) processing.prepared.attachment
-      source.packet.segment (beforeService input cut.report.final gateway).admission.observations := by
-    simpa only [current.phase, WireForwarding.Source.asInput] using processing.admitted.admitted
-  rw [processing.existing_state allowed.2.1]
+  have attached : processing.prepared.attachment.entry = current.session.entry := by
+    rcases AdmissionExecution.Result.legacy_or_stutter processing.admitted with legacy | ⟨_, stutter⟩
+    · rw [current.phase] at legacy
+      exact legacy.1
+    · have selected := stutter.entry
+      rw [current.phase] at selected
+      exact (Option.some.inj selected).symm
+  have existing := CampusTCPRoundAdmission.Processing.existing_data processing current.session current.phase
+  rw [processing.existing_state existing]
   cases direction : processing.prepared.attachment.direction with
   | original =>
     obtain ⟨_, _, _, _, unchanged⟩ := ConntrackLifecycle.prepare_existing_original _ _ processing.prepared
-      processing.attached allowed.2.1 direction
+      processing.attached existing direction
     exact unchanged
   | reply =>
     have changed := ConntrackLifecycle.prepare_reply _ _ processing.prepared processing.attached direction
-    rw [changed.2.2, allowed.1]
+    rw [changed.2.2, attached]
     apply markReply_fixed
     intro record member same
     rw [current.confirmed_binding record member same]
 
 theorem Current.processing_fields (current : Current start cut)
-    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone) :
+    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone mode) :
     ∃ after, processing.nextAdmission.phase = .data after ∧ Identity start.session after ∧
       processing.nextAdmission.observations = (beforeService input cut.report.final gateway).admission.observations ++
         [Admission.observe source.asInput
           (CampusTCPService.packetInput (beforeService input cut.report.final gateway) source zone).lifecycle
           processing.prepared] ∧
       processing.outcome.state = (beforeService input cut.report.final gateway).tracker := by
-  obtain ⟨after, phase, identity⟩ := CampusTCPGapProgressGateway.result_identity processing.admitted current.phase
+  obtain ⟨after, phase, identity⟩ := execution_identity processing.admitted current.phase
   rw [CampusTCPRoundAdmission.Processing.committed_data processing current.session current.phase]
-  exact ⟨after, phase, current.identity.trans identity, processing.admitted.ledger, current.processing_tracker processing⟩
+  exact ⟨after, phase, current.identity.trans identity, AdmissionExecution.Result.ledger processing.admitted, current.processing_tracker processing⟩
 
 theorem Current.after_processing (current : Current start cut)
-    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone)
+    (processing : CampusTCPService.Processing context (beforeService input cut.report.final gateway) source zone mode)
     (admission : (beforeService input next.report.final gateway).admission = processing.nextAdmission)
     (tracker : (beforeService input next.report.final gateway).tracker = processing.outcome.state) :
     Nonempty (Current start next) := by

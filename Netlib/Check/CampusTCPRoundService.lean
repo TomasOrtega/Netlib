@@ -1,5 +1,6 @@
 import Netlib.Check.CampusTCPGatewayEnabled
 import Netlib.Check.CampusTCPRoundGateway
+import Netlib.Check.CampusTCPDataAdmissionReady
 
 /-!
 # Actual gateway service in one TCP round
@@ -61,7 +62,7 @@ theorem Step.serve_frame (actual : Step input) (id : Nat)
       | (split at computed)
       | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at computed)
 
-theorem Processing.attachment (processing : CampusTCPService.Processing context before source zone)
+theorem Processing.attachment (processing : CampusTCPService.Processing context before source zone mode)
     (ready : CampusTCPService.ExistingDataReady context before source zone ingress hit session hop) :
     processing.prepared.attachment.entry = session.entry ∧
       processing.prepared.attachment.direction = hit.direction ∧ processing.prepared.attachment.fresh = false := by
@@ -85,7 +86,7 @@ structure ServiceFacts (before : State input) (item : O.Item (Ticket input.activ
   current : served.before = beforeService input before item.value.gateway
   target : emission.target = hit.output
   processing : ∃ processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone,
+      served.before served.ticket.value.source input.zone served.mode,
     served.evidence.processing = some processing ∧ processing.outcome.nextHop = some item.value.produced.actor.nextHop ∧
       processing.prepared.attachment.entry = session.entry ∧
       processing.prepared.attachment.direction = hit.direction ∧ processing.prepared.attachment.fresh = false
@@ -124,9 +125,9 @@ theorem Report.serve_enabled (report : Report input events) (item : O.Item (Tick
     rw [ticketEq, currentAt]
     exact ready
   obtain ⟨evidence, emission, computed, emitted, _, target, _, processing, processingAt, hop⟩ :=
-    CampusTCPService.run_existing_enabled (input.contextFor served.ticket.value.gateway) served.before
-      served.ticket.value.source input.zone served.ticket.value.ingress hit session
-      served.ticket.value.produced.actor.nextHop readyAt
+    CampusTCPService.run_existing_admission_enabled (input.contextFor served.ticket.value.gateway) served.before
+      served.ticket.value.source input.zone served.ticket.value.ingress hit
+      served.ticket.value.produced.actor.nextHop (readyAt.admissionReady served.mode)
   have evidenceEq : evidence = served.evidence := Except.ok.inj (computed.symm.trans served.computed)
   subst evidence
   have attachment := Processing.attachment processing readyAt
@@ -153,9 +154,14 @@ variable {input : Input} {before : State input} {item : O.Item (Ticket input.act
   {emission : TCP.WireForwarding.Emission served.ticket.value.source.packet}
   {emitted : served.evidence.output = some emission}
 
+theorem ServiceFacts.mode (facts : ServiceFacts before item hit session actual served emission emitted) :
+    served.mode = before.connection.admissionMode := by
+  have selected := CampusTCPOrigins.service_mode actual served facts.recorded
+  simpa only [facts.beforeEq] using selected
+
 theorem ServiceFacts.tracker (facts : ServiceFacts before item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone)
+      served.before served.ticket.value.source input.zone served.mode)
     (present : served.evidence.processing = some processing) :
     (actual.result.state.resident item.value.gateway).transport.tracker = processing.outcome.state := by
   rw [facts.transport]
@@ -163,7 +169,7 @@ theorem ServiceFacts.tracker (facts : ServiceFacts before item hit session actua
 
 theorem ServiceFacts.admission (facts : ServiceFacts before item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
-      served.before served.ticket.value.source input.zone)
+      served.before served.ticket.value.source input.zone served.mode)
     (present : served.evidence.processing = some processing) :
     (actual.result.state.resident item.value.gateway).transport.admission = processing.nextAdmission := by
   rw [facts.transport]

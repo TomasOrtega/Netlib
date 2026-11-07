@@ -262,6 +262,7 @@ private def checkTheorem (input : M.Input) (events : List M.Event) : IO Unit := 
   let finished ← load (verify (report.remaining = []) "The actual startup prefix has unread input.")
   match connection : report.final.connection with
   | .startup .. => throw (IO.userError "The initial prefix must complete startup.")
+  | .recovering .. => throw (IO.userError "The ordinary startup prefix entered recovery.")
   | .application complete endpoints =>
     let clientEmpty ← load (verify (endpoints.client.steps = []) "The initial client already has application operations.")
     let serverEmpty ← load (verify (endpoints.server.steps = []) "The initial server already has application operations.")

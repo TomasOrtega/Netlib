@@ -79,7 +79,8 @@ theorem Step.written_event (step : Step) (byte : UInt8) (member : byte ∈ step.
   | read count => simp [Step.written, ApplicationTrace.written, event] at member
   | emitAck policy => simp [Step.written, ApplicationTrace.written, event] at member
   | receive input => simp [Step.written, ApplicationTrace.written, event] at member
-  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ => simp [Step.written, ApplicationTrace.written, event] at member
+  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ | enableStartupRecovery _ =>
+    simp [Step.written, ApplicationTrace.written, event] at member
   | write bytes =>
     cases selected : step.result.decision with
     | reject reason => simp [Step.written, ApplicationTrace.written, event, selected] at member

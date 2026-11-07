@@ -97,7 +97,8 @@ theorem Step.emitted_index (step : Step) (index : Nat) (byte : UInt8)
   cases event : step.event with
   | write bytes | read bytes | emitAck bytes | receive bytes | advanceClock bytes | timeout bytes | dispatchAck bytes =>
     simp [Step.emitted, ApplicationTrace.emitted, event] at selected
-  | enableRecovery | enableAck => simp [Step.emitted, ApplicationTrace.emitted, event] at selected
+  | enableRecovery | enableAck | enableStartupRecovery _ =>
+    simp [Step.emitted, ApplicationTrace.emitted, event] at selected
   | send count policy =>
     cases decision : step.result.decision with
     | reject reason | unsupported reason | recoveryUnsupported reason | ackUnsupported reason =>
@@ -154,7 +155,8 @@ theorem Step.written_index (step : Step) (index : Nat) (byte : UInt8)
   | read count => simp [Step.written, ApplicationTrace.written, event] at selected
   | emitAck policy => simp [Step.written, ApplicationTrace.written, event] at selected
   | receive input => simp [Step.written, ApplicationTrace.written, event] at selected
-  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ => simp [Step.written, ApplicationTrace.written, event] at selected
+  | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ | enableStartupRecovery _ =>
+    simp [Step.written, ApplicationTrace.written, event] at selected
   | write bytes =>
     cases decision : step.result.decision with
     | reject reason | unsupported reason | recoveryUnsupported reason | ackUnsupported reason =>

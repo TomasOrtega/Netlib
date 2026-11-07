@@ -47,6 +47,8 @@ private theorem application_keeps (input : M.Input) (before : M.State input)
   split at accepted
   · cases accepted
     simp [Keeps, Check.CampusTCPModel.unsupported]
+  · cases accepted
+    simp [Keeps, Check.CampusTCPModel.unsupported]
   · cases actor <;> simp only at accepted
     all_goals
       repeat' first
@@ -54,6 +56,45 @@ private theorem application_keeps (input : M.Input) (before : M.State input)
         | (solve | cases accepted; simp [Keeps, Check.CampusTCPModel.publish])
         | (split at accepted)
         | (dsimp only [Check.CampusTCPModel.parsed, Except.mapError, bind, Except.bind, pure, Except.pure] at accepted)
+
+private theorem recovery_keeps (input : M.Input) (before : M.State input)
+    (event : Check.TCPHandshakeRecovery.Event) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.runRecovery input before event = .ok effect) : Keeps before effect := by
+  unfold Check.CampusTCPModel.runRecovery at accepted
+  split at accepted
+  · cases accepted
+    simp [Keeps, Check.CampusTCPModel.unsupported]
+  · cases accepted
+    simp [Keeps, Check.CampusTCPModel.unsupported]
+  · split at accepted
+    · cases accepted
+    · rename_i current connected result evaluated
+      cases result with
+      | mk state decision output receipt application =>
+        cases output <;> simp only [pure, Except.pure, Except.ok.injEq] at accepted
+        all_goals subst effect; simp [Keeps, Check.CampusTCPModel.publish]
+
+private theorem openRecovery_keeps (input : M.Input) (before : M.State input)
+    (remote : TCP.Handshake.Socket) (policy : Bool) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.openRecovering input before remote policy = .ok effect) : Keeps before effect := by
+  unfold Check.CampusTCPModel.openRecovering at accepted
+  repeat' first
+    | (solve |
+      exact recovery_keeps input { before with connection := .recovering .initial }
+        (.activeOpen remote policy) effect accepted)
+    | (solve | cases accepted)
+    | (solve | cases accepted; simp [Keeps, Check.CampusTCPModel.unsupported])
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
+
+private theorem drain_keeps (input : M.Input) (before : M.State input) (effect : M.Effect input)
+    (accepted : Check.CampusTCPModel.finishStartup input before = .ok effect) : Keeps before effect := by
+  unfold Check.CampusTCPModel.finishStartup at accepted
+  repeat' first
+    | (solve | cases accepted)
+    | (solve | cases accepted; simp [Keeps, Check.CampusTCPModel.unsupported])
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure, throw, throwThe, MonadExceptOf.throw] at accepted)
 
 private structure Changes (before : M.State input) (effect : M.Effect input) : Prop where
   cache : ∀ checkpoint, effect.state.cache = some checkpoint →
@@ -68,13 +109,26 @@ private theorem enableAck_keeps (input : M.Input) (before : M.State input) (acto
     (effect : M.Effect input) (accepted : Check.CampusTCPModel.enableAck input before actor = .ok effect) :
     Keeps before effect := by
   unfold Check.CampusTCPModel.enableAck at accepted
+  repeat' first
+    | (solve | exact application_keeps _ _ _ _ _ accepted)
+    | (solve | cases accepted)
+    | (split at accepted)
+    | (dsimp only [bind, Except.bind, pure, Except.pure] at accepted)
+
+private theorem enableRecovery_keeps (input : M.Input) (before : M.State input) (actor : Check.CampusTCPModel.Actor)
+    (effect : M.Effect input) (accepted : Check.CampusTCPModel.enableRecovery input before actor = .ok effect) :
+    Keeps before effect := by
+  unfold Check.CampusTCPModel.enableRecovery at accepted
+  exact application_keeps _ _ _ _ _ accepted
+
+private theorem enableStartupRecovery_keeps (input : M.Input) (before : M.State input) (actor : Check.CampusTCPModel.Actor)
+    (effect : M.Effect input) (accepted : Check.CampusTCPModel.enableStartupRecovery input before actor = .ok effect) :
+    Keeps before effect := by
+  unfold Check.CampusTCPModel.enableStartupRecovery at accepted
   split at accepted
+  · cases accepted
+    simp [Keeps, Check.CampusTCPModel.unsupported]
   · exact application_keeps _ _ _ _ _ accepted
-  · cases actor <;> simp only at accepted
-    all_goals
-      split at accepted
-      · exact application_keeps _ _ _ _ _ accepted
-      · cases accepted
 
 private theorem keeps_changes (kept : Keeps before effect) : Changes before effect := by
   obtain ⟨sealed, fenced, transport, cache, installation, _⟩ := kept
@@ -86,10 +140,16 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
     Changes before effect := by
   cases event with
   | «open» remote policy => exact keeps_changes (startup_keeps _ _ _ _ accepted)
+  | openRecovering remote policy => exact keeps_changes (openRecovery_keeps _ _ _ _ _ accepted)
+  | startupClock actor millis | startupTimeout actor generation policy =>
+    exact keeps_changes (recovery_keeps _ _ _ _ accepted)
+  | finishStartup => exact keeps_changes (drain_keeps _ _ _ accepted)
   | write actor bytes | send actor bytes policy | read actor bytes | emitAck actor policy =>
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
-  | enableRecovery actor | advanceClock actor millis | timeout actor policy =>
+  | advanceClock actor millis | timeout actor policy =>
     exact keeps_changes (application_keeps _ _ _ _ _ accepted)
+  | enableRecovery actor => exact keeps_changes (enableRecovery_keeps _ _ _ _ accepted)
+  | enableStartupRecovery actor => exact keeps_changes (enableStartupRecovery_keeps _ _ _ _ accepted)
   | dispatchAck actor policy => exact keeps_changes (application_keeps _ _ _ _ _ accepted)
   | enableAck actor => exact keeps_changes (enableAck_keeps _ _ _ _ accepted)
   | copyPacket id | dropPacket id =>
@@ -166,6 +226,7 @@ private theorem process_changes (input : M.Input) (before : M.State input) (even
       | (solve | cases accepted)
       | (solve | apply keeps_changes; simpa only [Keeps] using (startup_keeps input before _ _ (by assumption)))
       | (solve | apply keeps_changes; simpa only [Keeps] using (application_keeps input before _ _ _ (by assumption)))
+      | (solve | apply keeps_changes; simpa only [Keeps] using (recovery_keeps input before _ _ (by assumption)))
       | (cases accepted)
       | (split at accepted)
       | (dsimp only [Check.CampusTCPModel.get, Check.CampusTCPModel.parsed, Except.mapError,

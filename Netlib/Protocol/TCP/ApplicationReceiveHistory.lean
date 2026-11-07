@@ -89,6 +89,10 @@ private theorem evaluate_no_receive_store (before : Model) (event : Event)
     simp only [evaluate]
     unfold Endpoint.enableRecovery
     repeat' first | (solve | rfl) | (solve | rw [Endpoint.recoveryBlocked_state]) | split
+  | enableStartupRecovery data =>
+    simp only [evaluate]
+    unfold Endpoint.enableStartupRecovery
+    repeat' first | (solve | rfl) | (solve | rw [Endpoint.recoveryBlocked_state]) | split
   | enableAck =>
     simp only [evaluate]
     unfold Endpoint.enableAck
@@ -172,7 +176,8 @@ private def Step.otherTransition (operation : Step) (absent : ∀ input, operati
       exact evaluate_no_receive_store operation.before operation.event absent) (by
       cases event : operation.event with
       | receive input => exact False.elim (absent input event)
-      | write _ | send _ _ | read _ | emitAck _ | enableRecovery | advanceClock _ | timeout _ | enableAck | dispatchAck _ =>
+      | write _ | send _ _ | read _ | emitAck _ | enableRecovery | advanceClock _ | timeout _ | enableAck
+      | dispatchAck _ | enableStartupRecovery _ =>
         simp only [Step.releasedPayload, ApplicationTrace.releasedPayload, event])
 
 def Step.storeTransition (operation : Step) : StoreTransition operation := by

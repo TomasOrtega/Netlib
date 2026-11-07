@@ -72,6 +72,20 @@ private theorem startup_work (before : State input) (event : Check.TCPHandshake.
     | (split at computed)
     | (dsimp only [bind, Except.bind, pure, Except.pure] at computed)
 
+private theorem recovery_work (before : State input) (event : Check.TCPHandshakeRecovery.Event) (effect : Effect input)
+    (computed : runRecovery input before event = .ok effect) : effect.state.work = before.work := by
+  unfold runRecovery at computed
+  split at computed
+  · cases computed; rfl
+  · cases computed; rfl
+  · split at computed
+    · cases computed
+    · rename_i current connected result evaluated
+      cases result with
+      | mk state decision output receipt application =>
+        cases output <;> simp only [pure, Except.pure, Except.ok.injEq] at computed
+        all_goals subst effect; rfl
+
 private theorem delivery_work (delivery : D.Delivery report complete endpoints index served emission emitted) :
     delivery.step.result.state.work = report.final.work := by
   obtain ⟨effect, custody, computed, final⟩ := delivery.step.processed
@@ -81,6 +95,7 @@ private theorem delivery_work (delivery : D.Delivery report complete endpoints i
     repeat' first
       | (solve | cases computed; dsimp only; exact (application_frames _ _ _ _ (by assumption)).1)
       | (solve | cases computed; dsimp only; exact startup_work _ _ _ (by assumption))
+      | (solve | cases computed; dsimp only; exact recovery_work _ _ _ (by assumption))
       | (cases computed)
       | (split at computed)
       | (dsimp only [CampusTCPModel.get, parsed, Except.mapError, bind, Except.bind, pure, Except.pure,

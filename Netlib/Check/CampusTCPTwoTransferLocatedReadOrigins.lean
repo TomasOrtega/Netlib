@@ -124,14 +124,11 @@ private theorem chain_suffix_from (before : ApplicationTrace.Chain initialState 
   rw [← suffix_chain_end_eq before]
   exact suffix_chain_drop whole
 
-private def receives_suffix_from {input : Input} {events : List CampusTCPModel.Event} {report : Report input events}
+private theorem receives_suffix_from {input : Input} {events : List CampusTCPModel.Event} {report : Report input events}
     {peer : List T.Step} {actor : Actor} (prior later : List T.Step)
-    (history : CampusTCPFacts.Receives report peer actor (prior ++ later)) :
-    CampusTCPFacts.Receives report peer actor later :=
-  match prior, history with
-  | [], history => history
-  | _ :: rest, .receive _ _ _ _ tail => receives_suffix_from rest later tail
-  | _ :: rest, .other _ _ tail => receives_suffix_from rest later tail
+    (history : CampusTCPReceiveHistory.PayloadReceives report peer actor (prior ++ later)) :
+    CampusTCPReceiveHistory.PayloadReceives report peer actor later :=
+  fun operation member => history operation (List.mem_append_right prior member)
 
 theorem Complete.suffix_chain (done : Complete core actual) :
     ApplicationTrace.Chain (endpoint cut.endpoints sender.other) done.value.history.operations
@@ -141,17 +138,16 @@ theorem Complete.suffix_chain (done : Complete core actual) :
   exact chain_suffix_from (endpoint_chain cut sender.other) whole
 
 theorem Complete.suffix_receives (done : Complete core actual) :
-    Nonempty (CampusTCPFacts.Receives done.value.move.after.report
-      (applicationSteps done.value.move.after.endpoints sender) sender.other done.value.history.operations) := by
+    CampusTCPReceiveHistory.PayloadReceives done.value.move.after.report
+      (applicationSteps done.value.move.after.endpoints sender) sender.other done.value.history.operations := by
   have full := CampusTCPRecoveryRoundOrigins.Report.receives done.value.move.after.report complete
     done.value.move.after.endpoints done.value.move.after.connection sender.other
-  have actual : Nonempty (CampusTCPFacts.Receives done.value.move.after.report
+  have receives : CampusTCPReceiveHistory.PayloadReceives done.value.move.after.report
       (applicationSteps done.value.move.after.endpoints sender) sender.other
-      (applicationSteps done.value.move.after.endpoints sender.other)) := by
+      (applicationSteps done.value.move.after.endpoints sender.other) := by
     cases sender <;> exact full
-  obtain ⟨receives⟩ := actual
   rw [done.value.history.steps] at receives
-  exact ⟨receives_suffix_from (applicationSteps cut.endpoints sender.other) done.value.history.operations receives⟩
+  exact receives_suffix_from (applicationSteps cut.endpoints sender.other) done.value.history.operations receives
 
 theorem Complete.suffix_order (done : Complete core actual) :
     ApplicationTrace.Chronological done.value.history.operations := by
@@ -171,11 +167,10 @@ abbrev SuffixReadOrigin (done : Complete core actual) (index : Nat) (byte : UInt
 theorem Complete.suffix_read_origin (done : Complete core actual)
     (index : Nat) (byte : UInt8) (selected : (lower ++ upper)[index]? = some byte) :
     Nonempty (SuffixReadOrigin done index byte) := by
-  obtain ⟨receives⟩ := done.suffix_receives
-  have history : ApplicationTrace.DeliveryHistory (applicationSteps done.value.move.after.endpoints sender)
-      done.value.history.operations :=
-    ⟨endpoint_order done.value.move.after sender, done.suffix_order, receives.delivered⟩
-  apply CampusTCPGapFacts.read_origin done.suffix_chain (endpoint_chain done.value.move.after sender) history receives
+  have receives := done.suffix_receives
+  have history := CampusTCPGapFacts.payload_delivery_history receives
+    (endpoint_order done.value.move.after sender) done.suffix_order
+  apply CampusTCPGapFacts.payload_read_origin done.suffix_chain (endpoint_chain done.value.move.after sender) history receives
     initial.receiverState.unread initial.receiverState.held (seed_empty_sent complete sender) (seed_empty_pending complete sender)
     done.value.operation done.reader_suffix (lower ++ upper).length done.value.history.streams.readEvent index byte
   rw [done.value.history.streams.readBytes]

@@ -37,7 +37,7 @@ theorem Current.processing_tracker (current : Current start cut)
     processing.outcome.state = (beforeService input cut.report.final .standby).tracker := by
   have allowed : Admission.Allowed (.data current.session) processing.prepared.attachment
       source.packet.segment (beforeService input cut.report.final .standby).admission.observations := by
-    simpa only [current.phase, WireForwarding.Source.asInput] using processing.admitted.admitted
+    simpa only [AdmissionExecution.Allowed, current.phase, WireForwarding.Source.asInput] using AdmissionExecution.Result.admitted processing.admitted
   rw [processing.existing_state allowed.2.1]
   cases direction : processing.prepared.attachment.direction with
   | original =>
@@ -82,21 +82,21 @@ private def gateway_after_processing (live : Live initial current retries releas
     (value : ServiceMove initial current item hit session actual served emission emitted)
     (processing : CampusTCPService.Processing (input.contextFor served.ticket.value.gateway)
       served.before served.ticket.value.source input.zone)
-    (present : served.evidence.processing = some processing) (after : Admission.Session)
+    (present : value.ordinaryEvidence.processing = some processing) (after : Admission.Session)
     (phase : processing.nextAdmission.phase = .data after) (shape : Shape initial.gateway.seed after)
     (ledger : (beforeService input current.report.final .standby).admission.observations <+: processing.nextAdmission.observations)
     (tracker : processing.outcome.state = (beforeService input current.report.final .standby).tracker) :
     CampusTCPGapProgressGateway.Current initial.gateway value.move.after where
   session := after
-  phase := by rw [value.after_before processing present]; exact phase
+  phase := by rw [value.after_ordinary_before processing present]; exact phase
   shape := shape
   observations := by
-    rw [value.after_before processing present]
+    rw [value.after_ordinary_before processing present]
     exact live.gateway.observations.trans ledger
-  trackerValid := by rw [value.after_before processing present]; exact processing.outcome.valid
+  trackerValid := by rw [value.after_ordinary_before processing present]; exact processing.outcome.valid
   record := live.gateway.record
   member := by
-    rw [value.after_before processing present]
+    rw [value.after_ordinary_before processing present]
     change live.gateway.record ∈ processing.outcome.state.records
     rw [tracker]
     exact live.gateway.member
@@ -120,7 +120,7 @@ theorem Live.lower_service (live : Live initial current retries released)
     (sequence : served.ticket.value.source.packet.segment.sequence = (live.gateway.session.lane sender.direction).base)
     (payload : served.ticket.value.source.packet.segment.payload = lower) :
     Nonempty (Live initial value.move.after retries released) := by
-  obtain ⟨processing, present, _, _, attachmentDirection, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attachmentDirection, _⟩ := value.ordinary_processing
   have previous : served.before = beforeService input current.report.final .standby := by
     rw [value.facts.current, value.standby]
   let selected := processingAt processing previous
@@ -149,7 +149,7 @@ theorem Live.ack_service_covered (live : Live initial current retries true)
       (live.gateway.session.peer hit.direction).base.add (live.gateway.session.peer hit.direction).observed) :
     ∃ next : Live initial value.move.after retries true,
       (next.gateway.session.peer hit.direction).acknowledged = (next.gateway.session.peer hit.direction).observed := by
-  obtain ⟨processing, present, _, _, attachmentDirection, _⟩ := value.facts.processing
+  obtain ⟨processing, present, _, _, attachmentDirection, _⟩ := value.ordinary_processing
   have previous : served.before = beforeService input current.report.final .standby := by
     rw [value.facts.current, value.standby]
   let selected := processingAt processing previous
